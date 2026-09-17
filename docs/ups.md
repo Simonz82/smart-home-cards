@@ -8,6 +8,22 @@ Stato del gruppo di continuità: online/a batteria, percentuale di carica, caric
 
 Un UPS collegato via USB/rete al tuo server, esposto in Home Assistant tramite l'integrazione **[NUT (Network UPS Tools)](https://www.home-assistant.io/integrations/nut/)** (supporta la maggior parte delle marche, incluso APC) — Impostazioni → Dispositivi e servizi → Aggiungi integrazione → cerca "NUT". Quell'integrazione crea automaticamente sensori di stato, carica, carico e autonomia: i nomi esatti dipendono dal modello, controllali in Impostazioni → Entità dopo averla configurata.
 
+## 🚀 Metodo veloce: usa il mio package originale
+
+Il package completo — notifiche di caduta/ritorno corrente (con coda differita se manca anche internet), spegnimento/ripristino automatico di alcune luci, manutenzione batteria — è in [`packages/centro_controllo_ups.yaml`](../packages/centro_controllo_ups.yaml). A differenza degli altri package non ha un blocco "impostazioni" unico in cima (è più vecchio), quindi qui sotto trovi l'elenco di cosa cercare e sostituire nel file (Ctrl+F):
+
+| Cerca | Sostituisci con |
+|---|---|
+| `sensor.ups_stato`, `sensor.ups_carica_batterie`, `sensor.ups_autonomia_della_batteria`, `sensor.ups_tensione_di_ingresso` | i TUOI sensori creati dall'integrazione NUT |
+| `sensor.fritzbox` | il TUO sensore di connettività/internet (per capire se manca anche la rete, non solo la corrente) |
+| `light.striscia_cucina`, `light.striscia_armadio` | le TUE luci da spegnere/ripristinare al blackout (o cancella questa parte se non ti interessa) |
+| `binary_sensor.presenza_salone_occupancy` | il TUO sensore di presenza, se vuoi la stessa logica "ripristina solo se c'è qualcuno" |
+| `sensor.presa_nas_power`, `sensor.proxmox_power` | i TUOI sensori di potenza, se li hai (usati solo per un piccolo sensore "NAS Watt" di comodo) |
+| `mobile_app_il_tuo_telefono` / `mobile_app_del_partner` | i TUOI `notify.mobile_app_xxx` |
+| `chat_id: [111111111, 222222222]` | i TUOI ID chat Telegram (o cancella i blocchi `telegram_bot.send_message` se non lo usi) |
+
+Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi), fai le sostituzioni, riavvia Home Assistant.
+
 ## Configurazione minima
 
 ```yaml

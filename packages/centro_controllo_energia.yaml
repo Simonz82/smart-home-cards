@@ -1,0 +1,544 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: "Centro Controllo Energia"
+        setting:
+
+        ####################################################
+        #                                                  #
+        #            IMPOSTAZIONI PACKAGE                  #
+        #                                                  #
+        ####################################################
+
+        Sensore Consumo Generale W: &power "{{ states('sensor.generale_power') }}"
+
+        ####################################################
+
+        Media Player Alexa 1: &alexa1 media_player.alexa_salone
+        Media Player Alexa 2: &alexa2 media_player.alexa_bagnetto
+
+####################################################
+#                                                  #
+#                INPUT NUMBER                      #
+#                                                  #
+####################################################
+
+input_number:
+  costo_energia_casa:
+    name: Costo Energia Casa
+    min: 0.000
+    max: 99999.000
+    unit_of_measurement: "€"
+    step: 0.01
+    mode: box
+    icon: mdi:currency-eur
+
+  ####################################################
+
+  soglia_lavoro_casa_w:
+    name: Soglia Lavoro Casa W
+    icon: mdi:flash
+    min: 1
+    max: 9000
+    step: 1.00
+    unit_of_measurement: "w"
+    mode: box
+
+  ####################################################
+
+  ritardo_superamento_soglia:
+    name: Ritardo Superamento Soglia
+    mode: box
+    icon: mdi:timelapse
+    unit_of_measurement: "sec"
+    min: 10
+    max: 360
+    step: 1
+
+  ####################################################
+  #                                                  #
+  #            INPUT NUMBER KWH CONSUMATI            #
+  #                                                  #
+  ####################################################
+
+  kwh_consumati_lunedi:
+    name: Kwh Consumati Lunedì
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_martedi:
+    name: Kwh Consumati Martedì
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_mercoledi:
+    name: Kwh Consumati Mercoledì
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_giovedi:
+    name: Kwh Consumati Giovedì
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_venerdi:
+    name: Kwh Consumati Venerdì
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_sabato:
+    name: Kwh Consumati Sabato
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+  ####################################################
+
+  kwh_consumati_domenica:
+    name: Kwh Consumati Domenica
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: Kwh
+
+####################################################
+#                                                  #
+#                    GROUP                         #
+#                                                  #
+####################################################
+
+group:
+  notifiche_soglia_elettrica:
+    entities:
+      - input_boolean.notify_alexa_soglia
+      - input_boolean.notify_push_soglia
+      - input_boolean.notify_push_costi_giornalieri
+      - input_boolean.notify_push_costi_mensili
+      - input_boolean.notify_push_costi_annuali
+
+####################################################
+#                                                  #
+#                INPUT BOOLEAN                     #
+#                                                  #
+####################################################
+
+input_boolean:
+  notify_push_soglia:
+    name: Notifica Push
+
+  ####################################################
+
+  notify_push_costi_giornalieri:
+    name: Notifica Push Costi Giornalieri
+
+  notify_push_costi_mensili:
+    name: Notifica Push Costi Mensili
+
+  notify_push_costi_annuali:
+    name: Notifica Push Costi Annuali
+
+  ####################################################
+
+  notify_alexa_soglia:
+    name: Notifica Alexa Soglia
+
+####################################################
+#                                                  #
+#                  UTILITY METER                   #
+#                                                  #
+####################################################
+
+utility_meter:
+  energia_ogni_ora_casa:
+    source: sensor.w_kwh_casa
+    cycle: hourly
+
+  ####################################################
+
+  energia_oggi_casa:
+    source: sensor.w_kwh_casa
+    cycle: daily
+
+  ####################################################
+
+  energia_settimana_casa:
+    source: sensor.w_kwh_casa
+    cycle: weekly
+
+  ####################################################
+
+  energia_mese_casa:
+    source: sensor.w_kwh_casa
+    cycle: monthly
+
+  ####################################################
+
+  energia_bimestre_casa:
+    source: sensor.w_kwh_casa
+    cycle: bimonthly
+
+  ####################################################
+
+  energia_anno_casa:
+    source: sensor.w_kwh_casa
+    cycle: yearly
+
+####################################################
+#                                                  #
+#                TEMPLATE (MIGRATO)                #
+#                                                  #
+####################################################
+
+template:
+  - sensor:
+      # OLD: sensor.sensore_potenza_casa_w
+      - name: Sensore Potenza Casa W
+        unit_of_measurement: "W"
+        icon: mdi:flash
+        state: *power
+        default_entity_id: sensor.sensore_potenza_casa_w # Mantiene ID per utility_meter
+
+      # OLD: sensor.media_settimanale_kwh_consumati
+      - name: Media Settimanale Kwh Consumati
+        unit_of_measurement: "Kwh"
+        state: >-
+          {{ (((states('input_number.kwh_consumati_lunedi')|float(default=0)) +
+          (states('input_number.kwh_consumati_martedi')|float(default=0)) +
+          (states('input_number.kwh_consumati_mercoledi')|float(default=0)) +
+          (states('input_number.kwh_consumati_giovedi')|float(default=0)) +
+          (states('input_number.kwh_consumati_venerdi')|float(default=0)) +
+          (states('input_number.kwh_consumati_sabato')|float(default=0)) +
+          (states('input_number.kwh_consumati_domenica')|float(default=0))) / 7) | round(1, default=0) }}
+
+      # OLD: Costi attuali (moltiplicazione kWh * costo)
+      # --- COSTI ATTUALI ---
+      - name: Costo Consumo Ogni Ora Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_ogni_ora_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Giornaliero Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_oggi_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Settimana Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_settimana_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Mensile Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_mese_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Bimestre Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_bimestre_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Annuale Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_anno_casa') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      # --- COSTI PRECEDENTI ---
+      - name: Costo Consumo Ora Precedente Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_ogni_ora_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Ieri Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_oggi_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Settimana Precedente Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_settimana_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Mese Precedente Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_mese_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Bimestre Precedente Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_bimestre_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+      - name: Costo Consumo Anno Precedente Casa
+        unit_of_measurement: "€"
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_anno_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
+
+####################################################
+#                                                  #
+#                     SENSORI                      #
+#                                                  #
+####################################################
+
+sensor:
+  # Questo è il sensore 'integration' e NON TEMPLATE, resta qui.
+  - platform: integration
+    source: sensor.sensore_potenza_casa_w
+    name: w_kwh_casa
+    unit_prefix: k
+    round: 2
+
+####################################################
+#                                                  #
+#                SCRIPT                            #
+#                                                  #
+####################################################
+
+script:
+  reset_sensori_energia:
+    sequence:
+      - service: utility_meter.calibrate
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - sensor.energia_ogni_ora_casa
+            - sensor.energia_oggi_casa
+            - sensor.energia_settimana_casa
+            - sensor.energia_mese_casa
+            - sensor.energia_bimestre_casa
+            - sensor.energia_anno_casa
+
+####################################################
+#                                                  #
+#                INPUT DATETIME                    #
+#                                                  #
+####################################################
+
+input_datetime:
+  orario_inizio_notifiche_soglia_elettrica_casa:
+    name: Orario Inizio Notifiche Soglia Elettrica Casa
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  orario_fine_notifiche_soglia_elettrica_casa:
+    name: Orario Fine Notifiche Soglia Elettrica Casa
+    has_date: false
+    has_time: true
+
+####################################################
+#                                                  #
+#                    AUTOMAZIONI                   #
+#                                                  #
+####################################################
+
+automation:
+  - alias: Automazioni Energia
+    id: Automazioni Energia
+    trigger:
+      - platform: template
+        value_template: "{{ states('sensor.sensore_potenza_casa_w') | int(0) > states('input_number.soglia_lavoro_casa_w') | int(0) }}"
+        for:
+          seconds: "{{ states('input_number.ritardo_superamento_soglia') }}"
+        id: soglia
+      - platform: time
+        at: "23:59:59"
+        id: notifiche_costi_consumi
+      - platform: time
+        at: "23:59:58"
+        id: incremento_kwh
+    action:
+
+      # Incremento Kwh
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: incremento_kwh
+            sequence:
+              - service: input_number.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if today == "Monday" %} input_number.kwh_consumati_lunedi
+                    {% elif today == "Tuesday" %} input_number.kwh_consumati_martedi
+                    {% elif today == "Wednesday" %} input_number.kwh_consumati_mercoledi
+                    {% elif today == "Thursday" %} input_number.kwh_consumati_giovedi
+                    {% elif today == "Friday" %} input_number.kwh_consumati_venerdi
+                    {% elif today == "Saturday" %} input_number.kwh_consumati_sabato
+                    {% elif today == "Sunday" %} input_number.kwh_consumati_domenica
+                    {% endif %}
+                data:
+                  value: "{{ states('sensor.energia_oggi_casa') }}"
+
+      # Notifiche Vocali e Push/Telegram (Soglia)
+      - parallel:
+          # Notifica vocale Alexa
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: soglia
+                  - condition: time
+                    after: input_datetime.orario_inizio_notifiche_soglia_elettrica_casa
+                    before: input_datetime.orario_fine_notifiche_soglia_elettrica_casa
+                  - condition: state
+                    entity_id: input_boolean.notify_alexa_soglia
+                    state: "on"
+                sequence:
+                  - repeat:
+                      count: "50"
+                      sequence:
+                        - condition: template
+                          value_template: "{{ states('sensor.sensore_potenza_casa_w') | int(0) > states('input_number.soglia_lavoro_casa_w') | int(0) }}"
+                        - service: notify.alexa_media
+                          continue_on_error: true
+                          data:
+                            target:
+                              - *alexa1
+                              - *alexa2
+                            data:
+                              type: announce
+                              method: spoken
+                            message: "ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }} watt!"
+                        - delay:
+                            seconds: 10
+
+          # Notifica superamento soglia (Push & Telegram)
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: soglia
+                  - condition: state
+                    entity_id: input_boolean.notify_push_soglia
+                    state: "on"
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      parse_mode: html
+                      chat_id:
+                        - 111111111
+                        - 222222222
+                      message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
+                      title: "<b>⚠️ Consumi Elevati ⚠️</b>"
+                      config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+                  - service: notify.mobile_app_il_tuo_telefono
+                    data:
+                      message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
+                      title: "⚠️ Consumi Elevati ⚠️"
+                  - service: notify.mobile_app_del_partner
+                    data:
+                      message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
+                      title: "⚠️ Consumi Elevati ⚠️"
+
+      # Notifiche Consumi GIORNALIERA, MENSILE, ANNUALE
+      - choose:
+          # GIORNALIERA
+          - conditions:
+              - condition: trigger
+                id: notifiche_costi_consumi
+              - condition: state
+                entity_id: input_boolean.notify_push_costi_giornalieri
+                state: "on"
+            sequence:
+              - service: telegram_bot.send_message
+                data:
+                  parse_mode: html
+                  chat_id:
+                    - 111111111
+                    - 222222222
+                  message: "Oggi {{ now().day }}/{{ now().month }}/{{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_oggi_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_giornaliero_casa') }} €."
+                  title: "<b>💰⚡️ Consumi Giornalieri ⚡️💰</b>"
+                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+              - service: notify.mobile_app_il_tuo_telefono
+                data:
+                  message: "Oggi {{ now().day }}/{{ now().month }}/{{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_oggi_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_giornaliero_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"
+              - service: notify.mobile_app_del_partner
+                data:
+                  message: "Oggi {{ now().day }}/{{ now().month }}/{{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_oggi_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_giornaliero_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"
+
+          # MENSILE
+          - conditions:
+              - condition: trigger
+                id: notifiche_costi_consumi
+              - condition: state
+                entity_id: input_boolean.notify_push_costi_mensili
+                state: "on"
+              - condition: template
+                value_template: "{{ (now() + timedelta(days=1)).day == 1 }}"
+            sequence:
+              - service: telegram_bot.send_message
+                data:
+                  parse_mode: html
+                  chat_id:
+                    - 111111111
+                    - 222222222
+                  message: "Nel mese di {{ ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'][now().month-1] }} hai consumato ⚡️ {{ states('sensor.energia_mese_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_mensile_casa') }} €."
+                  title: "<b>💰⚡️ Consumi Mensili ⚡️💰</b>"
+                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+              - service: notify.mobile_app_il_tuo_telefono
+                data:
+                  message: "Nel mese di {{ ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'][now().month-1] }} hai consumato ⚡️ {{ states('sensor.energia_mese_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_mensile_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"
+              - service: notify.mobile_app_del_partner
+                data:
+                  message: "Nel mese di {{ ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'][now().month-1] }} hai consumato ⚡️ {{ states('sensor.energia_mese_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_mensile_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"
+
+          # ANNUALE
+          - conditions:
+              - condition: trigger
+                id: notifiche_costi_consumi
+              - condition: state
+                entity_id: input_boolean.notify_push_costi_annuali
+                state: "on"
+              - condition: template
+                value_template: "{{ now().day == 31 and now().month == 12 }}"
+            sequence:
+              - service: telegram_bot.send_message
+                data:
+                  parse_mode: html
+                  chat_id:
+                    - 111111111
+                    - 222222222
+                  message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
+                  title: "<b>💰⚡️ Consumi Annuali ⚡️💰</b>"
+                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+              - service: notify.mobile_app_il_tuo_telefono
+                data:
+                  message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"
+              - service: notify.mobile_app_del_partner
+                data:
+                  message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
+                  title: "💰⚡️ Consumi ⚡️💰"

@@ -8,6 +8,23 @@ Vista d'insieme del consumo elettrico di casa: potenza istantanea, ripartizione 
 
 Un misuratore di **potenza generale casa** in Watt (un contatore smart, uno Shelly EM/3EM sul quadro, o il sensore che il tuo distributore espone via un'integrazione). Questo è l'unico prerequisito hardware reale; tutto il resto (circuiti, interruttori, soglie) è opzionale e si aggiunge un pezzo alla volta.
 
+## 🚀 Metodo veloce: usa il mio package originale
+
+Il package completo che uso io — soglie, notifiche push/Alexa/Telegram, costi, riepiloghi — è in [`packages/centro_controllo_energia.yaml`](../packages/centro_controllo_energia.yaml).
+
+**Istruzioni:**
+
+1. Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi in `configuration.yaml`: `homeassistant: packages: !include_dir_named packages`).
+2. In cima al file trovi il blocco **`IMPOSTAZIONI PACKAGE`**:
+   - `Sensore Consumo Generale W` → il TUO sensore di potenza generale casa
+   - `Media Player Alexa 1` / `2` → i TUOI dispositivi Alexa (elimina le righe se non li usi)
+3. Cerca `mobile_app_il_tuo_telefono` più giù nel file e sostituiscilo con il TUO `notify.mobile_app_xxx`.
+4. Se non usi Telegram, cerca `telegram_bot.send_message` e cancella quei blocchi (oppure configura l'[integrazione Telegram](https://www.home-assistant.io/integrations/telegram/) e metti il tuo `chat_id` al posto del segnaposto).
+5. Riavvia Home Assistant.
+6. Aggiungi la card con la configurazione più sotto in questa guida, usando gli stessi nomi di entità/circuito che hai messo nel package.
+
+Il resto di questa guida spiega come funziona ogni campo, utile se vuoi personalizzare oltre il minimo o costruire qualcosa di tuo da zero.
+
 ## Configurazione minima
 
 ```yaml
@@ -114,4 +131,4 @@ settings_sections:
         label: "Costo energia (€/kWh)"
 ```
 
-**Le automazioni "soglia superata → notifica" e "riepilogo costi giornaliero/mensile" sono già scritte e pronte in [`../automazioni/energia.yaml`](../automazioni/energia.yaml)** — in testa al file trovi l'elenco esatto di cosa cambiare (i tuoi sensori, il servizio di notifica). Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo. Per il pattern generale vedi anche [notifiche-personalizzate.md](notifiche-personalizzate.md); per il mini-linguaggio di `settings_sections` vedi [settings-sections.md](settings-sections.md).
+Le notifiche "soglia superata" e i riepiloghi costi giornaliero/mensile sono già scritti e pronti nel package [`../packages/centro_controllo_energia.yaml`](../packages/centro_controllo_energia.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Per il pattern generale vedi anche [notifiche-personalizzate.md](notifiche-personalizzate.md); per il mini-linguaggio di `settings_sections` vedi [settings-sections.md](settings-sections.md).

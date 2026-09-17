@@ -6,6 +6,21 @@ CPU/RAM/disco del server che fa girare Home Assistant, aggiornamenti disponibili
 
 Nessun campo è obbligatorio — la card si carica comunque anche vuota — ma senza almeno `sensors.cpu`/`ram_pct`/`disk_pct` non mostra granché.
 
+## 🚀 Metodo veloce: usa il mio package originale
+
+Il package completo — report giornaliero, notifiche login/aggiornamenti/SSL, soglie di allarme, backup e riavvii programmati — è in [`packages/statistiche_ha.yaml`](../packages/statistiche_ha.yaml) (il file più corposo della raccolta, ma quasi tutto è già pronto).
+
+**Istruzioni:**
+
+1. Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi).
+2. In cima al file, blocco **`IMPOSTAZIONI PACKAGE`**:
+   - `Sensore Power Server` → il TUO sensore di potenza (Watt) del server, se ne hai uno (una presa smart a monte); se non lo misuri, lascialo com'è, quel dato semplicemente non comparirà
+   - `Sensore Temperatura` → il TUO sensore di temperatura del server/NAS (c'è già una riga alternativa commentata con `sensor.processor_temperature`, tipico di un Raspberry Pi — scommenta quella se ti si addice di più)
+   - `Sensore Certificato SSL` → il TUO sensore [Cert Expiry](https://www.home-assistant.io/integrations/cert_expiry/)
+   - `Ventola Rack` → cancella questa riga se non hai una ventola/rack monitorato, è specifico al mio setup
+   - `Device per notifica push` → il TUO `notify.mobile_app_xxx`
+3. Riavvia Home Assistant, poi aggiungi la card con la configurazione più sotto in questa guida.
+
 ## Cosa ti serve prima di iniziare
 
 La maggior parte dei sensori qui sotto arriva dall'integrazione core **[System Monitor](https://www.home-assistant.io/integrations/systemmonitor/)** (Impostazioni → Dispositivi e servizi → Aggiungi integrazione → cerca "System Monitor") — gratuita, già inclusa in Home Assistant, non serve installare nulla.
@@ -141,7 +156,7 @@ settings_sections:
             label: Alert CPU
 ```
 
-**Tutte le automazioni di questa card (report, notifiche, controllo aggiornamenti, soglie di allarme, backup, riavvii programmati) sono già scritte e pronte in [`../automazioni/server-homeassistant.yaml`](../automazioni/server-homeassistant.yaml)** — è il file più corposo della raccolta, ma in testa trovi l'elenco esatto (7 punti) di cosa cambiare per il tuo impianto. Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo. Il pattern generale, se vuoi aggiungere una notifica in più, è comunque spiegato in [notifiche-personalizzate.md](notifiche-personalizzate.md).
+Report, notifiche, controllo aggiornamenti, soglie di allarme, backup e riavvii programmati sono tutti già scritti e pronti nel package [`../packages/statistiche_ha.yaml`](../packages/statistiche_ha.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Il pattern generale, se vuoi aggiungere una notifica in più, è comunque spiegato in [notifiche-personalizzate.md](notifiche-personalizzate.md).
 
 ## Campi legacy (non usarli in un'installazione nuova)
 

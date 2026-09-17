@@ -1,0 +1,898 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: "Centro Controllo Elettrodomestici"
+      setting:
+        ####################################################
+        #                                                  #
+        #            IMPOSTAZIONI PACKAGE                  #
+        #                                                  #
+        ####################################################
+
+        Sensore Consumo Elettrodomestici: &sensore_consumo_elettrodomestici_4 "{{ states('sensor.presa_tv_power')}}"
+        Switch Power Elettrodomestici: &switch_elettrodomestici_4 "switch.elettrodomestico"
+
+        Lista mediaplayer alexa: &alexa
+          - media_player.xxx
+
+        #Device per notifica push: &push
+        #  - action: mobile_app_il_tuo_telefono
+
+####################################################
+#                                                  #
+#            NOTIFICHE GRUPPO                      #
+#                                                  #
+####################################################
+
+notify:
+  - name: Gruppo Centro Elettrodomestici 4
+    platform: group
+    services:
+      - service: mobile_app_il_tuo_telefono # Sostituisci con il tuo notify.mobile_app_xxx
+      - service: mobile_app_il_tuo_telefono #push app
+
+####################################################
+#                                                  #
+#                    SENSORI                       #
+#                                                  #
+####################################################
+
+# La vecchia sezione 'sensor: - platform: template' viene completamente rimossa
+# e i sensori vengono spostati nel blocco 'template:'.
+# L'integrazione di tipo 'integration' (che calcola kWh) è CORRETTA e resta qui.
+
+sensor:
+  - platform: integration
+    source: sensor.potenza_elettrodomestici_w_4
+    name: w_kwh_elettrodomestici_4
+    unit_prefix: k
+    method: left
+    round: 2
+
+####################################################
+#                                                  #
+#                INPUT NUMBER                      #
+#                                                  #
+####################################################
+
+input_number:
+  soglia_lavoro_elettrodomestici_w_4:
+    name: Soglia Lavoro Elettrodomestici W
+    icon: mdi:flash
+    min: 0
+    max: 5000
+    step: 4.00
+    unit_of_measurement: "w"
+    mode: box
+
+  tempo_innesco_elettrodomestici_m_4:
+    name: Tempo Innesco Elettrodomestici M
+    icon: mdi:flash
+    min: 0
+    max: 60
+    step: 4.00
+    unit_of_measurement: "m"
+    mode: box
+
+  avvio_ritardato_conteggio_elettrodomestici_s_4:
+    name: Avvio Ritardato Conteggio Elettrodomestici S
+    icon: mdi:flash
+    min: 0
+    max: 60
+    step: 4.00
+    unit_of_measurement: "s"
+    mode: box
+
+  ####################################################
+
+  lunedi_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  lunedi_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  martedi_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  martedi_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  mercoledi_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  mercoledi_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  giovedi_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  giovedi_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  venerdi_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  venerdi_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  sabato_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  sabato_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  domenica_elettrodomestici_consumo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  domenica_elettrodomestici_costo_4:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+####################################################
+#                                                  #
+#                UTILITY METER                     #
+#                                                  #
+####################################################
+
+utility_meter:
+  # Tempo
+
+  elettrodomestici_tempo_oggi_4:
+    source: sensor.time_on_elettrodomestici_4
+    cycle: daily
+
+  elettrodomestici_tempo_mese_4:
+    source: sensor.time_on_elettrodomestici_4
+    cycle: monthly
+
+  elettrodomestici_tempo_anno_4:
+    source: sensor.time_on_elettrodomestici_4
+    cycle: yearly
+
+  ####################################################
+
+  # Cicli
+
+  cicli_oggi_elettrodomestici_4:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_4
+    cycle: daily
+
+  cicli_mese_elettrodomestici_4:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_4
+    cycle: monthly
+
+  cicli_anno_elettrodomestici_4:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_4
+    cycle: yearly
+
+  ####################################################
+
+  # Consumi KWh
+
+  energy_oggi_elettrodomestici_4:
+    source: sensor.w_kwh_elettrodomestici_4
+    cycle: daily
+
+  energy_mese_elettrodomestici_4:
+    source: sensor.w_kwh_elettrodomestici_4
+    cycle: monthly
+
+  energy_anno_elettrodomestici_4:
+    source: sensor.w_kwh_elettrodomestici_4
+    cycle: yearly
+
+####################################################
+#                                                  #
+#                TEMPLATE                          #
+#                                                  #
+####################################################
+
+template:
+  # Sensori Template Semplici (vecchia sintassi sensor: - platform: template)
+  # --------------------------------------------------------------------------------
+  - sensor:
+      # sensor.potenza_elettrodomestici_w_4 (usato come source in utility_meter)
+      - name: "Potenza Elettrodomestici W 4"
+        unit_of_measurement: "W"
+        state: *sensore_consumo_elettrodomestici_4
+        icon: mdi:flash
+        # Questo override del nome dell'entity_id assicura che il sensore mantenga l'ID
+        # richiesto (sensor.potenza_elettrodomestici_w_4) per l'utility_meter
+        default_entity_id: sensor.potenza_elettrodomestici_w_4
+
+  # Binary Sensor AC Elettrodomestici 4
+  # --------------------------------------------------------------------------------
+  - binary_sensor:
+      - name: AC Elettrodomestici 4
+        icon: mdi:state-machine
+        state: "{{ 'on' if (states('sensor.potenza_elettrodomestici_w_4') | int(0) ) > states('input_number.soglia_lavoro_elettrodomestici_w_4')|int(0) else 'off' }}"
+        delay_off: "00:{{ states('input_number.tempo_innesco_elettrodomestici_m_4')|int(0) }}:00"
+        delay_on: "00:00:{{ states('input_number.avvio_ritardato_conteggio_elettrodomestici_s_4')|int(0) }}"
+
+  # Trigger-based Sensors
+  # --------------------------------------------------------------------------------
+  - trigger:
+      - platform: state
+        entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_4
+        from: "off"
+        to: "on"
+    sensor:
+      - name: Inizio Ciclo Elettrodomestici 4
+        state: "{{states('sensor.w_kwh_elettrodomestici_4')}}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.ac_elettrodomestici_4
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Fine Ciclo Elettrodomestici 4
+        state: "{{now().strftime('%d/%m/%Y %H:%M')}}"
+
+  - trigger:
+      - platform: state
+        entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_4
+        from: "off"
+        to: "on"
+    sensor:
+      - name: Tempo Riavvio 4
+        state: "{{as_timestamp(now())}}"
+
+  # Tempo di funzionamento (time_on_elettrodomestici_4) e Attributi derivati
+  # --------------------------------------------------------------------------------
+  - sensor:
+      - name: "time_on_elettrodomestici_4"
+        icon: mdi:history
+        state: >-
+          {%if is_state('binary_sensor.ac_elettrodomestici_4', 'on') and (as_timestamp(states.binary_sensor.ac_elettrodomestici_4.last_changed)+1) <= as_timestamp(now())%}
+            {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.ac_elettrodomestici_4.last_changed))/3600)}}
+          {% else %} 0 {% endif %}
+        attributes:
+          terminato: "{{ states('sensor.fine_ciclo_elettrodomestici_4') if is_state('binary_sensor.ac_elettrodomestici_4', 'off') else 'In funzione' }}"
+          tempo_ciclo_elettrodomestici_4: >
+            {%set hours =(as_timestamp(now()) - states('sensor.tempo_riavvio_4')|float(0))/3600 %}
+            {% set minutes = ((hours % 4) * 60) | int (0)%}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+            {%set day = ((hours |int(0) /24))|int(0) %}
+            {%if is_state('input_boolean.durata_ciclo_attivo_elettrodomestici_4', 'on')%}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+            {%else%}
+            {{states('input_text.ultimo_ciclo_attivo_elettrodomestici_4')}}
+            {%endif%}
+          Oggi: >
+            {% set hours = states('sensor.elettrodomestici_tempo_oggi_4') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+              {% if hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Mese: >
+            {% set hours = states('sensor.elettrodomestici_tempo_mese_4') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+            {% set day = ((hours |int /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int)-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Anno: >
+            {% set hours = states('sensor.elettrodomestici_tempo_anno_4') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+            {% set day = ((hours |int(0) /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Ieri: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_oggi_4', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+              {% if hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Mese Precedente: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_mese_4', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+            {% set day = ((hours |int /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int)-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Anno Precedente: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_anno_4', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 4) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 4)) | int(0) %}
+            {% set day = ((hours |int(0) /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+
+          consumo_ciclo_elettrodomestici_4: "{{(states('sensor.w_kwh_elettrodomestici_4')|float(0)-states('sensor.inizio_ciclo_elettrodomestici_4')|float(0))|round(2)}} kWh"
+          costo_ciclo_elettrodomestici_4: "{{((states('sensor.w_kwh_elettrodomestici_4')|float(0)-states('sensor.inizio_ciclo_elettrodomestici_4')|float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+
+          costo_consumo_giornaliero_elettrodomestici_4: "{{((states('sensor.energy_oggi_elettrodomestici_4') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_mensile_elettrodomestici_4: "{{((states('sensor.energy_mese_elettrodomestici_4') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_annuale_elettrodomestici_4: "{{((states('sensor.energy_anno_elettrodomestici_4') | float(0)) * (states('input_number.costo_energia') | float(0))) | round(2, default=0) }}"
+
+          costo_consumo_ieri_elettrodomestici_4: "{{((state_attr('sensor.energy_oggi_elettrodomestici_4', 'last_period') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_mese_precedente_elettrodomestici_4: "{{((state_attr('sensor.energy_mese_elettrodomestici_4', 'last_period') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_anno_precedente_elettrodomestici_4: "{{((state_attr('sensor.energy_anno_elettrodomestici_4', 'last_period') | float(0)) * (states('input_number.costo_energia') | float(0))) | round(2, default=0) }}"
+
+####################################################
+#                                                  #
+#                CUONTER                           #
+#                                                  #
+####################################################
+
+counter:
+  cicli_funzionamento_elettrodomestici_totale_4:
+    name: Cicli Funzionamento Elettrodomestici Totale
+    initial: 0
+    step: 4
+
+####################################################
+#                                                  #
+#                INPUT BOOLEAN                     #
+#                                                  #
+####################################################
+
+input_boolean:
+  switch_elettrodomestici_4:
+    name: Switch Elettrodomestici
+    icon: mdi:flash
+
+  ####################################################
+
+  durata_ciclo_attivo_elettrodomestici_4:
+    name: Ciclo Attivo Elettrodomestici
+
+  ####################################################
+
+  notify_push_elettrodomestici_4:
+    name: Notifica Push
+
+  ####################################################
+
+  notify_alexa_elettrodomestici_4:
+    name: Notifica Alexa
+
+  ####################################################
+
+  aggiornamento_pkg_elettrodomestici_4:
+    name: Aggiornamento package elettrodomestici
+
+####################################################
+#                                                  #
+#                    GROUP                         #
+#                                                  #
+####################################################
+
+group:
+  notifiche_elettrodomestici_4:
+    entities:
+      - input_boolean.notify_alexa_elettrodomestici_4
+      - input_boolean.notify_push_elettrodomestici_4
+      - automation.elettrodomestici_off_automatico_4
+      - input_boolean.switch_elettrodomestici_4
+
+####################################################
+#                                                  #
+#                INPUT DATETIME                    #
+#                                                  #
+####################################################
+
+input_datetime:
+  orario_inizio_notifiche_elettrodomestici_4:
+    name: Orario Inizio Notifiche Elettrodomestici
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  orario_fine_notifiche_elettrodomestici_4:
+    name: Orario Fine Notifiche Elettrodomestici
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  elettrodomestici_off_4:
+    name: Elettrodomestici Off
+    has_date: false
+    has_time: true
+
+####################################################
+#                                                  #
+#                INPUT TEXT                        #
+#                                                  #
+####################################################
+
+input_text:
+  data_reset_sensori_elettrodomestici_4:
+
+  ####################################################
+
+  nome_elettrodomestico_4:
+
+  ####################################################
+
+  messaggio_elettrodomestico_4:
+
+  ####################################################
+
+  ultimo_ciclo_attivo_elettrodomestici_4:
+
+  ####################################################
+  ####################################################
+
+  lunedi_elettrodomestici_cicli_4:
+  lunedi_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  martedi_elettrodomestici_cicli_4:
+  martedi_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  mercoledi_elettrodomestici_cicli_4:
+  mercoledi_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  giovedi_elettrodomestici_cicli_4:
+  giovedi_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  venerdi_elettrodomestici_cicli_4:
+  venerdi_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  sabato_elettrodomestici_cicli_4:
+  sabato_elettrodomestici_tempo_4:
+
+  ####################################################
+
+  domenica_elettrodomestici_cicli_4:
+  domenica_elettrodomestici_tempo_4:
+
+####################################################
+#                                                  #
+#                        SCRIPT                    #
+#                                                  #
+####################################################
+
+script:
+  reset_sensori_elettrodomestici_4:
+    sequence:
+      - service: input_text.set_value
+        data:
+          value: >-
+            {{now().strftime('%d/%m/%Y %H:%M')}}
+        target:
+          entity_id: input_text.data_reset_sensori_elettrodomestici_4
+      - service: utility_meter.calibrate
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - sensor.cicli_oggi_elettrodomestici_4
+            - sensor.cicli_mese_elettrodomestici_4
+            - sensor.cicli_anno_elettrodomestici_4
+            - sensor.energy_oggi_elettrodomestici_4
+            - sensor.energy_mese_elettrodomestici_4
+            - sensor.energy_anno_elettrodomestici_4
+            - sensor.elettrodomestici_tempo_oggi_4
+            - sensor.elettrodomestici_tempo_mese_4
+            - sensor.elettrodomestici_tempo_anno_4
+
+      - service: input_number.set_value
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - input_number.lunedi_elettrodomestici_consumo_4
+            - input_number.martedi_elettrodomestici_consumo_4
+            - input_number.mercoledi_elettrodomestici_consumo_4
+            - input_number.giovedi_elettrodomestici_consumo_4
+            - input_number.venerdi_elettrodomestici_consumo_4
+            - input_number.sabato_elettrodomestici_consumo_4
+            - input_number.domenica_elettrodomestici_consumo_4
+            - input_number.lunedi_elettrodomestici_costo_4
+            - input_number.martedi_elettrodomestici_costo_4
+            - input_number.mercoledi_elettrodomestici_costo_4
+            - input_number.giovedi_elettrodomestici_costo_4
+            - input_number.venerdi_elettrodomestici_costo_4
+            - input_number.sabato_elettrodomestici_costo_4
+            - input_number.domenica_elettrodomestici_costo_4
+
+      - service: input_text.set_value
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - input_text.lunedi_elettrodomestici_cicli_4
+            - input_text.martedi_elettrodomestici_cicli_4
+            - input_text.mercoledi_elettrodomestici_cicli_4
+            - input_text.giovedi_elettrodomestici_cicli_4
+            - input_text.venerdi_elettrodomestici_cicli_4
+            - input_text.sabato_elettrodomestici_cicli_4
+            - input_text.domenica_elettrodomestici_cicli_4
+            - input_text.lunedi_elettrodomestici_tempo_4
+            - input_text.martedi_elettrodomestici_tempo_4
+            - input_text.mercoledi_elettrodomestici_tempo_4
+            - input_text.giovedi_elettrodomestici_tempo_4
+            - input_text.venerdi_elettrodomestici_tempo_4
+            - input_text.sabato_elettrodomestici_tempo_4
+            - input_text.domenica_elettrodomestici_tempo_4
+
+      - service: counter.reset
+        target:
+          entity_id:
+            - counter.cicli_funzionamento_elettrodomestici_totale_4
+
+####################################################
+#                                                  #
+#                    AUTOMAZIONI                   #
+#                                                  #
+####################################################
+
+automation:
+  - alias: Automazioni Elettrodomestici 4
+    id: Automazioni Elettrodomestici 4
+    mode: parallel
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ac_elettrodomestici_4
+        from: "off"
+        to: "on"
+        id: inizio_ciclo
+
+      - platform: state
+        entity_id: binary_sensor.ac_elettrodomestici_4
+        from: "on"
+        to: "off"
+        id: fine_ciclo
+
+      - platform: time
+        at: "23:59:59"
+        id: incremento_sensori_7_giorni_elettrodomestici
+
+      - platform: state
+        entity_id:
+          - input_boolean.switch_elettrodomestici_4
+          - *switch_elettrodomestici_4
+        from: "on"
+        to: "off"
+        id: switch_off
+
+      - platform: state
+        entity_id:
+          - input_boolean.switch_elettrodomestici_4
+          - *switch_elettrodomestici_4
+        from: "off"
+        to: "on"
+        id: switch_on
+
+      - platform: template
+        value_template: "{{ is_state('binary_sensor.ac_elettrodomestici_4','off') and is_state('input_boolean.durata_ciclo_attivo_elettrodomestici_4','on') }}"
+        id: controllo_ciclo # Corretto: rimosso l'apice finale singolo '}'}"'
+
+    action:
+      ####################################################
+      # Incremento 7 Giorni Statistiche
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: incremento_sensori_7_giorni_elettrodomestici
+            sequence:
+              # Cicli
+              - service: input_text.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if (today in ["Monday"]) %} input_text.lunedi_elettrodomestici_cicli_4
+                    {% elif (today in ["Tuesday"]) %} input_text.martedi_elettrodomestici_cicli_4
+                    {% elif (today in ["Wednesday"]) %} input_text.mercoledi_elettrodomestici_cicli_4
+                    {% elif (today in ["Thursday"]) %} input_text.giovedi_elettrodomestici_cicli_4
+                    {% elif (today in ["Friday"]) %} input_text.venerdi_elettrodomestici_cicli_4
+                    {% elif (today in ["Saturday"]) %} input_text.sabato_elettrodomestici_cicli_4
+                    {% elif (today in ["Sunday"]) %} input_text.domenica_elettrodomestici_cicli_4
+                    {% endif %}
+                data:
+                  value: "{{states('sensor.cicli_oggi_elettrodomestici_4')}}"
+
+              # Tempo
+              - service: input_text.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if (today in ["Monday"]) %} input_text.lunedi_elettrodomestici_tempo_4
+                    {% elif (today in ["Tuesday"]) %} input_text.martedi_elettrodomestici_tempo_4
+                    {% elif (today in ["Wednesday"]) %} input_text.mercoledi_elettrodomestici_tempo_4
+                    {% elif (today in ["Thursday"]) %} input_text.giovedi_elettrodomestici_tempo_4
+                    {% elif (today in ["Friday"]) %} input_text.venerdi_elettrodomestici_tempo_4
+                    {% elif (today in ["Saturday"]) %} input_text.sabato_elettrodomestici_tempo_4
+                    {% elif (today in ["Sunday"]) %} input_text.domenica_elettrodomestici_tempo_4
+                    {% endif %}
+                data:
+                  value: "{{state_attr('sensor.time_on_elettrodomestici_4','Oggi')}}"
+
+              # Consumo
+              - service: input_number.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if (today in ["Monday"]) %} input_number.lunedi_elettrodomestici_consumo_4
+                    {% elif (today in ["Tuesday"]) %} input_number.martedi_elettrodomestici_consumo_4
+                    {% elif (today in ["Wednesday"]) %} input_number.mercoledi_elettrodomestici_consumo_4
+                    {% elif (today in ["Thursday"]) %} input_number.giovedi_elettrodomestici_consumo_4
+                    {% elif (today in ["Friday"]) %} input_number.venerdi_elettrodomestici_consumo_4
+                    {% elif (today in ["Saturday"]) %} input_number.sabato_elettrodomestici_consumo_4
+                    {% elif (today in ["Sunday"]) %} input_number.domenica_elettrodomestici_consumo_4
+                    {% endif %}
+                data:
+                  value: "{{states('sensor.energy_oggi_elettrodomestici_4')}}"
+
+              # Costi
+              - service: input_number.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if (today in ["Monday"]) %} input_number.lunedi_elettrodomestici_costo_4
+                    {% elif (today in ["Tuesday"]) %} input_number.martedi_elettrodomestici_costo_4
+                    {% elif (today in ["Wednesday"]) %} input_number.mercoledi_elettrodomestici_costo_4
+                    {% elif (today in ["Thursday"]) %} input_number.giovedi_elettrodomestici_costo_4
+                    {% elif (today in ["Friday"]) %} input_number.venerdi_elettrodomestici_costo_4
+                    {% elif (today in ["Saturday"]) %} input_number.sabato_elettrodomestici_costo_4
+                    {% elif (today in ["Sunday"]) %} input_number.domenica_elettrodomestici_costo_4
+                    {% endif %}
+                data:
+                  value: "{{state_attr('sensor.time_on_elettrodomestici_4','costo_consumo_giornaliero_elettrodomestici_4')}}"
+
+      ####################################################
+      # Switch & Boolean OFF
+
+      - choose:
+          - alias: SWITCH E BOOLEAN OFF
+            conditions:
+              - condition: trigger
+                id: switch_off
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: *switch_elettrodomestici_4
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.switch_elettrodomestici_4
+
+      ####################################################
+      # Switch & Boolean ON
+
+      - choose:
+          - alias: SWITCH E BOOLEAN ON
+            conditions:
+              - condition: trigger
+                id: switch_on
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: *switch_elettrodomestici_4
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.switch_elettrodomestici_4
+
+      ####################################################
+      # Controllo Ciclo
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: controllo_ciclo
+            sequence:
+              - delay: "00:00:10"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_4
+              
+      ####################################################
+      # Inizio Ciclo
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: inizio_ciclo
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_4
+
+      ####################################################
+      # Fine Ciclo
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: fine_ciclo
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.ultimo_ciclo_attivo_elettrodomestici_4
+                data:
+                  value: >-
+                    {{state_attr('sensor.time_on_elettrodomestici_4','tempo_ciclo_elettrodomestici_4')}}
+
+              - service: counter.increment
+                target:
+                  entity_id:
+                    - counter.cicli_funzionamento_elettrodomestici_totale_4
+
+              - delay: "00:00:05"
+
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_4
+
+      ####################################################
+      # Notifiche in Parallelo
+
+      - parallel:
+          # Fine Ciclo ALEXA
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: fine_ciclo
+                  - condition: time
+                    after: "input_datetime.orario_inizio_notifiche_alexa"
+                    before: "input_datetime.orario_fine_notifiche_alexa"
+                  - condition: state
+                    entity_id: input_boolean.notify_alexa_elettrodomestici_4
+                    state: "on"
+                sequence:
+                  - service: script.notifica_vocale_alexa
+                    data:
+                      messaggio: "{{states('input_text.messaggio_elettrodomestico_4')}} in {{state_attr('sensor.time_on_elettrodomestici_4','tempo_ciclo_elettrodomestici_4')}}"
+
+          # Fine Ciclo CELLULARE
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: fine_ciclo
+                  - condition: state
+                    entity_id: input_boolean.notify_push_elettrodomestici_4
+                    state: "on"
+                sequence:
+                  - service: notify.gruppo_centro_elettrodomestici_4
+                    continue_on_error: true
+                    data: # Usa 'data' al posto di 'data_template'
+                      message: >-
+                        📌 {{states('input_text.messaggio_elettrodomestico_4')}}
+
+                        ⏱ {{state_attr('sensor.time_on_elettrodomestici_4','tempo_ciclo_elettrodomestici_4')}}
+
+                        ⚡️ Consumati: {{state_attr('sensor.time_on_elettrodomestici_4','consumo_ciclo_elettrodomestici_4')}}
+
+                        💰 Spesi: {{state_attr('sensor.time_on_elettrodomestici_4','costo_ciclo_elettrodomestici_4')}} €
+                      title: "{{states('input_text.nome_elettrodomestico_4')}}"
+                      
+  ####################################################
+  - alias: Elettrodomestici OFF Automatico 4
+    id: Elettrodomestici OFF Automatico 4
+    trigger:
+      - platform: time
+        at: "input_datetime.elettrodomestici_off_4"
+        id: elettrodomestici_automatico_off
+    condition: []
+    action:
+      ####################################################
+      # Elettrodomestici Auto OFF
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: elettrodomestici_automatico_off
+              - condition: state
+                entity_id: *switch_elettrodomestici_4
+                state: "on"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: *switch_elettrodomestici_4
+
+      ####################################################

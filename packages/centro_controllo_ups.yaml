@@ -1,0 +1,296 @@
+####################################################
+#                                                  #
+#              CENTRO CONTROLLO UPS                #
+#                                                  #
+####################################################
+# UPS reale: APC Back-UPS BE850G2 (integrazione NUT).
+# Gestisce le notifiche di caduta/ritorno corrente e lo
+# spegnimento delle strisce LED al ritorno. Se la connessione
+# internet manca insieme alla corrente (es. salta la cabina
+# in strada), le notifiche vengono messe in coda e recapitate
+# in differita non appena la connessione torna, invece di
+# andare perse.
+#
+# Storico modifiche:
+# - 2026-08-22: automazione principale migrata qui dalla
+#   versione creata da UI ("0 Gestione corrente", id
+#   1728406494823) dopo verifica: logica corretta.
+# - 2026-08-22: risolto il problema delle notifiche perse
+#   quando la connessione cade insieme alla corrente (prima
+#   l'automazione aspettava al massimo 15 minuti il ritorno
+#   di sensor.fritzbox e poi rinunciava senza avvisare mai);
+#   autonomia batteria ora formattata in ore/minuti nei
+#   messaggi; aggiunte 2 automazioni di manutenzione batteria
+#   (autotest + promemoria età) usando entità NUT prima
+#   disabilitate.
+# - 2026-08-22: logica di spegnimento strisce differenziata.
+#   Cameretta/Letto/Lavello: spente sempre, senza eccezioni.
+#   Cucina/Armadio: spente se non c'è nessuno in casa, ma se
+#   c'è presenza in salotto vengono ripristinate allo stato
+#   che avevano prima del blackout (riaccese se erano accese).
+
+template:
+  - sensor:
+      - name: "NAS Watt"
+        unique_id: nas_watt
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        icon: mdi:nas
+        state: >
+          {% set ups = states('sensor.presa_nas_power') %}
+          {% set prox = states('sensor.proxmox_power') %}
+          {% if ups not in ['unknown', 'unavailable'] and prox not in ['unknown', 'unavailable'] %}
+            {{ (ups | float - prox | float) | round(2) }}
+          {% else %}
+            {{ states('sensor.nas_watt') }}
+          {% endif %}
+
+input_boolean:
+  ups_notifica_in_coda:
+    name: "UPS - Notifica in coda (assenza internet)"
+    icon: mdi:message-alert-outline
+
+input_datetime:
+  ups_orario_evento_in_coda:
+    name: "UPS - Orario primo evento non notificato"
+    has_date: true
+    has_time: true
+
+input_text:
+  ups_strisce_accese_al_blackout:
+    name: "UPS - Strisce accese al momento del blackout"
+    icon: mdi:led-strip-variant
+    max: 255
+
+script:
+  ups_notifica_recupero_coda:
+    alias: "UPS - Notifica Recupero Coda"
+    description: "Invia la notifica di recupero quando la connessione torna dopo essere mancata durante un evento UPS, poi svuota la coda"
+    sequence:
+      - variables:
+          orario_coda: "{{ states('input_datetime.ups_orario_evento_in_coda') }}"
+      - action: telegram_bot.send_message
+        data:
+          chat_id: [111111111, 222222222]
+          parse_mode: html
+          message: "🕓 Recupero notifiche: durante l'assenza di connessione internet (a partire dalle <b>{{ orario_coda }}</b>) l'UPS ha registrato eventi non notificati in tempo reale. Stato attuale: <b>{{ states('sensor.ups_stato') }}</b>, ingresso {{ states('sensor.ups_tensione_di_ingresso') }}V, batteria {{ states('sensor.ups_carica_batterie') }}%."
+          title: "🕓<b>Notifiche UPS recuperate</b>"
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          message: "Recupero notifiche UPS: eventi dalle {{ orario_coda }} non inviati per assenza internet. Stato attuale: {{ states('sensor.ups_stato') }}."
+          title: "🕓 Notifiche UPS recuperate"
+      - action: notify.mobile_app_del_partner
+        data:
+          message: "Recupero notifiche UPS: eventi dalle {{ orario_coda }} non inviati per assenza internet. Stato attuale: {{ states('sensor.ups_stato') }}."
+          title: "🕓 Notifiche UPS recuperate"
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ups_notifica_in_coda
+
+automation:
+  - alias: "Gestione Corrente (UPS)"
+    id: ups_gestione_corrente
+    description: "Notifica caduta e ritorno della corrente. Al ritorno spegne sempre le strisce cameretta/letto/lavello; le strisce cucina/armadio le spegne solo se non c'è nessuno in casa, altrimenti le ripristina allo stato che avevano prima del blackout. Se manca anche internet, mette la notifica in coda e la recapita in differita al ritorno della connessione."
+    mode: parallel
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.ups_tensione_di_ingresso
+        below: 150
+        id: corrente_caduta
+      - trigger: numeric_state
+        entity_id: sensor.ups_tensione_di_ingresso
+        above: 150
+        id: corrente_tornata
+      - trigger: state
+        entity_id: sensor.fritzbox
+        to: "on"
+        id: internet_tornato
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: corrente_caduta
+            sequence:
+              - variables:
+                  event_time: "{{ now().strftime('%H:%M') }}"
+                  autonomia_min: "{{ (states('sensor.ups_autonomia_della_batteria') | int(0) / 60) | round(0) | int }}"
+                  autonomia_fmt: >-
+                    {% if autonomia_min >= 60 %}{{ autonomia_min // 60 }}h {{ autonomia_min % 60 }}min{% else %}{{ autonomia_min }}min{% endif %}
+                  message_content: "Corrente saltata alle <b>{{ event_time }}</b>. 💻HA online ancora per: {{ autonomia_fmt }}"
+                  message_title: "⚠⚡<b>Corrente Saltata</b>⚡⚠"
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.ups_strisce_accese_al_blackout
+                data:
+                  value: >-
+                    {{ ['light.striscia_cucina', 'light.striscia_armadio'] | select('is_state', 'on') | list | join(',') }}
+              - if:
+                  - condition: state
+                    entity_id: sensor.fritzbox
+                    state: "on"
+                then:
+                  - action: telegram_bot.send_message
+                    data:
+                      chat_id: [111111111, 222222222]
+                      parse_mode: html
+                      message: "{{ message_content }}"
+                      title: "{{ message_title }}"
+                  - action: notify.mobile_app_il_tuo_telefono
+                    data:
+                      message: "{{ message_content | striptags }}"
+                      title: "{{ message_title }}"
+                      data:
+                        color: "#ff0000"
+                  - action: notify.mobile_app_del_partner
+                    data:
+                      message: "{{ message_content | striptags }}"
+                      title: "{{ message_title }}"
+                      data:
+                        color: "#ff0000"
+                else:
+                  - if:
+                      - condition: state
+                        entity_id: input_boolean.ups_notifica_in_coda
+                        state: "off"
+                    then:
+                      - action: input_datetime.set_datetime
+                        target:
+                          entity_id: input_datetime.ups_orario_evento_in_coda
+                        data:
+                          datetime: "{{ now() }}"
+                      - action: input_boolean.turn_on
+                        target:
+                          entity_id: input_boolean.ups_notifica_in_coda
+          - conditions:
+              - condition: trigger
+                id: corrente_tornata
+            sequence:
+              - variables:
+                  event_time: "{{ now().strftime('%H:%M') }}"
+                  message_content: "⚡🟢 <b>La corrente è tornata alle ore {{ event_time }}</b> 🟢⚡"
+                  message_title: "⚠⚡<b>Corrente è tornata</b>⚡⚠"
+              - if:
+                  - condition: state
+                    entity_id: binary_sensor.presenza_salone_occupancy
+                    state: "on"
+                then:
+                  - action: light.turn_on
+                    target:
+                      entity_id: >-
+                        {% set era_accese = (states('input_text.ups_strisce_accese_al_blackout') or '').split(',') | select('!=', '') | list %}
+                        {{ era_accese }}
+              - repeat:
+                  count: 4
+                  sequence:
+                    - action: light.turn_off
+                      target:
+                        entity_id: >-
+                          {% set all_strips = label_entities('striscia') %}
+                          {% set gruppo_condizionato = ['light.striscia_cucina', 'light.striscia_armadio'] %}
+                          {% if is_state('binary_sensor.presenza_salone_occupancy', 'on') %}
+                            {{ all_strips | reject('in', gruppo_condizionato) | list }}
+                          {% else %}
+                            {{ all_strips }}
+                          {% endif %}
+                    - if:
+                        - condition: template
+                          value_template: "{{ not repeat.last }}"
+                      then:
+                        - delay:
+                            minutes: 5
+              - if:
+                  - condition: state
+                    entity_id: sensor.fritzbox
+                    state: "on"
+                then:
+                  - action: telegram_bot.send_message
+                    data:
+                      chat_id: [111111111, 222222222]
+                      parse_mode: html
+                      message: "{{ message_content }}"
+                      title: "{{ message_title }}"
+                  - action: notify.mobile_app_il_tuo_telefono
+                    data:
+                      message: "{{ message_content | striptags }}"
+                      title: "{{ message_title }}"
+                      data:
+                        color: "#23DC16"
+                  - action: notify.mobile_app_del_partner
+                    data:
+                      message: "{{ message_content | striptags }}"
+                      title: "{{ message_title }}"
+                      data:
+                        color: "#23DC16"
+                  - if:
+                      - condition: state
+                        entity_id: input_boolean.ups_notifica_in_coda
+                        state: "on"
+                    then:
+                      - action: script.ups_notifica_recupero_coda
+                else:
+                  - if:
+                      - condition: state
+                        entity_id: input_boolean.ups_notifica_in_coda
+                        state: "off"
+                    then:
+                      - action: input_datetime.set_datetime
+                        target:
+                          entity_id: input_datetime.ups_orario_evento_in_coda
+                        data:
+                          datetime: "{{ now() }}"
+                      - action: input_boolean.turn_on
+                        target:
+                          entity_id: input_boolean.ups_notifica_in_coda
+          - conditions:
+              - condition: trigger
+                id: internet_tornato
+              - condition: state
+                entity_id: input_boolean.ups_notifica_in_coda
+                state: "on"
+            sequence:
+              - action: script.ups_notifica_recupero_coda
+
+  - alias: "UPS Notifica Risultato Autotest"
+    id: ups_notifica_autotest
+    description: "Notifica quando cambia il risultato dell'autotest della batteria UPS. Entità abilitata il 2026-08-22 (prima disabilitata di default). Valore visto al primo avvio: 'Done and passed' (esito positivo) — l'automazione resta generica (notifica su ogni cambiamento) perché non conosciamo ancora i possibili esiti negativi di questo modello; si può restringere solo agli esiti di errore quando se ne osserva uno."
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: sensor.cameretta_ups_risultato_dell_autotest
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.state not in ['unknown', 'unavailable', trigger.from_state.state] }}"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔋 Autotest UPS"
+          message: "Risultato autotest batteria UPS: {{ trigger.to_state.state }}"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🔋 Autotest UPS"
+          message: "Risultato autotest batteria UPS: {{ trigger.to_state.state }}"
+
+  - alias: "UPS Promemoria Sostituzione Batteria"
+    id: ups_batteria_promemoria_sostituzione
+    description: "Avvisa una volta all'anno, dal 3° anno dalla data di produzione, di controllare/valutare la sostituzione della batteria UPS. NOTA 2026-08-22: sensor.cameretta_ups_data_di_fabbricazione_della_batteria riporta '2001/01/01', il classico valore placeholder di fabbrica APC/NUT quando la data reale non è stata programmata in EEPROM — non è una data vera, quindi viene esclusa esplicitamente sotto. Con questo valore l'automazione non scatterà mai finché l'UPS non riporta una data plausibile (o finché non viene sostituita con un promemoria manuale)."
+    mode: single
+    triggers:
+      - trigger: time
+        at: "09:00:00"
+    variables:
+      mfr_raw: "{{ states('sensor.cameretta_ups_data_di_fabbricazione_della_batteria') }}"
+      mfr_date: "{{ strptime(mfr_raw, '%Y/%m/%d') if (mfr_raw | regex_match('^[0-9]{4}/[0-9]{2}/[0-9]{2}$') and mfr_raw != '2001/01/01') else none }}"
+      batteria_eta_anni: "{{ (now().year - mfr_date.year) if mfr_date is not none else 0 }}"
+    conditions:
+      - condition: template
+        value_template: "{{ mfr_date is not none and mfr_date.month == now().month and mfr_date.day == now().day and batteria_eta_anni >= 3 }}"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔋 Manutenzione UPS"
+          message: "La batteria dell'UPS ha {{ batteria_eta_anni }} anni. Valuta un controllo o la sostituzione."
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🔋 Manutenzione UPS"
+          message: "La batteria dell'UPS ha {{ batteria_eta_anni }} anni. Valuta un controllo o la sostituzione."

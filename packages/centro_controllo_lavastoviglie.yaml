@@ -1,0 +1,999 @@
+﻿homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: "Centro Controllo Elettrodomestici"
+      setting:
+        ####################################################
+        #                                                  #
+        #              IMPOSTAZIONI PACKAGE                #
+        #                                                  #
+        ####################################################
+
+        Sensore Consumo Elettrodomestici: &sensore_consumo_elettrodomestici_3 "{{ states('sensor.lavastoviglie_power')}}"
+        # Volutamente NON collegato a nessuno switch reale: non deve mai staccare
+        # corrente alla lavastoviglie. "switch.elettrodomestico" non esiste, quindi
+        # gli switch.turn_on/off falliscono silenziosamente (nessun taglio di corrente).
+        # Se in futuro si vuole abilitare il taglio corrente, sostituire con l'entity_id reale.
+        Switch Power Elettrodomestici: &switch_elettrodomestici_3 "switch.elettrodomestico"
+
+        Lista mediaplayer alexa: &alexa
+          - media_player.alexa_salone
+
+        Device per notifica push: &push
+          - service: mobile_app_il_tuo_telefono
+          - service: mobile_app_del_partner
+
+####################################################
+#                                                  #
+#              NOTIFICHE GRUPPO                    #
+#                                                  #
+####################################################
+
+notify:
+  - name: Gruppo Centro Elettrodomestici 3
+    platform: group
+    services: *push
+
+####################################################
+#                                                  #
+#                   SENSORI                        #
+#                                                  #
+####################################################
+
+sensor:
+  - platform: integration
+    source: sensor.potenza_elettrodomestici_w_3
+    name: w_kwh_elettrodomestici_3
+    unit_prefix: k
+    method: left
+    round: 2
+
+####################################################
+#                                                  #
+#               INPUT NUMBER                       #
+#                                                  #
+####################################################
+
+input_number:
+  soglia_lavoro_elettrodomestici_w_3:
+    name: Soglia Lavoro Elettrodomestici W
+    icon: mdi:flash
+    min: 0
+    max: 5000
+    step: 1.00
+    unit_of_measurement: "w"
+    mode: box
+
+  tempo_innesco_elettrodomestici_m_3:
+    name: Tempo Innesco Elettrodomestici M
+    icon: mdi:flash
+    min: 0
+    max: 60
+    step: 1.00
+    unit_of_measurement: "m"
+    mode: box
+
+  avvio_ritardato_conteggio_elettrodomestici_s_3:
+    name: Avvio Ritardato Conteggio Elettrodomestici S
+    icon: mdi:flash
+    min: 0
+    max: 60
+    step: 1.00
+    unit_of_measurement: "s"
+    mode: box
+    
+
+  volume_alexa_notifica_elettrodomestici_3:
+    name: Volume Alexa Notifica Elettrodomestici 3
+    icon: mdi:volume-high
+    min: 0
+    max: 1
+    step: 0.01
+    mode: box
+
+  ritardo_dopo_notifica_alexa_elettrodomestici_3:
+    name: Ritardo Dopo Notifica Alexa Elettrodomestici 3
+    icon: mdi:timer-outline
+    min: 0
+    max: 30
+    step: 1
+    unit_of_measurement: "s"
+    mode: box
+
+  volume_ripristino_alexa_elettrodomestici_3:
+    name: Volume Ripristino Alexa Elettrodomestici 3
+    icon: mdi:volume-medium
+    min: 0
+    max: 1
+    step: 0.01
+    mode: box
+
+  ####################################################
+
+  lunedi_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  lunedi_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  martedi_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  martedi_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  mercoledi_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  mercoledi_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  giovedi_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  giovedi_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  venerdi_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  venerdi_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  sabato_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  sabato_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+  ####################################################
+
+  domenica_elettrodomestici_consumo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "kwh"
+
+  domenica_elettrodomestici_costo_3:
+    icon: mdi:counter
+    min: 0
+    max: 999999
+    mode: box
+    unit_of_measurement: "€"
+
+####################################################
+#                                                  #
+#                UTILITY METER                     #
+#                                                  #
+####################################################
+
+utility_meter:
+  # Tempo
+
+  elettrodomestici_tempo_oggi_3:
+    source: sensor.time_on_elettrodomestici_3
+    cycle: daily
+
+  elettrodomestici_tempo_mese_3:
+    source: sensor.time_on_elettrodomestici_3
+    cycle: monthly
+
+  elettrodomestici_tempo_anno_3:
+    source: sensor.time_on_elettrodomestici_3
+    cycle: yearly
+
+  ####################################################
+
+  # Cicli
+
+  cicli_oggi_elettrodomestici_3:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_3
+    cycle: daily
+
+  cicli_mese_elettrodomestici_3:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_3
+    cycle: monthly
+
+  cicli_anno_elettrodomestici_3:
+    source: counter.cicli_funzionamento_elettrodomestici_totale_3
+    cycle: yearly
+
+  ####################################################
+
+  # Consumi KWh
+
+  energy_oggi_elettrodomestici_3:
+    source: sensor.w_kwh_elettrodomestici_3
+    cycle: daily
+
+  energy_mese_elettrodomestici_3:
+    source: sensor.w_kwh_elettrodomestici_3
+    cycle: monthly
+
+  energy_anno_elettrodomestici_3:
+    source: sensor.w_kwh_elettrodomestici_3
+    cycle: yearly
+
+####################################################
+#                                                  #
+#               TEMPLATE                           #
+#                                                  #
+####################################################
+
+template:
+  - binary_sensor:
+      - name: AC Elettrodomestici 3
+        icon: mdi:state-machine
+        # Domotico: lo stato "in funzione" arriva SOLO dallo stato nativo Home
+        # Connect, non piu' dalla soglia di potenza (che restava comunque nell'OR
+        # e faceva scattare falsi cicli per qualsiasi picco di corrente anche a
+        # elettrodomestico fermo). La potenza resta usata solo per misurare
+        # consumo/costo del ciclo, non per deciderne l'inizio/fine.
+        state: "{{ 'on' if states('sensor.lavastoviglie_operation_state') in ['run', 'pause'] else 'off' }}"
+        delay_off: "00:00:05"
+
+  ####################################################
+
+  - trigger:
+      - platform: state
+        entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_3
+        from: "off"
+        to: "on"
+    sensor:
+      - name: Inizio Ciclo Elettrodomestici 3
+        state: "{{states('sensor.w_kwh_elettrodomestici_3')}}"
+
+  - trigger:
+      - platform: state
+        entity_id: binary_sensor.ac_elettrodomestici_3
+        from: "on"
+        to: "off"
+    sensor:
+      - name: Fine Ciclo Elettrodomestici 3
+        state: "{{now().strftime('%d/%m/%Y %H:%M')}}"
+
+  ####################################################
+
+  - trigger:
+      - platform: state
+        entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_3
+        from: "off"
+        to: "on"
+    sensor:
+      - name: Tempo Riavvio 3
+        state: "{{as_timestamp(now())}}"
+
+  ####################################################
+
+  - sensor:
+      - name: "time_on_elettrodomestici_3"
+        icon: mdi:history
+        state: >-
+          {%if is_state('binary_sensor.ac_elettrodomestici_3', 'on') and (as_timestamp(states.binary_sensor.ac_elettrodomestici_3.last_changed)+1) <= as_timestamp(now())%}
+            {{((as_timestamp(now()) - as_timestamp(states.binary_sensor.ac_elettrodomestici_3.last_changed))/3600)}}
+          {% else %} 0 {% endif %}
+        attributes:
+          terminato: "{{ states('sensor.fine_ciclo_elettrodomestici_3') if is_state('binary_sensor.ac_elettrodomestici_3', 'off') else 'In funzione' }}"
+          tempo_ciclo_elettrodomestici_3: >
+            {%set hours =(as_timestamp(now()) - states('sensor.tempo_riavvio_3')|float(0))/3600 %}
+            {% set minutes = ((hours % 1) * 60) | int (0)%}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+            {%set day = ((hours |int(0) /24))|int(0) %}
+            {%if is_state('input_boolean.durata_ciclo_attivo_elettrodomestici_3', 'on')%}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+            {%else%}
+            {{states('input_text.ultimo_ciclo_attivo_elettrodomestici_3')}}
+            {%endif%}
+          Oggi: >
+            {% set hours = states('sensor.elettrodomestici_tempo_oggi_3') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+              {% if hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Mese: >
+            {% set hours = states('sensor.elettrodomestici_tempo_mese_3') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+            {% set day = ((hours |int /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int)-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Anno: >
+            {% set hours = states('sensor.elettrodomestici_tempo_anno_3') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+            {% set day = ((hours |int(0) /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Ieri: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_oggi_3', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+              {% if hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Mese Precedente: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_mese_3', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+            {% set day = ((hours |int /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int)-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+          Anno Precedente: >
+            {% set hours = state_attr('sensor.elettrodomestici_tempo_anno_3', 'last_period') | float(0) %}
+            {% set minutes = ((hours % 1) * 60) | int(0) %}
+            {% set hours = (hours - (hours % 1)) | int(0) %}
+            {% set day = ((hours |int(0) /24))|int(0) %}
+              {% if day|int(0) >0 %}
+                {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+              {% elif hours|int(0) >0 %}
+                {{hours}}h {{minutes}}m
+              {% else %}
+                {{minutes}}min
+              {% endif %}
+
+          consumo_ciclo_elettrodomestici_3: "{{(states('sensor.w_kwh_elettrodomestici_3')|float(0)-states('sensor.inizio_ciclo_elettrodomestici_3')|float(0))|round(2)}} kWh"
+          costo_ciclo_elettrodomestici_3: "{{((states('sensor.w_kwh_elettrodomestici_3')|float(0)-states('sensor.inizio_ciclo_elettrodomestici_3')|float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+
+          costo_consumo_giornaliero_elettrodomestici_3: "{{((states('sensor.energy_oggi_elettrodomestici_3') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_mensile_elettrodomestici_3: "{{((states('sensor.energy_mese_elettrodomestici_3') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_annuale_elettrodomestici_3: "{{((states('sensor.energy_anno_elettrodomestici_3') | float(0)) * (states('input_number.costo_energia') | float(0))) | round(2, default=0) }}"
+
+          costo_consumo_ieri_elettrodomestici_3: "{{((state_attr('sensor.energy_oggi_elettrodomestici_3', 'last_period') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_mese_precedente_elettrodomestici_3: "{{((state_attr('sensor.energy_mese_elettrodomestici_3', 'last_period') | float(0)) * (states('input_number.costo_energia')| float(0))) | round(2, default=0) }}"
+          costo_consumo_anno_precedente_elettrodomestici_3: "{{((state_attr('sensor.energy_anno_elettrodomestici_3', 'last_period') | float(0)) * (states('input_number.costo_energia') | float(0))) | round(2, default=0) }}"
+
+  - sensor:
+      - name: "potenza_elettrodomestici_w_3"
+        unit_of_measurement: "W"
+        state: *sensore_consumo_elettrodomestici_3
+        icon: mdi:flash
+
+####################################################
+#                                                  #
+#               CUONTER                            #
+#                                                  #
+####################################################
+
+counter:
+  cicli_funzionamento_elettrodomestici_totale_3:
+    name: Cicli Funzionamento Elettrodomestici Totale
+    initial: 0
+    step: 1
+
+####################################################
+#                                                  #
+#               INPUT BOOLEAN                      #
+#                                                  #
+####################################################
+
+input_boolean:
+  switch_elettrodomestici_3:
+    name: Switch Elettrodomestici
+    icon: mdi:flash
+
+  ####################################################
+
+  durata_ciclo_attivo_elettrodomestici_3:
+    name: Ciclo Attivo Elettrodomestici
+
+  ####################################################
+
+  notify_push_elettrodomestici_3:
+    name: Notifica Push
+
+  ####################################################
+
+  notify_alexa_elettrodomestici_3:
+    name: Notifica Alexa
+
+####################################################
+#                                                  #
+#                     GROUP                        #
+#                                                  #
+####################################################
+
+group:
+  notifiche_elettrodomestici_3:
+    entities:
+      - input_boolean.notify_alexa_elettrodomestici_3
+      - input_boolean.notify_push_elettrodomestici_3
+      - automation.elettrodomestici_off_automatico_3
+      - input_boolean.switch_elettrodomestici_3
+
+####################################################
+#                                                  #
+#                  INPUT DATETIME                  #
+#                                                  #
+####################################################
+
+input_datetime:
+  orario_inizio_notifiche_elettrodomestici_3:
+    name: Orario Inizio Notifiche Elettrodomestici
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  orario_fine_notifiche_elettrodomestici_3:
+    name: Orario Fine Notifiche Elettrodomestici
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  elettrodomestici_off_3:
+    name: Elettrodomestici Off
+    has_date: false
+    has_time: true
+
+####################################################
+#                                                  #
+#                 INPUT TEXT                       #
+#                                                  #
+####################################################
+
+input_text:
+  data_reset_sensori_elettrodomestici_3:
+
+  ####################################################
+
+  nome_elettrodomestico_3:
+
+  ####################################################
+
+  messaggio_elettrodomestico_3:
+
+  ####################################################
+
+  ultimo_ciclo_attivo_elettrodomestici_3:
+
+  ####################################################
+  ####################################################
+
+  lunedi_elettrodomestici_cicli_3:
+  lunedi_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  martedi_elettrodomestici_cicli_3:
+  martedi_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  mercoledi_elettrodomestici_cicli_3:
+  mercoledi_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  giovedi_elettrodomestici_cicli_3:
+  giovedi_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  venerdi_elettrodomestici_cicli_3:
+  venerdi_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  sabato_elettrodomestici_cicli_3:
+  sabato_elettrodomestici_tempo_3:
+
+  ####################################################
+
+  domenica_elettrodomestici_cicli_3:
+  domenica_elettrodomestici_tempo_3:
+
+####################################################
+#                                                  #
+#                       SCRIPT                     #
+#                                                  #
+####################################################
+
+script:
+  reset_sensori_elettrodomestici_3:
+    sequence:
+      - service: input_text.set_value
+        data:
+          value: >-
+            {{now().strftime('%d/%m/%Y %H:%M')}}
+        target:
+          entity_id: input_text.data_reset_sensori_elettrodomestici_3
+      - service: utility_meter.calibrate
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - sensor.cicli_oggi_elettrodomestici_3
+            - sensor.cicli_mese_elettrodomestici_3
+            - sensor.cicli_anno_elettrodomestici_3
+            - sensor.energy_oggi_elettrodomestici_3
+            - sensor.energy_mese_elettrodomestici_3
+            - sensor.energy_anno_elettrodomestici_3
+            - sensor.elettrodomestici_tempo_oggi_3
+            - sensor.elettrodomestici_tempo_mese_3
+            - sensor.elettrodomestici_tempo_anno_3
+
+      - service: input_number.set_value
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - input_number.lunedi_elettrodomestici_consumo_3
+            - input_number.martedi_elettrodomestici_consumo_3
+            - input_number.mercoledi_elettrodomestici_consumo_3
+            - input_number.giovedi_elettrodomestici_consumo_3
+            - input_number.venerdi_elettrodomestici_consumo_3
+            - input_number.sabato_elettrodomestici_consumo_3
+            - input_number.domenica_elettrodomestici_consumo_3
+            - input_number.lunedi_elettrodomestici_costo_3
+            - input_number.martedi_elettrodomestici_costo_3
+            - input_number.mercoledi_elettrodomestici_costo_3
+            - input_number.giovedi_elettrodomestici_costo_3
+            - input_number.venerdi_elettrodomestici_costo_3
+            - input_number.sabato_elettrodomestici_costo_3
+            - input_number.domenica_elettrodomestici_costo_3
+
+      - service: input_text.set_value
+        data:
+          value: "0"
+        target:
+          entity_id:
+            - input_text.lunedi_elettrodomestici_cicli_3
+            - input_text.martedi_elettrodomestici_cicli_3
+            - input_text.mercoledi_elettrodomestici_cicli_3
+            - input_text.giovedi_elettrodomestici_cicli_3
+            - input_text.venerdi_elettrodomestici_cicli_3
+            - input_text.sabato_elettrodomestici_cicli_3
+            - input_text.domenica_elettrodomestici_cicli_3
+            - input_text.lunedi_elettrodomestici_tempo_3
+            - input_text.martedi_elettrodomestici_tempo_3
+            - input_text.mercoledi_elettrodomestici_tempo_3
+            - input_text.giovedi_elettrodomestici_tempo_3
+            - input_text.venerdi_elettrodomestici_tempo_3
+            - input_text.sabato_elettrodomestici_tempo_3
+            - input_text.domenica_elettrodomestici_tempo_3
+
+      - service: counter.reset
+        target:
+          entity_id:
+            - counter.cicli_funzionamento_elettrodomestici_totale_3
+
+####################################################
+#                                                  #
+#                     AUTOMAZIONI                  #
+#                                                  #
+####################################################
+
+automation:
+  - alias: Automazioni Elettrodomestici 3
+    id: Automazioni Elettrodomestici 3
+    mode: parallel
+    max: 10
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ac_elettrodomestici_3
+        from: "off"
+        to: "on"
+        id: inizio_ciclo
+
+      - platform: state
+        entity_id: sensor.lavastoviglie_operation_state
+        to: "finished"
+        id: fine_ciclo
+
+      - platform: time
+        at: "23:59:59"
+        id: incremento_sensori_7_giorni_elettrodomestici
+
+      - platform: state
+        entity_id:
+          - input_boolean.switch_elettrodomestici_3
+          - *switch_elettrodomestici_3
+        from: "on"
+        to: "off"
+        id: switch_off
+
+      - platform: state
+        entity_id:
+          - input_boolean.switch_elettrodomestici_3
+          - *switch_elettrodomestici_3
+        from: "off"
+        to: "on"
+        id: switch_on
+
+      - platform: template
+        value_template: "{{ is_state('binary_sensor.ac_elettrodomestici_3','off') and is_state('input_boolean.durata_ciclo_attivo_elettrodomestici_3','on') }}"
+        id: controllo_ciclo
+
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: incremento_sensori_7_giorni_elettrodomestici
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if today == "Monday" %} input_text.lunedi_elettrodomestici_cicli_3
+                    {% elif today == "Tuesday" %} input_text.martedi_elettrodomestici_cicli_3
+                    {% elif today == "Wednesday" %} input_text.mercoledi_elettrodomestici_cicli_3
+                    {% elif today == "Thursday" %} input_text.giovedi_elettrodomestici_cicli_3
+                    {% elif today == "Friday" %} input_text.venerdi_elettrodomestici_cicli_3
+                    {% elif today == "Saturday" %} input_text.sabato_elettrodomestici_cicli_3
+                    {% elif today == "Sunday" %} input_text.domenica_elettrodomestici_cicli_3
+                    {% endif %}
+                data:
+                  value: "{{ states('sensor.cicli_oggi_elettrodomestici_3') }}"
+
+              - service: input_text.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if today == "Monday" %} input_text.lunedi_elettrodomestici_tempo_3
+                    {% elif today == "Tuesday" %} input_text.martedi_elettrodomestici_tempo_3
+                    {% elif today == "Wednesday" %} input_text.mercoledi_elettrodomestici_tempo_3
+                    {% elif today == "Thursday" %} input_text.giovedi_elettrodomestici_tempo_3
+                    {% elif today == "Friday" %} input_text.venerdi_elettrodomestici_tempo_3
+                    {% elif today == "Saturday" %} input_text.sabato_elettrodomestici_tempo_3
+                    {% elif today == "Sunday" %} input_text.domenica_elettrodomestici_tempo_3
+                    {% endif %}
+                data:
+                  value: "{{ state_attr('sensor.time_on_elettrodomestici_3', 'Oggi') }}"
+
+              - service: input_number.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if today == "Monday" %} input_number.lunedi_elettrodomestici_consumo_3
+                    {% elif today == "Tuesday" %} input_number.martedi_elettrodomestici_consumo_3
+                    {% elif today == "Wednesday" %} input_number.mercoledi_elettrodomestici_consumo_3
+                    {% elif today == "Thursday" %} input_number.giovedi_elettrodomestici_consumo_3
+                    {% elif today == "Friday" %} input_number.venerdi_elettrodomestici_consumo_3
+                    {% elif today == "Saturday" %} input_number.sabato_elettrodomestici_consumo_3
+                    {% elif today == "Sunday" %} input_number.domenica_elettrodomestici_consumo_3
+                    {% endif %}
+                data:
+                  value: "{{ states('sensor.energy_oggi_elettrodomestici_3') }}"
+
+              - service: input_number.set_value
+                target:
+                  entity_id: >
+                    {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                    {% if today == "Monday" %} input_number.lunedi_elettrodomestici_costo_3
+                    {% elif today == "Tuesday" %} input_number.martedi_elettrodomestici_costo_3
+                    {% elif today == "Wednesday" %} input_number.mercoledi_elettrodomestici_costo_3
+                    {% elif today == "Thursday" %} input_number.giovedi_elettrodomestici_costo_3
+                    {% elif today == "Friday" %} input_number.venerdi_elettrodomestici_costo_3
+                    {% elif today == "Saturday" %} input_number.sabato_elettrodomestici_costo_3
+                    {% elif today == "Sunday" %} input_number.domenica_elettrodomestici_costo_3
+                    {% endif %}
+                data:
+                  value: "{{ state_attr('sensor.time_on_elettrodomestici_3', 'costo_consumo_giornaliero_elettrodomestici_3') }}"
+
+      - choose:
+          - alias: SWITCH E BOOLEAN OFF
+            conditions:
+              - condition: trigger
+                id: switch_off
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: *switch_elettrodomestici_3
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.switch_elettrodomestici_3
+
+      - choose:
+          - alias: SWITCH E BOOLEAN ON
+            conditions:
+              - condition: trigger
+                id: switch_on
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: *switch_elettrodomestici_3
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.switch_elettrodomestici_3
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: controllo_ciclo
+            sequence:
+              - delay: "00:01:00"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_3
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: inizio_ciclo
+            sequence:
+              - service: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_3
+
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: fine_ciclo
+            sequence:
+              - service: input_text.set_value
+                target:
+                  entity_id: input_text.ultimo_ciclo_attivo_elettrodomestici_3
+                data:
+                  value: "{{ state_attr('sensor.time_on_elettrodomestici_3', 'tempo_ciclo_elettrodomestici_3') }}"
+
+              - service: counter.increment
+                target:
+                  entity_id:
+                    - counter.cicli_funzionamento_elettrodomestici_totale_3
+
+              - delay: "00:00:05"
+
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.durata_ciclo_attivo_elettrodomestici_3
+
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: fine_ciclo
+                  - condition: state
+                    entity_id: input_boolean.notify_push_elettrodomestici_3
+                    state: "on"
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      parse_mode: html
+                      chat_id:
+                        - 111111111
+                        - 222222222
+                      message: >-
+                        📌 {{ states('input_text.messaggio_elettrodomestico_3') }}
+                        ⏱ {{ state_attr('sensor.time_on_elettrodomestici_3', 'tempo_ciclo_elettrodomestici_3') }}
+                        ⚡️ Consumati: {{ state_attr('sensor.time_on_elettrodomestici_3', 'consumo_ciclo_elettrodomestici_3') }}
+                        💰 Spesi: {{ state_attr('sensor.time_on_elettrodomestici_3', 'costo_ciclo_elettrodomestici_3') }} €
+                      title: "<b>{{ states('input_text.nome_elettrodomestico_3') }}</b>"
+                      config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+
+                  - service: notify.mobile_app_il_tuo_telefono
+                    data:
+                      message: >-
+                        📌 {{ states('input_text.messaggio_elettrodomestico_3') }}
+                        ⏱ {{ state_attr('sensor.time_on_elettrodomestici_3', 'tempo_ciclo_elettrodomestici_3') }}
+                        ⚡️ Consumati: {{ state_attr('sensor.time_on_elettrodomestici_3', 'consumo_ciclo_elettrodomestici_3') }}
+                        💰 Spesi: {{ state_attr('sensor.time_on_elettrodomestici_3', 'costo_ciclo_elettrodomestici_3') }} €
+                      title: "{{ states('input_text.nome_elettrodomestico_3') }}"
+
+                  - service: notify.mobile_app_del_partner
+                    data:
+                      message: >-
+                        📌 {{ states('input_text.messaggio_elettrodomestico_3') }}
+                        ⏱ {{ state_attr('sensor.time_on_elettrodomestici_3', 'tempo_ciclo_elettrodomestici_3') }}
+                        ⚡️ Consumati: {{ state_attr('sensor.time_on_elettrodomestici_3', 'consumo_ciclo_elettrodomestici_3') }}
+                        💰 Spesi: {{ state_attr('sensor.time_on_elettrodomestici_3', 'costo_ciclo_elettrodomestici_3') }} €
+                      title: "{{ states('input_text.nome_elettrodomestico_3') }}"
+
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: fine_ciclo
+                  - condition: time
+                    after: "input_datetime.orario_inizio_notifiche_alexa"
+                    before: "input_datetime.orario_fine_notifiche_alexa"
+                  - condition: state
+                    entity_id: input_boolean.notify_alexa_elettrodomestici_3
+                    state: "on"
+                sequence:
+                  - service: script.notifica_vocale_alexa
+                    data:
+                      messaggio: "{{ states('input_text.messaggio_elettrodomestico_3') }} in {{ state_attr('sensor.time_on_elettrodomestici_3', 'tempo_ciclo_elettrodomestici_3') }}"
+
+  - alias: Elettrodomestici OFF Automatico 3
+    id: Elettrodomestici OFF Automatico 3
+    trigger:
+      - platform: time
+        at: "input_datetime.elettrodomestici_off_3"
+        id: elettrodomestici_automatico_off
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: elettrodomestici_automatico_off
+              - condition: state
+                entity_id: *switch_elettrodomestici_3
+                state: "on"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: *switch_elettrodomestici_3
+
+  ##################################################
+  # Alert consumabili/anomalie (spostata qui da
+  # automations.yaml per avere tutta la lavastoviglie
+  # in un unico posto)
+  ##################################################
+  - alias: "🍽️ Lavastoviglie - Alert e Notifiche"
+    id: "1776969514229"
+    description: Notifiche push e Telegram per alert lavastoviglie
+    trigger:
+      - platform: state
+        entity_id: sensor.lavastoviglie_salt_nearly_empty
+        to: present
+        id: sale_vuoto
+      - platform: state
+        entity_id: sensor.lavastoviglie_rinse_aid_nearly_empty
+        to: present
+        id: brillantante_vuoto
+      - platform: state
+        entity_id: sensor.lavastoviglie_operation_state
+        to: error
+        id: errore
+      - platform: state
+        entity_id: sensor.lavastoviglie_program_aborted
+        to: present
+        id: programma_interrotto
+      - platform: state
+        entity_id: sensor.lavastoviglie_operation_state
+        to: actionrequired
+        id: azione_richiesta
+    condition: []
+    action:
+      - variables:
+          msg_title: >-
+            {% if trigger.id == 'sale_vuoto' %}
+              🧂 Lavastoviglie - Sale Esaurito
+            {% elif trigger.id == 'brillantante_vuoto' %}
+              ✨ Lavastoviglie - Brillantante Esaurito
+            {% elif trigger.id == 'errore' %}
+              ❌ Lavastoviglie - Errore
+            {% elif trigger.id == 'programma_interrotto' %}
+              ⛔ Lavastoviglie - Programma Interrotto
+            {% elif trigger.id == 'azione_richiesta' %}
+              ⚠️ Lavastoviglie - Azione Richiesta
+            {% else %}
+              🍽️ Lavastoviglie - Notifica
+            {% endif %}
+          msg_body: >-
+            {% if trigger.id == 'sale_vuoto' %}
+              🧂 Il sale rigenerante è quasi esaurito. Ricaricalo prima del prossimo lavaggio.
+            {% elif trigger.id == 'brillantante_vuoto' %}
+              ✨ Il brillantante è quasi esaurito. Ricaricalo prima del prossimo lavaggio.
+            {% elif trigger.id == 'errore' %}
+              ❌ La lavastoviglie ha rilevato un errore. Controlla il display o l'app.
+              Stato attuale: {{ states('sensor.lavastoviglie_operation_state') }}
+            {% elif trigger.id == 'programma_interrotto' %}
+              ⛔ Il programma è stato interrotto.
+              Programma selezionato: {{ states('select.lavastoviglie_selected_program') }}
+            {% elif trigger.id == 'azione_richiesta' %}
+              ⚠️ La lavastoviglie richiede la tua attenzione.
+              Potrebbe esserci un blocco, lo sportello aperto o un consumabile esaurito.
+              Stato: {{ states('sensor.lavastoviglie_operation_state') }}
+            {% else %}
+              🍽️ Notifica generica dalla lavastoviglie.
+            {% endif %}
+          msg_color: >-
+            {% if trigger.id in ['errore', 'programma_interrotto'] %}
+              #ff0000
+            {% elif trigger.id in ['sale_vuoto', 'brillantante_vuoto', 'azione_richiesta'] %}
+              #ff8800
+            {% else %}
+              #00aa00
+            {% endif %}
+      - service: telegram_bot.send_message
+        data:
+          parse_mode: html
+          chat_id:
+            - 111111111
+            - 222222222
+          message: "{{ msg_body }}"
+          title: "<b>{{ msg_title }}</b>"
+          config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "{{ msg_title }}"
+          message: "{{ msg_body }}"
+          data:
+            color: "{{ msg_color }}"
+            priority: high
+      - service: notify.mobile_app_del_partner
+        data:
+          title: "{{ msg_title }}"
+          message: "{{ msg_body }}"
+          data:
+            color: "{{ msg_color }}"
+            priority: high
+    mode: parallel
+    max: 10

@@ -16,6 +16,34 @@ Un modo per misurare quanti **Watt** sta assorbendo l'elettrodomestico in questo
 
 > Nella mia installazione uso prese **SONOFF S60TPF** (misurano sia Watt istantanei che kWh cumulati, integrate via eWeLink/Sonoff LAN o Zigbee a seconda del modello) — se vuoi partire da un prodotto concreto invece di scegliere alla cieca, è quello che uso io su tutti gli elettrodomestici di questa guida.
 
+## 🚀 Metodo veloce: usa i miei package originali
+
+Invece di costruire tutto da zero seguendo il resto della guida, puoi partire direttamente dal **package completo che uso io** — stessa logica, stessi helper, stesse automazioni di notifica (push/Alexa/Telegram), già pronto, con solo poche righe da cambiare in cima al file:
+
+| Elettrodomestico | File |
+|---|---|
+| Lavatrice | [`packages/centro_controllo_lavatrice.yaml`](../packages/centro_controllo_lavatrice.yaml) |
+| Lavastoviglie | [`packages/centro_controllo_lavastoviglie.yaml`](../packages/centro_controllo_lavastoviglie.yaml) |
+| Asciugatrice | [`packages/centro_controllo_asciugatrice.yaml`](../packages/centro_controllo_asciugatrice.yaml) |
+| Forno | [`packages/centro_controllo_forno.yaml`](../packages/centro_controllo_forno.yaml) |
+| TV | [`packages/centro_controllo_tv.yaml`](../packages/centro_controllo_tv.yaml) |
+
+**Istruzioni:**
+
+1. Copia il file dell'elettrodomestico che ti interessa dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi — una tantum, `homeassistant: packages: !include_dir_named packages` in `configuration.yaml`).
+2. Apri il file: in cima trovi il blocco **`IMPOSTAZIONI PACKAGE`** (poche righe). È l'unica parte da modificare:
+   - `Sensore Consumo Elettrodomestici` → il TUO sensore di potenza in Watt (es. `sensor.la_tua_lavatrice_power`)
+   - `Switch Power Elettrodomestici` → uno switch reale solo se vuoi poter togliere corrente da remoto, altrimenti lascialo com'è
+   - `Lista mediaplayer alexa` → i TUOI dispositivi Alexa (elimina la riga se non li usi)
+   - `Device per notifica push` → i TUOI `notify.mobile_app_xxx` (uno o più)
+3. Cerca `xxx` nel file (Ctrl+F): se qualche riga non è già stata compilata, è lì che manca un tuo valore.
+4. Riavvia Home Assistant (i package si caricano solo al riavvio).
+5. Aggiungi la card alla dashboard con la configurazione minima o completa più sotto in questa guida.
+
+**Hai più di un elettrodomestico dello stesso tipo?** Duplica il file, rinominalo, e nel nuovo file sostituisci ogni ricorrenza del numero finale (es. `_1` → `_6`) con Trova e sostituisci — tutti i nomi interni (sensori, helper, automazioni) sono numerati così apposta, per evitare collisioni tra un elettrodomestico e l'altro.
+
+Il resto di questa guida spiega **come funziona** ogni campo, utile se vuoi capire il file prima di usarlo, personalizzarlo oltre le poche righe in cima, o costruire qualcosa di completamente tuo invece di partire dal mio.
+
 ## Configurazione minima (funzionante da subito)
 
 ```yaml
@@ -128,7 +156,7 @@ stats:
 
 Per produrre quegli attributi ti serve un **template sensor** che li calcoli, più un'automazione che salvi l'energia a inizio ciclo (presuppone che `power_entity` sia anche un accumulatore di energia, cioè che la stessa presa esponga anche un `sensor` in kWh — le prese SONOFF S60TPF che uso io lo fanno, come la maggior parte delle prese smart con misura di potenza).
 
-**Tutto questo è già scritto e pronto in [`../automazioni/elettrodomestici.yaml`](../automazioni/elettrodomestici.yaml)** — in testa al file trovi l'elenco esatto di cosa cambiare (nome dei tuoi sensori, servizio di notifica, soglie). Vedi anche [`../automazioni/README.md`](../automazioni/README.md) per come installarlo (in breve: come Package di Home Assistant).
+Tutto questo è già scritto e pronto nei miei package originali — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida.
 
 Per i costi per periodo (`costo_oggi`, `costo_mese`, ecc.) il modo più semplice è creare degli **helper "Contatore di utenza" (Utility Meter)** da Impostazioni → Helper, agganciati al tuo sensore di energia totale, con reset giornaliero/mensile/annuale — poi moltiplichi il loro valore per `input_number.costo_energia` in altrettanti attributi dello stesso template sensor.
 

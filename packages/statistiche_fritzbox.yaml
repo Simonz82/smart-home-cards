@@ -1,0 +1,366 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: "Statistiche FritzBox"
+
+      ####################################################
+      #                                                  #
+      #              IMPOSTAZIONI PACKAGE                #
+      #                                                  #
+      ####################################################
+
+      # modificare le parti commentate con 7690 con il modello del vostro fritzbox
+
+      setting:
+        Button riconnessione fritz: &button_connect button.fritz_box_7690_riconnetti
+        Button riavvia fritz: &button_reboot button.fritz_box_7690_riavvia
+        Clean: &button_clean button.fritz_box_7690_pulizia
+
+        Binary Sensor Fritz: &bsf "{{states('binary_sensor.fritz_box_7690_connessione')}}"
+        Ip publico: &ip "{{states('sensor.fritz_box_7690_ip_esterno')}}"
+        uptime device: &uptime "{{states('sensor.fritz_box_7690_ultimo_riavvio')}}"
+        Connessione uptime: &uptime_connect "{{states('sensor.fritz_box_7690_tempo_di_attivita_della_connessione')}}"
+        FW Disponibile: &fw_up "{{state_attr('update.fritz_box_7690_fritz_os','latest_version')}}"
+        FW Installato: &fw_current "{{state_attr('update.fritz_box_7690_fritz_os','installed_version')}}"
+
+        Rumore Upload (solo per adsl e vdsl): &mrg_up "{{states('sensor.fritz_box_7690_margine_del_rumore_di_caricamento_del_collegamento')+' db'}}"
+        Rumore Download (solo per adsl e vdsl): &mrg_down "{{states('sensor.fritz_box_7690_margine_di_rumore_di_scaricamento_del_collegamento')+' db'}}"
+        Attenuazione Upload (solo per adsl e vdsl): &att_up "{{states('sensor.fritz_box_7690_attenuazione_della_potenza_di_caricamento_del_collegamento')+' db'}}"
+        Attenuazione Download (solo per adsl e vdsl): &att_down "{{states('sensor.fritz_box_7690_attenuazione_della_potenza_di_scaricamento_del_collegamento')+' db'}}"
+
+        Banda Utilizzata Download: &banda_down "{{states('sensor.fritz_box_7690_velocita_effettiva_di_scaricamento')}}"
+        Banda Utilizzata Upload: &banda_up "{{states('sensor.fritz_box_7690_velocita_effettiva_di_caricamento')}}"
+        Portante Download Agganciata Mbps: &pdambps "{{ states('sensor.fritz_box_7690_velocita_massima_di_scaricamento_della_connessione')}}"
+        Portante Upload Agganciata Mbps: &puambps "{{ states('sensor.fritz_box_7690_velocita_massima_di_caricamento_della_connessione')}}"
+
+        ############################# MEDIA PLAYER ALEXA ################################
+
+        Lista mediaplayer alexa: &alexa
+          - media_player.xxx
+
+        ################################# NOTIFY PUSH ###################################
+
+        Device per notifica push: &push
+          - service: mobile_app_il_tuo_telefono
+
+####################################################
+#                                                  #
+#              TEMPLATE                            #
+#                                                  #
+####################################################
+
+template:
+  - sensor:
+      - name: FritzBox
+        state: *bsf
+        attributes:
+          ip: *ip
+          uptime: *uptime
+          uptime_connect: *uptime_connect
+          rumore_up: *mrg_up
+          rumore_down: *mrg_down
+          attenuazione_up: *att_up
+          attenuzione_down: *att_down
+          firmware_installato: *fw_current
+          firmware_disponibilie: *fw_up
+          banda_down: *banda_down
+          banda_up: *banda_up
+          portante_down: *pdambps
+          portante_up: *puambps
+
+      - name: "Download Mbps"
+        unit_of_measurement: "Mbit/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:arrow-down-bold
+        state: >
+          {% if state_attr('sensor.fritzbox','banda_down') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','banda_down')| int / 125 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Upload Mbps"
+        unit_of_measurement: "Mbit/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:arrow-up-bold
+        state: >
+          {% if state_attr('sensor.fritzbox','banda_up') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','banda_up')| int / 125 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Download Mbs"
+        unit_of_measurement: "MB/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:speedometer
+        state: >
+          {% if state_attr('sensor.fritzbox','banda_down') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','banda_down')| int / 1000 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Upload Mbs"
+        unit_of_measurement: "MB/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:speedometer
+        state: >
+          {% if state_attr('sensor.fritzbox','banda_up') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','banda_up')| int / 1000 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Portante Download Agganciata"
+        unit_of_measurement: "Mbit/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:arrow-down-bold-outline
+        state: >
+          {% if state_attr('sensor.fritzbox','portante_down') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','portante_down')| int / 1000 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Portante Upload Agganciata"
+        unit_of_measurement: "Mbit/s"
+        device_class: data_rate
+        state_class: measurement
+        icon: mdi:arrow-up-bold-outline
+        state: >
+          {% if state_attr('sensor.fritzbox','portante_up') == none %}
+            unavailable
+          {% else %}
+            {{ (state_attr('sensor.fritzbox','portante_up')| int / 1000 ) |round(2, default=0)}}
+          {% endif %}
+
+      - name: "Ultimo Riavvio Fritz"
+        icon: mdi:restart
+        state: >
+          {% if state_attr('sensor.fritzbox','uptime') == none %}
+            In attesa
+          {% else %}
+            {{ as_timestamp(state_attr('sensor.fritzbox','uptime')) | timestamp_custom('%d/%m/%Y') }}
+          {% endif %}
+
+####################################################
+#                                                  #
+#              NOTIFY                              #
+#                                                  #
+####################################################
+
+notify:
+  - name: gruppo_fritzBox
+    platform: group
+    services: *push
+
+####################################################
+#                                                  #
+#                  INPUT DATETIME                  #
+#                                                  #
+####################################################
+input_datetime:
+  orario_inizio_notifiche_fritz:
+    name: Orario Inizio Notifiche Fritz!BOX
+    has_date: false
+    has_time: true
+
+  ####################################################
+
+  orario_fine_notifiche_fritz:
+    name: Orario Fine Notifiche Fritz!BOX
+    has_date: false
+    has_time: true
+
+####################################################
+
+group:
+  notifiche_fritz_box:
+    entities:
+      - input_boolean.notify_alexa_fritz
+      - input_boolean.notify_push_fritz
+      - input_boolean.notify_ip_push
+
+####################################################
+#                                                  #
+#                    Script                        #
+#                                                  #
+####################################################
+script:
+  fritz_box_riconnetti:
+    alias: "Riconnetti FRITZ!Box"
+    sequence:
+      - service: button.press
+        data: {}
+        target:
+          entity_id: *button_connect
+
+    ####################################################
+
+  fritz_box_reboot:
+    alias: Riavvia FRITZ!Box
+    sequence:
+      - service: button.press
+        data: {}
+        target:
+          entity_id: *button_reboot
+
+    ####################################################
+
+  fritz_box_clean:
+    alias: Clean FRITZ!Box
+    sequence:
+      - service: button.press
+        data: {}
+        target:
+          entity_id: *button_clean
+
+####################################################
+#                                                  #
+#                    INPUT BOOLEAN                 #
+#                                                  #
+####################################################
+input_boolean:
+  notify_push_fritz:
+    name: Notifica Push
+
+  ####################################################
+
+  notify_alexa_fritz:
+    name: Notifica Alexa
+
+  ####################################################
+
+  notify_ip_push:
+    name: Notifica Cambio IP
+
+####################################################
+#                                                  #
+#                    Automazioni                   #
+#                                                  #
+####################################################
+automation:
+  - alias: Automazioni PKG FritzBox
+    id: Automazioni PKG FritzBox
+    trigger:
+      - platform: state
+        entity_id: sensor.fritzbox
+        from: "off"
+        to: "on"
+        id: online
+
+      - platform: state
+        entity_id: sensor.fritzbox
+        attribute: ip
+        not_from:
+          - unknown
+          - unavailable
+        not_to:
+          - unknown
+          - unavailable
+        id: ip
+    action:
+      ####################################################
+      # Cambio IP Push
+
+      - choose:
+          - alias: Cambio IP Push
+            conditions:
+              - condition: trigger
+                id: ip
+              - condition: state
+                entity_id: input_boolean.notify_ip_push
+                state: "on"
+              # L'IP e' cambiato DAVVERO, non solo "si e' ricalcolato allo
+              # stesso valore" (es. al riavvio di HA il template si rivaluta
+              # ma l'IP resta lo stesso: prima notificava comunque). Guardia
+              # su from_state/to_state assenti: subito dopo un riavvio/reload
+              # trigger.from_state puo' essere None e far fallire il confronto.
+              - condition: template
+                value_template: "{{ trigger.from_state is not none and trigger.to_state is not none and trigger.from_state.attributes.ip != trigger.to_state.attributes.ip }}"
+            sequence:
+              #notifica push
+              - service: notify.gruppo_fritzbox
+                data:
+                  title: FritzBox 📡
+                  message: Il tuo nuovo indirizzo IP 🌍 è {{state_attr('sensor.fritzbox','ip')}}
+                  data:
+                    channel: general
+                    group: "{{ now().timestamp() ~ range(1000, 9999) | random }}"
+                    sticky: "true"
+              # --- AGGIUNTA TELEGRAM ---
+              - service: telegram_bot.send_message
+                data:
+                  parse_mode: html
+                  chat_id:
+                    - 111111111
+                    - 222222222
+                  title: "<b>FritzBox 📡</b>"
+                  message: "Il tuo nuovo indirizzo IP 🌍 è {{state_attr('sensor.fritzbox','ip')}}"
+                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+
+      ####################################################
+      # Push Online
+
+      - choose:
+          - alias: Push Online
+            conditions:
+              - condition: trigger
+                id: online
+              - condition: state
+                entity_id: input_boolean.notify_push_fritz
+                state: "on"
+            sequence:
+              # notifiche push
+              - service: notify.gruppo_fritzbox
+                data:
+                  title: FritzBox 📡
+                  message: Connessione Ripristinata!
+                    'Portante:' 🔽 {{ states('sensor.portante_download_agganciata') }} 🔼 {{ states('sensor.portante_upload_agganciata') }}
+                    🌍 {{ state_attr('sensor.fritzbox','ip') }}
+                  data:
+                    sticky: "true"
+              # --- AGGIUNTA TELEGRAM ---
+              - service: telegram_bot.send_message
+                data:
+                  parse_mode: html
+                  chat_id:
+                    - 111111111
+                    - 222222222
+                  title: "<b>FritzBox 📡</b>"
+                  message: |
+                    Connessione Ripristinata!
+                    Portante: 🔽 {{ states('sensor.portante_download_agganciata') }} 🔼 {{ states('sensor.portante_upload_agganciata') }}
+                    🌍 {{ state_attr('sensor.fritzbox','ip') }}
+                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
+
+      ####################################################
+      # Notifica Alexa Online
+
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: online
+                  - condition: time
+                    after: "input_datetime.orario_inizio_notifiche_fritz"
+                    before: "input_datetime.orario_fine_notifiche_fritz"
+                  - condition: state
+                    entity_id: input_boolean.notify_alexa_fritz
+                    state: "on"
+                sequence:
+                  - service: notify.alexa_media
+                    data:
+                      target: *alexa
+                      data:
+                        type: announce
+                        method: spoken
+                      message: "Connessione internet Ripristinata!"
+###################################################

@@ -1,0 +1,1482 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: 'Statistiche Home Assistant'
+      setting:
+
+####################################################
+#                                                  #
+#              IMPOSTAZIONI PACKAGE                #
+#                                                  #
+####################################################
+
+        Sensore Power Server: &power_server "{{ states('sensor.presa_nas_power') | float(0) }}"
+
+####################################################
+
+        Sensore Temperatura: &temp "{{ states('sensor.simon_nas_temperatura') | float(0) }}"
+#        Sensore Temperatura: &temp "{{ states('sensor.processor_temperature') | float(0) }}"
+
+####################################################
+
+        Sensore Certificato SSL: &cert_ssl "sensor.mio_dominio_scadenza_del_certificato"
+
+####################################################
+
+        Ventola Rack: &ventola_rack "sensor.temperatura_rack"
+
+  ####################################################
+
+        Device per notifica push: &push
+          - service: mobile_app_il_tuo_telefono
+
+####################################################
+#                                                  #
+#              NOTIFICHE GRUPPO                    #
+#                                                  #
+####################################################
+
+notify:
+  - name: Gruppo Centro Server
+    platform: group
+    services: *push
+
+####################################################
+#                                                  #
+#               INPUT NUMBER                       #
+#                                                  #
+####################################################
+
+input_number:
+
+  temperatura_server:
+    name: Soglia Temperatura Server
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "°C"
+    icon: mdi:counter
+
+####################################################
+
+  temperatura_rack_off:
+    name: Soglia Temperatura Rack Minima OFF
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "°C"
+    icon: mdi:counter
+
+####################################################
+
+  temperatura_rack_on:
+    name: Soglia Temperatura Rack Massima ON
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "°C"
+    icon: mdi:counter
+
+####################################################
+
+  utilizzo_ram:
+    name: Soglia Utilizzo Ram
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:counter
+
+####################################################
+
+  utilizzo_cpu:
+    name: Soglia Utilizzo Cpu
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:counter
+
+####################################################
+
+  utilizzo_disco:
+    name: Utilizzo Disco
+    mode: box
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    icon: mdi:counter
+
+####################################################
+#                                                  #
+#               BOOLEAN BACKUP                     #
+#                                                  #
+####################################################
+
+input_boolean:
+
+  ha_backup:
+    name: Backup Home Assistant
+
+#########################################################
+
+  ha_backup_lunedi:
+    name: Backup Lunedi
+
+#########################################################
+
+  ha_backup_martedi:
+    name: Backup Martedi
+
+#########################################################
+
+  ha_backup_mercoledi:
+    name: Backup Mercoledi
+
+#########################################################
+
+  ha_backup_giovedi:
+    name: Backup Giovedi
+
+#########################################################
+
+  ha_backup_venerdi:
+    name: Backup Venerdi
+
+#########################################################
+
+  ha_backup_sabato:
+    name: Backup Sabato
+
+#########################################################
+
+  ha_backup_domenica:
+    name: Backup Domenica
+
+####################################################
+#                                                  #
+#                BOOLEAN REPORT                    #
+#                                                  #
+####################################################
+
+  ha_report:
+    name: Report Home Assistant
+
+#########################################################
+
+  ha_report_lunedi:
+    name: Report Lunedi
+
+#########################################################
+
+  ha_report_martedi:
+    name: Report Martedi
+
+#########################################################
+
+  ha_report_mercoledi:
+    name: Report Mercoledi
+
+#########################################################
+
+  ha_report_giovedi:
+    name: Report Giovedi
+
+#########################################################
+
+  ha_report_venerdi:
+    name: Report Venerdi
+
+#########################################################
+
+  ha_report_sabato:
+    name: Report Sabato
+
+#########################################################
+
+  ha_report_domenica:
+    name: Report Domenica
+
+####################################################
+#                                                  #
+#                 BOOLEAN UPDATE                   #
+#                                                  #
+####################################################
+
+  ha_update_lunedi:
+    name: Update Lunedi
+
+#########################################################
+
+  ha_update_martedi:
+    name: Update Martedi
+
+#########################################################
+
+  ha_update_mercoledi:
+    name: Update Mercoledi
+
+#########################################################
+
+  ha_update_giovedi:
+    name: Update Giovedi
+
+#########################################################
+
+  ha_update_venerdi:
+    name: Update Venerdi
+
+#########################################################
+
+  ha_update_sabato:
+    name: Update Sabato
+
+#########################################################
+
+  ha_update_domenica:
+    name: Update Domenica
+
+####################################################
+#                                                  #
+#          BOOLEAN RIAVVIO PROGRAMMATO HA          #
+#                                                  #
+####################################################
+
+  on_off_riavvio_ha:
+    name: On Off Riavvio HA
+
+#########################################################
+
+  ha_riavvio_lunedi:
+    name: Riavvio HA Lunedi
+
+#########################################################
+
+  ha_riavvio_martedi:
+    name: Riavvio HA Martedi
+
+#########################################################
+
+  ha_riavvio_mercoledi:
+    name: Riavvio HA Mercoledi
+
+#########################################################
+
+  ha_riavvio_giovedi:
+    name: Riavvio HA Giovedi
+
+#########################################################
+
+  ha_riavvio_venerdi:
+    name: Riavvio HA Venerdi
+
+#########################################################
+
+  ha_riavvio_sabato:
+    name: Riavvio HA Sabato
+
+#########################################################
+
+  ha_riavvio_domenica:
+    name: Riavvio HA Domenica
+
+####################################################
+#                                                  #
+#         BOOLEAN RIAVVIO PROGRAMMATO SERVER       #
+#                                                  #
+####################################################
+
+  on_off_riavvio_server:
+    name: On Off Riavvio Server
+
+#########################################################
+
+  server_riavvio_lunedi:
+    name: Server Riavvio Lunedi
+
+#########################################################
+
+  server_riavvio_martedi:
+    name: Server Riavvio Martedi
+
+#########################################################
+
+  server_riavvio_mercoledi:
+    name: Server Riavvio Mercoledi
+
+#########################################################
+
+  server_riavvio_giovedi:
+    name: Server Riavvio Giovedi
+
+#########################################################
+
+  server_riavvio_venerdi:
+    name: Server Riavvio Venerdi
+
+#########################################################
+
+  server_riavvio_sabato:
+    name: Server Riavvio Sabato
+
+#########################################################
+
+  server_riavvio_domenica:
+    name: Server Riavvio Domenica
+
+####################################################
+#                                                  #
+#                  BOOLEAN ALERT                   #
+#                                                  #
+####################################################
+
+  on_off_alert_ha:
+    name: On Off Alert HA
+
+#########################################################
+
+  alert_ram:
+    name: Alert Ram
+
+#########################################################
+
+  alert_temperatura:
+    name: Alert Temperatura
+
+#########################################################
+
+  alert_cpu:
+    name: Alert Cpu
+
+#########################################################
+
+  alert_disco:
+    name: Alert Disco
+
+#########################################################
+
+  alert_db:
+    name: Alert Database
+
+####################################################
+#                                                  #
+#               BOOLEAN NOTIFICHE                  #
+#                                                  #
+####################################################
+
+  notifica_avvio_ha:
+    name: Notifica Avvio HA
+
+#########################################################
+
+  notifica_tempo_avvio_ha:
+    name: Notifica Tempo Avvio HA
+
+#########################################################
+
+  notifica_login_errato:
+    name: Notifica Login Errato
+
+#########################################################
+
+  notifica_certificato_scaduto:
+    name: Notifica Certificato Scaduto
+
+####################################################
+#                                                  #
+#               BOOLEAN AGGIORNAMENTI              #
+#                                                  #
+####################################################
+
+  on_off_aggiornamenti_ha:
+    name: On Off Aggiornamenti HA
+
+#########################################################
+
+  notifica_aggiornamenti_core:
+    name: Notifica Aggiornamenti Core
+
+#########################################################
+
+  notifica_aggiornamenti_supervisor:
+    name: Notifica Aggiornamenti Supervisor
+
+#########################################################
+
+  notifica_aggiornamenti_addon:
+    name: Notifica Aggiornamenti Addon
+
+#########################################################
+
+  notifica_aggiornamenti_hacs:
+    name: Notifica Aggiornamenti Hacs
+
+#########################################################
+
+  on_off_ventola_rack:
+    name: On Off Ventola Rack
+
+####################################################
+#                                                  #
+#                     GROUP                        #
+#                                                  #
+################ ####################################
+
+group:
+  notifiche_server:
+    entities:
+      - input_boolean.ha_report
+      - input_boolean.notifica_avvio_ha
+      - input_boolean.notifica_tempo_avvio_ha
+      - input_boolean.notifica_login_errato
+      - input_boolean.on_off_alert_ha
+      - input_boolean.on_off_aggiornamenti_ha
+      - input_boolean.notifica_certificato_scaduto
+      - input_boolean.ha_backup
+      - input_boolean.on_off_riavvio_ha
+      - input_boolean.on_off_riavvio_server
+      - input_boolean.on_off_ventola_rack
+
+####################################################
+#                                                  #
+#                  INPUT SELECT                    #
+#                                                  #
+####################################################
+
+input_select:
+  backup_server:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+####################################################
+
+  riavvio_programmato_ha:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+####################################################
+
+  riavvio_programmato_server:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+####################################################
+
+  report_server:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+####################################################
+
+  aggiornamenti_server_giorni:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+####################################################
+
+  aggiornamenti_server_servizio:
+    name: SELEZIONA
+    options:
+      - Servizio
+
+####################################################
+
+  alert_server_servizio:
+    name: SELEZIONA
+    options:
+      - Servizio
+
+####################################################
+#                                                  #
+#                   LOGGER                         #
+#                                                  #
+####################################################
+
+logger:
+  default: warn
+  logs:
+    homeassistant.bootstrap: info
+
+####################################################
+#                                                  #
+#                UTILITY METER                     #
+#                                                  #
+####################################################
+
+utility_meter:
+  energia_oggi_server:
+    source: sensor.w_kwh_server
+    cycle: daily
+
+####################################################
+
+  energia_mese_server:
+    source: sensor.w_kwh_server
+    cycle: monthly
+
+####################################################
+
+  energia_anno_server:
+    source: sensor.w_kwh_server
+    cycle: yearly
+
+####################################################
+#                                                  #
+#                   SENSORI W KWH                  #
+#                                                  #
+####################################################
+
+sensor:
+  - platform: integration
+    source: sensor.sensore_potenza_server_w
+    name: w_kwh_server
+    unit_prefix: k
+    method: left
+    round: 2
+
+####################################################
+
+template:
+  - sensor:
+      - name: "Sensore Potenza Server W"
+        unit_of_measurement: 'W'
+        device_class: power
+        state_class: measurement
+        icon: mdi:flash
+        state: *power_server
+
+####################################################
+#                                                  #
+#                 SERVER COSTI                     #
+#                                                  #
+####################################################
+
+      - name: "Costo Consumo Giornaliero Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_oggi_server') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+
+      - name: "Costo Consumo Mensile Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_mese_server') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+
+      - name: "Costo Consumo Annuale Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((states('sensor.energia_anno_server') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+#                                                  #
+#             SERVER COSTI  Precedenti             #
+#                                                  #
+####################################################
+
+      - name: "Costo Consumo Ieri Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_oggi_server','last_period') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+
+      - name: "Costo Consumo Mese Precedente Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_mese_server','last_period') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+
+      - name: "Costo Consumo Anno Precedente Server"
+        unit_of_measurement: '€'
+        device_class: monetary
+        icon: mdi:currency-eur
+        state: "{{((state_attr('sensor.energia_anno_server','last_period') | float(0)) * (states('input_number.costo_energia')| float)) | round(2, default=0) }}"
+
+####################################################
+#                                                  #
+#           CONTEGGIO ENTITA' TOTALI               #
+#                                                  #
+####################################################
+
+      - name: "Conteggio Entita"
+        state: "{{ states | count }}"
+        attributes:
+          automation: "{{ states.automation | count }}"
+          automation_ON: "{{ states.automation | selectattr('state', 'eq', 'on') | list | count }}"
+          binary_sensor: "{{ states.binary_sensor | count }}"
+          camera: "{{ states.camera | count }}"
+          cover: "{{ states.cover | count }}"
+          climate: "{{ states.climate | count }}"
+          device_tracker: "{{ states.device_tracker | count }}"
+          group: "{{ states.group | count }}"
+          input_boolean: "{{ states.input_boolean | count }}"
+          input_datetime: "{{ states.input_datetime | count }}"
+          input_number: "{{ states.input_number | count }}"
+          input_select: "{{ states.input_select | count }}"
+          input_text: "{{ states.input_text | count }}"
+          media_player: "{{ states.media_player | count }}"
+          light: "{{ states.light | count }}"
+          scene: "{{ states.scene | count }}"
+          script: "{{ states.script | count }}"
+          sensor: "{{ states.sensor | count }}"
+          switch: "{{ states.switch | count }}"
+          zone: "{{ states.zone | count }}"
+
+####################################################
+
+      - name: "Template Tempo Di Avvio Homeassistant"
+        icon: mdi:restart
+        state: >
+          {% set hours = (as_timestamp(states('sensor.date_time_iso')) - as_timestamp(states('sensor.uptime')))/3600 | float(0) %}
+          {% set minutes = ((hours % 1) * 60) | int(0) %}
+          {% set hours = (hours - (hours % 1)) | int(0) %}
+          {%set day = ((hours |int(0) /24))|int(0) %}
+            {% if day|int(0) >0 %}
+              {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+            {% elif hours|int(0) >0 %}
+              {{hours}}h {{minutes}}m
+            {% else %}
+              {{minutes}}m
+            {% endif %}
+
+####################################################
+
+      - name: "Tempo Avvio Server"
+        icon: mdi:restart
+        state: >
+          {% set hours = (as_timestamp(states('sensor.date_time_iso')) - as_timestamp(states('sensor.last_boot')))/3600 | float(0) %}
+          {% set minutes = ((hours % 1) * 60) | int(0) %}
+          {% set hours = (hours - (hours % 1)) | int(0) %}
+          {%set day = ((hours |int(0) /24))|int(0) %}
+            {% if day|int(0) >0 %}
+              {{day}}d {{(hours|int(0))-(day*24)}}h {{minutes}}m
+            {% elif hours|int(0) >0 %}
+              {{hours}}h {{minutes}}m
+            {% else %}
+              {{minutes}}m
+            {% endif %}
+
+####################################################
+
+      - name: "Disk Total"
+        unit_of_measurement: "GB"
+        state: "{{ ( states('sensor.disk_use')|float + states('sensor.disk_free')|float )| round (1) }}"
+
+####################################################
+
+      - name: "Sensore Centro Controllo Server"
+        state: "2.8"
+
+####################################################
+
+      - name: "Ram Totale"
+        unit_of_measurement: 'MiB'
+        icon: mdi:memory
+        state: "{{ (states('sensor.memory_use')|float + (states('sensor.memory_free')|float))|round(1) }}"
+
+####################################################
+#                                                  #
+#                     CORE                         #
+#                                                  #
+####################################################
+
+      - name: "Update Core Card"
+        state: >
+          {% if (state_attr('sensor.updater_core','update_available'))  ==false %}
+          Aggiornato
+          {% else %}
+          Non Aggiornato
+          {% endif %}
+
+####################################################
+#                                                  #
+#                 SUPERVISOR                       #
+#                                                  #
+####################################################
+
+      - name: "Update Supervisor Card"
+        state: >
+          {% if (state_attr('sensor.supervisor_updates','update_available')) ==false %}
+          Aggiornato
+          {% else %}
+          Non Aggiornato
+          {% endif %}
+
+####################################################
+#                                                  #
+#              SUPERVISOR  ADD ON                  #
+#                                                  #
+####################################################
+
+      - name: "Supervisor Update Addon Card"
+        state: >
+          {% if (states('sensor.supervisor_updates') | int (default=0) ) > 0 %}
+          Aggiornare {{ states('sensor.supervisor_updates') }} addon(s)
+          {% else %}
+          Aggiornati
+          {% endif %}
+
+####################################################
+#                                                  #
+#                STORE HACS CARD                   #
+#                                                  #
+####################################################
+
+      - name: "Hacs Store Card"
+        state: >
+          {% if (states('sensor.hacs') | int (default=0) ) > states('0')|int (default=0) %}
+          Aggiornare {{ states('sensor.hacs') }} custom
+          {% else %}
+          Aggiornato
+          {% endif %}
+
+####################################################
+
+      - name: "Hacs"
+        icon: 'mdi:update'
+        state: "{{ (states.update | selectattr('entity_id','in',integration_entities('hacs')) | selectattr('state','eq','on') | map(attribute='name') | list | count ) }}"
+
+####################################################
+#                                                  #
+#                SENSORI AGGIUNTIVI                #
+#                                                  #
+####################################################
+
+      - name: "Cpu Temperatura"
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        state: *temp
+
+####################################################
+
+# Backup gestiti dal sistema nativo di Home Assistant (destinazione: Synology).
+# Rinominato (era "Ultimo Backup Google Drive", etichetta rimasta da una vecchia
+# destinazione: i backup non vanno piu' su Google Drive, solo su Synology).
+
+      - name: "Ultimo Backup"
+        state: >
+          {% if states('sensor.backup_last_successful_automatic_backup') in ['unknown','unavailable'] %}
+            In attesa
+          {% else %}
+            {{ as_timestamp(states('sensor.backup_last_successful_automatic_backup')) | timestamp_custom('%d/%m/%y - %H:%M') }}
+          {% endif %}
+
+####################################################
+#                                                  #
+#               SENSOR COMMAND LINE                #
+#                                                  #
+####################################################
+
+command_line:
+  - sensor:
+      command: grep -m1 'Home Assistant initialized' home-assistant.log | awk '{ print $6, $7, $8, $9, $10 }'
+      name: HomeAssistant Start
+      scan_interval: 3600
+
+####################################################
+
+  - sensor:
+      command: 'curl http://supervisor/core/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"newest_version":.data.version_latest,"current_version":.data.version, "update_available":.data.update_available}'''
+      name: Updater Core
+      value_template: "{% if value_json.update_available %}on{% else %}off{% endif %}"
+      json_attributes:
+      - update_available
+      - newest_version
+      - current_version
+      scan_interval: 14400
+
+####################################################
+
+  - sensor:
+      command: 'curl http://supervisor/supervisor/info -H "Authorization: Bearer $(printenv SUPERVISOR_TOKEN)" | jq ''{"newest_version":.data.version_latest,"current_version":.data.version,"update_available":.data.update_available,"addons":[.data.addons[] | select(.update_available)]}'''
+      name: Supervisor updates
+      value_template: "{{ value_json.addons | length }}"
+      unit_of_measurement: pending update(s)
+      json_attributes:
+      - update_available
+      - newest_version
+      - current_version
+      - addons
+      scan_interval: 14400
+
+####################################################
+#                                                  #
+#                INPUT DATE TIME                   #
+#                                                  #
+####################################################
+
+input_datetime:
+  orario_report_ha:
+    name: Orario Report Home Assistant
+    has_date: false
+    has_time: true
+
+####################################################
+
+  orario_backup_homeassistant:
+    name: Orario Backup Home Assistant
+    has_date: false
+    has_time: true
+
+####################################################
+
+  orario_notifiche_aggiornamenti_homeassistant:
+    name: Orario Notifiche Aggiornamenti Home Assistant
+    has_date: false
+    has_time: true
+
+####################################################
+
+  orario_riavvio_homeassistant:
+    name: Orario Riavvio Home Assistant
+    has_date: false
+    has_time: true
+
+####################################################
+
+  orario_riavvio_server:
+    name: Orario Riavvio Server
+    has_date: false
+    has_time: true
+
+####################################################
+#                                                  #
+#                    SCRIPT                        #
+#                                                  #
+####################################################
+
+script:
+  backup_ha:
+    alias: Backup HA
+    sequence:
+    - data_template:
+        message: 💾 Backup in corso 💾
+        title: "📌 Backup Home Assistant 📌"
+      service: notify.gruppo_centro_server
+    - service: hassio.backup_full
+      data_template:
+        name: >
+          Backup del {{ now().strftime('%d-%m-%Y') }}
+
+####################################################
+#                                                  #
+#                  AUTOMAZIONI                     #
+#                                                  #
+####################################################
+
+automation:
+
+- alias: Automazioni Statistiche HA
+  id: Automazioni Statistiche HA
+  trigger:
+
+  - platform: time
+    at: 'input_datetime.orario_report_ha'
+    id: orario_report_ha
+
+  - platform: time
+    at: 'input_datetime.orario_riavvio_homeassistant'
+    id: orario_riavvio_ha
+
+  - platform: time
+    at: 'input_datetime.orario_riavvio_server'
+    id: orario_riavvio_server
+
+  - platform: template
+    value_template: "{{ states('sensor.cpu_temperatura')|int (0) > states('input_number.temperatura_rack_on')|int (0) and is_state('input_boolean.on_off_ventola_rack', 'on') }}"
+    id: ventola_rack_on
+
+  - platform: template
+    value_template: "{{ states('sensor.cpu_temperatura')|int (0) < states('input_number.temperatura_rack_off')|int (0) and is_state('input_boolean.on_off_ventola_rack', 'on') }}"
+    id: ventola_rack_off
+
+  - platform: template
+    value_template: "{{ states('sensor.memory_use_percent')|int (0) > states('input_number.utilizzo_ram')|int (0) }}"
+    id: alert_ram
+
+  - platform: template
+    value_template: "{{ states('sensor.cpu_temperatura')|int (0) > states('input_number.temperatura_server')|int (0) }}"
+    for:
+      minutes: "2"
+    id: alert_temperatura
+
+  - platform: template
+    value_template: "{{ states('sensor.processor_use')|int (0) > states('input_number.utilizzo_cpu')|int (0) }}"
+    id: alert_cpu
+
+  - platform: template
+    value_template: "{{ states('sensor.disk_use_percent')|int (0) > states('input_number.utilizzo_disco')|int (0) }}"
+    id: alert_disco
+
+  - platform: template
+    value_template: "{{is_state_attr('sensor.mio_dominio_scadenza_del_certificato','is_valid', false )}}"
+    id: alert_ssl
+
+  - platform: homeassistant
+    event: start
+    id: avvio_ha
+
+  - platform: state
+    entity_id: persistent_notification.http_login
+    id: login_errato
+
+  - platform: time
+    at: 'input_datetime.orario_notifiche_aggiornamenti_homeassistant'
+    id: orario_update_ha
+
+  - platform: time
+    at: 'input_datetime.orario_backup_homeassistant'
+    id: backup_ha
+
+  action:
+
+####################################################
+# Report HA
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_report_ha
+      - condition: state
+        entity_id: input_boolean.ha_report
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_report_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_report_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - service: notify.persistent_notification
+        data:
+          title: "📥 Report Home Assistant 📥"
+          message: >
+            DATA E ORA:
+              {{ states('sensor.data_italiana') }} ore {{ states('sensor.time') }}
+
+
+            ULTIMO GIORNO DEL MESE:
+            {{ 31 if now().month == 12 else (now().replace(month=now().month+1, day=1) - timedelta(days=1)).day }}
+
+
+            SERVER:
+            Attivo da: {{ states('sensor.tempo_avvio_server') }}
+
+
+            HOMEASSISTANT:
+            Avviato da: {{ states('sensor.template_tempo_di_avvio_homeassistant') }}
+
+
+            CORE:
+            {% if (state_attr('sensor.updater_core','update_available'))  ==false %}
+              Versione Core {{state_attr('sensor.updater_core','current_version')}} Aggiornata
+            {% else %}
+              Versione Core non Aggiornata!
+              Nuova versione {{state_attr('sensor.updater_core','newest_version')}}
+              Installata {{state_attr('sensor.updater_core','current_version')}}
+            {% endif %}
+
+
+            SUPERVISOR:
+            {% if (state_attr('sensor.supervisor_updates','update_available'))  ==false %}
+              Versione Supervisor {{ state_attr('sensor.supervisor_updates', 'newest_version') }} Aggiornata
+            {% else %}
+              Versione Supervisor non Aggiornata!
+              Nuova versione {{ state_attr('sensor.supervisor_updates', 'newest_version') }}.
+              Installata {{ state_attr('sensor.supervisor_updates', 'current_version') }}
+            {% endif %}
+
+
+            ADD-ON:
+            {% if (states('sensor.supervisor_updates')
+            | int(0)) > 0 %}
+              **Ci sono {{ states('sensor.supervisor_updates') }} add-on da aggiornare:**
+
+              {% for addon in state_attr('sensor.supervisor_updates', 'addons') %}
+              > 📌 {{ addon.name }} ({{ addon.version }} → {{ addon.version_latest }})
+              {% endfor %}
+            {% else %}
+              ✅ Tutti gli add-on sono aggiornati!
+            {% endif
+            %}
+
+
+            HACS:
+            {% if (states('sensor.hacs') | int(0)) > 0 %}
+              **Ci sono {{ states('sensor.hacs') }} aggiornamenti HACS disponibili:**
+
+              {% set hacs_updates = states.update | selectattr('entity_id','in',integration_entities('hacs')) | selectattr('state','eq','on') | list %}
+              {% for update in hacs_updates %}
+              > 📌 {{ update.name }} ({{ update.attributes.installed_version }} → {{ update.attributes.latest_version }})
+              {% endfor %}
+            {% else %}
+              ✅ Tutti i custom sono aggiornati!
+            {% endif %}
+
+
+            TEMPO DI AVVIO:
+            {{ states('sensor.template_tempo_di_avvio_homeassistant') }}
+
+
+            ENTITA':
+            Utilizzate: {{ states('sensor.conteggio_entita') }}
+
+####################################################
+# Alert Soglia RAM
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: alert_ram
+      - condition: state
+        entity_id: input_boolean.alert_ram
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "Stai utilizzando il {{ states('sensor.memory_use_percent') }} % di RAM disponibile"
+          title: "⚠️ Server RAM ⚠️ "
+        service: notify.gruppo_centro_server
+
+####################################################
+# Alert Soglia TEMPERATURA
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: alert_temperatura
+      - condition: state
+        entity_id: input_boolean.alert_temperatura
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "🌡Temperatura elevata. Sono stati raggiunti {{ states('sensor.cpu_temperatura') }} °C 🌡 "
+          title: "⚠️ Server TEMPERATURA ⚠️ "
+        service: notify.gruppo_centro_server
+
+####################################################
+# Alert Soglia CPU
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: alert_cpu
+      - condition: state
+        entity_id: input_boolean.alert_cpu
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "Stai utilizzando il {{ states('sensor.processor_use') }} % di CPU disponibile"
+          title: "⚠️ Server CPU ⚠️ "
+        service: notify.gruppo_centro_server
+
+####################################################
+# Alert Soglia DISCO
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: alert_disco
+      - condition: state
+        entity_id: input_boolean.alert_disco
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "Stai utilizzando il {{ states('sensor.disk_use_percent') }} % di DISCO disponibile "
+          title: "⚠️ Server DISCO ⚠️ "
+        service: notify.gruppo_centro_server
+
+####################################################
+# Alert SSL
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: alert_ssl
+      - condition: state
+        entity_id: input_boolean.notifica_certificato_scaduto
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "🔐 Certificato SSL Scaduto 🔐"
+          title: "⚠️ Certificato SSL ⚠️ "
+        service: notify.gruppo_centro_server
+
+#####################################################
+# Notifica Avvio Home Assistant
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: avvio_ha
+      - condition: state
+        entity_id: input_boolean.notifica_avvio_ha
+        state: 'on'
+      sequence:
+      - delay: '00:00:05'
+      - data_template:
+          message: "✅ Home Assistant Avviato ✅"
+          title: 🖥 Server 🖥
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica Tempo Avvio Home Assistant
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: avvio_ha
+      - condition: state
+        entity_id: input_boolean.notifica_tempo_avvio_ha
+        state: 'on'
+      sequence:
+      - delay: '00:01:00'
+      - data_template:
+          message: "{{ states('sensor.template_tempo_di_avvio_homeassistant') }}"
+          title: ⏱ Server ⏱
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica Login Errato
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: login_errato
+      - condition: state
+        entity_id: input_boolean.notifica_login_errato
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "Login Errato - {{as_timestamp(now()) | timestamp_custom('%d/%m/%Y - %H:%M', True) }}"
+          title: '⛔️ Accesso Fallito ⛔️'
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica UPDATE CORE
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_update_ha
+      - condition: state
+        entity_id: input_boolean.notifica_aggiornamenti_core
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_aggiornamenti_ha
+        state: 'on'
+      - condition: template
+        value_template: "{{ (state_attr('sensor.updater_core', 'update_available')) ==true }}"
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_update_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: >
+            Nuova versione {{state_attr('sensor.updater_core','newest_version')}}
+
+            Installata {{state_attr('sensor.updater_core','current_version')}}
+          title: "📥 Aggiornamento Core 📥"
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica UPDATE SUPERVISOR
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_update_ha
+      - condition: state
+        entity_id: input_boolean.notifica_aggiornamenti_supervisor
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_aggiornamenti_ha
+        state: 'on'
+      - condition: template
+        value_template: "{{ (state_attr('sensor.supervisor_updates', 'update_available')) ==true }}"
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_update_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: >
+            Nuova versione {{ state_attr('sensor.supervisor_updates', 'newest_version') }}
+
+            Installata {{ state_attr('sensor.supervisor_updates', 'current_version') }}
+          title: "📥 Aggiornamento Supervisor 📥"
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica UPDATE ADD-ON
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_update_ha
+      - condition: state
+        entity_id: input_boolean.notifica_aggiornamenti_addon
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_aggiornamenti_ha
+        state: 'on'
+      - condition: template
+        value_template:  "{{ states('sensor.supervisor_updates') |int > 0 }}"
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_update_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: >
+            {% if (states('sensor.supervisor_updates')
+            | int(0)) > 0 %}
+              **Ci sono {{ states('sensor.supervisor_updates') }} add-on da aggiornare:**
+
+              {% for addon in state_attr('sensor.supervisor_updates', 'addons') %}
+              > 📌 {{ addon.name }} ({{ addon.version }} → {{ addon.version_latest }})
+              {% endfor %}
+            {% else %}
+              ✅ Tutti gli add-on sono aggiornati!
+            {% endif
+            %}
+          title: "📥 Aggiornamento ADD-ON 📥"
+        service: notify.gruppo_centro_server
+
+####################################################
+# Notifica UPDATE HACS
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_update_ha
+      - condition: state
+        entity_id: input_boolean.notifica_aggiornamenti_hacs
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.on_off_aggiornamenti_ha
+        state: 'on'
+      - condition: template
+        value_template:  "{{ states('sensor.hacs') |int > 0 }}"
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_update_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_update_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: >
+            {% if (states('sensor.hacs') | int(0)) > 0 %}
+              **Ci sono {{ states('sensor.hacs') }} aggiornamenti HACS disponibili:**
+
+              {% set hacs_updates = states.update | selectattr('entity_id','in',integration_entities('hacs')) | selectattr('state','eq','on') | list %}
+              {% for update in hacs_updates %}
+              > 📌 {{ update.name }} ({{ update.attributes.installed_version }} → {{ update.attributes.latest_version }})
+              {% endfor %}
+            {% else %}
+              ✅ Tutti i custom sono aggiornati!
+            {% endif %}
+          title: "📥 Aggiornamento HACS 📥"
+        service: notify.gruppo_centro_server
+
+####################################################
+# Backup Home Assistant
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: backup_ha
+      - condition: state
+        entity_id: input_boolean.ha_backup
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_backup_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_backup_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - entity_id: script.backup_ha
+        service: script.toggle
+
+####################################################
+# Orario RIAVVIO Programmato Home Assistant
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_riavvio_ha
+      - condition: state
+        entity_id: input_boolean.on_off_riavvio_ha
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.ha_riavvio_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.ha_riavvio_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: "Riavvio Programmato HA - {{as_timestamp(now()) | timestamp_custom('%d/%m/%Y - %H:%M', True) }}"
+          title: "🕐 Riavvio Home Assistant 🕐"
+        service: notify.gruppo_centro_server
+      - delay: '00:00:05'
+      - service: homeassistant.restart
+
+####################################################
+# Orario RIAVVIO Programmato Server
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: orario_riavvio_server
+      - condition: state
+        entity_id: input_boolean.on_off_riavvio_server
+        state: 'on'
+      - condition: template
+        value_template: >-
+          {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+          {% if is_state("xxx", "xxx") %} true
+          {% elif (is_state("input_boolean.server_riavvio_lunedi", "on") and today in ["Monday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_martedi", "on") and today in ["Tuesday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_mercoledi", "on") and today in ["Wednesday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_giovedi", "on") and today in ["Thursday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_venerdi", "on") and today in ["Friday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_sabato", "on") and today in ["Saturday"]) %} true
+          {% elif (is_state("input_boolean.server_riavvio_domenica", "on") and today in ["Sunday"]) %} true
+          {% else %} false
+          {% endif %}
+      sequence:
+      - data_template:
+          message: "Riavvio Programmato Server - {{as_timestamp(now()) | timestamp_custom('%d/%m/%Y - %H:%M', True) }}"
+          title: "🕐 Riavvio Server 🕐"
+        service: notify.gruppo_centro_server
+      - delay: '00:00:05'
+      - service: hassio.host_reboot
+
+####################################################
+# Ventola Rack ON
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: ventola_rack_on
+      - condition: state
+        entity_id: input_boolean.on_off_ventola_rack
+        state: 'on'
+      sequence:
+      - data_template:
+          message: "Avvio Ventola Rack"
+          title: "⚠️ Temeperatura CPU Alta⚠️ "
+        service: notify.gruppo_centro_server
+      - entity_id: *ventola_rack
+        service: homeassistant.turn_on
+
+####################################################
+# Ventola Rack OFF
+
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: ventola_rack_off
+      - condition: state
+        entity_id: input_boolean.on_off_ventola_rack
+        state: 'on'
+      sequence:
+      - data_template:
+          message: Temperatura OK Ventola Rack Spenta
+          title: "⚠️ Temeperatura CPU OK⚠️ "
+        service: notify.gruppo_centro_server
+      - entity_id: *ventola_rack
+        service: homeassistant.turn_off

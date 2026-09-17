@@ -12,6 +12,11 @@ Un modo per portare in Home Assistant le statistiche del tuo host Proxmox VE —
 - L'integrazione core/HACS **Proxmox VE** (espone CPU/RAM/disco/numero di VM e container per nodo).
 - In alternativa, un piccolo script/`command_line` sensor che interroga l'API di Proxmox (`https://<host>:8006/api2/json/...`) se preferisci non installare integrazioni extra.
 
+## 🚀 Metodo veloce: usa i miei file originali
+
+- [`packages/proxmox_ve.yaml`](../packages/proxmox_ve.yaml) — configurazione dell'integrazione Proxmox VE via YAML (utile perché, a differenza della UI, sopravvive ai riavvii senza perdere l'entry). Cambia `host` con l'IP del tuo Proxmox, `username`/`realm` con il tuo utente (io uso un utente dedicato di sola lettura, consigliato), e crea un `secrets.yaml` con `proxmox_ha_psw: la_tua_password`.
+- [`packages/centro_controllo_proxmox.yaml`](../packages/centro_controllo_proxmox.yaml) — automazione di notifica se CPU/RAM superano il 90% per più di 2 minuti. Cambia `sensor.node_proxmox_cpu_usata`/`sensor.node_proxmox_percentuale_memoria_usata` con i TUOI sensori (i nomi dipendono da come hai chiamato il nodo), `notify.mobile_app_il_tuo_telefono` con il tuo, e se non usi Telegram cancella il blocco `telegram_bot.send_message` (o metti il tuo `chat_id`).
+
 `cpu_temp` e `gpu_pct` **non** fanno parte delle statistiche standard di Proxmox: se vuoi mostrarli ti serve qualcosa che legga i sensori hardware dell'host (es. `lm-sensors` + un sensore `command_line`/SSH, oppure un agente tipo Glances/System Bridge installato sull'host). Se non ti interessano, ometti semplicemente questi due campi.
 
 ## Campo per campo

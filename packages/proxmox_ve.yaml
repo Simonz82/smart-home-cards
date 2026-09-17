@@ -1,0 +1,16 @@
+# Integrazione ufficiale Proxmox VE (card stato nodo/dischi) — configurata
+# via YAML invece che da interfaccia perché HA sovrascrive sempre
+# core.config_entries con lo stato in memoria ad ogni riavvio: il percorso
+# YAML/import è l'unico modo per far scrivere l'entry in modo persistente.
+# Utente dedicato homeassistant@pve (realm interno Proxmox, sola lettura
+# PVEAuditor), ricreato il 2026-09-03 dopo la migrazione al nuovo host
+# (il vecchio database utenti/token non si porta dietro col restore dei
+# container/VM).
+proxmoxve:
+  - host: 192.168.1.XXX
+    username: homeassistant
+    password: !secret proxmox_ha_psw
+    realm: pve
+    verify_ssl: false
+    nodes:
+      - node: proxmox

@@ -8,6 +8,18 @@ Stato della connessione, banda impegnata, velocità live, pulsanti rapidi (cambi
 
 Pensata per un router **AVM FritzBox** con l'integrazione ufficiale **FRITZ!Box Tools** (Impostazioni → Dispositivi e servizi → Aggiungi integrazione → cerca "FRITZ!Box Tools", inserisci IP/utente/password del router). Quell'integrazione crea da sola quasi tutti i sensori che servono qui, senza bisogno di template personalizzati. Se hai un router diverso, puoi comunque usare la card: ti basta avere un `binary_sensor`/`sensor` che rappresenti "online/offline" per `connection_entity`, il resto dei campi è tutto opzionale.
 
+## 🚀 Metodo veloce: usa il mio package originale
+
+Il package completo — notifiche online/offline/cambio IP, pulsanti riconnetti/riavvia/pulizia — è in [`packages/statistiche_fritzbox.yaml`](../packages/statistiche_fritzbox.yaml).
+
+**Istruzioni:**
+
+1. Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi).
+2. **Importante**: l'integrazione FRITZ!Box Tools include il modello del router nei nomi entità (es. `sensor.fritz_box_7690_ip_esterno`). Il mio è un 7690 — cerca `7690` nel file (Ctrl+F, "sostituisci tutto") e mettici il modello del TUO FritzBox. Controlla i nomi esatti in Impostazioni → Entità dopo aver configurato l'integrazione.
+3. In cima al file, nel blocco **`IMPOSTAZIONI PACKAGE`**: `Lista mediaplayer alexa` → i tuoi dispositivi Alexa; `Device per notifica push` → il tuo `notify.mobile_app_xxx`.
+4. Se non usi Telegram, cerca `telegram_bot.send_message` e cancella quei blocchi.
+5. Riavvia Home Assistant, poi aggiungi la card con la configurazione più sotto in questa guida.
+
 ## Configurazione minima
 
 ```yaml
@@ -94,4 +106,4 @@ settings_sections:
         label: Fine fascia
 ```
 
-**Le automazioni (online/offline, cambio IP, fascia oraria) sono già scritte e pronte in [`../automazioni/fritzbox.yaml`](../automazioni/fritzbox.yaml)**, compresi gli script `fritz_box_riconnetti`/`fritz_box_riavvia` citati sopra — in testa al file trovi cosa cambiare. Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo, e [notifiche-personalizzate.md](notifiche-personalizzate.md) per il pattern generale.
+Le notifiche online/offline, cambio IP e fascia oraria sono già scritte e pronte nel package [`../packages/statistiche_fritzbox.yaml`](../packages/statistiche_fritzbox.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Pattern generale in [notifiche-personalizzate.md](notifiche-personalizzate.md).

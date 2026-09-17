@@ -1,0 +1,47 @@
+####################################################
+#                                                  #
+#            CENTRO CONTROLLO PROXMOX             #
+#                                                  #
+####################################################
+# Host Proxmox VE (mini PC N150). Notifica push + Telegram
+# a Simone quando CPU o RAM superano il 90% (per almeno 2
+# minuti, per evitare falsi allarmi su picchi brevissimi).
+# Il trigger "above: 90" scatta una sola volta nel momento in
+# cui si supera la soglia e non si ripete finché non scende e
+# risale di nuovo, quindi niente spam di notifiche ripetute.
+# Creato 2026-08-23 insieme alla card dm-proxmox-card.
+
+automation:
+  - alias: "Proxmox CPU/RAM elevate"
+    id: proxmox_cpu_ram_elevate
+    description: "Notifica push e Telegram a Simone se CPU o RAM del nodo Proxmox superano il 90% per almeno 2 minuti"
+    mode: parallel
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.node_proxmox_cpu_usata
+        above: 90
+        for: "00:02:00"
+        id: cpu_alta
+      - trigger: numeric_state
+        entity_id: sensor.node_proxmox_percentuale_memoria_usata
+        above: 90
+        for: "00:02:00"
+        id: ram_alta
+    actions:
+      - variables:
+          metrica: "{{ 'CPU' if trigger.id == 'cpu_alta' else 'RAM' }}"
+          valore: "{{ trigger.to_state.state | round(0) }}"
+          messaggio: "Il nodo Proxmox ha la {{ metrica }} al {{ valore }}% da almeno 2 minuti."
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "Proxmox - {{ metrica }} elevata"
+          message: "{{ messaggio }}"
+          data:
+            color: "#ef4444"
+            priority: high
+      - action: telegram_bot.send_message
+        data:
+          chat_id: [111111111, 222222222]
+          parse_mode: html
+          title: "<b>Proxmox - {{ metrica }} elevata</b>"
+          message: "{{ messaggio }}"
