@@ -2,8 +2,13 @@
 
 Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
 
-![Card lavatrice](screenshot/elettrodomestici-lavatrice.png)
-![Card lavastoviglie](screenshot/elettrodomestici-lavastoviglie.png)
+| Lavatrice | Lavastoviglie | Asciugatrice |
+|---|---|---|
+| ![Lavatrice](screenshot/elettrodomestici-lavatrice.png) | ![Lavastoviglie](screenshot/elettrodomestici-lavastoviglie.png) | ![Asciugatrice](screenshot/elettrodomestici-asciugatrice.png) |
+
+| Forno | TV |
+|---|---|
+| ![Forno](screenshot/elettrodomestici-forno.png) | ![TV](screenshot/elettrodomestici-tv.png) |
 
 ## Cosa ti serve prima di iniziare
 
