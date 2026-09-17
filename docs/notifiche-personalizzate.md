@@ -1,6 +1,8 @@
 # Notifiche personalizzate (Push + Alexa)
 
-Ogni card ha, nel suo popup Impostazioni, uno o più interruttori tipo "Notifica Push" / "Notifica Alexa". **La card non manda nessuna notifica da sola**: quegli interruttori sono solo delle preferenze (`input_boolean`) che tu leggi dentro una tua automazione. Questa pagina spiega il pattern usato in tutte le guide, così lo scrivi una volta e lo riusi ovunque.
+Ogni card ha, nel suo popup Impostazioni, uno o più interruttori tipo "Notifica Push" / "Notifica Alexa". **La card non manda nessuna notifica da sola**: quegli interruttori sono solo delle preferenze (`input_boolean`) lette da un'automazione.
+
+**Le automazioni sono già scritte e pronte in [`../automazioni/`](../automazioni/)** — una per card (`elettrodomestici.yaml`, `energia.yaml`, `fritzbox.yaml`, `server-homeassistant.yaml`), con in testa l'elenco esatto dei parametri da cambiare per il tuo impianto. Questa pagina spiega solo il **pattern generale** usato in tutte, utile se vuoi aggiungere una notifica in più che non è già coperta.
 
 ## L'idea generale
 

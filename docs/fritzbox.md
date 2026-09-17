@@ -94,4 +94,4 @@ settings_sections:
         label: Fine fascia
 ```
 
-Per il pattern notifiche completo (automazione che legge questi interruttori) vedi [notifiche-personalizzate.md](notifiche-personalizzate.md).
+**Le automazioni (online/offline, cambio IP, fascia oraria) sono già scritte e pronte in [`../automazioni/fritzbox.yaml`](../automazioni/fritzbox.yaml)**, compresi gli script `fritz_box_riconnetti`/`fritz_box_riavvia` citati sopra — in testa al file trovi cosa cambiare. Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo, e [notifiche-personalizzate.md](notifiche-personalizzate.md) per il pattern generale.

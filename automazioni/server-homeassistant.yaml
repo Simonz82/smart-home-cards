@@ -1,0 +1,398 @@
+# ============================================================================
+# Automazioni per la card Server Home Assistant (dm-server-card)
+# Guida di riferimento: ../docs/homeassistant-server.md
+#
+# COSA DEVI CAMBIARE PER USARLO CON IL TUO IMPIANTO
+# ----------------------------------------------------------------------------
+# 1. notify.mobile_app_il_tuo_telefono -> il TUO servizio notifiche
+# 2. sensor.processor_use / memory_use_percent / disk_use_percent
+#                                       -> i sensori della TUA integrazione
+#                                          System Monitor (i nomi di default
+#                                          combaciano se hai un'unica istanza)
+# 3. sensor.mio_dominio_scadenza_certificato
+#                                       -> il TUO sensore Cert Expiry
+#                                          (Impostazioni → Integrazioni →
+#                                          Cert Expiry, cerca "scadenza")
+# 4. update.home_assistant_core_update / _supervisor_update
+#                                       -> creati automaticamente da HA, i
+#                                          nomi normalmente NON cambiano
+# 5. update.hacs / sensor.hacs         -> solo se usi HACS
+# 6. script.backup_ha                  -> incluso qui sotto, usa il servizio
+#                                          nativo backup.create
+# 7. hassio.host_reboot                -> disponibile solo su HA OS/Supervised;
+#                                          se usi Container/Core, sostituiscilo
+#                                          con il comando di riavvio del tuo
+#                                          sistema (es. uno script SSH)
+# ============================================================================
+
+input_boolean:
+  # --- Report giornaliero ---
+  ha_report:
+    name: "Server - Report HA attivo"
+  ha_report_lunedi: { name: "Report - Lunedì" }
+  ha_report_martedi: { name: "Report - Martedì" }
+  ha_report_mercoledi: { name: "Report - Mercoledì" }
+  ha_report_giovedi: { name: "Report - Giovedì" }
+  ha_report_venerdi: { name: "Report - Venerdì" }
+  ha_report_sabato: { name: "Report - Sabato" }
+  ha_report_domenica: { name: "Report - Domenica" }
+
+  # --- Notifiche varie ---
+  notifica_login_errato: { name: "Server - Notifica Login Errato" }
+  notifica_avvio_ha: { name: "Server - Notifica Avvio Server" }
+  notifica_tempo_avvio_ha: { name: "Server - Notifica Tempo Avvio" }
+  notifica_certificato_scaduto: { name: "Server - Notifica SSL in scadenza" }
+
+  # --- Update ---
+  on_off_aggiornamenti_ha:
+    name: "Server - Notifiche Update attive"
+  notifica_aggiornamenti_core: { name: "Update - Core" }
+  notifica_aggiornamenti_supervisor: { name: "Update - Supervisor" }
+  notifica_aggiornamenti_addon: { name: "Update - Addon" }
+  notifica_aggiornamenti_hacs: { name: "Update - HACS" }
+  ha_update_lunedi: { name: "Update check - Lunedì" }
+  ha_update_martedi: { name: "Update check - Martedì" }
+  ha_update_mercoledi: { name: "Update check - Mercoledì" }
+  ha_update_giovedi: { name: "Update check - Giovedì" }
+  ha_update_venerdi: { name: "Update check - Venerdì" }
+  ha_update_sabato: { name: "Update check - Sabato" }
+  ha_update_domenica: { name: "Update check - Domenica" }
+
+  # --- Soglie di allarme ---
+  on_off_alert_ha:
+    name: "Server - Alert soglie attivi"
+  alert_ram: { name: "Alert - RAM" }
+  alert_cpu: { name: "Alert - CPU" }
+  alert_temperatura: { name: "Alert - Temperatura" }
+  alert_disco: { name: "Alert - Disco" }
+
+  # --- Backup ---
+  ha_backup:
+    name: "Server - Backup automatico attivo"
+  ha_backup_lunedi: { name: "Backup - Lunedì" }
+  ha_backup_martedi: { name: "Backup - Martedì" }
+  ha_backup_mercoledi: { name: "Backup - Mercoledì" }
+  ha_backup_giovedi: { name: "Backup - Giovedì" }
+  ha_backup_venerdi: { name: "Backup - Venerdì" }
+  ha_backup_sabato: { name: "Backup - Sabato" }
+  ha_backup_domenica: { name: "Backup - Domenica" }
+
+  # --- Riavvii programmati ---
+  on_off_riavvio_ha:
+    name: "Server - Riavvio HA programmato attivo"
+  ha_riavvio_lunedi: { name: "Riavvio HA - Lunedì" }
+  ha_riavvio_martedi: { name: "Riavvio HA - Martedì" }
+  ha_riavvio_mercoledi: { name: "Riavvio HA - Mercoledì" }
+  ha_riavvio_giovedi: { name: "Riavvio HA - Giovedì" }
+  ha_riavvio_venerdi: { name: "Riavvio HA - Venerdì" }
+  ha_riavvio_sabato: { name: "Riavvio HA - Sabato" }
+  ha_riavvio_domenica: { name: "Riavvio HA - Domenica" }
+  on_off_riavvio_server:
+    name: "Server - Riavvio fisico programmato attivo"
+  server_riavvio_lunedi: { name: "Riavvio Server - Lunedì" }
+  server_riavvio_martedi: { name: "Riavvio Server - Martedì" }
+  server_riavvio_mercoledi: { name: "Riavvio Server - Mercoledì" }
+  server_riavvio_giovedi: { name: "Riavvio Server - Giovedì" }
+  server_riavvio_venerdi: { name: "Riavvio Server - Venerdì" }
+  server_riavvio_sabato: { name: "Riavvio Server - Sabato" }
+  server_riavvio_domenica: { name: "Riavvio Server - Domenica" }
+
+input_datetime:
+  orario_report_ha: { name: "Report - Orario", has_time: true, has_date: false }
+  orario_notifiche_aggiornamenti_homeassistant: { name: "Update check - Orario", has_time: true, has_date: false }
+  orario_backup_homeassistant: { name: "Backup - Orario", has_time: true, has_date: false }
+  orario_riavvio_homeassistant: { name: "Riavvio HA - Orario", has_time: true, has_date: false }
+  orario_riavvio_server: { name: "Riavvio Server - Orario", has_time: true, has_date: false }
+  avvio_ha_iniziato: { name: "Server - Timestamp inizio avvio (uso interno)", has_time: true, has_date: true }
+
+input_number:
+  utilizzo_disco: { name: "Soglia Disco (%)", min: 50, max: 100, step: 1, initial: 90 }
+  utilizzo_ram: { name: "Soglia RAM (%)", min: 50, max: 100, step: 1, initial: 90 }
+  utilizzo_cpu: { name: "Soglia CPU (%)", min: 50, max: 100, step: 1, initial: 90 }
+  temperatura_server: { name: "Soglia Temperatura (°C)", min: 40, max: 100, step: 1, initial: 75 }
+
+script:
+  backup_ha:
+    alias: "Backup manuale Home Assistant"
+    sequence:
+      - service: backup.create
+        data:
+          name: "Backup manuale {{ now().strftime('%Y-%m-%d %H:%M') }}"
+
+# Helper per capire velocemente se "oggi" è un giorno abilitato in una delle
+# liste giorni-della-settimana usate sopra (evita di ripetere 7 condizioni a
+# mano in ogni automazione). Sostituisce {{ giorno }} con il prefisso giusto
+# (es. "ha_report", "ha_update", "ha_backup", "ha_riavvio", "server_riavvio").
+template:
+  - sensor:
+      - name: "giorno_settimana_slug"
+        state: >
+          {{ ['lunedi','martedi','mercoledi','giovedi','venerdi','sabato','domenica'][now().weekday()] }}
+
+automation:
+  # --------------------------------------------------------------------
+  # REPORT GIORNALIERO
+  # --------------------------------------------------------------------
+  - alias: "Server - report giornaliero"
+    trigger:
+      - platform: time
+        at: input_datetime.orario_report_ha
+    condition:
+      - condition: state
+        entity_id: input_boolean.ha_report
+        state: "on"
+      - condition: state
+        entity_id: "input_boolean.ha_report_{{ states('sensor.giorno_settimana_slug') }}"
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🖥️ Report giornaliero Home Assistant"
+          message: >
+            CPU: {{ states('sensor.processor_use') }}% —
+            RAM: {{ states('sensor.memory_use_percent') }}% —
+            Disco: {{ states('sensor.disk_use_percent') }}% —
+            Uptime: {{ states('sensor.uptime') }}
+
+  # --------------------------------------------------------------------
+  # NOTIFICHE VARIE
+  # --------------------------------------------------------------------
+  - alias: "Server - notifica login errato"
+    description: >
+      Home Assistant crea una notifica persistente con id "http-login" quando
+      rileva un tentativo di accesso con credenziali errate. Il nome esatto
+      dell'entità può variare leggermente a seconda della versione: controlla
+      in Impostazioni → Notifiche dopo un tentativo di login sbagliato di prova.
+    trigger:
+      - platform: state
+        entity_id: persistent_notification.http_login
+    condition:
+      - condition: state
+        entity_id: input_boolean.notifica_login_errato
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔒 Tentativo di accesso fallito"
+          message: "Qualcuno ha sbagliato le credenziali di accesso a Home Assistant."
+
+  - alias: "Server - notifica avvio server"
+    trigger:
+      - platform: homeassistant
+        event: start
+    condition:
+      - condition: state
+        entity_id: input_boolean.notifica_avvio_ha
+        state: "on"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.avvio_ha_iniziato
+        data:
+          timestamp: "{{ now().timestamp() }}"
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🖥️ Home Assistant si sta avviando"
+          message: "Riavvio rilevato alle {{ now().strftime('%H:%M') }}."
+
+  - alias: "Server - notifica tempo di avvio"
+    description: "Calcola quanto ha impiegato l'ultimo avvio, usando il timestamp salvato dall'automazione precedente."
+    trigger:
+      - platform: state
+        entity_id: sensor.uptime
+    condition:
+      - condition: template
+        value_template: >
+          {{ (as_timestamp(now()) - as_timestamp(states('input_datetime.avvio_ha_iniziato'), 0)) < 600 }}
+      - condition: state
+        entity_id: input_boolean.notifica_tempo_avvio_ha
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🖥️ Home Assistant è pronto"
+          message: >
+            Avvio completato in
+            {{ ((as_timestamp(now()) - as_timestamp(states('input_datetime.avvio_ha_iniziato'))) | int) }} secondi.
+
+  - alias: "Server - notifica certificato SSL in scadenza"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.mio_dominio_scadenza_certificato
+        below: 14   # giorni rimanenti
+    condition:
+      - condition: state
+        entity_id: input_boolean.notifica_certificato_scaduto
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔒 Certificato SSL in scadenza"
+          message: "Mancano {{ states('sensor.mio_dominio_scadenza_certificato') }} giorni alla scadenza."
+
+  # --------------------------------------------------------------------
+  # CONTROLLO AGGIORNAMENTI
+  # --------------------------------------------------------------------
+  - alias: "Server - controllo aggiornamenti disponibili"
+    trigger:
+      - platform: time
+        at: input_datetime.orario_notifiche_aggiornamenti_homeassistant
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_aggiornamenti_ha
+        state: "on"
+      - condition: state
+        entity_id: "input_boolean.ha_update_{{ states('sensor.giorno_settimana_slug') }}"
+        state: "on"
+    action:
+      - variables:
+          da_notificare: >
+            {% set righe = namespace(l=[]) %}
+            {% if is_state('input_boolean.notifica_aggiornamenti_core','on') and is_state('update.home_assistant_core_update','on') %}
+              {% set righe.l = righe.l + ['Core: ' ~ state_attr('update.home_assistant_core_update','latest_version')] %}
+            {% endif %}
+            {% if is_state('input_boolean.notifica_aggiornamenti_supervisor','on') and is_state('update.home_assistant_supervisor_update','on') %}
+              {% set righe.l = righe.l + ['Supervisor: ' ~ state_attr('update.home_assistant_supervisor_update','latest_version')] %}
+            {% endif %}
+            {% if is_state('input_boolean.notifica_aggiornamenti_addon','on') and (states('sensor.supervisor_updates') | int(0)) > 0 %}
+              {% set righe.l = righe.l + [states('sensor.supervisor_updates') ~ ' addon con aggiornamenti'] %}
+            {% endif %}
+            {% if is_state('input_boolean.notifica_aggiornamenti_hacs','on') and (states('sensor.hacs') | int(0)) > 0 %}
+              {% set righe.l = righe.l + [states('sensor.hacs') ~ ' repository HACS con aggiornamenti'] %}
+            {% endif %}
+            {{ righe.l | join('\n') }}
+      - if:
+          - condition: template
+            value_template: "{{ da_notificare | length > 0 }}"
+        then:
+          - service: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "⬆️ Aggiornamenti disponibili"
+              message: "{{ da_notificare }}"
+
+  # --------------------------------------------------------------------
+  # SOGLIE DI ALLARME (CPU / RAM / DISCO / TEMPERATURA)
+  # --------------------------------------------------------------------
+  - alias: "Server - alert CPU"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.processor_use
+        above: input_number.utilizzo_cpu
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.alert_cpu
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "⚠️ CPU del server alta"
+          message: "CPU al {{ states('sensor.processor_use') }}% da almeno 5 minuti."
+
+  - alias: "Server - alert RAM"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.memory_use_percent
+        above: input_number.utilizzo_ram
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.alert_ram
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "⚠️ RAM del server alta"
+          message: "RAM al {{ states('sensor.memory_use_percent') }}% da almeno 5 minuti."
+
+  - alias: "Server - alert Disco"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.disk_use_percent
+        above: input_number.utilizzo_disco
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.alert_disco
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "⚠️ Disco del server quasi pieno"
+          message: "Disco al {{ states('sensor.disk_use_percent') }}%."
+
+  - alias: "Server - alert Temperatura"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temperatura_server   # sostituisci con il tuo sensore di temperatura, se disponibile
+        above: input_number.temperatura_server
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_alert_ha
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.alert_temperatura
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🌡️ Temperatura server alta"
+          message: "Temperatura a {{ states('sensor.temperatura_server') }}°C."
+
+  # --------------------------------------------------------------------
+  # BACKUP AUTOMATICO
+  # --------------------------------------------------------------------
+  - alias: "Server - backup automatico programmato"
+    trigger:
+      - platform: time
+        at: input_datetime.orario_backup_homeassistant
+    condition:
+      - condition: state
+        entity_id: input_boolean.ha_backup
+        state: "on"
+      - condition: state
+        entity_id: "input_boolean.ha_backup_{{ states('sensor.giorno_settimana_slug') }}"
+        state: "on"
+    action:
+      - service: script.backup_ha
+
+  # --------------------------------------------------------------------
+  # RIAVVII PROGRAMMATI
+  # --------------------------------------------------------------------
+  - alias: "Server - riavvio HA programmato"
+    trigger:
+      - platform: time
+        at: input_datetime.orario_riavvio_homeassistant
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_riavvio_ha
+        state: "on"
+      - condition: state
+        entity_id: "input_boolean.ha_riavvio_{{ states('sensor.giorno_settimana_slug') }}"
+        state: "on"
+    action:
+      - service: homeassistant.restart
+
+  - alias: "Server - riavvio fisico programmato"
+    trigger:
+      - platform: time
+        at: input_datetime.orario_riavvio_server
+    condition:
+      - condition: state
+        entity_id: input_boolean.on_off_riavvio_server
+        state: "on"
+      - condition: state
+        entity_id: "input_boolean.server_riavvio_{{ states('sensor.giorno_settimana_slug') }}"
+        state: "on"
+    action:
+      - service: hassio.host_reboot   # solo HA OS/Supervised, vedi nota in testa al file

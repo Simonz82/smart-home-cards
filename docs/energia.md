@@ -114,4 +114,4 @@ settings_sections:
         label: "Costo energia (€/kWh)"
 ```
 
-Il pattern "soglia superata → notifica" lo scrivi in un'automazione che confronta `power_entity` con `input_number.soglia_casa_w`, con un ritardo (`for:`) pari a `input_number.ritardo_soglia_secondi` per evitare falsi allarmi su picchi brevissimi. Per il pattern notifiche push/Alexa completo vedi [notifiche-personalizzate.md](notifiche-personalizzate.md); per il mini-linguaggio di `settings_sections` vedi [settings-sections.md](settings-sections.md).
+**Le automazioni "soglia superata → notifica" e "riepilogo costi giornaliero/mensile" sono già scritte e pronte in [`../automazioni/energia.yaml`](../automazioni/energia.yaml)** — in testa al file trovi l'elenco esatto di cosa cambiare (i tuoi sensori, il servizio di notifica). Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo. Per il pattern generale vedi anche [notifiche-personalizzate.md](notifiche-personalizzate.md); per il mini-linguaggio di `settings_sections` vedi [settings-sections.md](settings-sections.md).

@@ -112,27 +112,27 @@ settings_sections:
         icon: restart
         label: Riavvio HA
         toggle: input_boolean.on_off_riavvio_ha
-        time: input_datetime.orario_riavvio_ha
+        time: input_datetime.orario_riavvio_homeassistant
         days:
-          - input_boolean.riavvio_ha_lunedi
-          - input_boolean.riavvio_ha_martedi
-          - input_boolean.riavvio_ha_mercoledi
-          - input_boolean.riavvio_ha_giovedi
-          - input_boolean.riavvio_ha_venerdi
-          - input_boolean.riavvio_ha_sabato
-          - input_boolean.riavvio_ha_domenica
+          - input_boolean.ha_riavvio_lunedi
+          - input_boolean.ha_riavvio_martedi
+          - input_boolean.ha_riavvio_mercoledi
+          - input_boolean.ha_riavvio_giovedi
+          - input_boolean.ha_riavvio_venerdi
+          - input_boolean.ha_riavvio_sabato
+          - input_boolean.ha_riavvio_domenica
   - title: Soglie Alert
     rows:
       - type: group
         icon: alert
         label: Alert Server
-        toggle: input_boolean.on_off_alert_server
+        toggle: input_boolean.on_off_alert_ha
         numbers:
-          - entity: input_number.soglia_disco
+          - entity: input_number.utilizzo_disco
             label: Disco
-          - entity: input_number.soglia_ram
+          - entity: input_number.utilizzo_ram
             label: RAM
-          - entity: input_number.soglia_cpu
+          - entity: input_number.utilizzo_cpu
             label: CPU
         extraToggles:
           - entity: input_boolean.alert_ram
@@ -141,27 +141,7 @@ settings_sections:
             label: Alert CPU
 ```
 
-L'automazione che legge `toggle`+`time`+`days` per riavviare davvero Home Assistant/il server la scrivi tu, ad esempio:
-
-```yaml
-alias: "Riavvio HA programmato"
-trigger:
-  - platform: time
-    at: input_datetime.orario_riavvio_ha
-condition:
-  - condition: state
-    entity_id: input_boolean.on_off_riavvio_ha
-    state: "on"
-  - condition: state
-    entity_id: >
-      {% set giorni = {0:'lunedi',1:'martedi',2:'mercoledi',3:'giovedi',4:'venerdi',5:'sabato',6:'domenica'} %}
-      input_boolean.riavvio_ha_{{ giorni[now().weekday()] }}
-    state: "on"
-action:
-  - service: homeassistant.restart
-```
-
-Per le notifiche (login errato, aggiornamenti disponibili, SSL in scadenza) usa lo stesso pattern spiegato in [notifiche-personalizzate.md](notifiche-personalizzate.md).
+**Tutte le automazioni di questa card (report, notifiche, controllo aggiornamenti, soglie di allarme, backup, riavvii programmati) sono già scritte e pronte in [`../automazioni/server-homeassistant.yaml`](../automazioni/server-homeassistant.yaml)** — è il file più corposo della raccolta, ma in testa trovi l'elenco esatto (7 punti) di cosa cambiare per il tuo impianto. Vedi [`../automazioni/README.md`](../automazioni/README.md) per come installarlo. Il pattern generale, se vuoi aggiungere una notifica in più, è comunque spiegato in [notifiche-personalizzate.md](notifiche-personalizzate.md).
 
 ## Campi legacy (non usarli in un'installazione nuova)
 

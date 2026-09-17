@@ -14,6 +14,8 @@ Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, 
 
 Un modo per misurare quanti **Watt** sta assorbendo l'elettrodomestico in questo momento — cioè una presa intelligente con misurazione di potenza (Shelly Plug S, Sonoff S31/POWR3, TP-Link Kasa KP115, ecc.) collegata via qualsiasi integrazione HA, oppure un misuratore di potenza per elettrodomestici già cablati (es. un contatore su una linea dedicata). Da lì in poi Home Assistant deve esporre un `sensor` in Watt: quello è il `power_entity`, l'unico campo obbligatorio.
 
+> Nella mia installazione uso prese **SONOFF S60TPF** (misurano sia Watt istantanei che kWh cumulati, integrate via eWeLink/Sonoff LAN o Zigbee a seconda del modello) — se vuoi partire da un prodotto concreto invece di scegliere alla cieca, è quello che uso io su tutti gli elettrodomestici di questa guida.
+
 ## Configurazione minima (funzionante da subito)
 
 ```yaml
@@ -124,50 +126,11 @@ stats:
   cycles_year: sensor.mia_lavatrice_cicli_anno
 ```
 
-Per produrre quegli attributi ti serve un **template sensor** che li calcoli. Esempio minimo, adattabile (presuppone che `power_entity` sia anche un accumulatore di energia, cioè che la stessa presa esponga anche un `sensor` in kWh — quasi tutte le prese smart con misura di potenza lo fanno):
+Per produrre quegli attributi ti serve un **template sensor** che li calcoli, più un'automazione che salvi l'energia a inizio ciclo (presuppone che `power_entity` sia anche un accumulatore di energia, cioè che la stessa presa esponga anche un `sensor` in kWh — le prese SONOFF S60TPF che uso io lo fanno, come la maggior parte delle prese smart con misura di potenza).
 
-```yaml
-input_number:
-  mia_lavatrice_kwh_inizio_ciclo:
-    min: 0
-    max: 100000
-    step: 0.01
+**Tutto questo è già scritto e pronto in [`../automazioni/elettrodomestici.yaml`](../automazioni/elettrodomestici.yaml)** — in testa al file trovi l'elenco esatto di cosa cambiare (nome dei tuoi sensori, servizio di notifica, soglie). Vedi anche [`../automazioni/README.md`](../automazioni/README.md) per come installarlo (in breve: come Package di Home Assistant).
 
-binary_sensor:
-  - platform: template
-    sensors:
-      mia_lavatrice_in_funzione:
-        value_template: "{{ states('sensor.mia_lavatrice_power') | float(0) > 5 }}"
-
-automation:
-  - alias: "Lavatrice - salva energia a inizio ciclo"
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.mia_lavatrice_in_funzione
-        to: "on"
-    action:
-      - service: input_number.set_value
-        target:
-          entity_id: input_number.mia_lavatrice_kwh_inizio_ciclo
-        data:
-          value: "{{ states('sensor.mia_lavatrice_kwh_totali') | float(0) }}"
-
-template:
-  - sensor:
-      - name: "mia_lavatrice_ciclo"
-        state: "{{ now().isoformat() }}"        # non ci interessa il valore, solo gli attributi
-        attributes:
-          terminato: >
-            {{ states('sensor.mia_lavatrice_power') | float(0) < 1 }}
-          tempo_ciclo: >
-            {{ (as_timestamp(now()) - as_timestamp(states.binary_sensor.mia_lavatrice_in_funzione.last_changed)) | timestamp_custom('%Hh %Mm', false) }}
-          consumo_ciclo: >
-            {{ ((states('sensor.mia_lavatrice_kwh_totali') | float(0)) - (states('input_number.mia_lavatrice_kwh_inizio_ciclo') | float(0))) | round(2) }} kWh
-          costo_ciclo: >
-            {{ (((states('sensor.mia_lavatrice_kwh_totali') | float(0)) - (states('input_number.mia_lavatrice_kwh_inizio_ciclo') | float(0))) * (states('input_number.costo_energia') | float(0))) | round(2) }}
-```
-
-Per i costi per periodo (`costo_oggi`, `costo_mese`, ecc.) il modo più semplice è creare degli **helper "Contatore di utenza" (Utility Meter)** da Impostazioni → Helper, agganciati al tuo sensore di energia totale, con reset giornaliero/mensile/annuale — poi moltiplichi il loro valore per `input_number.costo_energia` in altrettanti attributi dello stesso template sensor sopra.
+Per i costi per periodo (`costo_oggi`, `costo_mese`, ecc.) il modo più semplice è creare degli **helper "Contatore di utenza" (Utility Meter)** da Impostazioni → Helper, agganciati al tuo sensore di energia totale, con reset giornaliero/mensile/annuale — poi moltiplichi il loro valore per `input_number.costo_energia` in altrettanti attributi dello stesso template sensor.
 
 `week_rows` (7 giorni × cicli/tempo/consumo/costo) ed `energy_stat_entity` seguono la stessa logica — sono avanzati, aggiungili solo se ti interessa davvero uno storico settimanale dettagliato; senza, la card funziona comunque perfettamente.
 

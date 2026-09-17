@@ -28,14 +28,15 @@ Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In b
 2. Impostazioni → Dashboard → (⋮ in alto a destra) → Risorse → Aggiungi risorsa → `/local/smart-home-cards.js` (tipo: Modulo JavaScript).
 3. Ricarica la pagina (svuota la cache se serve).
 4. Aggiungi una card, modalità YAML, incolla uno degli esempi nelle guide sopra, sostituisci le entità con le tue.
+5. (Facoltativo, ma consigliato) Installa anche le automazioni pronte in [`automazioni/`](automazioni/), così notifiche/report/riavvii programmati funzionano davvero e non solo a livello di interfaccia — vedi [automazioni/README.md](automazioni/README.md).
 
 Un solo file contiene tutte e 7 le card — installi una volta sola, poi usi quelle che ti servono.
 
-## Cosa NON è incluso
+## Cosa include, cosa devi adattare tu
 
-- Le **entità** (sensori, switch, automazioni, helper) che ogni card si aspetta: quelle dipendono dal tuo impianto/integrazioni e vanno create da te. Ogni guida elenca esattamente quali servono e a cosa servono.
-- Le **immagini prodotto** opzionali (foto del router/NAS/UPS mostrate nella card): non sono redistribuite per motivi di copyright — ogni guida indica il percorso file atteso se vuoi aggiungerne una tua.
-- Automazioni pronte per l'invio delle notifiche: la card gestisce solo l'interruttore ON/OFF della preferenza, l'automazione che effettivamente invia il push/Alexa la scrivi tu (esempio incluso in [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md)).
+- **Le immagini prodotto** (foto del router/NAS/UPS/logo Proxmox/HA mostrate nelle card) sono incluse in [`foto-pkg/`](foto-pkg/) — copiale insieme al file della card, vedi [docs/installazione.md](docs/installazione.md).
+- **Le automazioni** che fanno funzionare davvero notifiche/report/riavvii programmati sono già scritte e pronte in [`automazioni/`](automazioni/) — non devi inventarle da zero. Ogni file ha in testa un blocco di commenti con l'elenco esatto dei parametri da cambiare in base al tuo impianto (nomi entità, servizio di notifica, ecc.), il resto puoi lasciarlo com'è.
+- **Le entità** (sensori, switch, helper) che ogni card e ogni automazione si aspettano dipendono dal tuo impianto/integrazioni e vanno create da te — ogni guida elenca esattamente quali servono e a cosa servono.
 
 ## Licenza
 

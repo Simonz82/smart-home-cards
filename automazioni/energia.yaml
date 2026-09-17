@@ -1,0 +1,129 @@
+# ============================================================================
+# Automazioni per la card Energia Casa (dm-energy-card)
+# Guida di riferimento: ../docs/energia.md
+#
+# COSA DEVI CAMBIARE PER USARLO CON IL TUO IMPIANTO
+# ----------------------------------------------------------------------------
+# 1. sensor.potenza_casa_w             -> il TUO sensore di potenza generale
+#                                          casa in Watt (deve essere lo stesso
+#                                          power_entity messo nella card)
+# 2. sensor.energia_oggi_casa /
+#    sensor.energia_mese_casa /
+#    sensor.energia_anno_casa          -> i TUOI helper Utility Meter
+#                                          (Impostazioni → Helper → Contatore
+#                                          di utenza) agganciati al sensore di
+#                                          energia totale, con reset
+#                                          giornaliero/mensile/annuale
+# 3. notify.mobile_app_il_tuo_telefono -> il TUO servizio notifiche
+# 4. notify.alexa_media_soggiorno      -> il TUO dispositivo Alexa (elimina
+#                                          questa parte se non usi Alexa)
+# 5. input_number.soglia_casa_w        -> il valore di default va bene solo
+#                                          come punto di partenza, aggiustalo
+#                                          dal popup Impostazioni della card
+# ============================================================================
+
+input_boolean:
+  notify_push_soglia:
+    name: "Energia - Notifica Soglia Push"
+  notify_alexa_soglia:
+    name: "Energia - Notifica Soglia Alexa"
+  notify_push_costi_giornalieri:
+    name: "Energia - Notifica Costi Giornalieri"
+  notify_push_costi_mensili:
+    name: "Energia - Notifica Costi Mensili"
+
+input_number:
+  soglia_casa_w:
+    name: "Energia - Soglia (W)"
+    min: 100
+    max: 10000
+    step: 50
+    initial: 3000
+  ritardo_soglia_secondi:
+    name: "Energia - Ritardo superamento soglia (s)"
+    min: 0
+    max: 600
+    step: 10
+    initial: 30
+
+input_datetime:
+  orario_inizio_notifiche_soglia:
+    name: "Energia - Inizio fascia notifiche"
+    has_time: true
+    has_date: false
+  orario_fine_notifiche_soglia:
+    name: "Energia - Fine fascia notifiche"
+    has_time: true
+    has_date: false
+
+automation:
+  - alias: "Energia - notifica soglia superata"
+    description: "Avvisa quando la potenza istantanea supera la soglia impostata, per più del ritardo configurato, e solo dentro la fascia oraria scelta."
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.potenza_casa_w
+        above: input_number.soglia_casa_w
+        for:
+          seconds: "{{ states('input_number.ritardo_soglia_secondi') | int(30) }}"
+    condition:
+      - condition: time
+        after: input_datetime.orario_inizio_notifiche_soglia
+        before: input_datetime.orario_fine_notifiche_soglia
+    action:
+      - if:
+          - condition: state
+            entity_id: input_boolean.notify_push_soglia
+            state: "on"
+        then:
+          - service: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "⚡ Consumo elevato"
+              message: >
+                Potenza attuale: {{ states('sensor.potenza_casa_w') }} W
+                (soglia: {{ states('input_number.soglia_casa_w') }} W)
+      - if:
+          - condition: state
+            entity_id: input_boolean.notify_alexa_soglia
+            state: "on"
+        then:
+          - service: notify.alexa_media_soggiorno
+            data:
+              message: "Attenzione, il consumo elettrico di casa è elevato"
+              data:
+                type: announce
+
+  - alias: "Energia - riepilogo costi giornalieri"
+    description: "Ogni sera manda un riepilogo di quanto consumato/speso in giornata."
+    trigger:
+      - platform: time
+        at: "23:55:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.notify_push_costi_giornalieri
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "📊 Riepilogo energia di oggi"
+          message: >
+            Consumo: {{ states('sensor.energia_oggi_casa') }} kWh
+            — Costo: {{ (states('sensor.energia_oggi_casa') | float(0) * states('input_number.costo_energia') | float(0)) | round(2) }} €
+
+  - alias: "Energia - riepilogo costi mensili"
+    description: "Il primo giorno del mese manda il riepilogo del mese appena concluso (usa l'attributo last_period dell'Utility Meter mensile)."
+    trigger:
+      - platform: time
+        at: "08:00:00"
+    condition:
+      - condition: template
+        value_template: "{{ now().day == 1 }}"
+      - condition: state
+        entity_id: input_boolean.notify_push_costi_mensili
+        state: "on"
+    action:
+      - service: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "📊 Riepilogo energia del mese scorso"
+          message: >
+            Consumo: {{ state_attr('sensor.energia_mese_casa', 'last_period') }} kWh
+            — Costo: {{ (state_attr('sensor.energia_mese_casa', 'last_period') | float(0) * states('input_number.costo_energia') | float(0)) | round(2) }} €

@@ -1,0 +1,123 @@
+# ============================================================================
+# Automazioni per la card Elettrodomestici (dm-appliance-clone-card)
+# Guida di riferimento: ../docs/elettrodomestici.md
+#
+# Questo file è scritto per UN elettrodomestico (la lavatrice, come esempio).
+# Se ne hai più di uno (lavastoviglie, asciugatrice, forno...), duplica tutto
+# il blocco e cambia i nomi — non serve altro, la logica è identica per tutti.
+#
+# COSA DEVI CAMBIARE PER USARLO CON IL TUO IMPIANTO
+# ----------------------------------------------------------------------------
+# 1. sensor.mia_lavatrice_power        -> il TUO sensore di potenza (Watt).
+#                                          Io uso prese smart SONOFF S60TPF,
+#                                          che misurano sia Watt istantanei
+#                                          che kWh cumulati — va benissimo
+#                                          anche qualunque altra presa smart
+#                                          con misura di potenza (Shelly,
+#                                          TP-Link Kasa, ecc.)
+# 2. sensor.mia_lavatrice_kwh_totali   -> il TUO sensore di energia cumulata
+#                                          (kWh) della stessa presa/misuratore
+#                                          (quasi tutte le prese smart con
+#                                          misura di potenza espongono anche
+#                                          questo, controlla in Impostazioni
+#                                          → Entità cercando "energia"/"kWh")
+# 3. notify.mobile_app_il_tuo_telefono -> il TUO servizio notifiche
+#                                          (Impostazioni → App companion, o
+#                                          Impostazioni → Persone → il tuo
+#                                          utente per vedere il nome esatto)
+# 4. notify.alexa_media_cucina         -> il TUO dispositivo Alexa (richiede
+#                                          l'integrazione HACS "Alexa Media
+#                                          Player"; se non usi Alexa, elimina
+#                                          semplicemente quella parte)
+# 5. "5" in threshold_run              -> la soglia in Watt della TUA lavatrice
+#                                          sopra cui consideri che sia "in
+#                                          funzione" (deve combaciare con
+#                                          threshold_run nella configurazione
+#                                          della card)
+# 6. Tutti gli "_lavatrice" nei nomi   -> rinomina in base all'elettrodomestico
+#                                          (es. _lavastoviglie, _asciugatrice)
+# ============================================================================
+
+input_number:
+  mia_lavatrice_kwh_inizio_ciclo:
+    name: "Lavatrice - kWh a inizio ciclo"
+    min: 0
+    max: 100000
+    step: 0.01
+  costo_energia:
+    name: "Costo energia (€/kWh)"
+    min: 0
+    max: 2
+    step: 0.001
+
+input_boolean:
+  notify_push_lavatrice:
+    name: "Lavatrice - Notifica Push"
+  notify_alexa_lavatrice:
+    name: "Lavatrice - Notifica Alexa"
+
+binary_sensor:
+  - platform: template
+    sensors:
+      mia_lavatrice_in_funzione:
+        friendly_name: "Lavatrice in funzione"
+        value_template: "{{ states('sensor.mia_lavatrice_power') | float(0) > 5 }}"
+
+template:
+  - sensor:
+      - name: "mia_lavatrice_ciclo"
+        state: "{{ now().isoformat() }}"
+        attributes:
+          terminato: >
+            {{ 'Ultimo avvio: ' ~ states.binary_sensor.mia_lavatrice_in_funzione.last_changed.strftime('%d/%m/%Y %H:%M') }}
+          tempo_ciclo: >
+            {% set secondi = (as_timestamp(now()) - as_timestamp(states.binary_sensor.mia_lavatrice_in_funzione.last_changed)) | int %}
+            {{ (secondi // 3600) }}h {{ ((secondi % 3600) // 60) }}m
+          consumo_ciclo: >
+            {{ ((states('sensor.mia_lavatrice_kwh_totali') | float(0)) - (states('input_number.mia_lavatrice_kwh_inizio_ciclo') | float(0))) | round(2) }} kWh
+          costo_ciclo: >
+            {{ (((states('sensor.mia_lavatrice_kwh_totali') | float(0)) - (states('input_number.mia_lavatrice_kwh_inizio_ciclo') | float(0))) * (states('input_number.costo_energia') | float(0))) | round(2) }}
+
+automation:
+  - alias: "Lavatrice - salva energia a inizio ciclo"
+    description: "Memorizza il contatore kWh nel momento in cui la lavatrice si accende, serve per calcolare il consumo del ciclo appena finito."
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mia_lavatrice_in_funzione
+        to: "on"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.mia_lavatrice_kwh_inizio_ciclo
+        data:
+          value: "{{ states('sensor.mia_lavatrice_kwh_totali') | float(0) }}"
+
+  - alias: "Lavatrice - notifica fine ciclo"
+    description: "Avvisa (push e/o Alexa) quando il ciclo della lavatrice finisce, solo se l'interruttore relativo è attivo."
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.mia_lavatrice_in_funzione
+        from: "on"
+        to: "off"
+        for:
+          minutes: 1     # evita falsi allarmi se la lavatrice si ferma un attimo tra un risciacquo e l'altro
+    action:
+      - if:
+          - condition: state
+            entity_id: input_boolean.notify_push_lavatrice
+            state: "on"
+        then:
+          - service: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "Lavatrice"
+              message: "Ciclo terminato ✅"
+      - if:
+          - condition: state
+            entity_id: input_boolean.notify_alexa_lavatrice
+            state: "on"
+        then:
+          - service: notify.alexa_media_cucina
+            data:
+              message: "La lavatrice ha finito il ciclo"
+              data:
+                type: announce
