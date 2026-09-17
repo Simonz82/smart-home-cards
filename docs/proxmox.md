@@ -2,7 +2,9 @@
 
 Stato del nodo Proxmox VE: CPU/RAM/disco, container e VM attive, consumo elettrico, salute SSD.
 
-![Card Proxmox](screenshot/proxmox.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card Proxmox](screenshot/proxmox.png) | ![Card Proxmox scuro](screenshot/proxmox-dark.png) |
 
 Nessun campo è tecnicamente obbligatorio (la card si carica comunque anche vuota), ma senza almeno `sensors.cpu`/`sensors.ram_pct` non mostra granché di utile.
 

@@ -2,7 +2,9 @@
 
 CPU/RAM/volumi/dischi del NAS, stato di sicurezza, consumo elettrico, pulsanti di riavvio/spegnimento.
 
-![Card NAS](screenshot/nas.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card NAS](screenshot/nas.png) | ![Card NAS scuro](screenshot/nas-dark.png) |
 
 ## Cosa ti serve prima di iniziare
 

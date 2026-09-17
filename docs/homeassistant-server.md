@@ -2,7 +2,9 @@
 
 CPU/RAM/disco del server che fa girare Home Assistant, aggiornamenti disponibili, backup, riavvii programmati, certificato SSL, conteggio entità.
 
-![Card server](screenshot/homeassistant-server.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card server](screenshot/homeassistant-server.png) | ![Card server scuro](screenshot/homeassistant-server-dark.png) |
 
 Nessun campo è obbligatorio — la card si carica comunque anche vuota — ma senza almeno `sensors.cpu`/`ram_pct`/`disk_pct` non mostra granché.
 

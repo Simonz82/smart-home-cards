@@ -2,7 +2,9 @@
 
 Stato del gruppo di continuità: online/a batteria, percentuale di carica, carico attuale, autonomia residua. La card più semplice della raccolta — niente popup Impostazioni, va dritta al punto.
 
-![Card UPS](screenshot/ups.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card UPS](screenshot/ups.png) | ![Card UPS scuro](screenshot/ups-dark.png) |
 
 ## Cosa ti serve prima di iniziare
 

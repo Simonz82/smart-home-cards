@@ -2,13 +2,13 @@
 
 Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
 
-| Lavatrice | Lavastoviglie | Asciugatrice |
+| | Chiaro | Scuro |
 |---|---|---|
-| ![Lavatrice](screenshot/elettrodomestici-lavatrice.png) | ![Lavastoviglie](screenshot/elettrodomestici-lavastoviglie.png) | ![Asciugatrice](screenshot/elettrodomestici-asciugatrice.png) |
-
-| Forno | TV |
-|---|---|
-| ![Forno](screenshot/elettrodomestici-forno.png) | ![TV](screenshot/elettrodomestici-tv.png) |
+| **Lavatrice** | ![Lavatrice](screenshot/elettrodomestici-lavatrice.png) | ![Lavatrice scuro](screenshot/elettrodomestici-lavatrice-dark.png) |
+| **Lavastoviglie** | ![Lavastoviglie](screenshot/elettrodomestici-lavastoviglie.png) | ![Lavastoviglie scuro](screenshot/elettrodomestici-lavastoviglie-dark.png) |
+| **Asciugatrice** | ![Asciugatrice](screenshot/elettrodomestici-asciugatrice.png) | ![Asciugatrice scuro](screenshot/elettrodomestici-asciugatrice-dark.png) |
+| **Forno** | ![Forno](screenshot/elettrodomestici-forno.png) | ![Forno scuro](screenshot/elettrodomestici-forno-dark.png) |
+| **TV** | ![TV](screenshot/elettrodomestici-tv.png) | ![TV scuro](screenshot/elettrodomestici-tv-dark.png) |
 
 ## Cosa ti serve prima di iniziare
 

@@ -2,7 +2,9 @@
 
 Vista d'insieme del consumo elettrico di casa: potenza istantanea, ripartizione per circuito/stanza, confronto con il periodo precedente, interruttori rapidi, costi.
 
-![Card energia](screenshot/energia.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card energia](screenshot/energia.png) | ![Card energia scuro](screenshot/energia-dark.png) |
 
 ## Cosa ti serve prima di iniziare
 

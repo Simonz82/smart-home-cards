@@ -2,7 +2,9 @@
 
 Stato della connessione, banda impegnata, velocità live, pulsanti rapidi (cambio IP, riavvio), test di velocità.
 
-![Card FritzBox](screenshot/fritzbox.png)
+| Chiaro | Scuro |
+|---|---|
+| ![Card FritzBox](screenshot/fritzbox.png) | ![Card FritzBox scuro](screenshot/fritzbox-dark.png) |
 
 ## Cosa ti serve prima di iniziare
 
