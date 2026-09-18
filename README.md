@@ -17,6 +17,7 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 | [💾 NAS Synology](docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
 | [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
+| [♻️ Raccolta Differenziata](https://github.com/Simonz82/ha_garbage) | Rifiuto del giorno, giorno del ritiro, orario di esposizione | Guida completa (package + immagini + screenshot) nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage) |
 
 Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
 
@@ -30,7 +31,7 @@ Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In b
 4. Aggiungi una card, modalità YAML, incolla uno degli esempi nelle guide sopra, sostituisci le entità con le tue.
 5. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
 
-Un solo file JS contiene tutte e 7 le card — installi una volta sola, poi usi quelle che ti servono.
+Un solo file JS contiene tutte e 8 le card (la raccolta differenziata inclusa, anche se la sua guida completa vive nel suo repo dedicato) — installi una volta sola, poi usi quelle che ti servono.
 
 ## Cosa include, cosa devi adattare tu
 
