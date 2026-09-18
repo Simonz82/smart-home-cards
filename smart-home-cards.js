@@ -263,6 +263,8 @@ const CHIP_SVGS = {
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><path d="M52 22 30 54h14l-2 20 26-34H54l-2-18z" fill="#38bdf8"/></svg>',
   ups:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="24" y="8" width="48" height="80" rx="8" fill="#0f2942"/><rect x="34" y="20" width="28" height="46" rx="4" fill="none" stroke="#8be2ff" stroke-width="3"/><rect x="38" y="26" width="20" height="34" rx="2" fill="#38bdf8"/><circle cx="48" cy="76" r="3" fill="#22c55e"/></svg>',
+  garbage:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><path fill="#0f2942" d="M30 30h36l-4 50a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6l-4-50z"/><rect x="26" y="22" width="44" height="8" rx="3" fill="#0f2942"/><rect x="40" y="12" width="16" height="8" rx="2" fill="#0f2942"/><path fill="#22c55e" d="M48 38c-5 4-8 8-8 12a8 8 0 0 0 16 0c0-2-.5-4-1.5-6 0 2-1.5 3.5-3 3-1.5-.5-1.5-3.5-.5-5.5-2 .5-3 1.5-3 1.5z"/></svg>',
 };
 
 const ICON_GEAR =
@@ -319,6 +321,8 @@ const ICON_CALENDAR =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>';
 const ICON_BACK =
   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+const ICON_MEGAPHONE =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l3.5 4.5V5.5L6 10H4a1 1 0 0 0-1 1z"/><path d="M13 8a3 3 0 0 1 0 8"/><path d="M16 5.5a6.5 6.5 0 0 1 0 13"/></svg>';
 
 // Icone per le righe "gruppo" del dialog Impostazioni (stile vecchia card).
 const SETTINGS_GROUP_ICONS = {
@@ -3491,6 +3495,222 @@ window.customCards.push({
   type: "dm-ups-card",
   name: "DM UPS Card",
   description: "Card stile DashboardModern per il gruppo di continuit\u00e0: stato, batteria, carico, autonomia",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// dm-garbage-card: stessa grammatica visiva applicata alla raccolta
+// differenziata. Unica card della famiglia con un "hero" dinamico invece
+// di un disegno fisso: l'immagine mostrata cambia in base allo stato del
+// sensore (Carta/Vetro/Organico/Plastica/...), leggendo la mappa
+// state_images invece di un artwork singolo. Nessuna dipendenza dalle
+// altre card della raccolta.
+class DmGarbageCard extends HTMLElement {
+  setConfig(config) {
+    if (!config.entity) throw new Error("entity è obbligatorio");
+    this._config = {
+      name: "Raccolta Differenziata",
+      artwork: "garbage",
+      state_images: {},
+      settings_sections: [],
+      actions: [],
+      ...config,
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.garbage;
+    this._root.innerHTML = `<style>${STYLE}</style>
+      <article class="dm-ap-card">
+        <div class="dm-ap-top">
+          <span class="dm-ap-chip">${chip}</span>
+          <span class="dm-ap-headings">
+            <span class="dm-ap-name"></span>
+          </span>
+          <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
+          <span class="dm-ap-tools">
+            <button type="button" class="dm-ap-tool dm-ap-alexa" title="Notifiche Alexa">${ICON_MEGAPHONE}</button>
+            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+          </span>
+        </div>
+        <div class="dm-ap-top-row" style="padding-bottom:10px">
+          <div class="dm-ap-hero" style="display:flex;align-items:center;justify-content:center;overflow:visible">
+            <img class="dm-c-garbage-img" style="width:100%;height:100%;object-fit:contain;transform:scale(0.95) translateY(-5px)" alt="">
+          </div>
+          <div class="dm-ap-cycle-side">
+            <span class="dm-ap-cycle-cap">Info</span>
+            <div class="dm-ap-cycle-list">
+              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi è</small></span><b class="dm-c-weekday">—</b></div>
+              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Esporre dalle</small></span><b class="dm-c-exposetime">—</b></div>
+              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TREND}</span><small>Giorno del ritiro</small></span><b class="dm-c-pickupday">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="dm-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (this._config.legacy_settings_popup) {
+        const event = new Event("ll-custom", { bubbles: true, composed: true });
+        event.detail = { browser_mod: this._config.legacy_settings_popup };
+        this.dispatchEvent(event);
+      } else {
+        this._openSettings();
+      }
+    });
+    this._root.querySelector(".dm-ap-alexa").addEventListener("click", (e) => {
+      e.stopPropagation();
+      history.pushState(null, "", "/lovelace/centronotifiche");
+      window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
+    });
+    this._root.querySelector(".dm-ap-hero").addEventListener("click", () => {
+      const e = new Event("hass-more-info", { bubbles: true, composed: true });
+      e.detail = { entityId: this._config.entity };
+      this.dispatchEvent(e);
+    });
+  }
+
+  _row(label, valueHtml) {
+    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+  }
+
+  _openDialog(title, bodyHtml) {
+    let overlay = this._root.querySelector(".dm-ap-overlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "dm-ap-overlay";
+      overlay.hidden = true;
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.hidden = true;
+      });
+      this._root.appendChild(overlay);
+    }
+    overlay.innerHTML = `<div class="dm-ap-dialog">
+      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    </div>`;
+    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+      overlay.hidden = true;
+    });
+    overlay.hidden = false;
+    return overlay;
+  }
+
+  _settingsRowHtml(hass, row) {
+    const st = hass.states[row.entity];
+    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    const domain = row.entity.split(".")[0];
+    if (["input_boolean", "automation", "switch"].includes(domain)) {
+      const on = st.state === "on";
+      return this._row(
+        row.label,
+        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+      );
+    }
+    const unit = st.attributes?.unit_of_measurement || "";
+    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="dm-ap-row-label">${esc(row.label)}</span>
+      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    </div>`;
+  }
+
+  _actionRowHtml(row) {
+    return `<div class="dm-ap-row">
+      <span class="dm-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="dm-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    </div>`;
+  }
+
+  _openSettings() {
+    const hass = this._hass;
+    const sections = (this._config.settings_sections || [])
+      .map(
+        (sec) => `<div class="dm-ap-sec">
+          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+          ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
+        </div>`,
+      )
+      .join("");
+
+    const actions = this._config.actions || [];
+    const actionsHtml = actions.length
+      ? `<div class="dm-ap-sec">
+           <div class="dm-ap-sec-cap">Strumenti</div>
+           ${actions.map((a) => this._actionRowHtml(a)).join("")}
+         </div>`
+      : "";
+
+    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+
+    overlay.querySelectorAll("[data-entity]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const entity = btn.dataset.entity;
+        const domain = entity.split(".")[0];
+        hass.callService(domain, "toggle", { entity_id: entity });
+        setTimeout(() => this._openSettings(), 200);
+      });
+    });
+    overlay.querySelectorAll("[data-open-entity]").forEach((row) => {
+      row.addEventListener("click", () => {
+        const e = new Event("hass-more-info", { bubbles: true, composed: true });
+        e.detail = { entityId: row.dataset.openEntity };
+        this.dispatchEvent(e);
+      });
+    });
+    overlay.querySelectorAll("[data-action-entity]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const confirmText = btn.dataset.confirm;
+        if (confirmText && !window.confirm(confirmText)) return;
+        hass.callService("script", "turn_on", { entity_id: btn.dataset.actionEntity });
+      });
+    });
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    const cfg = this._config;
+
+    const st = hass.states[cfg.entity];
+    const state = st?.state;
+
+    const badge = this._root.querySelector(".dm-ap-badge");
+    badge.classList.remove("run", "standby", "off", "unavailable");
+    const nothingDue = !state || state === "Nulla" || state === "unknown" || state === "unavailable";
+    badge.classList.add(nothingDue ? "off" : "run");
+    this._root.querySelector(".dm-ap-badge-label").textContent = state || "N/D";
+
+    const img = this._root.querySelector(".dm-c-garbage-img");
+    const imgUrl = (cfg.state_images || {})[state] || (cfg.state_images || {}).Nulla || "";
+    if (img.getAttribute("data-src") !== imgUrl) {
+      img.src = imgUrl;
+      img.setAttribute("data-src", imgUrl);
+    }
+
+    if (cfg.weekday_entity) {
+      this._root.querySelector(".dm-c-weekday").textContent = hass.states[cfg.weekday_entity]?.state ?? "—";
+    }
+    if (cfg.expose_time_entity) {
+      const t = hass.states[cfg.expose_time_entity]?.state;
+      this._root.querySelector(".dm-c-exposetime").textContent = t ? t.slice(0, 5) : "—";
+    }
+    if (cfg.pickup_day_entity) {
+      this._root.querySelector(".dm-c-pickupday").textContent = hass.states[cfg.pickup_day_entity]?.state ?? "—";
+    }
+  }
+
+  getCardSize() {
+    return 5;
+  }
+}
+
+customElements.define("dm-garbage-card", DmGarbageCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "dm-garbage-card",
+  name: "DM Garbage Card",
+  description: "Card stile DashboardModern per la raccolta differenziata: immagine dinamica in base al rifiuto del giorno, giorno del ritiro, orario di esposizione",
   author: "Simonz82",
 });
 
