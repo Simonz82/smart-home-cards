@@ -84,3 +84,10 @@ settings_sections:
 |---|---|
 | ![UPS classico](screenshot/layout/ups-classico-light.png) | ![UPS centrato](screenshot/layout/ups-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra **batteria** e **carico**. Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/ups-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/ups-grafico-24h-dark.png) |

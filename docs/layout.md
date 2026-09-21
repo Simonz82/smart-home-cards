@@ -11,7 +11,7 @@ Ogni card di questa raccolta si può mostrare in **due layout**, e la scelta si 
 
 Nelle **Impostazioni** di ogni card la prima riga si chiama **Layout**: un menu a tendina con *Classico* e *Centrato*. Appena scegli, la card cambia.
 
-| Popup nativo (es. Lavatrice) | Popup con `browser_mod` (es. Raccolta differenziata) |
+| Popup nativo (es. Lavatrice) | Popup nativo (Raccolta differenziata) |
 |---|---|
 | ![Layout nelle impostazioni - lavatrice](screenshot/layout/impostazioni-layout-lavatrice-light.png) | ![Layout nelle impostazioni - raccolta](screenshot/layout/impostazioni-layout-garbage-light.png) |
 

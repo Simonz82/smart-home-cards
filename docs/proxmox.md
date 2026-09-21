@@ -79,3 +79,10 @@ settings_sections:
 |---|---|
 | ![Proxmox classico](screenshot/layout/proxmox-classico-light.png) | ![Proxmox centrato](screenshot/layout/proxmox-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra **CPU**, **RAM**, **disco**, **temperatura CPU** e **GPU**. Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/proxmox-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/proxmox-grafico-24h-dark.png) |

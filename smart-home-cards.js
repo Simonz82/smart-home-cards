@@ -274,6 +274,10 @@ const ICON_GEAR =
   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
 const ICON_CHART =
   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="20" x2="5" y2="12"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="19" y1="20" x2="19" y2="9"/></svg>';
+const ICON_GRAPH =
+  '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,17 9,11 13,15 21,6"/><polyline points="15,6 21,6 21,12"/></svg>';
+const ICON_TYPES =
+  '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="14" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/><path d="M17 20l4-4 1 1-4 4h-1z"/></svg>';
 const ICON_CLOSE =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>';
 const ICON_RESTART =
@@ -373,6 +377,7 @@ const STYLE = `
 .dm-ap-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 .dm-ap-tools{display:flex;gap:4px;flex:0 0 auto}
 .dm-ap-tool{width:37px;height:37px;display:grid;place-items:center;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card);color:var(--dm-dim);cursor:pointer}
+.dm-ap-tool[hidden]{display:none}
 .dm-ap-tool svg{width:19px;height:19px}
 .dm-ap-tool:hover{border-color:#bae6fd;color:var(--dm-blue-deep)}
 .dm-ap-top-row{display:flex;align-items:stretch;gap:10px;margin:0 13px}
@@ -481,6 +486,54 @@ const STYLE = `
 .dm-ap-reset-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:0;border-radius:13px;background:var(--dm-blue);color:#fff;font-size:14px;font-weight:850;cursor:pointer}
 .dm-ap-reset-note{font-size:12px;color:var(--dm-dim);text-align:center;margin-top:4px}
 
+.dm-gc-dialog{width:min(780px,100%);max-height:94vh;overflow:auto;padding:20px 22px 22px;background:var(--dm-card);color:var(--dm-text);border:1px solid var(--dm-border);border-top:3px solid var(--dm-blue);border-radius:26px;box-shadow:0 32px 64px -28px rgba(2,6,23,.55),0 6px 18px -12px rgba(2,6,23,.3)}
+.dm-gc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--dm-border)}
+.dm-gc-title{margin:0;font-size:20px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-gc-close{flex:0 0 auto;border:1px solid var(--dm-border);border-radius:999px;padding:8px 14px;background:var(--dm-soft);color:var(--dm-dim);font:inherit;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.dm-gc-tabs{display:flex;gap:4px;margin:16px 0 10px;padding:6px;border-radius:999px;background:var(--dm-soft);border:1px solid var(--dm-border)}
+.dm-gc-tab{flex:1 1 0;min-width:0;border:0;border-radius:999px;padding:9px 6px;background:transparent;color:var(--dm-dim);font:inherit;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;cursor:pointer}
+.dm-gc-tab.on{background:linear-gradient(135deg,#0c4a6e,#075985);color:#7dd3fc;box-shadow:0 4px 12px rgba(14,165,233,.25)}
+.dm-gc-custom{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px;padding:12px;border-radius:16px;background:var(--dm-soft)}
+.dm-gc-custom label{display:flex;flex-direction:column;gap:4px;flex:1 1 170px;min-width:0}
+.dm-gc-custom label span{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--dm-dim)}
+.dm-gc-custom input{width:100%;box-sizing:border-box;padding:9px 10px;border-radius:11px;border:1px solid var(--dm-border);background:var(--dm-card);color:var(--dm-text);font:inherit;font-size:14px;color-scheme:light dark}
+.dm-gc-apply{flex:0 0 auto;border:0;border-radius:11px;padding:0 18px;height:38px;background:var(--dm-blue);color:#fff;font:inherit;font-size:13px;font-weight:900;cursor:pointer}
+.dm-gc-msg{flex:1 0 100%;color:#ef4444;font-weight:800;font-size:12px}
+.dm-gc-msg:empty{display:none}
+.dm-gc-custom[hidden],.dm-gc-cross[hidden],.dm-gc-tip[hidden],.dm-gc-chips[hidden]{display:none}
+.dm-gc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.dm-gc-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--dm-border);border-radius:999px;padding:6px 11px;background:var(--dm-card);color:var(--dm-dim);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.dm-gc-chip i{width:9px;height:9px;border-radius:50%;background:var(--c);opacity:.35}
+.dm-gc-chip.on{color:var(--dm-text);border-color:var(--c)}
+.dm-gc-chip.on i{opacity:1}
+.dm-gc-plot{position:relative;min-height:290px}
+.dm-gc-svgwrap{width:100%}
+.dm-gc-svg{display:block;max-width:100%;touch-action:pan-y;cursor:crosshair}
+.dm-gc-grid{stroke:var(--dm-border);stroke-width:1;stroke-dasharray:2 4}
+.dm-gc-ax{font-size:11px;font-weight:700;fill:var(--dm-dim)}
+.dm-gc-cross{stroke:var(--dm-dim);stroke-width:1;stroke-dasharray:3 3}
+.dm-gc-loading{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--dm-dim);background:color-mix(in srgb,var(--dm-card) 70%,transparent)}
+.dm-gc-tip{position:absolute;z-index:3;pointer-events:none;padding:8px 11px;border-radius:12px;background:var(--dm-card);border:1px solid var(--dm-border);box-shadow:0 8px 22px rgba(2,6,23,.3);font-size:12.5px;line-height:1.45;white-space:nowrap}
+.dm-gc-tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dm-gc-tip-t{font-size:11px;font-weight:800;color:var(--dm-dim);margin-bottom:2px}
+.dm-gc-sum{display:flex;flex-direction:column;gap:3px;margin-top:10px;font-size:12.5px;color:var(--dm-dim);text-align:center}
+.dm-gc-sum b{color:var(--dm-text);font-weight:800}
+@media (max-width:600px){
+  .dm-gc-ov{align-items:flex-end}
+  .dm-gc-dialog{width:100%;max-width:100%;min-height:62vh;max-height:94vh;padding:16px 14px 18px;border-radius:24px 24px 0 0}
+  .dm-gc-title{font-size:16px}
+  .dm-gc-tab{font-size:11px;letter-spacing:.4px;padding:9px 2px}
+  .dm-ap-tool{width:33px;height:33px}
+}
+
+.dm-gt-help{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:var(--dm-dim)}
+.dm-gt-help b{color:var(--dm-text)}
+.dm-gt-example{margin:0 0 10px;padding:10px 12px;border-radius:13px;background:var(--dm-soft);border-left:3px solid var(--dm-blue);font-size:13px;line-height:1.6;color:var(--dm-dim)}
+.dm-gt-example b{color:var(--dm-text)}
+.dm-gt-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:13px;border:1px solid var(--dm-border);background:var(--dm-soft);color:var(--dm-text);font:inherit;font-size:15px;resize:vertical}
+.dm-gt-count{text-align:right;font-size:11px;font-weight:800;color:var(--dm-dim);margin-top:3px}
+.dm-gt-preview{display:flex;flex-wrap:wrap;gap:6px}
+.dm-gt-chip{padding:6px 11px;border-radius:999px;background:var(--dm-soft);border:1px solid var(--dm-border);font-size:13.5px;font-weight:700}
 @media (max-width:600px){
   .dm-ap-overlay{align-items:flex-end;padding:0;backdrop-filter:blur(4px)}
   .dm-ap-dialog{width:100%;max-width:100%;height:94vh;max-height:94vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column}
@@ -521,6 +574,442 @@ function applyLayoutChoice(root, cfg, hass) {
     if (v === "classico" || v === "centrato") layout = v;
   }
   card.classList.toggle("layout-centrato", layout === "centrato");
+}
+
+// -----------------------------------------------------------------------
+// Popup "Grafici" condiviso da tutte le card: periodi 24h / 7gg / 30gg e
+// "Da ... a" (date a scelta), grafico SVG che si ridisegna alla larghezza
+// disponibile (piu' grande su PC, piu' stretto su smartphone), con tooltip
+// al passaggio del mouse / tocco. Nessuna libreria esterna: dati dalla
+// cronologia (24h) e dalle statistiche a lungo termine (7gg, 30gg, date).
+//   dmOpenChartPopup(card, { title, series: [{ entity, label, color, unit }] })
+// Piu' serie con la stessa unita' si sovrappongono (chip per accenderle).
+// -----------------------------------------------------------------------
+const GC_RANGES = [
+  { key: "24h", label: "24 h", ms: 24 * 3600e3 },
+  { key: "7d", label: "7 gg", ms: 7 * 86400e3 },
+  { key: "30d", label: "30 gg", ms: 30 * 86400e3 },
+];
+
+function gcFmt(v, unit) {
+  if (!Number.isFinite(v)) return "—";
+  const a = Math.abs(v);
+  const s = v.toLocaleString("it-IT", { maximumFractionDigits: a >= 100 ? 0 : a >= 10 ? 1 : 2 });
+  return unit ? `${s} ${unit}` : s;
+}
+
+function gcNiceTicks(min, max, n) {
+  const span = max - min || 1;
+  const raw = span / n;
+  const p = Math.pow(10, Math.floor(Math.log10(raw)));
+  const f = raw / p;
+  const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  const lo = Math.floor(min / step) * step;
+  const hi = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(Math.round(v / step) * step);
+  return ticks;
+}
+
+// Sensori "istantanei" (potenza, corrente, banda): si tiene il PICCO di ogni intervallo, la media
+// appiattirebbe i picchi (es. 2100 W di una resistenza diventano 400 W di media oraria).
+function gcIsPeak(unit) {
+  return /^(k?W|A|mA|Mbit\/s|kbit\/s|Mbps)$/i.test(String(unit || "").trim());
+}
+
+function gcDownsample(pts, start, end, target, peak) {
+  if (pts.length <= target) return pts;
+  const bucket = (end - start) / target;
+  const out = [];
+  let i = 0;
+  while (i < pts.length) {
+    const b = Math.floor((pts[i].t - start) / bucket);
+    let sum = 0;
+    let n = 0;
+    let mx = -Infinity;
+    let j = i;
+    while (j < pts.length && Math.floor((pts[j].t - start) / bucket) === b) {
+      sum += pts[j].y;
+      if (pts[j].y > mx) mx = pts[j].y;
+      n++;
+      j++;
+    }
+    out.push({ t: start + (b + 0.5) * bucket, y: peak ? mx : sum / n });
+    i = j;
+  }
+  return out;
+}
+
+async function gcFetch(hass, entityId, start, end, unit) {
+  const span = end - start;
+  const peak = gcIsPeak(unit);
+  const iso = (ms) => new Date(ms).toISOString();
+  const history = async () => {
+    const res = await hass.connection.sendMessagePromise({
+      type: "history/history_during_period",
+      start_time: iso(start),
+      end_time: iso(end),
+      entity_ids: [entityId],
+      minimal_response: true,
+      no_attributes: true,
+    });
+    const pts = (res?.[entityId] || [])
+      .map((r) => ({ t: (r.lu || r.last_updated_ts) * 1000 || new Date(r.last_updated).getTime(), y: Number(r.s ?? r.state) }))
+      .filter((p) => Number.isFinite(p.y) && Number.isFinite(p.t));
+    // Il valore resta quello dell'ultimo cambio fino ad adesso: la linea arriva fino alla fine del periodo.
+    if (pts.length && pts[pts.length - 1].t < end - 60e3) pts.push({ t: end, y: pts[pts.length - 1].y });
+    return gcDownsample(pts, start, end, span > 26 * 3600e3 ? 520 : 360, peak);
+  };
+  // Fino a 8 giorni si usano i dati reali della cronologia (picchi veri); oltre, o se la cronologia
+  // e' stata eliminata dal database, le statistiche a lungo termine (massimo orario per la potenza).
+  if (span <= 8 * 86400e3) {
+    try {
+      const pts = await history();
+      if (pts.length > 1) return pts;
+    } catch (e) {
+      /* si passa alle statistiche */
+    }
+  }
+  if (span > 26 * 3600e3) {
+    try {
+      const res = await hass.connection.sendMessagePromise({
+        type: "recorder/statistics_during_period",
+        start_time: iso(start),
+        end_time: iso(end),
+        statistic_ids: [entityId],
+        period: span > 45 * 86400e3 ? "day" : "hour",
+      });
+      const pts = (res?.[entityId] || [])
+        .map((r) => ({ t: new Date(r.start).getTime(), y: Number((peak ? r.max : r.mean) ?? r.mean ?? r.max ?? r.state) }))
+        .filter((p) => Number.isFinite(p.y) && Number.isFinite(p.t));
+      if (pts.length) return gcDownsample(pts, start, end, 400, peak);
+    } catch (e) {
+      /* nessun dato */
+    }
+  }
+  return span <= 8 * 86400e3 ? [] : history();
+}
+
+function gcToLocalInput(ms) {
+  const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000);
+  return d.toISOString().slice(0, 16);
+}
+
+function dmBindGraph(card) {
+  const b = card._root.querySelector(".dm-ap-graph");
+  if (!b) return;
+  b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dmOpenChartPopup(card, { title: card._config.name, series: card._graphSeries() });
+  });
+}
+
+function dmOpenChartPopup(card, opts) {
+  const root = card._root;
+  const hass = () => card._hass;
+  const series = (opts.series || [])
+    .filter((s) => s.entity)
+    .map((s) => ({
+      ...s,
+      label: s.label || hass()?.states[s.entity]?.attributes?.friendly_name || s.entity,
+      unit: s.unit ?? hass()?.states[s.entity]?.attributes?.unit_of_measurement ?? "",
+      color: s.color || "#0ea5e9",
+      pts: [],
+    }));
+  if (!series.length) return;
+
+  root.querySelectorAll(".dm-gc-ov").forEach((n) => n.remove());
+  const ov = document.createElement("div");
+  ov.className = "dm-ap-overlay dm-gc-ov";
+  ov.innerHTML = `<div class="dm-gc-dialog">
+    <div class="dm-gc-head"><h3 class="dm-gc-title">${esc(opts.title || series[0].label)}</h3>
+      <button type="button" class="dm-gc-close">✕ Chiudi</button></div>
+    <div class="dm-gc-tabs">${GC_RANGES.map((r) => `<button type="button" class="dm-gc-tab" data-range="${r.key}">${r.label}</button>`).join("")}<button type="button" class="dm-gc-tab" data-range="custom">Da … a</button></div>
+    <div class="dm-gc-custom" hidden>
+      <label><span>Da</span><input type="datetime-local" class="dm-gc-from"></label>
+      <label><span>A</span><input type="datetime-local" class="dm-gc-to"></label>
+      <button type="button" class="dm-gc-apply">Applica</button>
+      <small class="dm-gc-msg"></small>
+    </div>
+    <div class="dm-gc-chips"></div>
+    <div class="dm-gc-plot"><div class="dm-gc-loading">Caricamento…</div><div class="dm-gc-svgwrap"></div><div class="dm-gc-tip" hidden></div></div>
+    <div class="dm-gc-sum"></div>
+  </div>`;
+  root.appendChild(ov);
+  const q = (s) => ov.querySelector(s);
+  const close = () => {
+    if (ro) ro.disconnect();
+    ov.remove();
+  };
+  ov.addEventListener("click", (e) => {
+    if (e.target === ov) close();
+  });
+  q(".dm-gc-close").addEventListener("click", close);
+
+  const st = { range: "24h", start: 0, end: 0, active: new Set([0]) };
+  let ro = null;
+
+  const chipsEl = q(".dm-gc-chips");
+  const drawChips = () => {
+    if (series.length < 2) {
+      chipsEl.hidden = true;
+      return;
+    }
+    chipsEl.innerHTML = series
+      .map((s, i) => `<button type="button" class="dm-gc-chip${st.active.has(i) ? " on" : ""}" data-i="${i}" style="--c:${s.color}"><i></i>${esc(s.label)}</button>`)
+      .join("");
+  };
+  chipsEl.addEventListener("click", (e) => {
+    const b = e.target.closest(".dm-gc-chip");
+    if (!b) return;
+    const i = Number(b.dataset.i);
+    const same = [...st.active].every((k) => series[k].unit === series[i].unit);
+    if (!same) st.active = new Set([i]);
+    else if (st.active.has(i)) {
+      if (st.active.size > 1) st.active.delete(i);
+    } else st.active.add(i);
+    drawChips();
+    render();
+  });
+
+  const fmtX = (ms, span) => {
+    const d = new Date(ms);
+    if (span <= 26 * 3600e3) return d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+    if (span <= 4 * 86400e3) return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    if (span <= 8 * 86400e3) return d.toLocaleDateString("it-IT", { weekday: "short", day: "numeric" });
+    return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" });
+  };
+
+  const wrap = q(".dm-gc-svgwrap");
+  const tip = q(".dm-gc-tip");
+  let geo = null;
+
+  function render() {
+    const act = [...st.active].map((i) => series[i]);
+    const W = Math.max(260, Math.floor(wrap.clientWidth || q(".dm-gc-plot").clientWidth || 600));
+    const H = W < 520 ? Math.round(Math.min(420, Math.max(290, (window.innerHeight || 700) * 0.42))) : 360;
+    const all = act.flatMap((s) => s.pts.map((p) => p.y));
+    if (!all.length) {
+      wrap.innerHTML = `<div class="dm-ap-chart-empty" style="height:${H}px;display:grid;place-items:center">Nessun dato nel periodo</div>`;
+      q(".dm-gc-sum").innerHTML = "";
+      geo = null;
+      return;
+    }
+    const unit = act[0].unit;
+    let lo = Math.min(...all);
+    let hi = Math.max(...all);
+    const isPct = unit === "%";
+    const isTemp = /°/.test(unit);
+    if (isPct) {
+      lo = 0;
+      hi = 100;
+    } else if (isTemp) {
+      const pad = Math.max(1, (hi - lo) * 0.15);
+      lo -= pad;
+      hi += pad;
+    } else {
+      lo = Math.min(0, lo);
+      if (hi - lo < 1) hi = lo + (gcIsPeak(unit) ? 10 : 1);
+    }
+    const ticks = isPct ? [0, 25, 50, 75, 100] : gcNiceTicks(lo, hi, W < 520 ? 4 : 5);
+    const yMin = ticks[0];
+    const yMax = ticks[ticks.length - 1] || 1;
+    const labW = Math.max(...ticks.map((t) => gcFmt(t).length)) * 6.6 + 12;
+    const m = { l: labW, r: 10, t: 12, b: 26 };
+    const pw = W - m.l - m.r;
+    const ph = H - m.t - m.b;
+    const X = (t) => m.l + ((t - st.start) / (st.end - st.start)) * pw;
+    const Y = (v) => m.t + ph - ((v - yMin) / (yMax - yMin || 1)) * ph;
+    const span = st.end - st.start;
+    const nx = W < 520 ? 4 : 6;
+    let g = "";
+    ticks.forEach((t) => {
+      g += `<line x1="${m.l}" y1="${Y(t).toFixed(1)}" x2="${W - m.r}" y2="${Y(t).toFixed(1)}" class="dm-gc-grid"/>
+        <text x="${m.l - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" class="dm-gc-ax">${gcFmt(t)}</text>`;
+    });
+    for (let i = 0; i < nx; i++) {
+      const t = st.start + (span * i) / (nx - 1);
+      const anchor = i === 0 ? "start" : i === nx - 1 ? "end" : "middle";
+      g += `<text x="${X(t).toFixed(1)}" y="${H - 7}" text-anchor="${anchor}" class="dm-gc-ax">${fmtX(t, span)}</text>`;
+    }
+    let defs = "";
+    let body = "";
+    act.forEach((s, k) => {
+      if (!s.pts.length) return;
+      const gid = `gc${k}${Math.random().toString(36).slice(2, 6)}`;
+      // A gradini: il valore resta quello dell'ultimo cambio fino al successivo (come lo stato reale).
+      const stepped = [];
+      s.pts.forEach((p, i) => {
+        if (i > 0) stepped.push([p.t, s.pts[i - 1].y]);
+        stepped.push([p.t, p.y]);
+      });
+      const line = stepped.map(([t, y]) => `${X(t).toFixed(1)},${Y(y).toFixed(1)}`);
+      const first = X(s.pts[0].t).toFixed(1);
+      const last = X(s.pts[s.pts.length - 1].t).toFixed(1);
+      defs += `<linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity="${act.length > 1 ? 0.18 : 0.42}"/><stop offset="1" stop-color="${s.color}" stop-opacity="0.02"/></linearGradient>`;
+      body += `<polygon points="${first},${Y(yMin).toFixed(1)} ${line.join(" ")} ${last},${Y(yMin).toFixed(1)}" fill="url(#${gid})"/>
+        <polyline points="${line.join(" ")}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    });
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="dm-gc-svg"><defs>${defs}</defs>${g}${body}
+      <line class="dm-gc-cross" x1="0" y1="${m.t}" x2="0" y2="${m.t + ph}" hidden/></svg>`;
+    geo = { W, H, m, X, Y, act, pw, ph };
+
+    const s0 = act[0];
+    const vals = s0.pts.map((p) => p.y);
+    const avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+    q(".dm-gc-sum").innerHTML = act
+      .map((s) => {
+        const v = s.pts.map((p) => p.y);
+        if (!v.length) return "";
+        const a = v.reduce((x, y) => x + y, 0) / v.length;
+        return `<span class="dm-gc-sumrow"><b style="color:${s.color}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
+      })
+      .join("");
+    void avg;
+  }
+
+  const onMove = (ev) => {
+    if (!geo) return;
+    const svg = wrap.querySelector("svg");
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const px = ((ev.clientX - rect.left) / rect.width) * geo.W;
+    if (px < geo.m.l || px > geo.W - geo.m.r) {
+      tip.hidden = true;
+      return;
+    }
+    const tms = st.start + ((px - geo.m.l) / geo.pw) * (st.end - st.start);
+    const rows = geo.act
+      .map((s) => {
+        if (!s.pts.length) return null;
+        let best = s.pts[0];
+        for (const p of s.pts) {
+          if (p.t <= tms) best = p;
+          else break;
+        }
+        return { s, p: best };
+      })
+      .filter(Boolean);
+    if (!rows.length) return;
+    const cx = px;
+    const cross = svg.querySelector(".dm-gc-cross");
+    cross.setAttribute("x1", cx);
+    cross.setAttribute("x2", cx);
+    cross.removeAttribute("hidden");
+    svg.querySelectorAll(".dm-gc-dot").forEach((n) => n.remove());
+    rows.forEach((r) => {
+      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      c.setAttribute("class", "dm-gc-dot");
+      c.setAttribute("cx", px);
+      c.setAttribute("cy", geo.Y(r.p.y));
+      c.setAttribute("r", 4);
+      c.setAttribute("fill", r.s.color);
+      svg.appendChild(c);
+    });
+    const when = new Date(tms).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    tip.innerHTML = `<div class="dm-gc-tip-t">${when}</div>${rows
+      .map((r) => `<div><i style="background:${r.s.color}"></i>${geo.act.length > 1 ? esc(r.s.label) + ": " : ""}<b>${gcFmt(r.p.y, r.s.unit)}</b></div>`)
+      .join("")}`;
+    tip.hidden = false;
+    const plot = q(".dm-gc-plot").getBoundingClientRect();
+    let left = ev.clientX - plot.left + 14;
+    if (left + tip.offsetWidth > plot.width - 4) left = ev.clientX - plot.left - tip.offsetWidth - 14;
+    tip.style.left = `${Math.max(4, left)}px`;
+    tip.style.top = `${Math.max(4, ev.clientY - plot.top - 10 - tip.offsetHeight / 2)}px`;
+  };
+  wrap.addEventListener("pointermove", onMove);
+  wrap.addEventListener("pointerdown", onMove);
+  wrap.addEventListener("pointerleave", () => {
+    tip.hidden = true;
+    const c = wrap.querySelector(".dm-gc-cross");
+    if (c) c.setAttribute("hidden", "");
+    wrap.querySelectorAll(".dm-gc-dot").forEach((n) => n.remove());
+  });
+
+  let token = 0;
+  async function load() {
+    const my = ++token;
+    q(".dm-gc-loading").style.display = "flex";
+    try {
+      const idx = [...st.active];
+      const need = series.map((_, i) => i).filter((i) => idx.includes(i) && !series[i]._key?.startsWith(`${st.start}|${st.end}`));
+      await Promise.all(
+        need.map(async (i) => {
+          series[i].pts = await gcFetch(hass(), series[i].entity, st.start, st.end, series[i].unit);
+          series[i]._key = `${st.start}|${st.end}`;
+        }),
+      );
+    } catch (e) {
+      if (my === token) wrap.innerHTML = `<div class="dm-ap-chart-empty">Errore caricamento dati</div>`;
+      q(".dm-gc-loading").style.display = "none";
+      return;
+    }
+    if (my !== token) return;
+    q(".dm-gc-loading").style.display = "none";
+    render();
+  }
+
+  // Le serie accese dopo un cambio di periodo vanno ricaricate: si invalida la cache e si ricarica.
+  const origRender = render;
+  render = function () {
+    const missing = [...st.active].some((i) => series[i]._key !== `${st.start}|${st.end}`);
+    if (missing) load();
+    else origRender();
+  };
+
+  function setRange(key) {
+    st.range = key;
+    ov.querySelectorAll(".dm-gc-tab").forEach((b) => b.classList.toggle("on", b.dataset.range === key));
+    const custom = q(".dm-gc-custom");
+    if (key === "custom") {
+      custom.hidden = false;
+      if (!q(".dm-gc-from").value) {
+        q(".dm-gc-from").value = gcToLocalInput(Date.now() - 3 * 86400e3);
+        q(".dm-gc-to").value = gcToLocalInput(Date.now());
+      }
+      return;
+    }
+    custom.hidden = true;
+    const r = GC_RANGES.find((x) => x.key === key);
+    st.end = Date.now();
+    st.start = st.end - r.ms;
+    render();
+  }
+  ov.querySelectorAll(".dm-gc-tab").forEach((b) => b.addEventListener("click", () => setRange(b.dataset.range)));
+  q(".dm-gc-apply").addEventListener("click", () => {
+    const a = new Date(q(".dm-gc-from").value).getTime();
+    const b = new Date(q(".dm-gc-to").value).getTime();
+    const msg = q(".dm-gc-msg");
+    if (!Number.isFinite(a) || !Number.isFinite(b)) {
+      msg.textContent = "Scegli entrambe le date";
+      return;
+    }
+    if (b <= a) {
+      msg.textContent = "La data finale deve essere dopo quella iniziale";
+      return;
+    }
+    if (b - a > 400 * 86400e3) {
+      msg.textContent = "Massimo 400 giorni";
+      return;
+    }
+    msg.textContent = "";
+    st.start = a;
+    st.end = Math.min(b, Date.now());
+    st.range = "custom";
+    render();
+  });
+
+  drawChips();
+  let lastW = 0;
+  ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => {
+    const w = wrap.clientWidth;
+    if (geo && w && w !== lastW) {
+      lastW = w;
+      origRender();
+    }
+  }) : null;
+  if (ro) ro.observe(q(".dm-gc-plot"));
+  setRange("24h");
 }
 
 class DmApplianceCloneCard extends HTMLElement {
@@ -565,6 +1054,7 @@ class DmApplianceCloneCard extends HTMLElement {
             <button type="button" class="dm-ap-tool dm-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="dm-ap-top-row">
@@ -598,6 +1088,7 @@ class DmApplianceCloneCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
     if (this._config.room) {
       const room = this._root.querySelector(".dm-ap-room");
       room.hidden = false;
@@ -627,7 +1118,7 @@ class DmApplianceCloneCard extends HTMLElement {
     if (powerEl) {
       powerEl.addEventListener("click", (e) => {
         e.stopPropagation();
-        this._openPowerHistory();
+        dmOpenChartPopup(this, { title: this._config.name, series: this._graphSeries() });
       });
     }
   }
@@ -837,9 +1328,12 @@ class DmApplianceCloneCard extends HTMLElement {
       liveHtml += this._row(row.label, `<span class="dm-ap-row-val">${esc(val)}</span>`);
     });
 
-    this._openDialog("Stato", `
-      ${liveHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : `<div class="dm-ap-row-val">Nessuna informazione disponibile</div>`}
+    this._openDialog("Statistiche", `
+      ${liveHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : ""}
+      ${this._consumiHtml()}
+      ${this._energyBarsHtml()}
     `);
+    this._loadEnergyBars(this._root.querySelector(".dm-ap-overlay:not(.dm-gc-ov)"));
   }
 
   // Le caselle "week_rows" sono 7 contenitori fissi per nome del giorno
@@ -870,7 +1364,9 @@ class DmApplianceCloneCard extends HTMLElement {
     return ordered;
   }
 
-  _openWeek() {
+  // Consumi per periodo (oggi, ieri, mese, anno...) + giorni della settimana: usati sia da
+  // "Statistiche" (barrette) sia dal tocco sull'immagine.
+  _consumiHtml() {
     const hass = this._hass;
     const periods = Object.keys(this._config.period_attrs || {});
     const periodRows = periods.map((p) => this._renderPeriodRow(hass, p)).join("");
@@ -896,13 +1392,54 @@ class DmApplianceCloneCard extends HTMLElement {
       })
       .join("");
 
-    this._openDialog("Statistiche", `
+    return `
       ${periodRows ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Consumi per periodo</div><div class="dm-ap-week-list">${periodRows}</div></div>` : ""}
       <div class="dm-ap-sec">
         <div class="dm-ap-sec-cap">Ultimi 7 giorni</div>
         <div class="dm-ap-week-list">${body || `<div class="dm-ap-row-val">Nessun dato configurato</div>`}</div>
-      </div>
-    `);
+      </div>`;
+  }
+
+  _openWeek() {
+    this._openDialog("Statistiche", this._consumiHtml());
+  }
+
+  // Istogrammi del consumo di questo mese (per giorno) e di quest'anno (per mese).
+  _energyBarsHtml() {
+    if (!this._config.energy_stat_entity) return "";
+    return `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="dm-ap-chart-loading" data-chart="month">Caricamento...</div></div>
+      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="dm-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+  }
+
+  _loadEnergyBars(overlay) {
+    const energyEntity = this._config.energy_stat_entity;
+    if (!energyEntity || !overlay) return;
+    const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
+    const now = new Date();
+    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    this._fetchStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
+      .then((rows) => {
+        const el = slot("month");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        el.outerHTML = `<div data-chart="month">${this._barChartSvg(bars, "#0ea5e9")}${this._labelSpans(rows, 8, (r) => r.t.getDate())}</div>`;
+      })
+      .catch(() => {
+        const el = slot("month");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
+    this._fetchStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
+      .then((rows) => {
+        const el = slot("year");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        const labels = `<div class="dm-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
+        el.outerHTML = `<div data-chart="year">${this._barChartSvg(bars, "#0ea5e9")}${labels}</div>`;
+      })
+      .catch(() => {
+        const el = slot("year");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
   }
 
   // -- grafici potenza (linea 24h + istogrammi mese/anno) ------------------
@@ -1186,6 +1723,11 @@ class DmApplianceCloneCard extends HTMLElement {
     }
   }
 
+  _graphSeries() {
+    const c = this._config;
+    return [{ entity: c.power_history_entity || c.power_entity, label: "Potenza", color: "#0ea5e9" }];
+  }
+
   getCardSize() {
     return 7;
   }
@@ -1196,7 +1738,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-appliance-clone-card",
   name: "DM Appliance Clone",
-  description: "Template card elettrodomestici, con popup impostazioni/statistiche completi",
+  description: "Card per gli elettrodomestici, con popup impostazioni/statistiche completi",
   author: "Simonz82",
 });
 
@@ -1233,9 +1775,10 @@ class DmFritzCard extends HTMLElement {
           <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
           <span class="dm-ap-tools">
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
             <button type="button" class="dm-ap-tool dm-ap-consumi" title="Test di banda">${ICON_SPEED}</button>
+            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
           </span>
         </div>
         <div class="dm-ap-top-row">
@@ -1265,6 +1808,7 @@ class DmFritzCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
@@ -1502,6 +2046,17 @@ class DmFritzCard extends HTMLElement {
     `);
   }
 
+  // Fondoscala della barra live = portante agganciata + 2% (la linea non puo' andare oltre la portante).
+  // Se la portante non e' disponibile si usa il "max_mbps" della configurazione.
+  _maxMbps(portante) {
+    let n = portante ? Number(portante.state) : NaN;
+    if (!Number.isFinite(n) || n <= 0) return this._config.max_mbps;
+    const unit = String(portante.attributes?.unit_of_measurement || "").toLowerCase();
+    if (unit.startsWith("k")) n /= 1000;
+    else if (unit.startsWith("g")) n *= 1000;
+    return n * 1.02;
+  }
+
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
@@ -1541,12 +2096,12 @@ class DmFritzCard extends HTMLElement {
     const mbpsDown = s.mbps_down ? Number(hass.states[s.mbps_down]?.state) : NaN;
     const downVal = Number.isFinite(mbpsDown) ? Math.max(0, mbpsDown) : 0;
     this._root.querySelector(".dm-c-mbps-down-val").textContent = `${downVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".dm-c-mbps-down-bar").style.width = `${Math.min(100, Math.round((downVal / cfg.max_mbps) * 100))}%`;
+    this._root.querySelector(".dm-c-mbps-down-bar").style.width = `${Math.min(100, Math.round((downVal / this._maxMbps(portanteDown)) * 100))}%`;
 
     const mbpsUp = s.mbps_up ? Number(hass.states[s.mbps_up]?.state) : NaN;
     const upVal = Number.isFinite(mbpsUp) ? Math.max(0, mbpsUp) : 0;
     this._root.querySelector(".dm-c-mbps-up-val").textContent = `${upVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".dm-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / cfg.max_mbps) * 100))}%`;
+    this._root.querySelector(".dm-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / this._maxMbps(portanteUp)) * 100))}%`;
 
     const warnEl = this._root.querySelector(".dm-ap-warn");
     const upd = cfg.update_entity ? hass.states[cfg.update_entity] : null;
@@ -1559,6 +2114,14 @@ class DmFritzCard extends HTMLElement {
     } else {
       warnEl.hidden = true;
     }
+  }
+
+  _graphSeries() {
+    const s = this._config.stats || {};
+    return [
+      { entity: s.mbps_down, label: "Download", color: "#0ea5e9" },
+      { entity: s.mbps_up, label: "Upload", color: "#22c55e" },
+    ];
   }
 
   getCardSize() {
@@ -1610,6 +2173,7 @@ class DmServerCard extends HTMLElement {
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="dm-ap-top-row">
@@ -1642,6 +2206,7 @@ class DmServerCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       // Riusa pari pari il vecchio popup "Impostazioni" (browser_mod) della
@@ -2003,22 +2568,7 @@ class DmServerCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    this._openDialog(
-      title,
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 6 ore</div><div class="dm-ap-chart-loading" data-chart="6h">Caricamento...</div></div>`,
-    );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
-    const slot = overlay?.querySelector('[data-chart="6h"]');
-    this._fetchHistory6h(entityId)
-      .then((points) => {
-        const el = overlay?.querySelector('[data-chart="6h"]');
-        if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
-        el.outerHTML = `<div data-chart="6h">${this._lineChartSvg(points, color)}${labels}</div>`;
-      })
-      .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
-      });
+    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   // Riusa pari pari il vecchio popup "Statistiche" (browser_mod) della card
@@ -2160,6 +2710,15 @@ class DmServerCard extends HTMLElement {
     }
   }
 
+  _graphSeries() {
+    const s = this._config.sensors || {};
+    return [
+      { entity: s.cpu, label: "CPU", color: "#38bdf8" },
+      { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
+      { entity: s.disk_pct, label: "Disco HA", color: "#eab308" },
+    ];
+  }
+
   getCardSize() {
     return 7;
   }
@@ -2204,6 +2763,7 @@ class DmNasCard extends HTMLElement {
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
             <button type="button" class="dm-ap-tool dm-ap-consumi" title="Consumi">${ICON_BOLT}</button>
           </span>
         </div>
@@ -2250,6 +2810,7 @@ class DmNasCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
@@ -2522,22 +3083,7 @@ class DmNasCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    this._openDialog(
-      title,
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 6 ore</div><div class="dm-ap-chart-loading" data-chart="6h">Caricamento...</div></div>`,
-    );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
-    const slot = overlay?.querySelector('[data-chart="6h"]');
-    this._fetchHistory6h(entityId)
-      .then((points) => {
-        const el = overlay?.querySelector('[data-chart="6h"]');
-        if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
-        el.outerHTML = `<div data-chart="6h">${this._lineChartSvg(points, color)}${labels}</div>`;
-      })
-      .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
-      });
+    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _stateLabel(raw) {
@@ -2707,6 +3253,18 @@ class DmNasCard extends HTMLElement {
     }
   }
 
+  _graphSeries() {
+    const s = this._config.sensors || {};
+    return [
+      { entity: s.cpu, label: "CPU", color: "#38bdf8" },
+      { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
+      { entity: s.vol1, label: s.vol1_label || "Volume 1", color: "#eab308" },
+      { entity: s.vol2, label: s.vol2_label || "Volume 2", color: "#f97316" },
+      { entity: s.usb_pct, label: "USB", color: "#a855f7" },
+      { entity: s.temp, label: "Temperatura", color: "#ef4444" },
+    ];
+  }
+
   getCardSize() {
     return 7;
   }
@@ -2754,6 +3312,7 @@ class DmEnergyCard extends HTMLElement {
             <button type="button" class="dm-ap-tool dm-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
             <button type="button" class="dm-ap-tool dm-ap-consumi" title="Circuiti">${ICON_BOLT}</button>
           </span>
         </div>
@@ -2775,6 +3334,7 @@ class DmEnergyCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
 
     // Le prime 4 voci di "circuits" (Generale/Prese/Luce/Cantina nel setup
     // reale) diventano le barre sul fronte, come CPU/RAM sulle altre card;
@@ -3046,22 +3606,7 @@ class DmEnergyCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    this._openDialog(
-      title,
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 6 ore</div><div class="dm-ap-chart-loading" data-chart="6h">Caricamento...</div></div>`,
-    );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
-    const slot = overlay?.querySelector('[data-chart="6h"]');
-    this._fetchHistory6h(entityId)
-      .then((points) => {
-        const el = overlay?.querySelector('[data-chart="6h"]');
-        if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
-        el.outerHTML = `<div data-chart="6h">${this._lineChartSvg(points, color)}${labels}</div>`;
-      })
-      .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
-      });
+    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openPowerHistory() {
@@ -3255,6 +3800,16 @@ class DmEnergyCard extends HTMLElement {
     }
   }
 
+  _graphSeries() {
+    const colors = ["#38bdf8", "#22c55e", "#eab308", "#f97316", "#a855f7", "#ef4444"];
+    const out = [];
+    (this._config.circuits || []).forEach((c) => {
+      const eid = this._barEntity(c, this._hass);
+      if (eid) out.push({ entity: eid, label: this._barLabel(c, this._hass, eid), color: colors[out.length % colors.length] });
+    });
+    return out;
+  }
+
   getCardSize() {
     return 7;
   }
@@ -3296,6 +3851,7 @@ class DmUpsCard extends HTMLElement {
           <span class="dm-ap-tools">
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="dm-ap-top-row">
@@ -3325,6 +3881,7 @@ class DmUpsCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
 
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -3544,22 +4101,7 @@ class DmUpsCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    this._openDialog(
-      title,
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 6 ore</div><div class="dm-ap-chart-loading" data-chart="6h">Caricamento...</div></div>`,
-    );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
-    const slot = overlay?.querySelector('[data-chart="6h"]');
-    this._fetchHistory6h(entityId)
-      .then((points) => {
-        const el = overlay?.querySelector('[data-chart="6h"]');
-        if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
-        el.outerHTML = `<div data-chart="6h">${this._lineChartSvg(points, color)}${labels}</div>`;
-      })
-      .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
-      });
+    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openStats() {
@@ -3667,6 +4209,14 @@ class DmUpsCard extends HTMLElement {
     }
   }
 
+  _graphSeries() {
+    const c = this._config;
+    return [
+      { entity: c.battery_entity, label: "Batteria", color: "#22c55e" },
+      { entity: c.power_entity || c.load_entity, label: "Carico", color: "#38bdf8" },
+    ];
+  }
+
   getCardSize() {
     return 6;
   }
@@ -3712,11 +4262,13 @@ class DmGarbageCard extends HTMLElement {
           <span class="dm-ap-tools">
             <button type="button" class="dm-ap-tool dm-ap-alexa" title="Notifiche Alexa">${ICON_MEGAPHONE}</button>
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="dm-ap-tool dm-ap-types" title="Tipi di raccolta" hidden>${ICON_TYPES}</button>
           </span>
         </div>
         <div class="dm-ap-top-row" style="padding-bottom:10px">
           <div class="dm-ap-hero" style="display:flex;align-items:center;justify-content:center;overflow:visible">
             <img class="dm-c-garbage-img" style="width:100%;height:100%;object-fit:contain;transform:scale(0.95) translateY(-5px)" alt="">
+            <div class="dm-c-garbage-emoji" style="display:none;font-size:92px;line-height:1"></div>
           </div>
           <div class="dm-ap-cycle-side">
             <span class="dm-ap-cycle-cap">Info</span>
@@ -3740,6 +4292,14 @@ class DmGarbageCard extends HTMLElement {
         this._openSettings();
       }
     });
+    const typesBtn = this._root.querySelector(".dm-ap-types");
+    if (this._config.types_entity) {
+      typesBtn.hidden = false;
+      typesBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._openTypes();
+      });
+    }
     this._root.querySelector(".dm-ap-alexa").addEventListener("click", (e) => {
       e.stopPropagation();
       history.pushState(null, "", "/lovelace/centronotifiche");
@@ -3863,6 +4423,84 @@ class DmGarbageCard extends HTMLElement {
     });
   }
 
+  // Elenco dei tipi di raccolta scritto a mano: viene salvato in un input_text e un'automazione del
+  // package ricostruisce i menu dei giorni (icona automatica per ogni nome, "Nulla" sempre in fondo).
+  _parseTypes(text) {
+    const MAP = { "organico e resto": "\u{1F52A}", organico: "\u{1F34C}", umido: "\u{1F34C}", indifferenziato: "\u267B", secco: "\u267B", residuo: "\u267B", carta: "\u{1F961}", cartone: "\u{1F961}", vetro: "\u{1F376}", plastica: "\u{1F95B}", lattine: "\u{1F96B}", metalli: "\u{1F96B}", verde: "\u{1F33F}", sfalci: "\u{1F33F}", ingombranti: "\u{1F6CB}", pile: "\u{1F50B}", farmaci: "\u{1F48A}", tessili: "\u{1F455}", oli: "\u{1F6E2}" };
+    const out = [];
+    String(text || "")
+      .split(/[,;\n|]/)
+      .map((t) => t.trim())
+      .filter((t) => t && t.replace(/^[^A-Za-z\u00C0-\u00FF0-9]+/, "").toLowerCase() !== "nulla")
+      .forEach((t) => {
+        let item = t;
+        if (/^[A-Za-z\u00C0-\u00FF0-9]/.test(t)) {
+          const low = t.toLowerCase();
+          let emoji = "\u{1F5D1}";
+          let n = 0;
+          Object.keys(MAP).forEach((k) => {
+            if (low.includes(k) && k.length > n) {
+              emoji = MAP[k];
+              n = k.length;
+            }
+          });
+          item = `${emoji} ${t[0].toUpperCase()}${t.slice(1)}`;
+        }
+        if (!out.includes(item)) out.push(item);
+      });
+    return out;
+  }
+
+  _openTypes() {
+    const hass = this._hass;
+    const ent = this._config.types_entity;
+    const st = hass.states[ent];
+    const val = st && !["unknown", "unavailable"].includes(st.state) ? st.state : "";
+    const overlay = this._openDialog(
+      "Tipi di raccolta",
+      `<div class="dm-ap-sec">
+        <div class="dm-ap-sec-cap">Configura la raccolta del tuo comune</div>
+        <p class="dm-gt-help">Scrivi le <b>voci</b> dei rifiuti, separate da virgola. <b>Ogni voce è ciò che viene ritirato in una singola giornata</b>: quando poi imposti i giorni, per ogni giorno scegli <b>una sola voce</b>. Se in un giorno fanno <b>due ritiri insieme</b>, scrivi una voce apposta che li comprende entrambi.</p>
+        <div class="dm-gt-example"><b>Esempio</b><br>Scrivi: <i>Carta, Vetro, Plastica, Organico, Organico e Resto</i><br>• il lunedì scegli <b>Organico</b> (ritirano solo l'organico)<br>• il giovedì scegli <b>Organico e Resto</b> (quel giorno ritirano organico e resto insieme)<br>• il sabato scegli <b>Nulla</b> (nessun ritiro, viene aggiunta da sola)</div>
+        <p class="dm-gt-help" style="margin-top:8px">A ogni voce viene aggiunta un'icona in automatico. Le scelte già fatte per i giorni restano, se la voce esiste ancora.</p>
+        <textarea class="dm-gt-input" rows="3" maxlength="255" placeholder="Carta, Vetro, Plastica, Organico, Organico e Resto">${esc(val)}</textarea>
+        <div class="dm-gt-count"></div>
+        <div class="dm-ap-sec-cap" style="margin-top:12px">Anteprima dei menu</div>
+        <div class="dm-gt-preview"></div>
+        <button type="button" class="dm-ap-reset-btn dm-gt-save" style="margin-top:12px">Salva elenco</button>
+        <div class="dm-ap-reset-note dm-gt-msg"></div>
+      </div>`,
+    );
+    overlay.querySelector(".dm-ap-dialog").style.maxHeight = "min(92vh, 900px)";
+    const input = overlay.querySelector(".dm-gt-input");
+    const draw = () => {
+      const items = this._parseTypes(input.value).concat(["\u{1F937} Nulla"]);
+      overlay.querySelector(".dm-gt-preview").innerHTML = items.map((i) => `<span class="dm-gt-chip">${esc(i)}</span>`).join("");
+      overlay.querySelector(".dm-gt-count").textContent = `${input.value.length}/255`;
+    };
+    input.addEventListener("input", draw);
+    draw();
+    overlay.querySelector(".dm-gt-save").addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const msg = overlay.querySelector(".dm-gt-msg");
+      if (!this._parseTypes(input.value).length) {
+        msg.textContent = "Scrivi almeno un tipo di raccolta.";
+        return;
+      }
+      try {
+        await hass.callService("input_text", "set_value", { entity_id: ent, value: input.value.trim() });
+        try {
+          await hass.connection.sendMessagePromise({ type: "fire_event", event_type: "raccolta_tipi_aggiorna" });
+        } catch (err) {
+          /* l'automazione parte comunque al cambio dell'elenco */
+        }
+        msg.textContent = "Salvato: i menu dei giorni sono stati aggiornati.";
+      } catch (err) {
+        msg.textContent = "Non sono riuscito a salvare l'elenco.";
+      }
+    });
+  }
+
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
@@ -3879,7 +4517,15 @@ class DmGarbageCard extends HTMLElement {
     this._root.querySelector(".dm-ap-badge-label").textContent = state || "N/D";
 
     const img = this._root.querySelector(".dm-c-garbage-img");
-    const imgUrl = (cfg.state_images || {})[state] || (cfg.state_images || {}).Nulla || "";
+    // Un tipo scritto a mano puo' non avere una foto: allora si mostra la sua icona grande.
+    const own = (cfg.state_images || {})[state];
+    const emojiEl = this._root.querySelector(".dm-c-garbage-emoji");
+    const emoji = st?.attributes?.emoji;
+    const useEmoji = !own && !nothingDue && !!emoji;
+    emojiEl.style.display = useEmoji ? "block" : "none";
+    emojiEl.textContent = useEmoji ? emoji : "";
+    img.style.display = useEmoji ? "none" : "";
+    const imgUrl = own || (cfg.state_images || {}).Nulla || "";
     if (img.getAttribute("data-src") !== imgUrl) {
       img.src = imgUrl;
       img.setAttribute("data-src", imgUrl);
@@ -3939,6 +4585,7 @@ class DmProxmoxCard extends HTMLElement {
             <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
             <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="dm-ap-top-row">
@@ -3980,6 +4627,7 @@ class DmProxmoxCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
+    dmBindGraph(this);
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
@@ -4232,22 +4880,7 @@ class DmProxmoxCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    this._openDialog(
-      title,
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 6 ore</div><div class="dm-ap-chart-loading" data-chart="6h">Caricamento...</div></div>`,
-    );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
-    const slot = overlay?.querySelector('[data-chart="6h"]');
-    this._fetchHistory6h(entityId)
-      .then((points) => {
-        const el = overlay?.querySelector('[data-chart="6h"]');
-        if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
-        el.outerHTML = `<div data-chart="6h">${this._lineChartSvg(points, color)}${labels}</div>`;
-      })
-      .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
-      });
+    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openStats() {
@@ -4385,6 +5018,17 @@ class DmProxmoxCard extends HTMLElement {
       warnEl.hidden = true;
       card.classList.remove("has-alarm");
     }
+  }
+
+  _graphSeries() {
+    const s = this._config.sensors || {};
+    return [
+      { entity: s.cpu, label: "CPU", color: "#38bdf8" },
+      { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
+      { entity: s.disk_pct, label: "Disco", color: "#eab308" },
+      { entity: s.cpu_temp, label: "Temp CPU", color: "#ef4444" },
+      { entity: s.gpu_pct, label: "GPU", color: "#a855f7" },
+    ];
   }
 
   getCardSize() {

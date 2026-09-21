@@ -122,3 +122,10 @@ settings_sections:
 |---|---|
 | ![NAS Synology classico](screenshot/layout/nas-classico-light.png) | ![NAS Synology centrato](screenshot/layout/nas-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra **CPU**, **RAM**, **volumi**, **USB** e **temperatura**. Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/nas-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/nas-grafico-24h-dark.png) |

@@ -224,3 +224,10 @@ settings_sections:
 |---|---|
 | ![Lavatrice (uguale per asciugatrice, lavastoviglie, forno e TV, con il proprio menu `layout_<nome>`) classico](screenshot/layout/lavatrice-classico-light.png) | ![Lavatrice (uguale per asciugatrice, lavastoviglie, forno e TV, con il proprio menu `layout_<nome>`) centrato](screenshot/layout/lavatrice-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra la **potenza** del dispositivo; nel popup **Statistiche** (barrette) trovi i consumi per periodo, per giorno della settimana e gli istogrammi mese/anno. Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/lavastoviglie-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/lavastoviglie-grafico-24h-dark.png) |

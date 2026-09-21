@@ -17,8 +17,13 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 | [💾 NAS Synology](docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
 | [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
-| [♻️ Raccolta Differenziata](https://github.com/Simonz82/ha_garbage) | Rifiuto del giorno, giorno del ritiro, orario di esposizione | Guida completa (package + immagini + screenshot) nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage) |
+| [♻️ Raccolta Differenziata](docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, **tipi di raccolta scritti a mano** per il tuo comune | Nessuno: package e guida inclusi (repo dedicato: [ha_garbage](https://github.com/Simonz82/ha_garbage)) |
+| [📈 Grafici 24 h / 7 gg / 30 gg / da … a](docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
 | [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
+
+Ogni card ha anche un pulsante **📈 Grafici** (24 h · 7 gg · 30 gg · da … a): vedi [docs/grafici.md](docs/grafici.md).
+
+Ogni card ha anche un pulsante **📈 Grafici** (24 h · 7 gg · 30 gg · da … a): vedi [docs/grafici.md](docs/grafici.md).
 
 Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
 

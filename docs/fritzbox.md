@@ -36,7 +36,7 @@ connection_entity: sensor.fritzbox    # stato/connettività del router
 |---|---|---|
 | `connection_entity` | **Sì** | Entità di stato/connettività creata dall'integrazione FRITZ!Box Tools |
 | `name` | No | Titolo card |
-| `max_mbps` | No | Fondo scala barre download/upload live |
+| `max_mbps` | No | Fondo scala di riserva delle barre download/upload live: normalmente il fondoscala è la **portante agganciata + 2%** (download con la portante down, upload con la portante up); `max_mbps` si usa solo se la portante non è disponibile |
 | `update_entity` | No | Entità `update.` per il firmware — creata automaticamente dalla stessa integrazione se c'è un aggiornamento disponibile |
 
 ### `stats` — dati di banda (di solito già pronti dall'integrazione)
@@ -127,3 +127,10 @@ settings_sections:
 |---|---|
 | ![FritzBox classico](screenshot/layout/fritz-classico-light.png) | ![FritzBox centrato](screenshot/layout/fritz-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra **Download** e **Upload**. Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/fritzbox-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/fritzbox-grafico-24h-dark.png) |

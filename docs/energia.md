@@ -153,3 +153,10 @@ settings_sections:
 |---|---|
 | ![Energia Casa classico](screenshot/layout/energia-classico-light.png) | ![Energia Casa centrato](screenshot/layout/energia-centrato-light.png) |
 
+## 📈 Grafici
+
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra i **circuiti** (parte dal Generale; con le chip accendi le altre curve, sovrapposte). Vedi la guida completa: [Grafici](grafici.md).
+
+| Chiaro | Scuro |
+|---|---|
+| ![Grafico, chiaro](screenshot/grafici/energia-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/energia-grafico-24h-dark.png) |
