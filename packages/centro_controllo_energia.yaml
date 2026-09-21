@@ -484,6 +484,15 @@ input_text:
     max: 255
 
 input_select:
+  # Layout della card: "Classico" (foto a sinistra) oppure "Centrato" (foto in alto, blocco OGGI
+  # su due colonne). Si sceglie dalla prima riga delle Impostazioni della card.
+  layout_energia:
+    name: Layout Energia
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+
   barra_1_scelta:
     name: Barra 1 Scelta
     icon: mdi:gauge
