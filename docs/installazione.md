@@ -51,7 +51,7 @@ Chiudi e riapri la scheda del browser (o l'app), meglio ancora con una ricarica 
 2. **Aggiungi card**, scorri in fondo, scegli **Manuale** (o cerca "Manual"/YAML).
 3. Cancella il contenuto di esempio e incolla la configurazione della card che ti interessa — le trovi già pronte, con spiegazione di ogni campo, in una di queste guide:
    - [🧺 Elettrodomestici](elettrodomestici.md)
-   - [⚡ Energia Casa](energia.md)
+   - [⚡ Energia Casa](https://github.com/Simonz82/controllo_energia_casa)
    - [📶 FritzBox / Router](fritzbox.md)
    - [🖥️ Server Home Assistant](homeassistant-server.md)
    - [💾 NAS Synology](nas-synology.md)

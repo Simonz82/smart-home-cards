@@ -11,13 +11,13 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 | Card | Cosa mostra | Serve per |
 |---|---|---|
 | [🧺 Elettrodomestici](docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
-| [⚡ Energia Casa](docs/energia.md) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Un misuratore di potenza generale casa (Shelly EM, contatore, ecc.) |
+| [⚡ Energia Casa](https://github.com/Simonz82/controllo_energia_casa) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Guida completa (package + schermate) nel repo dedicato [controllo_energia_casa](https://github.com/Simonz82/controllo_energia_casa) |
 | [📶 FritzBox / Router](docs/fritzbox.md) | Stato connessione, banda impegnata, velocità, test di velocità | Router AVM FritzBox (integrazione ufficiale HA) |
 | [🖥️ Server Home Assistant](docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |
 | [💾 NAS Synology](docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
 | [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
-| [♻️ Raccolta Differenziata](docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, **tipi di raccolta scritti a mano** per il tuo comune | Nessuno: package e guida inclusi (repo dedicato: [ha_garbage](https://github.com/Simonz82/ha_garbage)) |
+| [♻️ Raccolta Differenziata](https://github.com/Simonz82/ha_garbage) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Guida completa (package + immagini + screenshot) nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage) |
 | [📈 Grafici 24 h / 7 gg / 30 gg / da … a](docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
 | [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
 

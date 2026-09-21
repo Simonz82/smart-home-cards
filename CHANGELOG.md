@@ -7,7 +7,7 @@
 - Toccando le barre delle card (CPU, batteria, carico, circuiti…) si apre lo stesso grafico, non più solo le ultime 6 ore.
 - Card **Elettrodomestici**: nel popup **Statistiche** (barrette) tornano tutti i consumi: per periodo (oggi, ieri, mese, anno…), ultimi 7 giorni e i due istogrammi (mese e anno).
 - Card **FritzBox**: la campanella degli aggiornamenti è l'ultimo pulsante a destra; le due barre live hanno il fondoscala uguale alla **portante agganciata + 2%** (download con il download, upload con l'upload).
-- Card **Raccolta differenziata**: nuovo pulsante **Tipi di raccolta** (l'ultimo a destra) per scrivere a mano i tipi di rifiuto del proprio comune, con esempio; le Impostazioni sono ora una finestra nativa con la riga Layout e i giorni; per i tipi senza foto compare la loro icona. Nuovi: [docs/differenziata.md](docs/differenziata.md), `packages/differenziata.yaml`, `packages/centro_notifiche_alexa.yaml`.
+- Card **Raccolta differenziata**: nuovo pulsante **Tipi di raccolta** (l'ultimo a destra) per scrivere a mano i tipi di rifiuto del proprio comune; Impostazioni in finestra nativa. Guida, package e schermate nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage).
 - Tutte le schermate della guida sono rifatte (classico/centrato, chiaro/scuro).
 
 ## 2026-09-21 — Layout classico / centrato
