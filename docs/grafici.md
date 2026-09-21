@@ -58,7 +58,11 @@ Dove ci sono più curve compaiono in alto dei **pulsanti-chip**: toccandone uno 
 |---|---|
 | ![Energia sovrapposta](screenshot/grafici/energia-grafico-sovrapposto-dark.png) | ![Fritz sovrapposto](screenshot/grafici/fritzbox-grafico-sovrapposto-dark.png) |
 
-Il grafico si apre anche **toccando una barra** della card (per esempio la barra della CPU o del carico): mostra la curva di quel solo valore.
+Il grafico si apre anche **toccando una barra** della card (per esempio la barra della CPU o del carico, oppure le due barre live **Download** e **Upload** della FritzBox): si apre già sulla curva della barra toccata.
+
+| FritzBox: tocco sulla barra Download | FritzBox: tocco sulla barra Upload, 7 gg |
+|---|---|
+| ![Barra Download](screenshot/grafici/fritz-barra-down-grafico-dark.png) | ![Barra Upload](screenshot/grafici/fritz-barra-up-grafico-7gg-dark.png) |
 
 ### Tutte le card
 

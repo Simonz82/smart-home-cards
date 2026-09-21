@@ -746,7 +746,7 @@ function dmOpenChartPopup(card, opts) {
   });
   q(".dm-gc-close").addEventListener("click", close);
 
-  const st = { range: "24h", start: 0, end: 0, active: new Set([0]) };
+  const st = { range: "24h", start: 0, end: 0, active: new Set([Math.min(Math.max(opts.active || 0, 0), series.length - 1)]) };
   let ro = null;
 
   const chipsEl = q(".dm-gc-chips");
@@ -1796,11 +1796,11 @@ class DmFritzCard extends HTMLElement {
         <div class="dm-ap-warn" hidden></div>
         <div class="dm-ap-panel">
           <div class="dm-ap-meters">
-            <div class="dm-ap-meter">
+            <div class="dm-ap-meter dm-c-meter-clickable" data-graph="0">
               <div class="dm-ap-meter-row"><span>Download ora (live)</span><strong class="dm-c-mbps-down-val">0 Mbps</strong></div>
               <div class="dm-ap-bar"><i class="dm-c-mbps-down-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter">
+            <div class="dm-ap-meter dm-c-meter-clickable" data-graph="1">
               <div class="dm-ap-meter-row"><span>Upload ora (live)</span><strong class="dm-c-mbps-up-val">0 Mbps</strong></div>
               <div class="dm-ap-bar"><i class="dm-c-mbps-up-bar" style="width:0%"></i></div>
             </div>
@@ -1809,6 +1809,13 @@ class DmFritzCard extends HTMLElement {
       </article>`;
     this._root.querySelector(".dm-ap-name").textContent = this._config.name;
     dmBindGraph(this);
+    // Toccando una delle due barre live si apre il grafico storico (24 h / 7 gg / 30 gg / da ... a)
+    this._root.querySelectorAll(".dm-c-meter-clickable").forEach((m) => {
+      m.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dmOpenChartPopup(this, { title: this._config.name, series: this._graphSeries(), active: Number(m.dataset.graph) });
+      });
+    });
     this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
