@@ -66,3 +66,21 @@ runtime_entity: sensor.ups_battery_runtime
 input_voltage_entity: sensor.ups_input_voltage
 rated_watts: 450
 ```
+
+## 🎛️ Layout classico o centrato
+
+Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_ups` e parametro `layout_entity`).
+
+```yaml
+layout_entity: input_select.layout_ups
+settings_sections:
+  - title: Aspetto
+    rows:
+      - { entity: input_select.layout_ups, label: Layout }
+  # ...le altre sezioni
+```
+
+| Classico | Centrato |
+|---|---|
+| ![UPS classico](screenshot/layout/ups-classico-light.png) | ![UPS centrato](screenshot/layout/ups-centrato-light.png) |
+

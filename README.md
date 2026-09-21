@@ -18,6 +18,7 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 | [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
 | [♻️ Raccolta Differenziata](https://github.com/Simonz82/ha_garbage) | Rifiuto del giorno, giorno del ritiro, orario di esposizione | Guida completa (package + immagini + screenshot) nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage) |
+| [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
 
 Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
 
@@ -29,9 +30,19 @@ Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In b
 2. Impostazioni → Dashboard → (⋮ in alto a destra) → Risorse → Aggiungi risorsa → `/local/smart-home-cards.js` (tipo: Modulo JavaScript).
 3. Ricarica la pagina (svuota la cache se serve).
 4. Aggiungi una card, modalità YAML, incolla uno degli esempi nelle guide sopra, sostituisci le entità con le tue.
-5. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
+5. (Facoltativo) Per scegliere il layout dalle Impostazioni copia anche [`packages/layout_schede.yaml`](packages/layout_schede.yaml) (vedi [docs/layout.md](docs/layout.md)).
+6. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
 
 Un solo file JS contiene tutte e 8 le card (la raccolta differenziata inclusa, anche se la sua guida completa vive nel suo repo dedicato) — installi una volta sola, poi usi quelle che ti servono.
+
+## 🎛️ Due layout per ogni card
+
+Ogni card si può mostrare in **classico** (foto a sinistra) o **centrato** (foto centrale in alto, informazioni su due colonne, poi le barre). La scelta è la **prima riga delle Impostazioni** della card: un menu a tendina, e la card cambia subito. Guida completa: **[docs/layout.md](docs/layout.md)**.
+
+| Classico | Centrato |
+|---|---|
+| ![Energia classico](docs/screenshot/layout/energia-classico-light.png) | ![Energia centrato](docs/screenshot/layout/energia-centrato-light.png) |
+| ![Lavatrice classico](docs/screenshot/layout/lavatrice-classico-dark.png) | ![Lavatrice centrato](docs/screenshot/layout/lavatrice-centrato-dark.png) |
 
 ## Cosa include, cosa devi adattare tu
 

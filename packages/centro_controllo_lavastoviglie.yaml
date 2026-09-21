@@ -845,7 +845,6 @@ automation:
                         ⚡️ Consumati: {{ state_attr('sensor.time_on_elettrodomestici_3', 'consumo_ciclo_elettrodomestici_3') }}
                         💰 Spesi: {{ state_attr('sensor.time_on_elettrodomestici_3', 'costo_ciclo_elettrodomestici_3') }} €
                       title: "<b>{{ states('input_text.nome_elettrodomestico_3') }}</b>"
-                      config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
 
                   - service: notify.mobile_app_il_tuo_telefono
                     data:
@@ -980,7 +979,6 @@ automation:
             - 222222222
           message: "{{ msg_body }}"
           title: "<b>{{ msg_title }}</b>"
-          config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
       - service: notify.mobile_app_il_tuo_telefono
         data:
           title: "{{ msg_title }}"

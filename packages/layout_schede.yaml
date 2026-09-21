@@ -1,0 +1,82 @@
+# Layout delle card - un menu "Classico / Centrato" per ogni card.
+# Autore: Simonz82 - https://github.com/Simonz82/smart-home-cards
+#
+# Ogni card ha il parametro `layout_entity` che punta a uno di questi menu: cambiando il valore
+# (dalla prima riga "Layout" delle Impostazioni della card) la card cambia aspetto subito.
+# Puoi togliere le righe delle card che non usi. Vedi docs/layout.md.
+#
+# Copia il file in /config/packages/ e riavvia Home Assistant.
+
+input_select:
+  layout_lavatrice:
+    name: Layout Lavatrice
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_asciugatrice:
+    name: Layout Asciugatrice
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_lavastoviglie:
+    name: Layout Lavastoviglie
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_forno:
+    name: Layout Forno
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_tv:
+    name: Layout TV
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_energia:
+    name: Layout Energia Casa
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_fritz:
+    name: Layout FritzBox
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_server:
+    name: Layout Server Home Assistant
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_nas:
+    name: Layout NAS Synology
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_proxmox:
+    name: Layout Proxmox
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_ups:
+    name: Layout UPS
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato
+  layout_garbage:
+    name: Layout Raccolta Differenziata
+    icon: mdi:view-dashboard-outline
+    options:
+      - Classico
+      - Centrato

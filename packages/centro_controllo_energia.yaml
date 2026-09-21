@@ -1,8 +1,29 @@
+# ==============================================================================
+#  CONTROLLO ENERGIA CASA - package Home Assistant
+#  Autore: Simonz82  ·  https://github.com/Simonz82/controllo_energia_casa
+#
+#  Backend della card "controllo-energia-casa-card": contatori di energia per
+#  periodo (ora / oggi / settimana / mese / bimestre / anno), costi, media dei
+#  giorni, soglia di allarme con notifiche (Push, Alexa, Telegram, ognuna con il
+#  suo interruttore), le 4 barre della card scelte da menu a tendina e il sensore
+#  "Top Consumo Elettrico".
+#
+#  COSA DEVI ADATTARE (cerca queste righe nel file):
+#   1. "Sensore Consumo Generale W"   -> il tuo sensore di potenza totale (W)
+#   2. media_player Alexa             -> i tuoi speaker (o togli il ramo Alexa)
+#   3. notify.mobile_app_*            -> i tuoi telefoni
+#   4. telegram chat_id 111111111... -> i tuoi ID Telegram (o togli il ramo).
+#      Con piu' di un bot Telegram aggiungi anche "config_entry_id" alle azioni.
+#
+#  Dopo aver copiato il file in /config/packages/: Strumenti per sviluppatori ->
+#  Controlla configurazione -> riavvia Home Assistant.
+# ==============================================================================
+
 homeassistant:
   customize:
     package.node_anchors:
       customize: &customize
-        package: "Centro Controllo Energia"
+        package: "Controllo Energia Casa"
         setting:
 
         ####################################################
@@ -15,8 +36,8 @@ homeassistant:
 
         ####################################################
 
-        Media Player Alexa 1: &alexa1 media_player.alexa_salone
-        Media Player Alexa 2: &alexa2 media_player.alexa_bagnetto
+        Media Player Alexa 1: &alexa1 media_player.il_tuo_echo_1
+        Media Player Alexa 2: &alexa2 media_player.il_tuo_echo_2
 
 ####################################################
 #                                                  #
@@ -130,6 +151,48 @@ input_number:
     mode: box
     unit_of_measurement: Kwh
 
+  ####################################################
+  #  SCALE DELLE 4 BARRE DELLA CARD (valore = 100%)  #
+  #  Imposta il valore una volta dopo l'installazione #
+  #  (es. la potenza massima del tuo contatore).     #
+  ####################################################
+
+  scala_barra_1:
+    name: Scala Barra 1
+    icon: mdi:ruler
+    min: 500
+    max: 15000
+    step: 100
+    unit_of_measurement: W
+    mode: box
+
+  scala_barra_2:
+    name: Scala Barra 2
+    icon: mdi:ruler
+    min: 500
+    max: 15000
+    step: 100
+    unit_of_measurement: W
+    mode: box
+
+  scala_barra_3:
+    name: Scala Barra 3
+    icon: mdi:ruler
+    min: 500
+    max: 15000
+    step: 100
+    unit_of_measurement: W
+    mode: box
+
+  scala_barra_4:
+    name: Scala Barra 4
+    icon: mdi:ruler
+    min: 500
+    max: 15000
+    step: 100
+    unit_of_measurement: W
+    mode: box
+
 ####################################################
 #                                                  #
 #                    GROUP                         #
@@ -141,6 +204,7 @@ group:
     entities:
       - input_boolean.notify_alexa_soglia
       - input_boolean.notify_push_soglia
+      - input_boolean.notify_telegram_soglia
       - input_boolean.notify_push_costi_giornalieri
       - input_boolean.notify_push_costi_mensili
       - input_boolean.notify_push_costi_annuali
@@ -170,6 +234,13 @@ input_boolean:
 
   notify_alexa_soglia:
     name: Notifica Alexa Soglia
+
+  ####################################################
+
+  # Se spento, il superamento soglia NON invia il messaggio Telegram
+  # (Push e Alexa restano gestiti dai loro flag).
+  notify_telegram_soglia:
+    name: Notifica Telegram Soglia
 
 ####################################################
 #                                                  #
@@ -302,6 +373,32 @@ template:
         icon: mdi:currency-eur
         state: "{{((state_attr('sensor.energia_anno_casa', 'last_period') | float(0)) * (states('input_number.costo_energia_casa') | float(0))) | round(2, default=0) }}"
 
+  # Top Consumo Elettrico (opzionale): il dispositivo che consuma di piu' in questo
+  # momento tra tutti i sensori che finiscono per "_power". Alimenta la riga
+  # "Top consumo" della card (parametro top_entity).
+  - sensor:
+      - name: "Top Consumo Elettrico"
+        icon: mdi:trophy-award
+        default_entity_id: sensor.top_consumo_elettrico
+        state: >
+          {% set ns = namespace(top_entity=none, max_power=0) %}
+          {# sensori da NON considerare (totali/aggregati): metti qui il tuo generale #}
+          {% set esclusi = ['sensor.generale_power'] %}
+          {% for entity in states.sensor %}
+            {% if entity.entity_id.endswith('_power') and entity.entity_id not in esclusi %}
+              {% set power = states(entity.entity_id) | float(0) %}
+              {% if power > ns.max_power %}
+                {% set ns.max_power = power %}
+                {% set ns.top_entity = entity %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if ns.top_entity is not none and ns.max_power > 0 %}
+            {{ ns.top_entity.name | replace(' Power', '') | replace(' power', '') }}: {{ ns.max_power | int }} W
+          {% else %}
+            Nessun consumo rilevante
+          {% endif %}
+
 ####################################################
 #                                                  #
 #                     SENSORI                      #
@@ -355,6 +452,62 @@ input_datetime:
     name: Orario Fine Notifiche Soglia Elettrica Casa
     has_date: false
     has_time: true
+
+####################################################
+#                                                  #
+#        BARRE DELLA CARD: ENTITA' SCELTA          #
+#                                                  #
+####################################################
+# input_select.barra_N_scelta = menu a tendina mostrato nelle Impostazioni
+# input_text.barra_N_entita   = la scelta vera (sopravvive ai riavvii): la card
+#                               legge QUESTA. Vuoto = barra nascosta.
+
+input_text:
+  barra_1_entita:
+    name: Barra 1 Entità
+    icon: mdi:gauge
+    max: 255
+
+  barra_2_entita:
+    name: Barra 2 Entità
+    icon: mdi:gauge
+    max: 255
+
+  barra_3_entita:
+    name: Barra 3 Entità
+    icon: mdi:gauge
+    max: 255
+
+  barra_4_entita:
+    name: Barra 4 Entità
+    icon: mdi:gauge
+    max: 255
+
+input_select:
+  barra_1_scelta:
+    name: Barra 1 Scelta
+    icon: mdi:gauge
+    options:
+      - "(nessuna)"
+
+  barra_2_scelta:
+    name: Barra 2 Scelta
+    icon: mdi:gauge
+    options:
+      - "(nessuna)"
+
+  barra_3_scelta:
+    name: Barra 3 Scelta
+    icon: mdi:gauge
+    options:
+      - "(nessuna)"
+
+  barra_4_scelta:
+    name: Barra 4 Scelta
+    icon: mdi:gauge
+    options:
+      - "(nessuna)"
+
 
 ####################################################
 #                                                  #
@@ -441,15 +594,6 @@ automation:
                     entity_id: input_boolean.notify_push_soglia
                     state: "on"
                 sequence:
-                  - service: telegram_bot.send_message
-                    data:
-                      parse_mode: html
-                      chat_id:
-                        - 111111111
-                        - 222222222
-                      message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
-                      title: "<b>⚠️ Consumi Elevati ⚠️</b>"
-                      config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
                   - service: notify.mobile_app_il_tuo_telefono
                     data:
                       message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
@@ -458,6 +602,24 @@ automation:
                     data:
                       message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
                       title: "⚠️ Consumi Elevati ⚠️"
+
+          # Notifica superamento soglia su Telegram (flag proprio: notify_telegram_soglia)
+          - choose:
+              - conditions:
+                  - condition: trigger
+                    id: soglia
+                  - condition: state
+                    entity_id: input_boolean.notify_telegram_soglia
+                    state: "on"
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      parse_mode: html
+                      chat_id:
+                        - 111111111
+                        - 222222222
+                      message: "⚠️ ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }}w ⚡️"
+                      title: "<b>⚠️ Consumi Elevati ⚠️</b>"
 
       # Notifiche Consumi GIORNALIERA, MENSILE, ANNUALE
       - choose:
@@ -477,7 +639,6 @@ automation:
                     - 222222222
                   message: "Oggi {{ now().day }}/{{ now().month }}/{{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_oggi_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_giornaliero_casa') }} €."
                   title: "<b>💰⚡️ Consumi Giornalieri ⚡️💰</b>"
-                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
               - service: notify.mobile_app_il_tuo_telefono
                 data:
                   message: "Oggi {{ now().day }}/{{ now().month }}/{{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_oggi_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_giornaliero_casa') }} €."
@@ -505,7 +666,6 @@ automation:
                     - 222222222
                   message: "Nel mese di {{ ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'][now().month-1] }} hai consumato ⚡️ {{ states('sensor.energia_mese_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_mensile_casa') }} €."
                   title: "<b>💰⚡️ Consumi Mensili ⚡️💰</b>"
-                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
               - service: notify.mobile_app_il_tuo_telefono
                 data:
                   message: "Nel mese di {{ ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'][now().month-1] }} hai consumato ⚡️ {{ states('sensor.energia_mese_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_mensile_casa') }} €."
@@ -533,7 +693,6 @@ automation:
                     - 222222222
                   message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
                   title: "<b>💰⚡️ Consumi Annuali ⚡️💰</b>"
-                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
               - service: notify.mobile_app_il_tuo_telefono
                 data:
                   message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
@@ -542,3 +701,67 @@ automation:
                 data:
                   message: "Nel {{ now().year }} hai consumato ⚡️ {{ states('sensor.energia_anno_casa') }} kWh per un costo di {{ states('sensor.costo_consumo_annuale_casa') }} €."
                   title: "💰⚡️ Consumi ⚡️💰"
+
+  # --- Barre della card: menu a tendina delle entita' -----------------------
+  - alias: "Energia barre: aggiorna elenco entita"
+    id: energia_barre_aggiorna_elenco
+    mode: queued
+    triggers:
+      - trigger: homeassistant
+        event: start
+      - trigger: time_pattern
+        minutes: "5"
+      - trigger: event
+        event_type: energia_barre_aggiorna
+    actions:
+      # All'avvio si aspetta che i sensori siano stati creati.
+      - if:
+          - condition: template
+            value_template: "{{ trigger.platform == 'homeassistant' }}"
+        then:
+          - delay: "00:00:45"
+      - repeat:
+          for_each: [1, 2, 3, 4]
+          sequence:
+            - variables:
+                sel: "{{ states('input_text.barra_' ~ repeat.item ~ '_entita') }}"
+                lista: >-
+                  {% set base = states.sensor | selectattr('entity_id', 'search', '_power$') | map(attribute='entity_id') | list %}
+                  {% set extra = states.sensor | selectattr('attributes.unit_of_measurement', 'in', ['W', 'kW']) | map(attribute='entity_id') | list %}
+                  {% set corrente = [sel] if sel not in ['', 'unknown', 'unavailable'] else [] %}
+                  {{ ['(nessuna)'] + ((base + extra + corrente) | unique | sort | list) }}
+            - action: input_select.set_options
+              target:
+                entity_id: "input_select.barra_{{ repeat.item }}_scelta"
+              data:
+                options: "{{ lista }}"
+            - action: input_select.select_option
+              target:
+                entity_id: "input_select.barra_{{ repeat.item }}_scelta"
+              data:
+                option: "{{ sel if sel in lista else '(nessuna)' }}"
+
+  - alias: "Energia barre: salva scelta"
+    id: energia_barre_salva_scelta
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id:
+          - input_select.barra_1_scelta
+          - input_select.barra_2_scelta
+          - input_select.barra_3_scelta
+          - input_select.barra_4_scelta
+    conditions:
+      # Solo scelte fatte da una persona: i cambi fatti dall'automazione qui sopra
+      # (che ricostruisce l'elenco) non hanno un utente e non devono cancellare la scelta.
+      - condition: template
+        value_template: >-
+          {{ trigger.to_state.context.user_id is not none
+             and trigger.from_state is not none
+             and trigger.from_state.state != trigger.to_state.state }}
+    actions:
+      - action: input_text.set_value
+        target:
+          entity_id: "input_text.barra_{{ trigger.to_state.object_id.split('_')[1] }}_entita"
+        data:
+          value: "{{ '' if trigger.to_state.state == '(nessuna)' else trigger.to_state.state }}"

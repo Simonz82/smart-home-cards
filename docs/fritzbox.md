@@ -109,3 +109,21 @@ settings_sections:
 ```
 
 Le notifiche online/offline, cambio IP e fascia oraria sono già scritte e pronte nel package [`../packages/statistiche_fritzbox.yaml`](../packages/statistiche_fritzbox.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Pattern generale in [notifiche-personalizzate.md](notifiche-personalizzate.md).
+
+## 🎛️ Layout classico o centrato
+
+Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_fritz` e parametro `layout_entity`).
+
+```yaml
+layout_entity: input_select.layout_fritz
+settings_sections:
+  - title: Aspetto
+    rows:
+      - { entity: input_select.layout_fritz, label: Layout }
+  # ...le altre sezioni
+```
+
+| Classico | Centrato |
+|---|---|
+| ![FritzBox classico](screenshot/layout/fritz-classico-light.png) | ![FritzBox centrato](screenshot/layout/fritz-centrato-light.png) |
+

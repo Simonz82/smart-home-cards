@@ -1,7 +1,10 @@
-// Template riutilizzabile per tutti gli elettrodomestici (lavastoviglie, lavatrice,
-// asciugatrice, forno, ecc.), stile "showcase" DashboardModern v2, con popup
-// Impostazioni/Statistiche completi presi dal package "Centro Controllo
-// Elettrodomestici". Indipendente da DashboardModern: legge/scrive solo via hass.
+// smart-home-cards - card Lovelace personalizzate per Home Assistant
+// Autore: Simonz82 - https://github.com/Simonz82/smart-home-cards
+//
+// Un unico file registra tutte le card: elettrodomestici (lavatrice, asciugatrice, lavastoviglie,
+// forno, TV), FritzBox, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa e raccolta
+// differenziata. Ogni card puo' essere mostrata in due layout (classico / centrato), scelto dalle
+// Impostazioni della card. Legge e scrive solo tramite l'oggetto `hass`.
 
 const HERO_BUILDERS = {
   dishwasher: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
@@ -382,6 +385,15 @@ const STYLE = `
 @keyframes dmh-glow{0%,100%{opacity:.55}50%{opacity:1}}
 @keyframes dmh-flicker{0%,100%{opacity:.85}30%{opacity:.5}55%{opacity:1}80%{opacity:.6}}
 .dmh-spin-drum,.dmh-spin-spray,.dmh-spin-spit{transform-box:view-box;transform-origin:120px 130px}
+/* Layout "centrato" della card energia: foto al centro in alto, sotto il blocco OGGI su 2 colonne */
+.dm-ap-card.layout-centrato .dm-ap-top-row{flex-direction:column;align-items:stretch;gap:10px}
+.dm-ap-card.layout-centrato .dm-ap-hero{flex:0 0 auto;width:100%;height:200px}
+.dm-ap-card.layout-centrato .dm-ap-cycle-side{flex:0 0 auto}
+.dm-ap-card.layout-centrato .dm-ap-cycle-cap{margin-bottom:10px}
+.dm-ap-card.layout-centrato .dm-ap-cycle-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;flex:0 0 auto}
+.dm-ap-card.layout-centrato.dm-e-card .dm-ap-cycle-list{grid-template-columns:2fr 3fr}
+.dm-ap-card.layout-centrato .dm-ap-cycle-list>.dm-ap-cycle-row:last-child:nth-child(odd){grid-column:1/-1}
+.dm-ap-select{max-width:62%;padding:7px 10px;border-radius:10px;border:1px solid var(--dm-border);background:var(--dm-card);color:var(--dm-text);font-size:14px;font-weight:600;font-family:inherit}
 .dm-ap-card.is-run .dmh-spin-drum{animation:dmh-spin 2.6s linear infinite}
 .dm-ap-card.is-run .dmh-spin-spray{animation:dmh-spin 1.3s linear infinite}
 .dm-ap-card.is-run .dmh-spin-spit{animation:dmh-spin 3.4s linear infinite}
@@ -393,8 +405,11 @@ const STYLE = `
 .dm-ap-cycle-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
 .dm-ap-cycle-row small{flex:0 0 auto;font-size:10.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--dm-dim)}
 .dm-ap-cycle-row b{min-width:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:400;letter-spacing:-.1px;color:var(--dm-text)}
+.dm-ap-cycle-row b.dm-e-top{display:flex;justify-content:flex-end;overflow:hidden;text-overflow:clip}
+.dm-e-top-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dm-e-top-w{flex:0 0 auto;white-space:nowrap}
 .dm-ap-cycle-row-b{padding:4px 8px;border-radius:9px;border:1px solid var(--dm-border);background:var(--dm-card);align-items:center}
-.dm-ap-cycle-label{display:flex;align-items:center;gap:5px;min-width:0}
+.dm-ap-cycle-label{display:flex;align-items:center;gap:5px;min-width:0;flex:0 0 auto}
 .dm-ap-cycle-ic{display:flex;align-items:center;flex:0 0 auto;color:var(--dm-blue)}
 .dm-ap-panel{display:flex;align-items:center;gap:14px;margin:10px 13px 13px;padding:13px 14px;border-radius:16px;background:var(--dm-soft)}
 .dm-ap-meters{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
@@ -410,6 +425,7 @@ const STYLE = `
 .dm-ap-power-open{cursor:pointer}
 .dm-ap-power-open:hover{filter:brightness(1.04)}
 .dm-ap-chart-svg{width:100%;height:100px;display:block}
+.dm-ap-chart-svg.dm-e-chart-tall{height:200px}
 .dm-ap-chart-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:800;color:var(--dm-dim)}
 .dm-ap-chart-labels span{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dm-ap-chart-empty{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--dm-dim)}
@@ -491,6 +507,20 @@ function inverseSeverityColor(pct) {
   if (pct <= 30) return "#f97316";
   if (pct <= 60) return "#eab308";
   return "#22c55e";
+}
+
+// Layout della card: "classico" (foto a sinistra, info a destra) oppure "centrato" (foto in alto
+// al centro, info su 2 colonne, poi le barre). Si sceglie dalle Impostazioni della card con
+// "layout_entity" (un input_select Classico/Centrato); senza, vale il parametro "layout".
+function applyLayoutChoice(root, cfg, hass) {
+  const card = root && root.querySelector(".dm-ap-card");
+  if (!card) return;
+  let layout = cfg.layout;
+  if (cfg.layout_entity) {
+    const v = String(hass.states[cfg.layout_entity]?.state || "").toLowerCase();
+    if (v === "classico" || v === "centrato") layout = v;
+  }
+  card.classList.toggle("layout-centrato", layout === "centrato");
 }
 
 class DmApplianceCloneCard extends HTMLElement {
@@ -617,6 +647,13 @@ class DmApplianceCloneCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -644,6 +681,12 @@ class DmApplianceCloneCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -1053,6 +1096,7 @@ class DmApplianceCloneCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
     const powerState = hass.states[cfg.power_entity];
@@ -1152,7 +1196,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-appliance-clone-card",
   name: "DM Appliance Clone",
-  description: "Template card elettrodomestici stile DashboardModern, con popup impostazioni/statistiche completi",
+  description: "Template card elettrodomestici, con popup impostazioni/statistiche completi",
   author: "Simonz82",
 });
 
@@ -1252,6 +1296,13 @@ class DmFritzCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -1282,6 +1333,12 @@ class DmFritzCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -1448,6 +1505,7 @@ class DmFritzCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
     const conn = hass.states[cfg.connection_entity];
@@ -1513,7 +1571,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-fritz-card",
   name: "DM Fritz Card",
-  description: "Card stile DashboardModern per FritzBox/router: stato, banda, segnale, popup statistiche/impostazioni",
+  description: "Card per FritzBox/router: stato, banda, segnale, popup statistiche/impostazioni",
   author: "Simonz82",
 });
 
@@ -1636,6 +1694,13 @@ class DmServerCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -1673,6 +1738,12 @@ class DmServerCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -2034,6 +2105,7 @@ class DmServerCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
     const s = cfg.sensors || {};
     const u = cfg.updates || {};
@@ -2098,7 +2170,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-server-card",
   name: "DM Server Card",
-  description: "Card stile DashboardModern per il server/host di Home Assistant: CPU/RAM/disco, aggiornamenti, backup, riavvii",
+  description: "Card per il server/host di Home Assistant: CPU/RAM/disco, aggiornamenti, backup, riavvii",
   author: "Simonz82",
 });
 
@@ -2237,6 +2309,13 @@ class DmNasCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -2267,6 +2346,12 @@ class DmNasCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -2536,6 +2621,7 @@ class DmNasCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
     const s = cfg.sensors || {};
 
@@ -2631,7 +2717,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-nas-card",
   name: "DM NAS Card",
-  description: "Card stile DashboardModern per il NAS Synology: CPU/RAM/volumi, aggiornamenti DSM, consumi, riavvii",
+  description: "Card per il NAS Synology: CPU/RAM/volumi, aggiornamenti DSM, consumi, riavvii",
   author: "Simonz82",
 });
 
@@ -2649,6 +2735,7 @@ class DmEnergyCard extends HTMLElement {
       switches: [],
       actions: [],
       settings_sections: [],
+      layout: "classico", // "classico" (foto a sinistra) oppure "centrato" (foto in alto, blocco OGGI su 2 colonne)
       ...config,
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
@@ -2656,7 +2743,7 @@ class DmEnergyCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.energy)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.energy;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card is-run">
+      <article class="dm-ap-card dm-e-card is-run${this._config.layout === "centrato" ? " layout-centrato" : ""}">
         <div class="dm-ap-top">
           <span class="dm-ap-chip">${chip}</span>
           <span class="dm-ap-headings">
@@ -2695,14 +2782,18 @@ class DmEnergyCard extends HTMLElement {
     // Volume1/Volume2/USB sulla card NAS.
     const metersEl = this._root.querySelector(".dm-ap-meters");
     (this._config.circuits || []).slice(0, 4).forEach((c, i) => {
+      // Barra mostrata solo se configurata davvero: serve l'entita' da misurare e una scala
+      // (max_entity selezionabile, oppure max fisso). Se manca, la barra non compare.
+      if (!(c.entity || c.entity_helper) || !(c.max_entity || c.max)) return;
       const div = document.createElement("div");
       div.className = "dm-ap-meter dm-c-meter-clickable";
       div.dataset.circuitIndex = i;
-      div.innerHTML = `<div class="dm-ap-meter-row"><span>${esc(c.label)}</span><strong class="dm-e-c-val">0 W</strong></div>
+      div.innerHTML = `<div class="dm-ap-meter-row"><span class="dm-e-c-label">${esc(c.label || "")}</span><strong class="dm-e-c-val">0 W</strong></div>
         <div class="dm-ap-bar"><i class="dm-e-c-bar" style="width:0%"></i></div>`;
       div.addEventListener("click", (e) => {
         e.stopPropagation();
-        this._openMeterChart(c.entity, c.label, "#38bdf8");
+        const eid = this._barEntity(c, this._hass);
+        if (eid) this._openMeterChart(eid, this._barLabel(c, this._hass, eid), "#38bdf8");
       });
       metersEl.appendChild(div);
     });
@@ -2749,6 +2840,13 @@ class DmEnergyCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -2772,6 +2870,12 @@ class DmEnergyCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -2891,8 +2995,8 @@ class DmEnergyCard extends HTMLElement {
   _lineChartSvg(points, color, fixedMax) {
     if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
-    const height = 90;
-    const plotX0 = 24;
+    const height = 200; // grafico alto (prima 90, risultava schiacciato)
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     const min = fixedMax ? 0 : Math.min(...values, 0);
@@ -2902,7 +3006,7 @@ class DmEnergyCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg dm-e-chart-tall" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -3031,6 +3135,26 @@ class DmEnergyCard extends HTMLElement {
     overlay.querySelector(".dm-ap-dialog-body").appendChild(chartBtn);
   }
 
+  // Entita' misurata da una barra: se il circuito ha "entity_helper" (input_text riempito dal
+  // menu a tendina nelle Impostazioni) vale quella scelta, e se e' vuota la barra non compare;
+  // altrimenti l'"entity" fissa della configurazione.
+  _barEntity(c, hass) {
+    if (c.entity_helper) {
+      const v = (hass?.states[c.entity_helper]?.state || "").trim();
+      return v && v !== "unknown" && v !== "unavailable" ? v : "";
+    }
+    return c.entity || "";
+  }
+
+  // Nome della barra: con entita' scelta dal menu segue il nome dell'entita' (senza il
+  // suffisso "Potenza/Power"); con un'entita' fissa vale la "label" della configurazione.
+  _barLabel(c, hass, eid) {
+    if (!c.entity_helper && c.label) return c.label;
+    const fn = hass?.states[eid]?.attributes?.friendly_name || eid || "";
+    const nome = String(fn).replace(/\s*(potenza|power)$/i, "").trim() || String(fn);
+    return nome.charAt(0).toUpperCase() + nome.slice(1);
+  }
+
   _openConsumi() {
     const hass = this._hass;
     const cfg = this._config;
@@ -3050,6 +3174,7 @@ class DmEnergyCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
     const watt = Number(hass.states[cfg.power_entity]?.state);
@@ -3064,15 +3189,46 @@ class DmEnergyCard extends HTMLElement {
     if (cfg.periods?.[3]) {
       this._root.querySelector(".dm-e-month-cost").textContent = this._val(hass, cfg.periods[3].cost, 2);
     }
-    this._root.querySelector(".dm-e-top").textContent = cfg.top_entity ? (hass.states[cfg.top_entity]?.state ?? "\u2014") : "\u2014";
+    // "Nome: 57 W": si accorcia (con ...) solo il nome del dispositivo, i watt restano sempre visibili.
+    const topEl = this._root.querySelector(".dm-e-top");
+    const topTxt = cfg.top_entity ? String(hass.states[cfg.top_entity]?.state ?? "\u2014") : "\u2014";
+    const cut = topTxt.lastIndexOf(":");
+    if (cut > 0 && /W\s*$/.test(topTxt)) {
+      const nome = topTxt.slice(0, cut);
+      const watt = topTxt.slice(cut);
+      if (topEl.dataset.v !== topTxt) {
+        topEl.dataset.v = topTxt;
+        topEl.textContent = "";
+        const n = document.createElement("span");
+        n.className = "dm-e-top-n";
+        n.textContent = nome;
+        const w = document.createElement("span");
+        w.className = "dm-e-top-w";
+        w.textContent = watt;
+        topEl.append(n, w);
+      }
+    } else {
+      topEl.dataset.v = topTxt;
+      topEl.textContent = topTxt;
+    }
 
     (cfg.circuits || []).slice(0, 4).forEach((c, i) => {
       const el = this._root.querySelector(`[data-circuit-index="${i}"]`);
       if (!el) return;
-      const v = Number(hass.states[c.entity]?.state);
+      const eid = this._barEntity(c, hass);
+      if (!eid || !hass.states[eid]) { el.style.display = "none"; return; }
+      el.querySelector(".dm-e-c-label").textContent = this._barLabel(c, hass, eid);
+      const v = Number(hass.states[eid]?.state);
       const vVal = Number.isFinite(v) ? v : 0;
       el.querySelector(".dm-e-c-val").textContent = `${vVal.toFixed(0)} W`;
-      const pct = c.max ? Math.min(100, (vVal / c.max) * 100) : 0;
+      // Scala della barra: se il circuito ha "max_entity" (input_number modificabile dalle
+      // Impostazioni) vale quel valore, altrimenti il "max" fisso della configurazione.
+      const maxLive = c.max_entity ? Number(hass.states[c.max_entity]?.state) : NaN;
+      const maxUsed = Number.isFinite(maxLive) && maxLive > 0 ? maxLive : c.max;
+      // Nessuna scala valida (entita' non selezionata/non disponibile e nessun max fisso): barra nascosta.
+      el.style.display = maxUsed ? "" : "none";
+      if (!maxUsed) return;
+      const pct = maxUsed ? Math.min(100, (vVal / maxUsed) * 100) : 0;
       const bar = el.querySelector(".dm-e-c-bar");
       bar.style.width = `${pct}%`;
       bar.style.background = meterSeverityColor(pct);
@@ -3081,6 +3237,14 @@ class DmEnergyCard extends HTMLElement {
     const warnEl = this._root.querySelector(".dm-ap-warn");
     const soglia = cfg.soglia_entity ? Number(hass.states[cfg.soglia_entity]?.state) : null;
     const card = this._root.querySelector(".dm-ap-card");
+    // Layout: se c'e' "layout_entity" (un input_select Classico/Centrato scelto dalle Impostazioni)
+    // vale quella scelta, altrimenti il parametro "layout" della configurazione.
+    let layoutScelto = cfg.layout;
+    if (cfg.layout_entity) {
+      const lv = String(hass.states[cfg.layout_entity]?.state || "").toLowerCase();
+      if (lv === "classico" || lv === "centrato") layoutScelto = lv;
+    }
+    card.classList.toggle("layout-centrato", layoutScelto === "centrato");
     if (soglia != null && wattVal > soglia) {
       warnEl.hidden = false;
       warnEl.textContent = `\u26a0 Soglia superata: ${wattVal.toFixed(0)} W (limite ${soglia.toFixed(0)} W)`;
@@ -3101,7 +3265,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-energy-card",
   name: "DM Energy Card",
-  description: "Card stile DashboardModern per il controllo energia totale casa: consumo istantaneo, circuiti, storici, costi",
+  description: "Card per il controllo energia totale casa: consumo istantaneo, circuiti, storici, costi",
   author: "Simonz82",
 });
 
@@ -3197,6 +3361,13 @@ class DmUpsCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -3221,6 +3392,12 @@ class DmUpsCard extends HTMLElement {
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+    }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="dm-ap-row-label">${esc(row.label)}</span>
@@ -3235,13 +3412,18 @@ class DmUpsCard extends HTMLElement {
     if (cfg.automation_entity) {
       rows.push(this._settingsRowHtml(hass, { entity: cfg.automation_entity, label: "Notifiche caduta corrente" }));
     }
-    (cfg.settings_sections || []).forEach((sec) => {
+    // Sezione "Aspetto" (scelta del layout) a parte, in cima; le altre righe restano sotto "Automazioni".
+    const aspettoHtml = (cfg.settings_sections || [])
+      .filter((sec) => sec.title === "Aspetto")
+      .map((sec) => `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">${esc(sec.title)}</div>${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}</div>`)
+      .join("");
+    (cfg.settings_sections || []).filter((sec) => sec.title !== "Aspetto").forEach((sec) => {
       sec.rows.forEach((row) => rows.push(this._settingsRowHtml(hass, row)));
     });
 
     const overlay = this._openDialog(
       "Impostazioni",
-      rows.length ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Automazioni</div>${rows.join("")}</div>` : `<div class="dm-ap-row-val">Nessuna impostazione</div>`,
+      aspettoHtml + (rows.length ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Automazioni</div>${rows.join("")}</div>` : (aspettoHtml ? "" : `<div class="dm-ap-row-val">Nessuna impostazione</div>`)),
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -3417,6 +3599,7 @@ class DmUpsCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
     const statusSt = cfg.status_entity ? hass.states[cfg.status_entity] : null;
@@ -3494,7 +3677,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-ups-card",
   name: "DM UPS Card",
-  description: "Card stile DashboardModern per il gruppo di continuit\u00e0: stato, batteria, carico, autonomia",
+  description: "Card per il gruppo di continuit\u00e0: stato, batteria, carico, autonomia",
   author: "Simonz82",
 });
 
@@ -3582,6 +3765,13 @@ class DmGarbageCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -3605,6 +3795,12 @@ class DmGarbageCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -3670,6 +3866,7 @@ class DmGarbageCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
     const st = hass.states[cfg.entity];
@@ -3710,7 +3907,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-garbage-card",
   name: "DM Garbage Card",
-  description: "Card stile DashboardModern per la raccolta differenziata: immagine dinamica in base al rifiuto del giorno, giorno del ritiro, orario di esposizione",
+  description: "Card per la raccolta differenziata: immagine dinamica in base al rifiuto del giorno, giorno del ritiro, orario di esposizione",
   author: "Simonz82",
 });
 
@@ -3834,6 +4031,13 @@ class DmProxmoxCard extends HTMLElement {
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
       });
+      // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
+      overlay.addEventListener("change", (e) => {
+        const t = e.target;
+        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
+          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
+        }
+      });
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="dm-ap-dialog">
@@ -3864,6 +4068,12 @@ class DmProxmoxCard extends HTMLElement {
         row.label,
         `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
+    }
+    if (domain === "input_select") {
+      const opts = (st.attributes?.options || [])
+        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+        .join("");
+      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
@@ -4102,6 +4312,7 @@ class DmProxmoxCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
     const s = cfg.sensors || {};
     const dh = cfg.disk_health || {};
@@ -4186,6 +4397,6 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-proxmox-card",
   name: "DM Proxmox Card",
-  description: "Card stile DashboardModern per l'host Proxmox: CPU/RAM/disco, contenitori/VM attive, consumo, salute SSD",
+  description: "Card per l'host Proxmox: CPU/RAM/disco, contenitori/VM attive, consumo, salute SSD",
   author: "Simonz82",
 });

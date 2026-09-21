@@ -1,5 +1,6 @@
 # ⚡ Card Energia Casa (`dm-energy-card`)
 
+> 📘 La guida completa e sempre aggiornata di questa card (4 barre con entità e scala scelte da menu, notifiche Push / Alexa / Telegram con interruttori separati, layout) è nel repository dedicato: **[controllo_energia_casa](https://github.com/Simonz82/controllo_energia_casa)**.
 Vista d'insieme del consumo elettrico di casa: potenza istantanea, ripartizione per circuito/stanza, confronto con il periodo precedente, interruttori rapidi, costi.
 
 | Chiaro | Scuro |
@@ -134,3 +135,21 @@ settings_sections:
 ```
 
 Le notifiche "soglia superata" e i riepiloghi costi giornaliero/mensile sono già scritti e pronti nel package [`../packages/centro_controllo_energia.yaml`](../packages/centro_controllo_energia.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Per il pattern generale vedi anche [notifiche-personalizzate.md](notifiche-personalizzate.md); per il mini-linguaggio di `settings_sections` vedi [settings-sections.md](settings-sections.md).
+
+## 🎛️ Layout classico o centrato
+
+Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_energia` e parametro `layout_entity`).
+
+```yaml
+layout_entity: input_select.layout_energia
+settings_sections:
+  - title: Aspetto
+    rows:
+      - { entity: input_select.layout_energia, label: Layout }
+  # ...le altre sezioni
+```
+
+| Classico | Centrato |
+|---|---|
+| ![Energia Casa classico](screenshot/layout/energia-classico-light.png) | ![Energia Casa centrato](screenshot/layout/energia-centrato-light.png) |
+

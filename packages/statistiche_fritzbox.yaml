@@ -304,7 +304,6 @@ automation:
                     - 222222222
                   title: "<b>FritzBox 📡</b>"
                   message: "Il tuo nuovo indirizzo IP 🌍 è {{state_attr('sensor.fritzbox','ip')}}"
-                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
 
       ####################################################
       # Push Online
@@ -339,7 +338,6 @@ automation:
                     Connessione Ripristinata!
                     Portante: 🔽 {{ states('sensor.portante_download_agganciata') }} 🔼 {{ states('sensor.portante_upload_agganciata') }}
                     🌍 {{ state_attr('sensor.fritzbox','ip') }}
-                  config_entry_id: 01K0FKKH55FNWJTH21DGMHJWCE
 
       ####################################################
       # Notifica Alexa Online
