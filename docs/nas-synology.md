@@ -129,3 +129,31 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/nas-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/nas-grafico-24h-dark.png) |
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/nas-impostazioni-light.png) | ![](screenshot/popup/nas-impostazioni-dark.png) |
+
+**Aggiornamenti (campanella)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/nas-aggiornamenti-light.png) | ![](screenshot/popup/nas-aggiornamenti-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/nas-statistiche-light.png) | ![](screenshot/popup/nas-statistiche-dark.png) |
+
+**Consumi (fulmine)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/nas-consumi-light.png) | ![](screenshot/popup/nas-consumi-dark.png) |

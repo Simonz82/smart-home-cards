@@ -231,3 +231,77 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/lavastoviglie-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/lavastoviglie-grafico-24h-dark.png) |
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+### Lavatrice
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/lavatrice-impostazioni-light.png) | ![](screenshot/popup/lavatrice-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/lavatrice-statistiche-light.png) | ![](screenshot/popup/lavatrice-statistiche-dark.png) |
+
+### Asciugatrice
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/asciugatrice-impostazioni-light.png) | ![](screenshot/popup/asciugatrice-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/asciugatrice-statistiche-light.png) | ![](screenshot/popup/asciugatrice-statistiche-dark.png) |
+
+### Lavastoviglie
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/lavastoviglie-impostazioni-light.png) | ![](screenshot/popup/lavastoviglie-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/lavastoviglie-statistiche-light.png) | ![](screenshot/popup/lavastoviglie-statistiche-dark.png) |
+
+### Forno
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/forno-impostazioni-light.png) | ![](screenshot/popup/forno-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/forno-statistiche-light.png) | ![](screenshot/popup/forno-statistiche-dark.png) |
+
+### TV
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/tv-impostazioni-light.png) | ![](screenshot/popup/tv-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/tv-statistiche-light.png) | ![](screenshot/popup/tv-statistiche-dark.png) |

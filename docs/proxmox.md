@@ -86,3 +86,25 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/proxmox-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/proxmox-grafico-24h-dark.png) |
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/proxmox-impostazioni-light.png) | ![](screenshot/popup/proxmox-impostazioni-dark.png) |
+
+**Aggiornamenti (campanella)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/proxmox-aggiornamenti-light.png) | ![](screenshot/popup/proxmox-aggiornamenti-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/proxmox-statistiche-light.png) | ![](screenshot/popup/proxmox-statistiche-dark.png) |

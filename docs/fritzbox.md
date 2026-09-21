@@ -136,3 +136,31 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | ![Grafico, chiaro](screenshot/grafici/fritzbox-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/fritzbox-grafico-24h-dark.png) |
 
 Toccando una delle due barre live (**Download** o **Upload**) si apre lo stesso grafico storico, già posizionato su quella curva.
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/fritzbox-impostazioni-light.png) | ![](screenshot/popup/fritzbox-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/fritzbox-statistiche-light.png) | ![](screenshot/popup/fritzbox-statistiche-dark.png) |
+
+**Test di banda (contachilometri)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/fritzbox-test-di-banda-light.png) | ![](screenshot/popup/fritzbox-test-di-banda-dark.png) |
+
+**Aggiornamenti (campanella)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/fritzbox-aggiornamenti-light.png) | ![](screenshot/popup/fritzbox-aggiornamenti-dark.png) |

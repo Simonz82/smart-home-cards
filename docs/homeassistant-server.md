@@ -188,3 +188,25 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/homeassistant-server-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/homeassistant-server-grafico-24h-dark.png) |
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/homeassistant-server-impostazioni-light.png) | ![](screenshot/popup/homeassistant-server-impostazioni-dark.png) |
+
+**Aggiornamenti (campanella)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/homeassistant-server-aggiornamenti-light.png) | ![](screenshot/popup/homeassistant-server-aggiornamenti-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/homeassistant-server-statistiche-light.png) | ![](screenshot/popup/homeassistant-server-statistiche-dark.png) |

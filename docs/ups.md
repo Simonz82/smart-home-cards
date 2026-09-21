@@ -91,3 +91,19 @@ Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg 
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/ups-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/ups-grafico-24h-dark.png) |
+
+## 🖼️ Tutte le schermate
+
+Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscurati.
+
+**Impostazioni (ingranaggio)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/ups-impostazioni-light.png) | ![](screenshot/popup/ups-impostazioni-dark.png) |
+
+**Statistiche (barrette)**
+
+| Chiaro | Scuro |
+|---|---|
+| ![](screenshot/popup/ups-statistiche-light.png) | ![](screenshot/popup/ups-statistiche-dark.png) |
