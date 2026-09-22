@@ -1731,7 +1731,526 @@ class DmApplianceCloneCard extends HTMLElement {
   getCardSize() {
     return 7;
   }
+
+  static getConfigElement() {
+    return document.createElement("dm-appliance-clone-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Elettrodomestico",
+      artwork: "dishwasher",
+      power_entity: "",
+      threshold_run: 5,
+      threshold_standby: 1,
+      max_power: 2200,
+    };
+  }
 }
+
+// -----------------------------------------------------------------------
+// Editor visuale della card Elettrodomestici: si apre da solo quando la
+// aggiungi o la modifichi dalla dashboard (icona matita), al posto dello
+// YAML scritto a mano. Copre i campi che servono quasi sempre (tipo,
+// nome, se e' domotico o solo una presa, l'entita' della potenza e - se
+// domotico - stato/programma/fine prevista) con un'entity-picker che
+// cerca e propone: non indovina da sola, ma parte gia' filtrata sui
+// nomi piu' probabili. Tutto il resto (settings_sections, warn_entities,
+// week_rows, period_attrs, energy_stat_entity...) resta come lo trovi:
+// l'editor lo lascia intatto, si modifica solo passando alla vista YAML.
+// -----------------------------------------------------------------------
+const DM_APPLIANCE_TYPES = [
+  { value: "washer", label: "Lavatrice", domotico: false },
+  { value: "dryer", label: "Asciugatrice", domotico: true },
+  { value: "dishwasher", label: "Lavastoviglie", domotico: true },
+  { value: "oven", label: "Forno", domotico: false },
+  { value: "tv", label: "TV", domotico: true },
+];
+
+const DM_EDITOR_STYLE = `
+  :host{display:block;padding:4px 0 12px}
+  .dm-ed-row{margin-bottom:14px}
+  .dm-ed-label{display:block;font-size:13px;font-weight:700;color:var(--primary-text-color);margin-bottom:6px}
+  .dm-ed-hint{font-size:12px;color:var(--secondary-text-color);margin:2px 0 8px;line-height:1.4}
+  .dm-ed-types{display:flex;flex-wrap:wrap;gap:8px}
+  .dm-ed-type-btn{flex:1 1 30%;min-width:100px;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px 8px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+  .dm-ed-type-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12);color:var(--primary-color,#03a9f4)}
+  .dm-ed-choice{display:flex;gap:8px}
+  .dm-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
+  .dm-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
+  .dm-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
+  .dm-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
+  .dm-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  ha-entity-picker{width:100%}
+  .dm-ed-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid var(--divider-color,#e0e0e0);background:var(--card-background-color,#fff);color:var(--primary-text-color);font:inherit;font-size:14px}
+  .dm-ed-input:focus{outline:none;border-color:var(--primary-color,#03a9f4)}
+  details.dm-ed-adv{margin-top:16px}
+  details.dm-ed-adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--primary-color,#03a9f4);padding:6px 0}
+  .dm-ed-missing{color:#c62828;font-size:12px;margin-top:4px}
+`;
+
+// -----------------------------------------------------------------------
+// Editor visuale condiviso per le card "a campi fissi" (FritzBox, Server,
+// NAS, Proxmox, UPS, Raccolta Differenziata, Energia Casa): a differenza
+// dell'elettrodomestico non c'e' da scegliere un "tipo", si va dritti ai
+// campi. Ogni card definisce solo il suo elenco (sezioni + campi), il
+// motore che disegna il form ed emette config-changed e' unico.
+// -----------------------------------------------------------------------
+function dmGetPath(obj, path) {
+  return path.split(".").reduce((o, k) => (o != null ? o[k] : undefined), obj);
+}
+
+function dmSetPath(root, path, value) {
+  const keys = path.split(".");
+  let obj = root;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i];
+    const nextIsIndex = /^\d+$/.test(keys[i + 1]);
+    const existing = obj[k];
+    const container = Array.isArray(existing) ? [...existing] : existing && typeof existing === "object" ? { ...existing } : nextIsIndex ? [] : {};
+    obj[k] = container;
+    obj = container;
+  }
+  const lastKey = keys[keys.length - 1];
+  if (value === "" || value === undefined) delete obj[lastKey];
+  else obj[lastKey] = value;
+  return root;
+}
+
+class DmSimpleCardEditorBase extends HTMLElement {
+  // Sottoclassi: implementano get schema() -> [{ title, fields: [{key,label,kind,domain,required,hint}] }]
+  get schema() {
+    return [];
+  }
+
+  setConfig(config) {
+    this._config = { ...config };
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (this._root) {
+      this._root.querySelectorAll("ha-entity-picker").forEach((el) => {
+        el.hass = hass;
+      });
+    }
+  }
+
+  _emit() {
+    this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: this._config }, bubbles: true, composed: true }));
+  }
+
+  _set(path, value) {
+    this._config = dmSetPath({ ...this._config }, path, value);
+    this._emit();
+  }
+
+  _render() {
+    if (!this._root) {
+      this._root = this.attachShadow({ mode: "open" });
+      this._root.innerHTML = `<style>${DM_EDITOR_STYLE}</style><div class="dm-ed-body"></div>`;
+    }
+    const body = this._root.querySelector(".dm-ed-body");
+    const cfg = this._config;
+    body.innerHTML = this.schema
+      .map(
+        (sec) => `
+      <div class="dm-ed-sec">${esc(sec.title)}</div>
+      ${sec.fields
+        .map((f) => {
+          const val = dmGetPath(cfg, f.key);
+          if (f.kind === "entity" || !f.kind) {
+            return `<div class="dm-ed-row">
+              <span class="dm-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+              ${f.hint ? `<p class="dm-ed-hint">${esc(f.hint)}</p>` : ""}
+              <ha-entity-picker data-key="${esc(f.key)}" ${f.domain ? `include-domains='${JSON.stringify(f.domain)}'` : ""} allow-custom-entity></ha-entity-picker>
+              ${f.required && !val ? `<div class="dm-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+            </div>`;
+          }
+          return `<div class="dm-ed-row">
+            <span class="dm-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+            ${f.hint ? `<p class="dm-ed-hint">${esc(f.hint)}</p>` : ""}
+            <input class="dm-ed-input" data-key="${esc(f.key)}" type="${f.kind === "number" ? "number" : "text"}" placeholder="${esc(f.placeholder || "")}">
+          </div>`;
+        })
+        .join("")}
+    `,
+      )
+      .join("");
+
+    body.querySelectorAll("ha-entity-picker[data-key]").forEach((el) => {
+      el.hass = this._hass;
+      el.value = dmGetPath(cfg, el.dataset.key) || "";
+      el.addEventListener("value-changed", (e) => {
+        e.stopPropagation();
+        this._set(el.dataset.key, e.detail.value);
+      });
+    });
+    body.querySelectorAll("input.dm-ed-input[data-key]").forEach((el) => {
+      const v = dmGetPath(cfg, el.dataset.key);
+      el.value = v ?? "";
+      el.addEventListener("change", () => {
+        this._set(el.dataset.key, el.type === "number" ? Number(el.value) : el.value);
+      });
+    });
+  }
+}
+
+class DmFritzCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "FritzBox" },
+        { key: "connection_entity", label: "Sensore di connessione (acceso/spento)", domain: ["binary_sensor"], required: true },
+      ]},
+      { title: "Banda in tempo reale", fields: [
+        { key: "stats.mbps_down", label: "Download live (Mbps)", domain: ["sensor"] },
+        { key: "stats.mbps_up", label: "Upload live (Mbps)", domain: ["sensor"] },
+        { key: "stats.portante_down", label: "Portante Download", domain: ["sensor"] },
+        { key: "stats.portante_up", label: "Portante Upload", domain: ["sensor"] },
+      ]},
+      { title: "Avanzate", fields: [
+        { key: "update_entity", label: "Aggiornamento firmware", domain: ["update"] },
+        { key: "max_mbps", label: "Fondo scala di riserva (Mbps, usato solo se la portante non e' disponibile)", kind: "number", placeholder: "300" },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("dm-fritz-card-editor", DmFritzCardEditor);
+
+class DmServerCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Home Assistant" }]},
+      { title: "Sistema", fields: [
+        { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
+        { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
+        { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
+      ]},
+      { title: "Avanzate", fields: [
+        { key: "ssl_cert", label: "Scadenza certificato SSL", domain: ["sensor"] },
+        { key: "updates.core", label: "Aggiornamento Core", domain: ["update"] },
+        { key: "updates.supervisor", label: "Aggiornamento Supervisor", domain: ["update"] },
+        { key: "uptime.ha_since", label: "Avviato da (data/ora)", domain: ["sensor"] },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("dm-server-card-editor", DmServerCardEditor);
+
+class DmNasCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Synology NAS" },
+        { key: "model", label: "Modello", kind: "text", placeholder: "DS925+" },
+        { key: "update_entity", label: "Aggiornamento DSM", domain: ["update"], required: true },
+      ]},
+      { title: "Sistema", fields: [
+        { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
+        { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
+        { key: "sensors.vol1", label: "Volume 1 (%)", domain: ["sensor"] },
+        { key: "sensors.vol2", label: "Volume 2 (%)", domain: ["sensor"] },
+        { key: "sensors.usb_pct", label: "USB (%)", domain: ["sensor"] },
+        { key: "sensors.temp", label: "Temperatura", domain: ["sensor"] },
+      ]},
+      { title: "Etichette dei volumi", fields: [
+        { key: "vol1_label", label: "Nome Volume 1", kind: "text", placeholder: "Volume 1" },
+        { key: "vol2_label", label: "Nome Volume 2", kind: "text", placeholder: "Volume 2" },
+      ]},
+      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+    ];
+  }
+}
+customElements.define("dm-nas-card-editor", DmNasCardEditor);
+
+class DmProxmoxCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Proxmox" }]},
+      { title: "Sistema", fields: [
+        { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
+        { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
+        { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
+        { key: "sensors.cpu_temp", label: "Temperatura CPU", domain: ["sensor"] },
+        { key: "sensors.gpu_pct", label: "GPU (%)", domain: ["sensor"] },
+      ]},
+      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+    ];
+  }
+}
+customElements.define("dm-proxmox-card-editor", DmProxmoxCardEditor);
+
+class DmUpsCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "UPS" },
+        { key: "model", label: "Modello", kind: "text", placeholder: "APC Back-UPS BE850G2" },
+        { key: "status_entity", label: "Stato UPS", domain: ["sensor"], required: true },
+      ]},
+      { title: "Batteria e carico", fields: [
+        { key: "battery_entity", label: "Carica batteria (%)", domain: ["sensor"] },
+        { key: "load_entity", label: "Carico reale (W)", domain: ["sensor"] },
+        { key: "runtime_entity", label: "Autonomia residua", domain: ["sensor"] },
+      ]},
+      { title: "Avanzate", fields: [
+        { key: "input_voltage_entity", label: "Tensione ingresso", domain: ["sensor"] },
+        { key: "runtime_low_entity", label: "Batteria scarica (avviso)", domain: ["binary_sensor"] },
+        { key: "automation_entity", label: "Automazione notifiche caduta corrente", domain: ["automation"] },
+        { key: "rated_watts", label: "Potenza nominale (W)", kind: "number", placeholder: "450" },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("dm-ups-card-editor", DmUpsCardEditor);
+
+class DmGarbageCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Raccolta Differenziata" },
+        { key: "entity", label: "Sensore del rifiuto di oggi", domain: ["sensor"], required: true },
+      ]},
+      { title: "Giorni e orari", fields: [
+        { key: "weekday_entity", label: "Giorno della settimana", domain: ["sensor"] },
+        { key: "pickup_day_entity", label: "Giorno del ritiro", domain: ["sensor"] },
+        { key: "expose_time_entity", label: "Orario di esposizione", domain: ["input_datetime"] },
+      ]},
+      { title: "Tipi di raccolta scritti a mano", fields: [
+        { key: "types_entity", label: "Elenco tipi di raccolta (mostra il pulsante sulla card)", domain: ["input_text"], hint: "Facoltativo: se lo colleghi compare il pulsante per scrivere i tipi di raccolta del tuo comune." },
+      ]},
+      { title: "Avanzate", fields: [
+        { key: "alexa_settings_path", label: "Percorso pagina notifiche Alexa (facoltativo)", kind: "text", placeholder: "/lovelace/notifiche-alexa" },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("dm-garbage-card-editor", DmGarbageCardEditor);
+
+class DmEnergyCardEditor extends DmSimpleCardEditorBase {
+  get schema() {
+    const circuits = [0, 1, 2, 3].map((i) => ({
+      title: `Barra ${i + 1}`,
+      fields: [
+        { key: `circuits.${i}.label`, label: "Etichetta", kind: "text", placeholder: i === 0 ? "Generale" : "" },
+        { key: `circuits.${i}.entity`, label: "Entita' (potenza in W)", domain: ["sensor"] },
+        { key: `circuits.${i}.max`, label: "Fondo scala (W)", kind: "number" },
+      ],
+    }));
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Energia Casa" },
+        { key: "power_entity", label: "Sensore di potenza generale (W)", domain: ["sensor"], required: true },
+        { key: "max_power", label: "Fondo scala generale (W)", kind: "number", placeholder: "4500" },
+      ]},
+      ...circuits,
+      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+    ];
+  }
+}
+customElements.define("dm-energy-card-editor", DmEnergyCardEditor);
+
+class DmApplianceCloneCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = { ...config };
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (this._root) {
+      this._root.querySelectorAll("ha-entity-picker").forEach((el) => {
+        el.hass = hass;
+      });
+    }
+  }
+
+  // Cerca tra le entita' quella piu' probabile per questo campo, in base al tipo scelto e
+  // al nome dell'apparecchio: non sceglie da sola, riempie solo il "suggerimento" di partenza
+  // nella entity-picker, che resta comunque cercabile e modificabile a mano.
+  _guess(kind) {
+    const hass = this._hass;
+    if (!hass) return "";
+    const type = DM_APPLIANCE_TYPES.find((t) => t.value === this._config.artwork);
+    const nameWords = [type?.label, this._config.name].filter(Boolean).map((s) => s.toLowerCase());
+    const ids = Object.keys(hass.states);
+    const score = (id, st) => {
+      const low = (id + " " + (st.attributes?.friendly_name || "")).toLowerCase();
+      let s = 0;
+      nameWords.forEach((w) => {
+        if (w && low.includes(w)) s += 10;
+      });
+      return s;
+    };
+    const byDomainUnit = (domains, units) =>
+      ids
+        .filter((id) => domains.includes(id.split(".")[0]))
+        .filter((id) => !units || units.includes((hass.states[id].attributes?.unit_of_measurement || "").toUpperCase()))
+        .map((id) => ({ id, s: score(id, hass.states[id]) }))
+        .filter((x) => x.s > 0)
+        .sort((a, b) => b.s - a.s)[0]?.id || "";
+    if (kind === "power") return byDomainUnit(["sensor"], ["W", "KW"]);
+    if (kind === "state") return byDomainUnit(["sensor"]);
+    return "";
+  }
+
+  _emit() {
+    const detail = { config: this._config };
+    this.dispatchEvent(new CustomEvent("config-changed", { detail, bubbles: true, composed: true }));
+  }
+
+  _set(path, value) {
+    const keys = path.split(".");
+    let obj = this._config;
+    for (let i = 0; i < keys.length - 1; i++) {
+      obj[keys[i]] = { ...(obj[keys[i]] || {}) };
+      obj = obj[keys[i]];
+    }
+    if (value === "" || value === undefined) delete obj[keys[keys.length - 1]];
+    else obj[keys[keys.length - 1]] = value;
+    this._config = { ...this._config };
+    this._emit();
+  }
+
+  _get(path) {
+    return path.split(".").reduce((o, k) => (o ? o[k] : undefined), this._config);
+  }
+
+  _render() {
+    if (!this._root) {
+      this._root = this.attachShadow({ mode: "open" });
+      this._root.innerHTML = `<style>${DM_EDITOR_STYLE}</style><div class="dm-ed-body"></div>`;
+    }
+    const body = this._root.querySelector(".dm-ed-body");
+    const cfg = this._config;
+    const currentType = DM_APPLIANCE_TYPES.find((t) => t.value === cfg.artwork);
+    const isDomotico = this._domoticoOverride ?? (cfg.live?.state_entity ? true : currentType ? currentType.domotico : false);
+
+    body.innerHTML = `
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Che elettrodomestico e'?</span>
+        <div class="dm-ed-types">
+          ${DM_APPLIANCE_TYPES.map(
+            (t) => `<button type="button" class="dm-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.label)}</button>`,
+          ).join("")}
+        </div>
+      </div>
+
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Nome</span>
+        <input class="dm-ed-input dm-ed-name" type="text" placeholder="es. Lavastoviglie">
+      </div>
+
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
+        <p class="dm-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
+        <div class="dm-ed-choice">
+          <button type="button" class="dm-ed-choice-btn${!isDomotico ? " on" : ""}" data-domotico="0">Solo presa<small>Misura solo i Watt</small></button>
+          <button type="button" class="dm-ed-choice-btn${isDomotico ? " on" : ""}" data-domotico="1">Domotico<small>Ha stati e programmi</small></button>
+        </div>
+      </div>
+
+      <div class="dm-ed-sec">Potenza</div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Sensore della potenza (Watt) — obbligatorio</span>
+        <ha-entity-picker class="dm-ed-power" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.power_entity ? `<div class="dm-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+      </div>
+
+      ${
+        isDomotico
+          ? `<div class="dm-ed-sec">Stato e programma (domotico)</div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Entita' dello stato (es. "in funzione", "pronto"...)</span>
+        <ha-entity-picker class="dm-ed-live-state" allow-custom-entity></ha-entity-picker>
+      </div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Avanzamento programma (facoltativo)</span>
+        <ha-entity-picker class="dm-ed-live-progress" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+      </div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Fine prevista (facoltativo)</span>
+        <ha-entity-picker class="dm-ed-live-remaining" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+      </div>`
+          : ""
+      }
+
+      <details class="dm-ed-adv">
+        <summary>Impostazioni avanzate (soglie, layout)</summary>
+        <div class="dm-ed-grid2">
+          <div class="dm-ed-row">
+            <span class="dm-ed-label">Soglia "in funzione" (W)</span>
+            <input class="dm-ed-input dm-ed-thr-run" type="number" value="${cfg.threshold_run ?? 5}">
+          </div>
+          <div class="dm-ed-row">
+            <span class="dm-ed-label">Soglia "standby" (W)</span>
+            <input class="dm-ed-input dm-ed-thr-standby" type="number" value="${cfg.threshold_standby ?? 1}">
+          </div>
+          <div class="dm-ed-row">
+            <span class="dm-ed-label">Fondo scala barra potenza (W)</span>
+            <input class="dm-ed-input dm-ed-max-power" type="number" value="${cfg.max_power ?? 2200}">
+          </div>
+          <div class="dm-ed-row">
+            <span class="dm-ed-label">Menu layout (facoltativo)</span>
+            <ha-entity-picker class="dm-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
+          </div>
+        </div>
+        <p class="dm-ed-hint">Notifiche, consumi per periodo, avvisi (sale/brillantante...) e il resto si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
+      </details>
+    `;
+
+    body.querySelectorAll(".dm-ed-type-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const type = DM_APPLIANCE_TYPES.find((t) => t.value === btn.dataset.type);
+        this._config = { ...this._config, artwork: type.value };
+        if (!this._config.name) this._config.name = type.label;
+        if (this._domoticoOverride === undefined) this._domoticoOverride = type.domotico;
+        this._emit();
+        this._render();
+      });
+    });
+    body.querySelectorAll(".dm-ed-choice-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._domoticoOverride = btn.dataset.domotico === "1";
+        this._emit();
+        this._render();
+      });
+    });
+    const name = body.querySelector(".dm-ed-name");
+    name.value = cfg.name || "";
+    name.addEventListener("change", () => this._set("name", name.value));
+
+    // Le entity-picker si valorizzano assegnando la proprieta' via JS (un attributo scritto nel
+    // markup non basta), altrimenti mostrerebbero sempre vuoto anche per una card gia' configurata.
+    const wirePicker = (selector, currentValue, guessKind, path) => {
+      const el = body.querySelector(selector);
+      if (!el) return;
+      el.hass = this._hass;
+      el.value = currentValue || (guessKind ? this._guess(guessKind) : "") || "";
+      el.addEventListener("value-changed", (e) => {
+        e.stopPropagation();
+        this._set(path, e.detail.value);
+      });
+    };
+    wirePicker(".dm-ed-power", cfg.power_entity, "power", "power_entity");
+    wirePicker(".dm-ed-live-state", cfg.live?.state_entity, "state", "live.state_entity");
+    wirePicker(".dm-ed-live-progress", cfg.live?.progress_entity, null, "live.progress_entity");
+    wirePicker(".dm-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
+    wirePicker(".dm-ed-layout", cfg.layout_entity, null, "layout_entity");
+    ["thr-run:threshold_run", "thr-standby:threshold_standby", "max-power:max_power"].forEach((pair) => {
+      const [cls, key] = pair.split(":");
+      const el = body.querySelector(".dm-ed-" + cls);
+      if (el) el.addEventListener("change", () => this._set(key, Number(el.value)));
+    });
+  }
+}
+customElements.define("dm-appliance-clone-card-editor", DmApplianceCloneCardEditor);
 
 customElements.define("dm-appliance-clone-card", DmApplianceCloneCard);
 window.customCards = window.customCards || [];
@@ -2133,6 +2652,18 @@ class DmFritzCard extends HTMLElement {
 
   getCardSize() {
     return 6;
+  }
+
+  static getConfigElement() {
+    return document.createElement("dm-fritz-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "FritzBox",
+      artwork: "fritzbox",
+      max_mbps: 300,
+    };
   }
 }
 
@@ -2729,6 +3260,17 @@ class DmServerCard extends HTMLElement {
   getCardSize() {
     return 7;
   }
+
+  static getConfigElement() {
+    return document.createElement("dm-server-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Home Assistant",
+      artwork: "server",
+    };
+  }
 }
 
 customElements.define("dm-server-card", DmServerCard);
@@ -3275,6 +3817,18 @@ class DmNasCard extends HTMLElement {
   getCardSize() {
     return 7;
   }
+
+  static getConfigElement() {
+    return document.createElement("dm-nas-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Synology NAS",
+      artwork: "nas",
+      model: "DS925+",
+    };
+  }
 }
 
 customElements.define("dm-nas-card", DmNasCard);
@@ -3820,6 +4374,20 @@ class DmEnergyCard extends HTMLElement {
   getCardSize() {
     return 7;
   }
+
+  static getConfigElement() {
+    return document.createElement("dm-energy-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Energia Casa",
+      artwork: "energy",
+      power_entity: "",
+      max_power: 4500,
+      circuits: [],
+    };
+  }
 }
 
 customElements.define("dm-energy-card", DmEnergyCard);
@@ -4227,6 +4795,19 @@ class DmUpsCard extends HTMLElement {
   getCardSize() {
     return 6;
   }
+
+  static getConfigElement() {
+    return document.createElement("dm-ups-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "UPS",
+      artwork: "ups",
+      model: "APC Back-UPS BE850G2",
+      rated_watts: 450,
+    };
+  }
 }
 
 customElements.define("dm-ups-card", DmUpsCard);
@@ -4552,6 +5133,17 @@ class DmGarbageCard extends HTMLElement {
 
   getCardSize() {
     return 5;
+  }
+
+  static getConfigElement() {
+    return document.createElement("dm-garbage-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Raccolta Differenziata",
+      artwork: "garbage",
+    };
   }
 }
 
@@ -5040,6 +5632,17 @@ class DmProxmoxCard extends HTMLElement {
 
   getCardSize() {
     return 7;
+  }
+
+  static getConfigElement() {
+    return document.createElement("dm-proxmox-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Proxmox",
+      artwork: "server",
+    };
   }
 }
 
