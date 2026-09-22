@@ -39,6 +39,12 @@ state_images:
   Nulla: /local/rifiuti/nulla.png
 ```
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Raccolta Differenziata"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor Raccolta Differenziata](screenshot/editor-differenziata.png)
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Default | Descrizione |

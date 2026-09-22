@@ -36,6 +36,12 @@ power_entity: sensor.potenza_casa_w
 max_power: 4500          # fondo scala della barra (il tuo contatore/limite contrattuale)
 ```
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Energia Casa"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor Energia Casa](screenshot/editor-energia.png)
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Descrizione |

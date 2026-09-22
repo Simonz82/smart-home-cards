@@ -34,6 +34,12 @@ name: UPS
 status_entity: sensor.ups_status    # unico campo obbligatorio: stato testuale (Online, On Battery, ecc.)
 ```
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"UPS"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor UPS](screenshot/editor-ups.png)
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Default | Descrizione |

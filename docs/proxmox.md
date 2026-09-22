@@ -21,6 +21,12 @@ Un modo per portare in Home Assistant le statistiche del tuo host Proxmox VE —
 
 `cpu_temp` e `gpu_pct` **non** fanno parte delle statistiche standard di Proxmox: se vuoi mostrarli ti serve qualcosa che legga i sensori hardware dell'host (es. `lm-sensors` + un sensore `command_line`/SSH, oppure un agente tipo Glances/System Bridge installato sull'host). Se non ti interessano, ometti semplicemente questi due campi.
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Proxmox"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor Proxmox](screenshot/editor-proxmox.png)
+
 ## Campo per campo
 
 ```yaml

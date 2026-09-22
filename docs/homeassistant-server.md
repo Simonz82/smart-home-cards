@@ -27,6 +27,12 @@ Il package completo — report giornaliero, notifiche login/aggiornamenti/SSL, s
 
 La maggior parte dei sensori qui sotto arriva dall'integrazione core **[System Monitor](https://www.home-assistant.io/integrations/systemmonitor/)** (Impostazioni → Dispositivi e servizi → Aggiungi integrazione → cerca "System Monitor") — gratuita, già inclusa in Home Assistant, non serve installare nulla.
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Server Home Assistant"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor Server Home Assistant](screenshot/editor-homeassistant-server.png)
+
 ## `sensors`
 
 ```yaml

@@ -58,6 +58,16 @@ max_power: 2200          # Watt massimi della barra di potenza (solo estetico)
 
 Con solo questo, la card mostra: nome, disegno scelto, badge di stato (In funzione / Standby / Spenta) calcolato dalle soglie, e la barra di potenza in tempo reale.
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Elettrodomestico"** → scegli il tipo (Lavatrice/Asciugatrice/Lavastoviglie/Forno/TV), se è domotico o solo una presa, e compila i campi — ogni entità si cerca per nome, con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). In fondo trovi anche la sezione "Storici" per creare gli helper kWh/costo senza YAML — vedi più sotto.
+
+![Editor elettrodomestico](screenshot/editor-elettrodomestici.png)
+
+Per un tipo **domotico** (es. TV) compaiono anche i campi di stato/programma nativo:
+
+![Editor elettrodomestico, TV domotica](screenshot/editor-elettrodomestici-tv.png)
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Default | Descrizione |

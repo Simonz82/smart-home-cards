@@ -10,6 +10,12 @@ CPU/RAM/volumi/dischi del NAS, stato di sicurezza, consumo elettrico, pulsanti d
 
 L'integrazione ufficiale **[Synology DSM](https://www.home-assistant.io/integrations/synology_dsm/)** (Impostazioni → Dispositivi e servizi → Aggiungi integrazione → cerca "Synology DSM", inserisci IP/utente/password del NAS). Crea da sola quasi tutti i sensori usati qui sotto — controlla i nomi esatti in Impostazioni → Entità dopo averla configurata, variano leggermente in base al modello.
 
+## 🖊️ Editor visuale (senza YAML)
+
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"NAS Synology"** → compila i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").
+
+![Editor NAS Synology](screenshot/editor-nas-synology.png)
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Descrizione |
