@@ -1,6 +1,8 @@
 # smart-home-cards
 
-Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e complete" senza impilare 4-5 card diverse (HACS) una dentro l'altra. Ogni card è un unico file JavaScript, gira su qualunque dashboard (anche sul cellulare), ha un popup Impostazioni e uno Statistiche integrati.
+Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e complete" senza impilare 4-5 card diverse (HACS) una dentro l'altra. Ogni card è un unico file JavaScript, gira su qualunque dashboard (anche sul cellulare), ha un popup Impostazioni e uno Statistiche integrati, e un **editor visuale nativo** (niente YAML obbligatorio: "Aggiungi card" → cerchi il nome → compili i campi).
+
+**Repository unico**: le 8 card (elettrodomestici, energia, FritzBox, server HA, NAS, Proxmox, UPS, raccolta differenziata) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
 
 **Non serve programmare nulla**: si installa il file, si aggiunge la card alla dashboard, si scrivono i nomi delle proprie entità al posto di quelle di esempio. Tutte le istruzioni qui sotto sono scritte per chi non ha mai installato una card personalizzata prima.
 
@@ -10,20 +12,16 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 
 | Card | Cosa mostra | Serve per |
 |---|---|---|
-| [🧺 Elettrodomestici](docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
-| [⚡ Energia Casa](https://github.com/Simonz82/controllo_energia_casa) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Guida completa (package + schermate) nel repo dedicato [controllo_energia_casa](https://github.com/Simonz82/controllo_energia_casa) |
+| [🧺 Elettrodomestici](docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale (anche senza YAML, vedi guida) | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
+| [⚡ Energia Casa](docs/energia.md) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Un misuratore di potenza generale casa in Watt |
 | [📶 FritzBox / Router](docs/fritzbox.md) | Stato connessione, banda impegnata, velocità, test di velocità | Router AVM FritzBox (integrazione ufficiale HA) |
 | [🖥️ Server Home Assistant](docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |
 | [💾 NAS Synology](docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
 | [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
-| [♻️ Raccolta Differenziata](https://github.com/Simonz82/ha_garbage) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Guida completa (package + immagini + screenshot) nel repo dedicato [ha_garbage](https://github.com/Simonz82/ha_garbage) |
+| [♻️ Raccolta Differenziata](docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Nessun hardware, solo un `input_text` |
 | [📈 Grafici 24 h / 7 gg / 30 gg / da … a](docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
 | [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
-
-Ogni card ha anche un pulsante **📈 Grafici** (24 h · 7 gg · 30 gg · da … a): vedi [docs/grafici.md](docs/grafici.md).
-
-Ogni card ha anche un pulsante **📈 Grafici** (24 h · 7 gg · 30 gg · da … a): vedi [docs/grafici.md](docs/grafici.md).
 
 Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
 
@@ -56,6 +54,7 @@ Ogni card si può mostrare in **classico** (foto a sinistra) o **centrato** (fot
 ## Cosa include, cosa devi adattare tu
 
 - **Le immagini prodotto** (foto del router/NAS/UPS/logo Proxmox/HA mostrate nelle card) sono incluse in [`foto-pkg/`](foto-pkg/) — copiale insieme al file della card, vedi [docs/installazione.md](docs/installazione.md).
+- **Le immagini dei rifiuti** (per la card Raccolta Differenziata) sono in [`rifiuti/`](rifiuti/) — vedi [docs/differenziata.md](docs/differenziata.md).
 - **I package reali** (sensori, helper, automazioni di notifica/report/riavvio) sono in [`packages/`](packages/) — sono letteralmente quelli che uso io in produzione, con i dati personali tolti. Ogni guida spiega, nel paragrafo "🚀 Metodo veloce", esattamente quali righe cambiare per il tuo impianto.
 - **Le entità** che ogni card e ogni package si aspettano dipendono comunque dal tuo impianto/integrazioni — ogni guida elenca esattamente quali servono e a cosa servono, sia per chi usa i miei package sia per chi preferisce costruire i propri da zero.
 

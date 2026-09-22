@@ -1,10 +1,7 @@
-// smart-home-cards - card Lovelace personalizzate per Home Assistant
-// Autore: Simonz82 - https://github.com/Simonz82/smart-home-cards
-//
-// Un unico file registra tutte le card: elettrodomestici (lavatrice, asciugatrice, lavastoviglie,
+// Card per Home Assistant di Simonz82: elettrodomestici (lavatrice, asciugatrice, lavastoviglie,
 // forno, TV), FritzBox, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa e raccolta
-// differenziata. Ogni card puo' essere mostrata in due layout (classico / centrato), scelto dalle
-// Impostazioni della card. Legge e scrive solo tramite l'oggetto `hass`.
+// differenziata. Popup Impostazioni/Statistiche/Grafici presi dai package "Centro Controllo".
+// Indipendente da altre card: legge/scrive solo via hass.
 
 const HERO_BUILDERS = {
   dishwasher: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
@@ -479,6 +476,7 @@ const STYLE = `
 .dm-ap-week-day{flex:0 0 60px;font-size:13px;font-weight:850;color:var(--dm-text)}
 .dm-ap-week-stats{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;min-width:0}
 .dm-ap-week-stats.cols3{grid-template-columns:repeat(3,1fr)}
+.dm-ap-week-stats.cols2{grid-template-columns:repeat(2,1fr)}
 .dm-ap-week-stat{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
 .dm-ap-week-stat small{font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--dm-dim)}
 .dm-ap-week-stat b{font-size:13px;font-weight:850;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
@@ -693,6 +691,97 @@ async function gcFetch(hass, entityId, start, end, unit) {
 function gcToLocalInput(ms) {
   const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000);
   return d.toISOString().slice(0, 16);
+}
+
+// -----------------------------------------------------------------------
+// "Storici automatici": per chi installa la card da HACS, senza scrivere un
+// package YAML a mano. Due parti:
+//  1) dmCreateEnergyHelper / dmCreateCostHelper: creano i due helper nativi di
+//     HA (integrazione Riemann per il kWh, input_number per il costo) con le
+//     stesse chiamate che userebbe l'interfaccia "Impostazioni > Dispositivi e
+//     servizi > Helper" - solo automatizzate. Girano nel browser di chi
+//     installa la card, con i SUOI permessi hass: nessuna dipendenza da me.
+//  2) dmComputeAutoPeriods: legge le statistiche a lungo termine gia' salvate
+//     da HA per quel sensore energia (campo "change" = consumo del periodo,
+//     nessun bisogno di cycle_sensor/utility_meter/week_rows scritti a mano).
+// -----------------------------------------------------------------------
+async function dmCreateHelperFlow(hass, handler, data) {
+  const flow = await hass.callApi("POST", "config/config_entries/flow", { handler, show_advanced_options: false });
+  const result = await hass.callApi("POST", `config/config_entries/flow/${flow.flow_id}`, data);
+  if (result.type !== "create_entry") {
+    throw new Error(result.errors ? JSON.stringify(result.errors) : `Impossibile creare l'helper (${handler}).`);
+  }
+  const entryId = result.result?.entry_id;
+  // L'entita' non compare nel registro nello stesso istante: si aspetta un attimo, riprovando.
+  for (let i = 0; i < 20; i++) {
+    const entities = await hass.callWS({ type: "config/entity_registry/list" });
+    const found = entities.find((e) => e.config_entry_id === entryId);
+    if (found) return found.entity_id;
+    await new Promise((r) => setTimeout(r, 300));
+  }
+  throw new Error("Helper creato ma non trovo ancora la sua entita': riprova tra poco (Impostazioni > Dispositivi e servizi > Helper).");
+}
+
+async function dmCreateEnergyHelper(hass, { name, sourceEntity, round = 2 }) {
+  return dmCreateHelperFlow(hass, "integration", {
+    name,
+    unit_time: "h",
+    source: sourceEntity,
+    method: "trapezoidal",
+    round,
+    unit_prefix: "k",
+  });
+}
+
+async function dmCreateCostHelper(hass, { name, initial = 0.25 }) {
+  const result = await hass.callWS({
+    type: "input_number/create",
+    name,
+    min: 0,
+    max: 2,
+    step: 0.01,
+    unit_of_measurement: "€/kWh",
+    initial,
+  });
+  return `input_number.${result.id}`;
+}
+
+async function dmComputeAutoPeriods(hass, energyEntity, costPerKwh) {
+  const now = new Date();
+  const iso = (d) => d.toISOString();
+  const sumChange = async (start, end, period) => {
+    if (end <= start) return 0;
+    const res = await hass.connection.sendMessagePromise({
+      type: "recorder/statistics_during_period",
+      start_time: iso(start),
+      end_time: iso(end),
+      statistic_ids: [energyEntity],
+      period,
+      types: ["change"],
+    });
+    return (res?.[energyEntity] || []).reduce((sum, r) => sum + (Number(r.change) || 0), 0);
+  };
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const today0 = startOfDay(now);
+  const yesterday0 = new Date(today0);
+  yesterday0.setDate(yesterday0.getDate() - 1);
+  const month0 = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthPrev0 = new Date(month0);
+  monthPrev0.setMonth(monthPrev0.getMonth() - 1);
+  const year0 = new Date(now.getFullYear(), 0, 1);
+  const yearPrev0 = new Date(year0);
+  yearPrev0.setFullYear(yearPrev0.getFullYear() - 1);
+
+  const [today, yesterday, month, monthPrev, year, yearPrev] = await Promise.all([
+    sumChange(today0, now, "hour"),
+    sumChange(yesterday0, today0, "hour"),
+    sumChange(month0, now, "day"),
+    sumChange(monthPrev0, month0, "day"),
+    sumChange(year0, now, "month"),
+    sumChange(yearPrev0, year0, "month"),
+  ]);
+  const mk = (kwh) => ({ kwh, cost: Number.isFinite(costPerKwh) ? kwh * costPerKwh : null });
+  return { today: mk(today), yesterday: mk(yesterday), month: mk(month), month_prev: mk(monthPrev), year: mk(year), year_prev: mk(yearPrev) };
 }
 
 function dmBindGraph(card) {
@@ -1328,12 +1417,20 @@ class DmApplianceCloneCard extends HTMLElement {
       liveHtml += this._row(row.label, `<span class="dm-ap-row-val">${esc(val)}</span>`);
     });
 
+    // "Storici automatici" (auto_stats + energy_stat_entity, impostati dall'editor visuale):
+    // consumi per periodo calcolati dalle statistiche HA, alternativa a period_attrs/cycle_sensor
+    // scritti a mano nel package. Se la card ha gia' una configurazione avanzata (period_attrs),
+    // quella resta quella che si vede - questo percorso non la sostituisce mai da solo.
+    const useAutoStats = !!(this._config.auto_stats && this._config.energy_stat_entity);
+
     this._openDialog("Statistiche", `
       ${liveHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : ""}
-      ${this._consumiHtml()}
+      ${useAutoStats ? this._autoConsumiHtml() : this._consumiHtml()}
       ${this._energyBarsHtml()}
     `);
-    this._loadEnergyBars(this._root.querySelector(".dm-ap-overlay:not(.dm-gc-ov)"));
+    const overlay = this._root.querySelector(".dm-ap-overlay:not(.dm-gc-ov)");
+    this._loadEnergyBars(overlay);
+    if (useAutoStats) this._loadAutoPeriods(overlay);
   }
 
   // Le caselle "week_rows" sono 7 contenitori fissi per nome del giorno
@@ -1402,6 +1499,50 @@ class DmApplianceCloneCard extends HTMLElement {
 
   _openWeek() {
     this._openDialog("Statistiche", this._consumiHtml());
+  }
+
+  // Versione "storici automatici": stessa presentazione di _consumiHtml() (Oggi/Ieri/Mese/Anno),
+  // ma consumo e costo calcolati al volo dalle statistiche invece che da attributi di un
+  // cycle_sensor scritto a mano. Niente "cicli"/"tempo" qui: dalla sola energia non si contano i
+  // cicli di un elettrodomestico, serve ancora un sensore di stato per quello (facoltativo).
+  _autoConsumiHtml() {
+    return `<div class="dm-ap-sec">
+      <div class="dm-ap-sec-cap">Consumi per periodo</div>
+      <div class="dm-ap-week-list" data-auto-periods><div class="dm-ap-row-val">Caricamento…</div></div>
+    </div>`;
+  }
+
+  async _loadAutoPeriods(overlay) {
+    const cfg = this._config;
+    const slot = overlay?.querySelector("[data-auto-periods]");
+    if (!slot || !cfg.energy_stat_entity) return;
+    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    try {
+      const p = await dmComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
+      const labels = cfg.period_labels || {};
+      const row = (key, def) => {
+        const d = p[key];
+        const kwh = Number.isFinite(d?.kwh) ? `${d.kwh.toFixed(2)} kWh` : "—";
+        const cost = Number.isFinite(d?.cost) ? `${d.cost.toFixed(2)} €` : "—";
+        return `<div class="dm-ap-week-row">
+          <div class="dm-ap-week-day">${esc(labels[key] || def)}</div>
+          <div class="dm-ap-week-stats cols2">
+            <div class="dm-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
+            <div class="dm-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+          </div>
+        </div>`;
+      };
+      slot.innerHTML = [
+        row("today", "Oggi"),
+        row("yesterday", "Ieri"),
+        row("month", "Mese"),
+        row("month_prev", "Mese prec."),
+        row("year", "Anno"),
+        row("year_prev", "Anno prec."),
+      ].join("");
+    } catch (e) {
+      slot.innerHTML = `<div class="dm-ap-row-val">Statistiche non disponibili al momento</div>`;
+    }
   }
 
   // Istogrammi del consumo di questo mese (per giorno) e di quest'anno (per mese).
@@ -1787,6 +1928,10 @@ const DM_EDITOR_STYLE = `
   details.dm-ed-adv{margin-top:16px}
   details.dm-ed-adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--primary-color,#03a9f4);padding:6px 0}
   .dm-ed-missing{color:#c62828;font-size:12px;margin-top:4px}
+  .dm-ed-btn{margin-top:8px;padding:9px 14px;border:1px solid var(--primary-color,#03a9f4);border-radius:10px;background:rgba(3,169,244,.1);color:var(--primary-color,#03a9f4);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .dm-ed-btn:disabled{opacity:.6;cursor:default}
+  .dm-ed-checkrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary-text-color);cursor:pointer}
+  .dm-ed-storici-msg{display:block;color:#c62828;font-size:12px;margin-top:4px}
 `;
 
 // -----------------------------------------------------------------------
@@ -2122,6 +2267,51 @@ class DmApplianceCloneCardEditor extends HTMLElement {
     return path.split(".").reduce((o, k) => (o ? o[k] : undefined), this._config);
   }
 
+  // "Storici automatici": pannello per creare, senza YAML, il sensore energia (kWh) e l'helper
+  // costo, poi calcolare i consumi per periodo dalle statistiche HA. Se la card ha GIA' una
+  // configurazione avanzata (period_attrs/cycle_sensor, scritta a mano nel package), questo
+  // pannello si limita ad avvisare e non tocca nulla: quella resta quella attiva.
+  _storiciHtml(cfg) {
+    const hasLegacy = !!(cfg.period_attrs || cfg.cycle_sensor || cfg.week_rows);
+    if (hasLegacy) {
+      return `<div class="dm-ed-sec">Storici</div>
+        <p class="dm-ed-hint">Configurazione avanzata rilevata (package YAML): i consumi per periodo restano quelli gia' in uso, invariati.</p>`;
+    }
+    return `<div class="dm-ed-sec">Storici (consumi per periodo, senza YAML)</div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Sensore energia (kWh)</span>
+        <ha-entity-picker class="dm-ed-energy-stat" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.energy_stat_entity && cfg.power_entity ? `<button type="button" class="dm-ed-btn dm-ed-create-energy">Crea automaticamente dal sensore di potenza</button>` : ""}
+      </div>
+      <div class="dm-ed-row">
+        <span class="dm-ed-label">Costo energia (€/kWh)</span>
+        <ha-entity-picker class="dm-ed-cost" include-domains='["input_number"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.cost_entity ? `<button type="button" class="dm-ed-btn dm-ed-create-cost">Crea helper costo (0,25 €/kWh di partenza)</button>` : ""}
+      </div>
+      <div class="dm-ed-row">
+        <label class="dm-ed-checkrow">
+          <input type="checkbox" class="dm-ed-auto-stats" ${cfg.auto_stats ? "checked" : ""} ${!cfg.energy_stat_entity ? "disabled" : ""}>
+          <span>Mostra "Consumi per periodo" nella card (Statistiche)</span>
+        </label>
+      </div>
+      <small class="dm-ed-storici-msg"></small>`;
+  }
+
+  async _runStorici(btn, label, fn) {
+    const msg = this._root.querySelector(".dm-ed-storici-msg");
+    const prevText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Creazione in corso…";
+    if (msg) msg.textContent = "";
+    try {
+      await fn();
+    } catch (e) {
+      if (msg) msg.textContent = `Errore: ${e.message || e}`;
+      btn.disabled = false;
+      btn.textContent = prevText;
+    }
+  }
+
   _render() {
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -2201,8 +2391,10 @@ class DmApplianceCloneCardEditor extends HTMLElement {
             <ha-entity-picker class="dm-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
           </div>
         </div>
-        <p class="dm-ed-hint">Notifiche, consumi per periodo, avvisi (sale/brillantante...) e il resto si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
+        <p class="dm-ed-hint">Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
       </details>
+
+      ${this._storiciHtml(cfg)}
     `;
 
     body.querySelectorAll(".dm-ed-type-btn").forEach((btn) => {
@@ -2248,6 +2440,37 @@ class DmApplianceCloneCardEditor extends HTMLElement {
       const el = body.querySelector(".dm-ed-" + cls);
       if (el) el.addEventListener("change", () => this._set(key, Number(el.value)));
     });
+
+    // Storici automatici: picker + pulsanti "crea" (v. _storiciHtml/_runStorici).
+    wirePicker(".dm-ed-energy-stat", cfg.energy_stat_entity, null, "energy_stat_entity");
+    wirePicker(".dm-ed-cost", cfg.cost_entity, null, "cost_entity");
+    const autoStatsBox = body.querySelector(".dm-ed-auto-stats");
+    if (autoStatsBox) autoStatsBox.addEventListener("change", () => this._set("auto_stats", autoStatsBox.checked));
+    const createEnergyBtn = body.querySelector(".dm-ed-create-energy");
+    if (createEnergyBtn) {
+      createEnergyBtn.addEventListener("click", () =>
+        this._runStorici(createEnergyBtn, "energia", async () => {
+          const entityId = await dmCreateEnergyHelper(this._hass, {
+            name: `${cfg.name || "Elettrodomestico"} - Energia`,
+            sourceEntity: cfg.power_entity,
+          });
+          this._config = { ...this._config, energy_stat_entity: entityId, auto_stats: true };
+          this._emit();
+          this._render();
+        }),
+      );
+    }
+    const createCostBtn = body.querySelector(".dm-ed-create-cost");
+    if (createCostBtn) {
+      createCostBtn.addEventListener("click", () =>
+        this._runStorici(createCostBtn, "costo", async () => {
+          const entityId = await dmCreateCostHelper(this._hass, { name: "Costo energia" });
+          this._config = { ...this._config, cost_entity: entityId };
+          this._emit();
+          this._render();
+        }),
+      );
+    }
   }
 }
 customElements.define("dm-appliance-clone-card-editor", DmApplianceCloneCardEditor);
@@ -2256,7 +2479,7 @@ customElements.define("dm-appliance-clone-card", DmApplianceCloneCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-appliance-clone-card",
-  name: "DM Appliance Clone",
+  name: "Elettrodomestico",
   description: "Card per gli elettrodomestici, con popup impostazioni/statistiche completi",
   author: "Simonz82",
 });
@@ -2671,7 +2894,7 @@ customElements.define("dm-fritz-card", DmFritzCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-fritz-card",
-  name: "DM Fritz Card",
+  name: "FritzBox",
   description: "Card per FritzBox/router: stato, banda, segnale, popup statistiche/impostazioni",
   author: "Simonz82",
 });
@@ -3277,7 +3500,7 @@ customElements.define("dm-server-card", DmServerCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-server-card",
-  name: "DM Server Card",
+  name: "Server Home Assistant",
   description: "Card per il server/host di Home Assistant: CPU/RAM/disco, aggiornamenti, backup, riavvii",
   author: "Simonz82",
 });
@@ -3835,7 +4058,7 @@ customElements.define("dm-nas-card", DmNasCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-nas-card",
-  name: "DM NAS Card",
+  name: "NAS Synology",
   description: "Card per il NAS Synology: CPU/RAM/volumi, aggiornamenti DSM, consumi, riavvii",
   author: "Simonz82",
 });
@@ -4394,7 +4617,7 @@ customElements.define("dm-energy-card", DmEnergyCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-energy-card",
-  name: "DM Energy Card",
+  name: "Energia Casa",
   description: "Card per il controllo energia totale casa: consumo istantaneo, circuiti, storici, costi",
   author: "Simonz82",
 });
@@ -4814,7 +5037,7 @@ customElements.define("dm-ups-card", DmUpsCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-ups-card",
-  name: "DM UPS Card",
+  name: "UPS",
   description: "Card per il gruppo di continuit\u00e0: stato, batteria, carico, autonomia",
   author: "Simonz82",
 });
@@ -5151,7 +5374,7 @@ customElements.define("dm-garbage-card", DmGarbageCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-garbage-card",
-  name: "DM Garbage Card",
+  name: "Raccolta Differenziata",
   description: "Card per la raccolta differenziata: immagine dinamica in base al rifiuto del giorno, giorno del ritiro, orario di esposizione",
   author: "Simonz82",
 });
@@ -5650,7 +5873,7 @@ customElements.define("dm-proxmox-card", DmProxmoxCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "dm-proxmox-card",
-  name: "DM Proxmox Card",
+  name: "Proxmox",
   description: "Card per l'host Proxmox: CPU/RAM/disco, contenitori/VM attive, consumo, salute SSD",
   author: "Simonz82",
 });

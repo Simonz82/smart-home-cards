@@ -42,6 +42,8 @@ Alla fine il file deve trovarsi esattamente in `/config/www/smart-home-cards.js`
 
 Le card FritzBox, Server, NAS, Proxmox e UPS mostrano anche una piccola foto/logo del dispositivo. Se vuoi vederle, copia anche l'intera cartella [`foto-pkg/`](../foto-pkg/) dentro `/config/www/foto-pkg/` (stesso procedimento del passo precedente, ma su una cartella invece che un file singolo). Senza quella cartella le card funzionano lo stesso, semplicemente quel riquadro resta vuoto.
 
+Per la card Raccolta Differenziata, allo stesso modo, copia la cartella [`rifiuti/`](../rifiuti/) dentro `/config/www/rifiuti/` — vedi [docs/differenziata.md](differenziata.md).
+
 ## 4. Registra il file come risorsa della dashboard
 
 Home Assistant non carica automaticamente i file dentro `www/`: vanno dichiarati come "risorsa".

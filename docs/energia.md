@@ -1,6 +1,5 @@
 # ⚡ Card Energia Casa (`dm-energy-card`)
 
-> 📘 La guida completa e sempre aggiornata di questa card (4 barre con entità e scala scelte da menu, notifiche Push / Alexa / Telegram con interruttori separati, layout) è nel repository dedicato: **[controllo_energia_casa](https://github.com/Simonz82/controllo_energia_casa)**.
 Vista d'insieme del consumo elettrico di casa: potenza istantanea, ripartizione per circuito/stanza, confronto con il periodo precedente, interruttori rapidi, costi.
 
 | Chiaro | Scuro |

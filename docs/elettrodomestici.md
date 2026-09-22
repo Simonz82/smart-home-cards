@@ -162,6 +162,17 @@ Per i costi per periodo (`costo_oggi`, `costo_mese`, ecc.) il modo più semplice
 
 `week_rows` (7 giorni × cicli/tempo/consumo/costo) ed `energy_stat_entity` seguono la stessa logica — sono avanzati, aggiungili solo se ti interessa davvero uno storico settimanale dettagliato; senza, la card funziona comunque perfettamente.
 
+### 📊 Storici automatici, senza scrivere nulla in YAML (alternativa più semplice)
+
+Se non vuoi costruire un `cycle_sensor` a mano, c'è una scorciatoia pensata apposta per chi installa la card da zero: apri l'**editor visuale** della card (aggiungila alla dashboard, poi "Modifica" invece di "Modifica in YAML") e scorri fino alla sezione **Storici**. Da lì:
+
+1. **"Crea automaticamente dal sensore di potenza"** — crea davvero un helper nativo di Home Assistant (Impostazioni → Helper → Integrazione, somma di Riemann) che trasforma il tuo sensore Watt in un sensore kWh, e lo collega alla card.
+2. **"Crea helper costo"** — crea un `input_number` con la tua tariffa €/kWh (se non ne hai già uno).
+
+Fatto questo, la card calcola da sola **Oggi / Ieri / Mese / Anno** (consumo e costo) leggendo le statistiche già salvate da Home Assistant per quel sensore — nessun `cycle_sensor`, `utility_meter` o `week_rows` da scrivere a mano. In cambio non conta i **cicli** (dal solo consumo non si distingue un ciclo dall'altro): per quello serve ancora un sensore di stato dedicato, come nella sezione sopra.
+
+Le due strade sono alternative, non obbligatorie insieme: se la card ha già `cycle_sensor`/`period_attrs` configurati (es. i miei package originali), l'editor lo rileva e non offre i pulsanti di creazione — quella configurazione resta quella attiva.
+
 ### `reset_script` / `reset_date_entity` (opzionale)
 
 Se aggiungi un pulsante di reset contatori nel popup Impostazioni (vedi sopra, sezione "Costi" in `settings_sections`), questi due campi collegano rispettivamente lo script da lanciare e l'entità dove salvare la data dell'ultimo reset:
