@@ -2,6 +2,20 @@
 
 Questa guida presuppone che tu non abbia mai installato una "custom card" prima. Se hai già dimestichezza, puoi saltare direttamente alla sezione [Installazione rapida](../README.md#installazione-rapida) del README.
 
+## 0. Con HACS (se preferisci non copiare i file a mano)
+
+Se hai [HACS](https://hacs.xyz) installato, puoi aggiungere questo repository come **repository personalizzato** e lasciare che sia lui a scaricare e aggiornare il file:
+
+1. Apri **HACS** dal menu laterale.
+2. Tre puntini in alto a destra → **Repository personalizzati**.
+3. URL: `https://github.com/Simonz82/smart-home-cards`, Categoria: **Dashboard**.
+4. Cerca "Smart Home Cards" nell'elenco di HACS e installala.
+5. HACS aggiunge da solo la risorsa `/hacsfiles/smart-home-cards/smart-home-cards.js` alla dashboard: non serve il passo 4 qui sotto ("Registra il file come risorsa"). Da qui in poi continua dal punto 6 ("Aggiungi la card alla dashboard").
+
+Da questo momento, quando pubblico un aggiornamento, HACS te lo segnala e lo installi con un clic, senza ricopiare nulla a mano.
+
+Se preferisci il metodo manuale (nessuna dipendenza da HACS), salta questo punto e continua da qui sotto.
+
 ## 1. Cosa ti serve prima di iniziare
 
 - Un'installazione Home Assistant funzionante (OS, Supervised, Container o Core — non cambia nulla).

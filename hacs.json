@@ -1,0 +1,7 @@
+{
+  "name": "Smart Home Cards",
+  "filename": "smart-home-cards.js",
+  "content_in_root": true,
+  "render_readme": true,
+  "homeassistant": "2024.1.0"
+}

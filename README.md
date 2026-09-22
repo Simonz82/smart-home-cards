@@ -27,6 +27,10 @@ Ogni card ha anche un pulsante **📈 Grafici** (24 h · 7 gg · 30 gg · da …
 
 Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
 
+## 📦 Installazione con HACS
+
+Aggiungi questo repository come **repository personalizzato** in HACS (tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**) e installala da lì: aggiornamenti automatici, nessun file da ricopiare a mano. Dettagli: [docs/installazione.md](docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
+
 ## Installazione rapida
 
 Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In breve:
