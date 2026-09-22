@@ -1,4 +1,4 @@
-# 📶 Card FritzBox / Router (`dm-fritz-card`)
+# 📶 Card FritzBox / Router (`shc-fritz-card`)
 
 Stato della connessione, banda impegnata, velocità live, pulsanti rapidi (cambio IP, riavvio), test di velocità.
 
@@ -25,7 +25,7 @@ Il package completo — notifiche online/offline/cambio IP, pulsanti riconnetti/
 ## Configurazione minima
 
 ```yaml
-type: custom:dm-fritz-card
+type: custom:shc-fritz-card
 name: FritzBox
 connection_entity: sensor.fritzbox    # stato/connettività del router
 ```

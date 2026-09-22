@@ -1,4 +1,4 @@
-# ⚡ Card Energia Casa (`dm-energy-card`)
+# ⚡ Card Energia Casa (`shc-energy-card`)
 
 Vista d'insieme del consumo elettrico di casa: potenza istantanea, ripartizione per circuito/stanza, confronto con il periodo precedente, interruttori rapidi, costi.
 
@@ -30,7 +30,7 @@ Il resto di questa guida spiega come funziona ogni campo, utile se vuoi personal
 ## Configurazione minima
 
 ```yaml
-type: custom:dm-energy-card
+type: custom:shc-energy-card
 name: Energia Casa
 power_entity: sensor.potenza_casa_w
 max_power: 4500          # fondo scala della barra (il tuo contatore/limite contrattuale)

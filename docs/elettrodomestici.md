@@ -1,4 +1,4 @@
-# 🧺 Card Elettrodomestici (`dm-appliance-clone-card`)
+# 🧺 Card Elettrodomestici (`shc-appliance-clone-card`)
 
 Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
 
@@ -47,7 +47,7 @@ Il resto di questa guida spiega **come funziona** ogni campo, utile se vuoi capi
 ## Configurazione minima (funzionante da subito)
 
 ```yaml
-type: custom:dm-appliance-clone-card
+type: custom:shc-appliance-clone-card
 name: Lavatrice
 artwork: washer          # dishwasher | washer | dryer | oven | tv | boiler | fritzbox | server | proxmox | nas | energy | ups
 power_entity: sensor.mia_lavatrice_power
@@ -185,7 +185,7 @@ reset_date_entity: input_text.data_reset_lavatrice
 ## Esempio completo (lavastoviglie)
 
 ```yaml
-type: custom:dm-appliance-clone-card
+type: custom:shc-appliance-clone-card
 name: Lavastoviglie
 artwork: dishwasher
 power_entity: sensor.lavastoviglie_power

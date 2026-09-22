@@ -1,4 +1,4 @@
-# 🖧 Card Proxmox (`dm-proxmox-card`)
+# 🖧 Card Proxmox (`shc-proxmox-card`)
 
 Stato del nodo Proxmox VE: CPU/RAM/disco, container e VM attive, consumo elettrico, salute SSD.
 
@@ -24,7 +24,7 @@ Un modo per portare in Home Assistant le statistiche del tuo host Proxmox VE —
 ## Campo per campo
 
 ```yaml
-type: custom:dm-proxmox-card
+type: custom:shc-proxmox-card
 name: Proxmox
 sensors:
   status: binary_sensor.proxmox_stato          # online/offline

@@ -1,4 +1,4 @@
-# 🔋 Card UPS (`dm-ups-card`)
+# 🔋 Card UPS (`shc-ups-card`)
 
 Stato del gruppo di continuità: online/a batteria, percentuale di carica, carico attuale, autonomia residua. La card più semplice della raccolta — niente popup Impostazioni, va dritta al punto.
 
@@ -29,7 +29,7 @@ Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assis
 ## Configurazione minima
 
 ```yaml
-type: custom:dm-ups-card
+type: custom:shc-ups-card
 name: UPS
 status_entity: sensor.ups_status    # unico campo obbligatorio: stato testuale (Online, On Battery, ecc.)
 ```
@@ -56,7 +56,7 @@ status_entity: sensor.ups_status    # unico campo obbligatorio: stato testuale (
 ## Esempio completo
 
 ```yaml
-type: custom:dm-ups-card
+type: custom:shc-ups-card
 name: UPS
 model: "APC Back-UPS BE850G2"
 status_entity: sensor.ups_status

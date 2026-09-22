@@ -1,4 +1,4 @@
-# 🖥️ Card Server Home Assistant (`dm-server-card`)
+# 🖥️ Card Server Home Assistant (`shc-server-card`)
 
 CPU/RAM/disco del server che fa girare Home Assistant, aggiornamenti disponibili, backup, riavvii programmati, certificato SSL, conteggio entità.
 

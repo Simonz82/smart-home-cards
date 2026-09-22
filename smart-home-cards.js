@@ -6,18 +6,18 @@
 const HERO_BUILDERS = {
   dishwasher: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
-      <radialGradient id="dmh-cool-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#f0f9ff"/><stop offset=".5" stop-color="#bae6fd"/><stop offset="1" stop-color="#0e3a5c"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-cool-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#f0f9ff"/><stop offset=".5" stop-color="#bae6fd"/><stop offset="1" stop-color="#0e3a5c"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="54" y="36" width="132" height="20" rx="7" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="100" y="41" width="40" height="11" rx="4.23" fill="#0b1526"/>
     <rect x="105" y="45" width="30" height="3" rx="1.5" fill="#155e75"/>
     <circle cx="66" cy="46" r="2.6" fill="#22c55e"/>
     <rect x="56" y="62" width="128" height="128" rx="9" fill="#0c1930"/>
-    <rect x="60" y="66" width="120" height="120" rx="7" fill="url(#dmh-cool-${id})" opacity=".9"/>
+    <rect x="60" y="66" width="120" height="120" rx="7" fill="url(#shch-cool-${id})" opacity=".9"/>
     <rect x="60" y="66" width="120" height="120" rx="7" fill="#082033" opacity=".45"/>
     <g stroke="#9fd8f5" stroke-width="2.4" opacity=".8">
       <path d="M70 96h100M70 92c8-6 92-6 100 0" fill="none"/>
@@ -27,7 +27,7 @@ const HERO_BUILDERS = {
       <ellipse cx="94" cy="86" rx="12" ry="9"/><ellipse cx="120" cy="84" rx="11" ry="8"/><ellipse cx="145" cy="86" rx="12" ry="9"/>
       <ellipse cx="100" cy="138" rx="11" ry="8"/><ellipse cx="138" cy="138" rx="11" ry="8"/>
     </g>
-    <g class="dmh-spin-spray">
+    <g class="shch-spin-spray">
       <line x1="94" y1="126" x2="146" y2="126" stroke="#e0f7ff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
       <line x1="120" y1="108" x2="120" y2="144" stroke="#e0f7ff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
       <circle cx="94" cy="126" r="2.2" fill="#8be2ff"/><circle cx="146" cy="126" r="2.2" fill="#8be2ff"/>
@@ -46,21 +46,21 @@ const HERO_BUILDERS = {
   </svg>`,
   dryer: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
-      <radialGradient id="dmh-warm-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#fff7ed"/><stop offset=".5" stop-color="#fed7aa"/><stop offset="1" stop-color="#7c2d12"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-warm-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#fff7ed"/><stop offset=".5" stop-color="#fed7aa"/><stop offset="1" stop-color="#7c2d12"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="54" y="36" width="132" height="20" rx="7" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="100" y="41" width="40" height="11" rx="4.23" fill="#0b1526"/>
     <rect x="105" y="45" width="30" height="3" rx="1.5" fill="#c2410c"/>
     <circle cx="66" cy="46" r="2.6" fill="#22c55e"/>
     <circle cx="120" cy="132" r="66" fill="#0c1930"/>
-    <circle cx="120" cy="132" r="58" fill="url(#dmh-warm-${id})" opacity=".9" class="dmh-glow"/>
+    <circle cx="120" cy="132" r="58" fill="url(#shch-warm-${id})" opacity=".9" class="shch-glow"/>
     <circle cx="120" cy="132" r="58" fill="#4a1d0a" opacity=".35"/>
     <circle cx="120" cy="132" r="58" fill="none" stroke="#e7ecf2" stroke-width="5"/>
-    <g fill="#ffedd5" opacity=".85" class="dmh-spin-drum">
+    <g fill="#ffedd5" opacity=".85" class="shch-spin-drum">
       <ellipse cx="98" cy="112" rx="13" ry="9" transform="rotate(-18 98 112)"/>
       <ellipse cx="140" cy="120" rx="11" ry="8" transform="rotate(14 140 120)"/>
       <ellipse cx="108" cy="152" rx="12" ry="8" transform="rotate(24 108 152)"/>
@@ -72,21 +72,21 @@ const HERO_BUILDERS = {
   </svg>`,
   washer: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
-      <radialGradient id="dmh-cool-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#f0f9ff"/><stop offset=".5" stop-color="#bae6fd"/><stop offset="1" stop-color="#0e3a5c"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-cool-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#f0f9ff"/><stop offset=".5" stop-color="#bae6fd"/><stop offset="1" stop-color="#0e3a5c"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="54" y="36" width="132" height="20" rx="7" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="100" y="41" width="40" height="11" rx="4.23" fill="#0b1526"/>
     <rect x="105" y="45" width="30" height="3" rx="1.5" fill="#155e75"/>
     <circle cx="66" cy="46" r="2.6" fill="#22c55e"/>
     <circle cx="120" cy="132" r="66" fill="#0c1930"/>
-    <circle cx="120" cy="132" r="58" fill="url(#dmh-cool-${id})" opacity=".9"/>
+    <circle cx="120" cy="132" r="58" fill="url(#shch-cool-${id})" opacity=".9"/>
     <circle cx="120" cy="132" r="58" fill="#082033" opacity=".35"/>
     <circle cx="120" cy="132" r="58" fill="none" stroke="#e7ecf2" stroke-width="5"/>
-    <g class="dmh-spin-drum">
+    <g class="shch-spin-drum">
       <path d="M92 148c10 14 46 14 56 0" stroke="#cfeefd" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8"/>
       <path d="M88 132c12 10 52 10 64 0" stroke="#9fd8f5" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".7"/>
       <g fill="#cfeefd" opacity=".8">
@@ -98,18 +98,18 @@ const HERO_BUILDERS = {
   </svg>`,
   oven: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
-      <radialGradient id="dmh-hot-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#fff1e6"/><stop offset=".5" stop-color="#fca5a5"/><stop offset="1" stop-color="#7f1d1d"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-hot-${id}" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#fff1e6"/><stop offset=".5" stop-color="#fca5a5"/><stop offset="1" stop-color="#7f1d1d"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="216" rx="70" ry="11" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="46" y="28" width="148" height="184" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="54" y="36" width="132" height="20" rx="7" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="100" y="41" width="40" height="11" rx="4.23" fill="#0b1526"/>
     <rect x="105" y="45" width="30" height="3" rx="1.5" fill="#dc2626"/>
     <circle cx="66" cy="46" r="2.6" fill="#22c55e"/>
     <rect x="56" y="62" width="128" height="128" rx="9" fill="#0c1930"/>
-    <rect x="60" y="66" width="120" height="120" rx="7" fill="url(#dmh-hot-${id})" opacity=".9" class="dmh-glow"/>
+    <rect x="60" y="66" width="120" height="120" rx="7" fill="url(#shch-hot-${id})" opacity=".9" class="shch-glow"/>
     <rect x="60" y="66" width="120" height="120" rx="7" fill="#3a0d0d" opacity=".4"/>
     <g stroke="#fecaca" stroke-width="2.6" opacity=".85">
       <path d="M68 100h104M68 154h104" fill="none"/>
@@ -117,7 +117,7 @@ const HERO_BUILDERS = {
     <g stroke="#fee2e2" stroke-width="2" opacity=".55">
       <path d="M76 90c8 4 8 12 0 16M92 90c8 4 8 12 0 16M108 90c8 4 8 12 0 16M124 90c8 4 8 12 0 16M140 90c8 4 8 12 0 16M156 90c8 4 8 12 0 16" fill="none"/>
     </g>
-    <g class="dmh-spin-spit">
+    <g class="shch-spin-spit">
       <line x1="70" y1="126" x2="170" y2="126" stroke="#7f1d1d" stroke-width="2" opacity=".6"/>
       <ellipse cx="120" cy="126" rx="24" ry="15" fill="#b45309"/>
       <ellipse cx="120" cy="126" rx="24" ry="15" fill="#78350f" opacity=".35"/>
@@ -129,18 +129,18 @@ const HERO_BUILDERS = {
   </svg>`,
   tv: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <radialGradient id="dmh-screen-${id}" cx=".5" cy=".4" r=".85"><stop offset="0" stop-color="#dbeafe"/><stop offset=".55" stop-color="#818cf8"/><stop offset="1" stop-color="#1e1b4b"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <radialGradient id="shch-screen-${id}" cx=".5" cy=".4" r=".85"><stop offset="0" stop-color="#dbeafe"/><stop offset=".55" stop-color="#818cf8"/><stop offset="1" stop-color="#1e1b4b"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="196" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
+    <ellipse cx="120" cy="196" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
     <rect x="30" y="46" width="180" height="112" rx="10" fill="#111827" stroke="#334155" stroke-width="1.5"/>
-    <rect x="40" y="55" width="160" height="94" rx="5" fill="url(#dmh-screen-${id})"/>
+    <rect x="40" y="55" width="160" height="94" rx="5" fill="url(#shch-screen-${id})"/>
     <g stroke="#e0e7ff" stroke-linecap="round" opacity=".55">
       <path d="M60 118l26-22 20 14 30-26 30 20" stroke-width="3" fill="none"/>
     </g>
     <circle cx="120" cy="102" r="14" fill="#fef9c3" opacity=".85"/>
-    <clipPath id="dmh-screen-clip-${id}"><rect x="40" y="55" width="160" height="94" rx="5"/></clipPath>
-    <g class="dmh-flicker" clip-path="url(#dmh-screen-clip-${id})" opacity=".5">
+    <clipPath id="shch-screen-clip-${id}"><rect x="40" y="55" width="160" height="94" rx="5"/></clipPath>
+    <g class="shch-flicker" clip-path="url(#shch-screen-clip-${id})" opacity=".5">
       <rect x="40" y="55" width="34" height="94" fill="#f472b6"/>
       <rect x="82" y="55" width="34" height="94" fill="#facc15"/>
       <rect x="124" y="55" width="34" height="94" fill="#34d399"/>
@@ -152,10 +152,10 @@ const HERO_BUILDERS = {
   </svg>`,
   fritzbox: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
-    <ellipse cx="120" cy="222" rx="80" ry="9" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <g class="dmh-glow" opacity=".7" stroke="#38bdf8" stroke-linecap="round" stroke-width="2.6" fill="none">
+    <ellipse cx="120" cy="222" rx="80" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <g class="shch-glow" opacity=".7" stroke="#38bdf8" stroke-linecap="round" stroke-width="2.6" fill="none">
       <path d="M111 42c3-3 15-3 18 0"/>
       <path d="M103 36c8-7 26-7 34 0"/>
       <path d="M95 30c13-11 37-11 50 0"/>
@@ -165,64 +165,64 @@ const HERO_BUILDERS = {
   </svg>`,
   server: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
-    <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
+    <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
     <image href="/local/foto-pkg/ha_logo.gif" x="21.33" y="16.3" width="197.34" height="197.34" preserveAspectRatio="xMidYMid meet"/>
   </svg>`,
   proxmox: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
-    <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
+    <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
     <image href="/local/foto-pkg/proxmox-logo.svg" x="-1" y="10" width="242" height="193.6" preserveAspectRatio="xMidYMid meet"/>
   </svg>`,
   nas: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
-    <ellipse cx="120" cy="222" rx="70" ry="9" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
+    <ellipse cx="120" cy="222" rx="70" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
     <image href="/local/foto-pkg/synology-ds925.png" x="-1" y="-7" width="242" height="242" preserveAspectRatio="xMidYMid meet"/>
   </svg>`,
   energy: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
     </defs>
-    <ellipse cx="120" cy="222" rx="70" ry="9" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="40" y="18" width="160" height="204" rx="14" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="222" rx="70" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="40" y="18" width="160" height="204" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="58" y="34" width="124" height="56" rx="8" fill="#0c1930"/>
-    <text class="dm-e-watt" x="120" y="70" text-anchor="middle" font-size="30" font-weight="900" fill="#38bdf8" font-family="Roboto, sans-serif">0</text>
+    <text class="shc-e-watt" x="120" y="70" text-anchor="middle" font-size="30" font-weight="900" fill="#38bdf8" font-family="Roboto, sans-serif">0</text>
     <text x="120" y="84" text-anchor="middle" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1" font-family="Roboto, sans-serif">WATT ISTANTANEI</text>
-    <rect x="54" y="104" width="24" height="32" rx="3" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
-    <circle cx="66" cy="112" r="2.4" fill="#22c55e" class="dmh-flicker"/>
-    <rect x="81" y="104" width="24" height="32" rx="3" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
-    <circle cx="93" cy="112" r="2.4" fill="#38bdf8" class="dmh-flicker" style="animation-delay:.15s"/>
-    <rect x="108" y="104" width="24" height="32" rx="3" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
-    <circle cx="120" cy="112" r="2.4" fill="#38bdf8" class="dmh-flicker" style="animation-delay:.3s"/>
-    <rect x="135" y="104" width="24" height="32" rx="3" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
-    <circle cx="147" cy="112" r="2.4" fill="#38bdf8" class="dmh-flicker" style="animation-delay:.45s"/>
-    <rect x="162" y="104" width="24" height="32" rx="3" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
-    <circle cx="174" cy="112" r="2.4" fill="#38bdf8" class="dmh-flicker" style="animation-delay:.6s"/>
-    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" fill="#38bdf8" opacity=".85" class="dmh-glow" transform="translate(100 150) scale(1.8)"/>
+    <rect x="54" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
+    <circle cx="66" cy="112" r="2.4" fill="#22c55e" class="shch-flicker"/>
+    <rect x="81" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
+    <circle cx="93" cy="112" r="2.4" fill="#38bdf8" class="shch-flicker" style="animation-delay:.15s"/>
+    <rect x="108" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
+    <circle cx="120" cy="112" r="2.4" fill="#38bdf8" class="shch-flicker" style="animation-delay:.3s"/>
+    <rect x="135" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
+    <circle cx="147" cy="112" r="2.4" fill="#38bdf8" class="shch-flicker" style="animation-delay:.45s"/>
+    <rect x="162" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
+    <circle cx="174" cy="112" r="2.4" fill="#38bdf8" class="shch-flicker" style="animation-delay:.6s"/>
+    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" fill="#38bdf8" opacity=".85" class="shch-glow" transform="translate(100 150) scale(1.8)"/>
   </svg>`,
   ups: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
-    <ellipse cx="120" cy="222" rx="60" ry="9" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
+    <ellipse cx="120" cy="222" rx="60" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
     <image href="/local/foto-pkg/apc-ups.png" x="17.15" y="14" width="205.7" height="211.75" preserveAspectRatio="xMidYMid meet"/>
   </svg>`,
   boiler: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
-      <filter id="dmh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
-      <linearGradient id="dmh-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
-      <radialGradient id="dmh-flame-${id}" cx=".5" cy=".55" r=".65"><stop offset="0" stop-color="#fff7ed"/><stop offset=".45" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></radialGradient>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-flame-${id}" cx=".5" cy=".55" r=".65"><stop offset="0" stop-color="#fff7ed"/><stop offset=".45" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></radialGradient>
     </defs>
-    <ellipse cx="120" cy="222" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#dmh-blur-${id})"/>
-    <rect x="48" y="18" width="144" height="196" rx="16" fill="url(#dmh-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <ellipse cx="120" cy="222" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="48" y="18" width="144" height="196" rx="16" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="60" y="30" width="120" height="18" rx="6" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1.2"/>
-    <circle cx="70" cy="39" r="3" fill="#22c55e" class="dmh-glow"/>
+    <circle cx="70" cy="39" r="3" fill="#22c55e" class="shch-glow"/>
     <rect x="88" y="34" width="70" height="9" rx="3.5" fill="#0b1526"/>
     <circle cx="120" cy="104" r="46" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="2"/>
     <circle cx="120" cy="104" r="38" fill="#0b1526"/>
@@ -232,7 +232,7 @@ const HERO_BUILDERS = {
       <text x="120" y="74">bar</text>
     </g>
     <rect x="66" y="160" width="108" height="40" rx="9" fill="#0c1930"/>
-    <rect x="74" y="168" width="92" height="24" rx="6" fill="url(#dmh-flame-${id})" opacity=".92" class="dmh-glow dmh-flicker"/>
+    <rect x="74" y="168" width="92" height="24" rx="6" fill="url(#shch-flame-${id})" opacity=".92" class="shch-glow shch-flicker"/>
     <path d="M120 172c-6 8-10 12-10 18a10 10 0 0 0 20 0c0-4-2-7-4-10 0 4-3 6-5 5-3-1-3-6-1-9-3 1-6 3-6 6z" fill="#fff7ed" opacity=".9"/>
     <rect x="60" y="204" width="10" height="16" rx="3" fill="#9fadbc"/>
     <rect x="170" y="204" width="10" height="16" rx="3" fill="#9fadbc"/>
@@ -355,187 +355,187 @@ const DEFAULT_STATE_MAP = {
 };
 
 const STYLE = `
-:host{display:block;--dm-blue:#0ea5e9;--dm-blue-deep:#0369a1;--dm-dim:var(--secondary-text-color,#64748b);--dm-card:var(--card-background-color,#ffffff);--dm-border:var(--divider-color,#e6ecf4);--dm-soft:rgba(148,163,184,.10);--dm-text:var(--primary-text-color,#0f172a)}
-.dm-ap-card{position:relative;display:flex;flex-direction:column;border:1px solid var(--dm-border);border-radius:22px;background:var(--dm-card);box-shadow:0 12px 30px rgba(15,23,42,.06);overflow:hidden}
-.dm-ap-card.is-run{border-color:rgba(34,197,94,.28)}
-.dm-ap-card.has-alarm{border-color:rgba(239,68,68,.4)}
-.dm-ap-top{display:flex;align-items:center;gap:7px;padding:12px 12px 9px}
-.dm-ap-chip{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:#eff6ff;box-shadow:inset 0 0 0 1px rgba(59,130,246,.10)}
-.dm-ap-chip svg{width:27px;height:27px}
-.dm-ap-headings{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
-.dm-ap-name{font-size:14.5px;font-weight:900;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dm-text)}
-.dm-ap-room{font-size:11px;font-weight:750;color:var(--dm-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-ap-badge{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
-.dm-ap-badge.run{background:#dcfce7;color:#15803d}
-.dm-ap-badge.standby{background:#dbeafe;color:#2563eb}
-.dm-ap-badge.off{background:#f1f5f9;color:#64748b}
-.dm-ap-badge.unavailable{background:#fee2e2;color:#b91c1c}
-[data-theme-dark] .dm-ap-badge.off,:host-context([data-theme="dark"]) .dm-ap-badge.off{background:rgba(148,163,184,.16);color:#94a3b8}
-.dm-ap-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-.dm-ap-tools{display:flex;gap:4px;flex:0 0 auto}
-.dm-ap-tool{width:37px;height:37px;display:grid;place-items:center;border:1px solid var(--dm-border);border-radius:11px;background:var(--dm-card);color:var(--dm-dim);cursor:pointer}
-.dm-ap-tool[hidden]{display:none}
-.dm-ap-tool svg{width:19px;height:19px}
-.dm-ap-tool:hover{border-color:#bae6fd;color:var(--dm-blue-deep)}
-.dm-ap-top-row{display:flex;align-items:stretch;gap:10px;margin:0 13px}
-.dm-ap-hero{position:relative;flex:1 1 50%;min-width:0;display:grid;place-items:center;height:182px;margin:0;border-radius:18px;background:radial-gradient(120% 90% at 50% 8%,rgba(224,242,254,.65),rgba(241,245,249,.35) 60%,transparent);overflow:hidden}
-.dm-ap-card.is-run .dm-ap-hero{background:radial-gradient(120% 90% at 50% 8%,rgba(186,230,253,.85),rgba(224,242,254,.35) 62%,transparent)}
-.dm-ap-hero svg{width:100%;height:100%;display:block}
-.dm-ap-card.is-off .dm-ap-hero,.dm-ap-card.is-unavailable .dm-ap-hero{filter:grayscale(.55) opacity(.62)}
-.dm-ap-card.is-standby .dm-ap-hero{filter:saturate(.85)}
-@keyframes dmh-spin{to{transform:rotate(360deg)}}
-@keyframes dmh-glow{0%,100%{opacity:.55}50%{opacity:1}}
-@keyframes dmh-flicker{0%,100%{opacity:.85}30%{opacity:.5}55%{opacity:1}80%{opacity:.6}}
-.dmh-spin-drum,.dmh-spin-spray,.dmh-spin-spit{transform-box:view-box;transform-origin:120px 130px}
+:host{display:block;--shc-blue:#0ea5e9;--shc-blue-deep:#0369a1;--shc-dim:var(--secondary-text-color,#64748b);--shc-card:var(--card-background-color,#ffffff);--shc-border:var(--divider-color,#e6ecf4);--shc-soft:rgba(148,163,184,.10);--shc-text:var(--primary-text-color,#0f172a)}
+.shc-ap-card{position:relative;display:flex;flex-direction:column;border:1px solid var(--shc-border);border-radius:22px;background:var(--shc-card);box-shadow:0 12px 30px rgba(15,23,42,.06);overflow:hidden}
+.shc-ap-card.is-run{border-color:rgba(34,197,94,.28)}
+.shc-ap-card.has-alarm{border-color:rgba(239,68,68,.4)}
+.shc-ap-top{display:flex;align-items:center;gap:7px;padding:12px 12px 9px}
+.shc-ap-chip{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:#eff6ff;box-shadow:inset 0 0 0 1px rgba(59,130,246,.10)}
+.shc-ap-chip svg{width:27px;height:27px}
+.shc-ap-headings{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
+.shc-ap-name{font-size:14.5px;font-weight:900;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--shc-text)}
+.shc-ap-room{font-size:11px;font-weight:750;color:var(--shc-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-ap-badge{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+.shc-ap-badge.run{background:#dcfce7;color:#15803d}
+.shc-ap-badge.standby{background:#dbeafe;color:#2563eb}
+.shc-ap-badge.off{background:#f1f5f9;color:#64748b}
+.shc-ap-badge.unavailable{background:#fee2e2;color:#b91c1c}
+[data-theme-dark] .shc-ap-badge.off,:host-context([data-theme="dark"]) .shc-ap-badge.off{background:rgba(148,163,184,.16);color:#94a3b8}
+.shc-ap-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.shc-ap-tools{display:flex;gap:4px;flex:0 0 auto}
+.shc-ap-tool{width:37px;height:37px;display:grid;place-items:center;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);cursor:pointer}
+.shc-ap-tool[hidden]{display:none}
+.shc-ap-tool svg{width:19px;height:19px}
+.shc-ap-tool:hover{border-color:#bae6fd;color:var(--shc-blue-deep)}
+.shc-ap-top-row{display:flex;align-items:stretch;gap:10px;margin:0 13px}
+.shc-ap-hero{position:relative;flex:1 1 50%;min-width:0;display:grid;place-items:center;height:182px;margin:0;border-radius:18px;background:radial-gradient(120% 90% at 50% 8%,rgba(224,242,254,.65),rgba(241,245,249,.35) 60%,transparent);overflow:hidden}
+.shc-ap-card.is-run .shc-ap-hero{background:radial-gradient(120% 90% at 50% 8%,rgba(186,230,253,.85),rgba(224,242,254,.35) 62%,transparent)}
+.shc-ap-hero svg{width:100%;height:100%;display:block}
+.shc-ap-card.is-off .shc-ap-hero,.shc-ap-card.is-unavailable .shc-ap-hero{filter:grayscale(.55) opacity(.62)}
+.shc-ap-card.is-standby .shc-ap-hero{filter:saturate(.85)}
+@keyframes shch-spin{to{transform:rotate(360deg)}}
+@keyframes shch-glow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes shch-flicker{0%,100%{opacity:.85}30%{opacity:.5}55%{opacity:1}80%{opacity:.6}}
+.shch-spin-drum,.shch-spin-spray,.shch-spin-spit{transform-box:view-box;transform-origin:120px 130px}
 /* Layout "centrato" della card energia: foto al centro in alto, sotto il blocco OGGI su 2 colonne */
-.dm-ap-card.layout-centrato .dm-ap-top-row{flex-direction:column;align-items:stretch;gap:10px}
-.dm-ap-card.layout-centrato .dm-ap-hero{flex:0 0 auto;width:100%;height:200px}
-.dm-ap-card.layout-centrato .dm-ap-cycle-side{flex:0 0 auto}
-.dm-ap-card.layout-centrato .dm-ap-cycle-cap{margin-bottom:10px}
-.dm-ap-card.layout-centrato .dm-ap-cycle-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;flex:0 0 auto}
-.dm-ap-card.layout-centrato.dm-e-card .dm-ap-cycle-list{grid-template-columns:2fr 3fr}
-.dm-ap-card.layout-centrato .dm-ap-cycle-list>.dm-ap-cycle-row:last-child:nth-child(odd){grid-column:1/-1}
-.dm-ap-select{max-width:62%;padding:7px 10px;border-radius:10px;border:1px solid var(--dm-border);background:var(--dm-card);color:var(--dm-text);font-size:14px;font-weight:600;font-family:inherit}
-.dm-ap-card.is-run .dmh-spin-drum{animation:dmh-spin 2.6s linear infinite}
-.dm-ap-card.is-run .dmh-spin-spray{animation:dmh-spin 1.3s linear infinite}
-.dm-ap-card.is-run .dmh-spin-spit{animation:dmh-spin 3.4s linear infinite}
-.dm-ap-card.is-run .dmh-glow{animation:dmh-glow 1.7s ease-in-out infinite}
-.dm-ap-card.is-run .dmh-flicker{animation:dmh-flicker 1.5s ease-in-out infinite}
-.dm-ap-cycle-side{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;padding:11px 13px;border-radius:16px;background:var(--dm-soft)}
-.dm-ap-cycle-cap{display:flex;align-items:center;gap:6px;margin-top:-3px;margin-bottom:15px;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--dm-dim)}
-.dm-ap-cycle-list{display:flex;flex-direction:column;flex:1;justify-content:flex-start;gap:4px}
-.dm-ap-cycle-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
-.dm-ap-cycle-row small{flex:0 0 auto;font-size:10.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--dm-dim)}
-.dm-ap-cycle-row b{min-width:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:400;letter-spacing:-.1px;color:var(--dm-text)}
-.dm-ap-cycle-row b.dm-e-top{display:flex;justify-content:flex-end;overflow:hidden;text-overflow:clip}
-.dm-e-top-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-e-top-w{flex:0 0 auto;white-space:nowrap}
-.dm-ap-cycle-row-b{padding:4px 8px;border-radius:9px;border:1px solid var(--dm-border);background:var(--dm-card);align-items:center}
-.dm-ap-cycle-label{display:flex;align-items:center;gap:5px;min-width:0;flex:0 0 auto}
-.dm-ap-cycle-ic{display:flex;align-items:center;flex:0 0 auto;color:var(--dm-blue)}
-.dm-ap-panel{display:flex;align-items:center;gap:14px;margin:10px 13px 13px;padding:13px 14px;border-radius:16px;background:var(--dm-soft)}
-.dm-ap-meters{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
-.dm-c-meter-clickable{cursor:pointer;border-radius:8px;transition:background .12s ease}
-.dm-c-meter-clickable:active{background:rgba(148,163,184,.18)}
-.dm-ap-meter-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.dm-ap-meter-row span{font-size:13px;font-weight:750;color:var(--dm-dim)}
-.dm-ap-meter-row strong{font-size:16px;font-weight:950;letter-spacing:-.2px;color:var(--dm-text)}
-.dm-ap-bar{position:relative;display:flex;align-items:center;height:8px;margin-top:7px}
-.dm-ap-bar::before{content:"";position:absolute;inset:0;border-radius:999px;background:rgba(148,163,184,.22)}
-.dm-ap-bar i{position:relative;z-index:1;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#fb923c,#ef4444);min-width:0;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.dm-ap-bar i.dm-ap-progress-bar{background:linear-gradient(90deg,#4ade80,#16a34a)}
-.dm-ap-power-open{cursor:pointer}
-.dm-ap-power-open:hover{filter:brightness(1.04)}
-.dm-ap-chart-svg{width:100%;height:100px;display:block}
-.dm-ap-chart-svg.dm-e-chart-tall{height:200px}
-.dm-ap-chart-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:800;color:var(--dm-dim)}
-.dm-ap-chart-labels span{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-ap-chart-empty{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--dm-dim)}
-.dm-ap-chart-loading{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--dm-dim)}
-.dm-ap-warn{display:flex;align-items:center;gap:6px;margin:0 13px 12px;padding:9px 12px;border-radius:13px;background:#fee2e2;color:#b91c1c;font-size:13px;font-weight:800}
-.dm-ap-warn[hidden]{display:none}
-.dm-test-flag{position:absolute;top:10px;right:10px;z-index:2;font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:#0369a1;background:rgba(14,165,233,.14);border-radius:8px;padding:4px 8px}
+.shc-ap-card.layout-centrato .shc-ap-top-row{flex-direction:column;align-items:stretch;gap:10px}
+.shc-ap-card.layout-centrato .shc-ap-hero{flex:0 0 auto;width:100%;height:200px}
+.shc-ap-card.layout-centrato .shc-ap-cycle-side{flex:0 0 auto}
+.shc-ap-card.layout-centrato .shc-ap-cycle-cap{margin-bottom:10px}
+.shc-ap-card.layout-centrato .shc-ap-cycle-list{display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;flex:0 0 auto}
+.shc-ap-card.layout-centrato.shc-e-card .shc-ap-cycle-list{grid-template-columns:2fr 3fr}
+.shc-ap-card.layout-centrato .shc-ap-cycle-list>.shc-ap-cycle-row:last-child:nth-child(odd){grid-column:1/-1}
+.shc-ap-select{max-width:62%;padding:7px 10px;border-radius:10px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font-size:14px;font-weight:600;font-family:inherit}
+.shc-ap-card.is-run .shch-spin-drum{animation:shch-spin 2.6s linear infinite}
+.shc-ap-card.is-run .shch-spin-spray{animation:shch-spin 1.3s linear infinite}
+.shc-ap-card.is-run .shch-spin-spit{animation:shch-spin 3.4s linear infinite}
+.shc-ap-card.is-run .shch-glow{animation:shch-glow 1.7s ease-in-out infinite}
+.shc-ap-card.is-run .shch-flicker{animation:shch-flicker 1.5s ease-in-out infinite}
+.shc-ap-cycle-side{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;padding:11px 13px;border-radius:16px;background:var(--shc-soft)}
+.shc-ap-cycle-cap{display:flex;align-items:center;gap:6px;margin-top:-3px;margin-bottom:15px;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-ap-cycle-list{display:flex;flex-direction:column;flex:1;justify-content:flex-start;gap:4px}
+.shc-ap-cycle-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+.shc-ap-cycle-row small{flex:0 0 auto;font-size:10.5px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-ap-cycle-row b{min-width:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:400;letter-spacing:-.1px;color:var(--shc-text)}
+.shc-ap-cycle-row b.shc-e-top{display:flex;justify-content:flex-end;overflow:hidden;text-overflow:clip}
+.shc-e-top-n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-e-top-w{flex:0 0 auto;white-space:nowrap}
+.shc-ap-cycle-row-b{padding:4px 8px;border-radius:9px;border:1px solid var(--shc-border);background:var(--shc-card);align-items:center}
+.shc-ap-cycle-label{display:flex;align-items:center;gap:5px;min-width:0;flex:0 0 auto}
+.shc-ap-cycle-ic{display:flex;align-items:center;flex:0 0 auto;color:var(--shc-blue)}
+.shc-ap-panel{display:flex;align-items:center;gap:14px;margin:10px 13px 13px;padding:13px 14px;border-radius:16px;background:var(--shc-soft)}
+.shc-ap-meters{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+.shc-c-meter-clickable{cursor:pointer;border-radius:8px;transition:background .12s ease}
+.shc-c-meter-clickable:active{background:rgba(148,163,184,.18)}
+.shc-ap-meter-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.shc-ap-meter-row span{font-size:13px;font-weight:750;color:var(--shc-dim)}
+.shc-ap-meter-row strong{font-size:16px;font-weight:950;letter-spacing:-.2px;color:var(--shc-text)}
+.shc-ap-bar{position:relative;display:flex;align-items:center;height:8px;margin-top:7px}
+.shc-ap-bar::before{content:"";position:absolute;inset:0;border-radius:999px;background:rgba(148,163,184,.22)}
+.shc-ap-bar i{position:relative;z-index:1;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#fb923c,#ef4444);min-width:0;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.shc-ap-bar i.shc-ap-progress-bar{background:linear-gradient(90deg,#4ade80,#16a34a)}
+.shc-ap-power-open{cursor:pointer}
+.shc-ap-power-open:hover{filter:brightness(1.04)}
+.shc-ap-chart-svg{width:100%;height:100px;display:block}
+.shc-ap-chart-svg.shc-e-chart-tall{height:200px}
+.shc-ap-chart-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;font-weight:800;color:var(--shc-dim)}
+.shc-ap-chart-labels span{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-ap-chart-empty{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--shc-dim)}
+.shc-ap-chart-loading{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--shc-dim)}
+.shc-ap-warn{display:flex;align-items:center;gap:6px;margin:0 13px 12px;padding:9px 12px;border-radius:13px;background:#fee2e2;color:#b91c1c;font-size:13px;font-weight:800}
+.shc-ap-warn[hidden]{display:none}
+.shc-test-flag{position:absolute;top:10px;right:10px;z-index:2;font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:#0369a1;background:rgba(14,165,233,.14);border-radius:8px;padding:4px 8px}
 
-.dm-ap-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px)}
-.dm-ap-overlay[hidden]{display:none}
-.dm-ap-dialog{width:min(440px,100%);max-height:min(84vh,720px);overflow:auto;background:var(--dm-card);color:var(--dm-text);border:1px solid var(--dm-border);border-radius:22px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
-.dm-ap-dialog-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 10px;background:var(--dm-card);border-bottom:1px solid var(--dm-border);z-index:1}
-.dm-ap-dialog-head h3{margin:0;font-size:17px;font-weight:900}
-.dm-ap-dialog-close{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;border:0;border-radius:10px;background:var(--dm-soft);color:var(--dm-dim);cursor:pointer}
-.dm-ap-dialog-body{padding:12px 16px 18px;display:flex;flex-direction:column;gap:16px}
-.dm-ap-sec-cap{font-size:11.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--dm-blue-deep);margin:0 0 8px;padding-bottom:5px;border-bottom:2px solid var(--dm-border)}
-.dm-ap-sec{display:flex;flex-direction:column;gap:6px}
-.dm-ap-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:13px;background:var(--dm-soft)}
-.dm-ap-row-label{font-size:14.5px;font-weight:750;color:var(--dm-text)}
-.dm-ap-row-val{font-size:14.5px;font-weight:500;color:var(--dm-dim)}
-.dm-ap-switch{position:relative;width:38px;height:22px;flex:0 0 auto;border-radius:999px;border:0;background:#cbd5e1;cursor:pointer;transition:background .15s ease}
-.dm-ap-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s ease;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.dm-ap-switch.on{background:#22c55e}
-.dm-ap-row-group{display:flex;flex-direction:column;gap:9px;padding:10px 12px;border-radius:13px;background:var(--dm-soft)}
-.dm-ap-row-group-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.dm-ap-row-group-label{display:flex;align-items:center;gap:8px;min-width:0;font-size:14.5px;font-weight:750;color:var(--dm-text)}
-.dm-ap-row-group-ic{flex:0 0 auto;display:flex;align-items:center;color:var(--dm-blue)}
-.dm-ap-row-chips{display:flex;flex-wrap:wrap;gap:6px}
-.dm-ap-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;letter-spacing:.2px;padding:5px 10px;border-radius:999px;background:var(--dm-card);border:1px solid var(--dm-border);color:var(--dm-dim);cursor:pointer;line-height:1}
-.dm-ap-chip svg{flex:0 0 auto}
-.dm-ap-chip b{color:var(--dm-text);font-weight:800}
-.dm-ap-chip.on{background:#dcfce7;border-color:#86efac;color:#15803d}
-.dm-ap-chip-action{background:var(--dm-blue);border-color:var(--dm-blue);color:#fff}
-.dm-ap-sub-back{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--dm-blue);cursor:pointer;margin:0 0 10px}
-.dm-ap-switch.on::after{transform:translateX(16px)}
-.dm-ap-action-btn{flex:0 0 auto;border:0;border-radius:10px;padding:0 14px;height:26px;background:var(--dm-blue);color:#fff;font-size:13px;font-weight:850;cursor:pointer}
-.dm-ap-action-btn:active{filter:brightness(.92)}
-.dm-ap-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.dm-ap-stat-grid.cols4{grid-template-columns:repeat(4,1fr)}
-.dm-ap-stat{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:13px;background:var(--dm-soft)}
-.dm-ap-stat small{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--dm-dim)}
-.dm-ap-stat b{font-size:15px;font-weight:900;color:var(--dm-text)}
-.dm-ap-week-list{display:flex;flex-direction:column;gap:7px}
-.dm-ap-week-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--dm-border)}
-.dm-ap-week-row:last-child{border-bottom:0}
-.dm-ap-week-day{flex:0 0 60px;font-size:13px;font-weight:850;color:var(--dm-text)}
-.dm-ap-week-stats{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;min-width:0}
-.dm-ap-week-stats.cols3{grid-template-columns:repeat(3,1fr)}
-.dm-ap-week-stats.cols2{grid-template-columns:repeat(2,1fr)}
-.dm-ap-week-stat{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
-.dm-ap-week-stat small{font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--dm-dim)}
-.dm-ap-week-stat b{font-size:13px;font-weight:850;color:var(--dm-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-.dm-ap-hero{cursor:pointer}
-.dm-ap-reset-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:0;border-radius:13px;background:var(--dm-blue);color:#fff;font-size:14px;font-weight:850;cursor:pointer}
-.dm-ap-reset-note{font-size:12px;color:var(--dm-dim);text-align:center;margin-top:4px}
+.shc-ap-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px)}
+.shc-ap-overlay[hidden]{display:none}
+.shc-ap-dialog{width:min(440px,100%);max-height:min(84vh,720px);overflow:auto;background:var(--shc-card);color:var(--shc-text);border:1px solid var(--shc-border);border-radius:22px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
+.shc-ap-dialog-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 10px;background:var(--shc-card);border-bottom:1px solid var(--shc-border);z-index:1}
+.shc-ap-dialog-head h3{margin:0;font-size:17px;font-weight:900}
+.shc-ap-dialog-close{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;border:0;border-radius:10px;background:var(--shc-soft);color:var(--shc-dim);cursor:pointer}
+.shc-ap-dialog-body{padding:12px 16px 18px;display:flex;flex-direction:column;gap:16px}
+.shc-ap-sec-cap{font-size:11.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--shc-blue-deep);margin:0 0 8px;padding-bottom:5px;border-bottom:2px solid var(--shc-border)}
+.shc-ap-sec{display:flex;flex-direction:column;gap:6px}
+.shc-ap-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;border-radius:13px;background:var(--shc-soft)}
+.shc-ap-row-label{font-size:14.5px;font-weight:750;color:var(--shc-text)}
+.shc-ap-row-val{font-size:14.5px;font-weight:500;color:var(--shc-dim)}
+.shc-ap-switch{position:relative;width:38px;height:22px;flex:0 0 auto;border-radius:999px;border:0;background:#cbd5e1;cursor:pointer;transition:background .15s ease}
+.shc-ap-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s ease;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.shc-ap-switch.on{background:#22c55e}
+.shc-ap-row-group{display:flex;flex-direction:column;gap:9px;padding:10px 12px;border-radius:13px;background:var(--shc-soft)}
+.shc-ap-row-group-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shc-ap-row-group-label{display:flex;align-items:center;gap:8px;min-width:0;font-size:14.5px;font-weight:750;color:var(--shc-text)}
+.shc-ap-row-group-ic{flex:0 0 auto;display:flex;align-items:center;color:var(--shc-blue)}
+.shc-ap-row-chips{display:flex;flex-wrap:wrap;gap:6px}
+.shc-ap-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;letter-spacing:.2px;padding:5px 10px;border-radius:999px;background:var(--shc-card);border:1px solid var(--shc-border);color:var(--shc-dim);cursor:pointer;line-height:1}
+.shc-ap-chip svg{flex:0 0 auto}
+.shc-ap-chip b{color:var(--shc-text);font-weight:800}
+.shc-ap-chip.on{background:#dcfce7;border-color:#86efac;color:#15803d}
+.shc-ap-chip-action{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-ap-sub-back{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--shc-blue);cursor:pointer;margin:0 0 10px}
+.shc-ap-switch.on::after{transform:translateX(16px)}
+.shc-ap-action-btn{flex:0 0 auto;border:0;border-radius:10px;padding:0 14px;height:26px;background:var(--shc-blue);color:#fff;font-size:13px;font-weight:850;cursor:pointer}
+.shc-ap-action-btn:active{filter:brightness(.92)}
+.shc-ap-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shc-ap-stat-grid.cols4{grid-template-columns:repeat(4,1fr)}
+.shc-ap-stat{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:13px;background:var(--shc-soft)}
+.shc-ap-stat small{font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-ap-stat b{font-size:15px;font-weight:900;color:var(--shc-text)}
+.shc-ap-week-list{display:flex;flex-direction:column;gap:7px}
+.shc-ap-week-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--shc-border)}
+.shc-ap-week-row:last-child{border-bottom:0}
+.shc-ap-week-day{flex:0 0 60px;font-size:13px;font-weight:850;color:var(--shc-text)}
+.shc-ap-week-stats{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;min-width:0}
+.shc-ap-week-stats.cols3{grid-template-columns:repeat(3,1fr)}
+.shc-ap-week-stats.cols2{grid-template-columns:repeat(2,1fr)}
+.shc-ap-week-stat{display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
+.shc-ap-week-stat small{font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-ap-week-stat b{font-size:13px;font-weight:850;color:var(--shc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.shc-ap-hero{cursor:pointer}
+.shc-ap-reset-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:0;border-radius:13px;background:var(--shc-blue);color:#fff;font-size:14px;font-weight:850;cursor:pointer}
+.shc-ap-reset-note{font-size:12px;color:var(--shc-dim);text-align:center;margin-top:4px}
 
-.dm-gc-dialog{width:min(780px,100%);max-height:94vh;overflow:auto;padding:20px 22px 22px;background:var(--dm-card);color:var(--dm-text);border:1px solid var(--dm-border);border-top:3px solid var(--dm-blue);border-radius:26px;box-shadow:0 32px 64px -28px rgba(2,6,23,.55),0 6px 18px -12px rgba(2,6,23,.3)}
-.dm-gc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--dm-border)}
-.dm-gc-title{margin:0;font-size:20px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dm-gc-close{flex:0 0 auto;border:1px solid var(--dm-border);border-radius:999px;padding:8px 14px;background:var(--dm-soft);color:var(--dm-dim);font:inherit;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
-.dm-gc-tabs{display:flex;gap:4px;margin:16px 0 10px;padding:6px;border-radius:999px;background:var(--dm-soft);border:1px solid var(--dm-border)}
-.dm-gc-tab{flex:1 1 0;min-width:0;border:0;border-radius:999px;padding:9px 6px;background:transparent;color:var(--dm-dim);font:inherit;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;cursor:pointer}
-.dm-gc-tab.on{background:linear-gradient(135deg,#0c4a6e,#075985);color:#7dd3fc;box-shadow:0 4px 12px rgba(14,165,233,.25)}
-.dm-gc-custom{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px;padding:12px;border-radius:16px;background:var(--dm-soft)}
-.dm-gc-custom label{display:flex;flex-direction:column;gap:4px;flex:1 1 170px;min-width:0}
-.dm-gc-custom label span{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--dm-dim)}
-.dm-gc-custom input{width:100%;box-sizing:border-box;padding:9px 10px;border-radius:11px;border:1px solid var(--dm-border);background:var(--dm-card);color:var(--dm-text);font:inherit;font-size:14px;color-scheme:light dark}
-.dm-gc-apply{flex:0 0 auto;border:0;border-radius:11px;padding:0 18px;height:38px;background:var(--dm-blue);color:#fff;font:inherit;font-size:13px;font-weight:900;cursor:pointer}
-.dm-gc-msg{flex:1 0 100%;color:#ef4444;font-weight:800;font-size:12px}
-.dm-gc-msg:empty{display:none}
-.dm-gc-custom[hidden],.dm-gc-cross[hidden],.dm-gc-tip[hidden],.dm-gc-chips[hidden]{display:none}
-.dm-gc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
-.dm-gc-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--dm-border);border-radius:999px;padding:6px 11px;background:var(--dm-card);color:var(--dm-dim);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
-.dm-gc-chip i{width:9px;height:9px;border-radius:50%;background:var(--c);opacity:.35}
-.dm-gc-chip.on{color:var(--dm-text);border-color:var(--c)}
-.dm-gc-chip.on i{opacity:1}
-.dm-gc-plot{position:relative;min-height:290px}
-.dm-gc-svgwrap{width:100%}
-.dm-gc-svg{display:block;max-width:100%;touch-action:pan-y;cursor:crosshair}
-.dm-gc-grid{stroke:var(--dm-border);stroke-width:1;stroke-dasharray:2 4}
-.dm-gc-ax{font-size:11px;font-weight:700;fill:var(--dm-dim)}
-.dm-gc-cross{stroke:var(--dm-dim);stroke-width:1;stroke-dasharray:3 3}
-.dm-gc-loading{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--dm-dim);background:color-mix(in srgb,var(--dm-card) 70%,transparent)}
-.dm-gc-tip{position:absolute;z-index:3;pointer-events:none;padding:8px 11px;border-radius:12px;background:var(--dm-card);border:1px solid var(--dm-border);box-shadow:0 8px 22px rgba(2,6,23,.3);font-size:12.5px;line-height:1.45;white-space:nowrap}
-.dm-gc-tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-.dm-gc-tip-t{font-size:11px;font-weight:800;color:var(--dm-dim);margin-bottom:2px}
-.dm-gc-sum{display:flex;flex-direction:column;gap:3px;margin-top:10px;font-size:12.5px;color:var(--dm-dim);text-align:center}
-.dm-gc-sum b{color:var(--dm-text);font-weight:800}
+.shc-gc-dialog{width:min(780px,100%);max-height:94vh;overflow:auto;padding:20px 22px 22px;background:var(--shc-card);color:var(--shc-text);border:1px solid var(--shc-border);border-top:3px solid var(--shc-blue);border-radius:26px;box-shadow:0 32px 64px -28px rgba(2,6,23,.55),0 6px 18px -12px rgba(2,6,23,.3)}
+.shc-gc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--shc-border)}
+.shc-gc-title{margin:0;font-size:20px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-gc-close{flex:0 0 auto;border:1px solid var(--shc-border);border-radius:999px;padding:8px 14px;background:var(--shc-soft);color:var(--shc-dim);font:inherit;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.shc-gc-tabs{display:flex;gap:4px;margin:16px 0 10px;padding:6px;border-radius:999px;background:var(--shc-soft);border:1px solid var(--shc-border)}
+.shc-gc-tab{flex:1 1 0;min-width:0;border:0;border-radius:999px;padding:9px 6px;background:transparent;color:var(--shc-dim);font:inherit;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;cursor:pointer}
+.shc-gc-tab.on{background:linear-gradient(135deg,#0c4a6e,#075985);color:#7dd3fc;box-shadow:0 4px 12px rgba(14,165,233,.25)}
+.shc-gc-custom{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:0 0 10px;padding:12px;border-radius:16px;background:var(--shc-soft)}
+.shc-gc-custom label{display:flex;flex-direction:column;gap:4px;flex:1 1 170px;min-width:0}
+.shc-gc-custom label span{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-gc-custom input{width:100%;box-sizing:border-box;padding:9px 10px;border-radius:11px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font:inherit;font-size:14px;color-scheme:light dark}
+.shc-gc-apply{flex:0 0 auto;border:0;border-radius:11px;padding:0 18px;height:38px;background:var(--shc-blue);color:#fff;font:inherit;font-size:13px;font-weight:900;cursor:pointer}
+.shc-gc-msg{flex:1 0 100%;color:#ef4444;font-weight:800;font-size:12px}
+.shc-gc-msg:empty{display:none}
+.shc-gc-custom[hidden],.shc-gc-cross[hidden],.shc-gc-tip[hidden],.shc-gc-chips[hidden]{display:none}
+.shc-gc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.shc-gc-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--shc-border);border-radius:999px;padding:6px 11px;background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.shc-gc-chip i{width:9px;height:9px;border-radius:50%;background:var(--c);opacity:.35}
+.shc-gc-chip.on{color:var(--shc-text);border-color:var(--c)}
+.shc-gc-chip.on i{opacity:1}
+.shc-gc-plot{position:relative;min-height:290px}
+.shc-gc-svgwrap{width:100%}
+.shc-gc-svg{display:block;max-width:100%;touch-action:pan-y;cursor:crosshair}
+.shc-gc-grid{stroke:var(--shc-border);stroke-width:1;stroke-dasharray:2 4}
+.shc-gc-ax{font-size:11px;font-weight:700;fill:var(--shc-dim)}
+.shc-gc-cross{stroke:var(--shc-dim);stroke-width:1;stroke-dasharray:3 3}
+.shc-gc-loading{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--shc-dim);background:color-mix(in srgb,var(--shc-card) 70%,transparent)}
+.shc-gc-tip{position:absolute;z-index:3;pointer-events:none;padding:8px 11px;border-radius:12px;background:var(--shc-card);border:1px solid var(--shc-border);box-shadow:0 8px 22px rgba(2,6,23,.3);font-size:12.5px;line-height:1.45;white-space:nowrap}
+.shc-gc-tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.shc-gc-tip-t{font-size:11px;font-weight:800;color:var(--shc-dim);margin-bottom:2px}
+.shc-gc-sum{display:flex;flex-direction:column;gap:3px;margin-top:10px;font-size:12.5px;color:var(--shc-dim);text-align:center}
+.shc-gc-sum b{color:var(--shc-text);font-weight:800}
 @media (max-width:600px){
-  .dm-gc-ov{align-items:flex-end}
-  .dm-gc-dialog{width:100%;max-width:100%;min-height:62vh;max-height:94vh;padding:16px 14px 18px;border-radius:24px 24px 0 0}
-  .dm-gc-title{font-size:16px}
-  .dm-gc-tab{font-size:11px;letter-spacing:.4px;padding:9px 2px}
-  .dm-ap-tool{width:33px;height:33px}
+  .shc-gc-ov{align-items:flex-end}
+  .shc-gc-dialog{width:100%;max-width:100%;min-height:62vh;max-height:94vh;padding:16px 14px 18px;border-radius:24px 24px 0 0}
+  .shc-gc-title{font-size:16px}
+  .shc-gc-tab{font-size:11px;letter-spacing:.4px;padding:9px 2px}
+  .shc-ap-tool{width:33px;height:33px}
 }
 
-.dm-gt-help{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:var(--dm-dim)}
-.dm-gt-help b{color:var(--dm-text)}
-.dm-gt-example{margin:0 0 10px;padding:10px 12px;border-radius:13px;background:var(--dm-soft);border-left:3px solid var(--dm-blue);font-size:13px;line-height:1.6;color:var(--dm-dim)}
-.dm-gt-example b{color:var(--dm-text)}
-.dm-gt-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:13px;border:1px solid var(--dm-border);background:var(--dm-soft);color:var(--dm-text);font:inherit;font-size:15px;resize:vertical}
-.dm-gt-count{text-align:right;font-size:11px;font-weight:800;color:var(--dm-dim);margin-top:3px}
-.dm-gt-preview{display:flex;flex-wrap:wrap;gap:6px}
-.dm-gt-chip{padding:6px 11px;border-radius:999px;background:var(--dm-soft);border:1px solid var(--dm-border);font-size:13.5px;font-weight:700}
+.shc-gt-help{margin:0 0 10px;font-size:13.5px;line-height:1.45;color:var(--shc-dim)}
+.shc-gt-help b{color:var(--shc-text)}
+.shc-gt-example{margin:0 0 10px;padding:10px 12px;border-radius:13px;background:var(--shc-soft);border-left:3px solid var(--shc-blue);font-size:13px;line-height:1.6;color:var(--shc-dim)}
+.shc-gt-example b{color:var(--shc-text)}
+.shc-gt-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:13px;border:1px solid var(--shc-border);background:var(--shc-soft);color:var(--shc-text);font:inherit;font-size:15px;resize:vertical}
+.shc-gt-count{text-align:right;font-size:11px;font-weight:800;color:var(--shc-dim);margin-top:3px}
+.shc-gt-preview{display:flex;flex-wrap:wrap;gap:6px}
+.shc-gt-chip{padding:6px 11px;border-radius:999px;background:var(--shc-soft);border:1px solid var(--shc-border);font-size:13.5px;font-weight:700}
 @media (max-width:600px){
-  .dm-ap-overlay{align-items:flex-end;padding:0;backdrop-filter:blur(4px)}
-  .dm-ap-dialog{width:100%;max-width:100%;height:94vh;max-height:94vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column}
-  .dm-ap-dialog-body{flex:1}
+  .shc-ap-overlay{align-items:flex-end;padding:0;backdrop-filter:blur(4px)}
+  .shc-ap-dialog{width:100%;max-width:100%;height:94vh;max-height:94vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column}
+  .shc-ap-dialog-body{flex:1}
 }
 `;
 
@@ -564,7 +564,7 @@ function inverseSeverityColor(pct) {
 // al centro, info su 2 colonne, poi le barre). Si sceglie dalle Impostazioni della card con
 // "layout_entity" (un input_select Classico/Centrato); senza, vale il parametro "layout".
 function applyLayoutChoice(root, cfg, hass) {
-  const card = root && root.querySelector(".dm-ap-card");
+  const card = root && root.querySelector(".shc-ap-card");
   if (!card) return;
   let layout = cfg.layout;
   if (cfg.layout_entity) {
@@ -580,7 +580,7 @@ function applyLayoutChoice(root, cfg, hass) {
 // disponibile (piu' grande su PC, piu' stretto su smartphone), con tooltip
 // al passaggio del mouse / tocco. Nessuna libreria esterna: dati dalla
 // cronologia (24h) e dalle statistiche a lungo termine (7gg, 30gg, date).
-//   dmOpenChartPopup(card, { title, series: [{ entity, label, color, unit }] })
+//   shcOpenChartPopup(card, { title, series: [{ entity, label, color, unit }] })
 // Piu' serie con la stessa unita' si sovrappongono (chip per accenderle).
 // -----------------------------------------------------------------------
 const GC_RANGES = [
@@ -696,16 +696,16 @@ function gcToLocalInput(ms) {
 // -----------------------------------------------------------------------
 // "Storici automatici": per chi installa la card da HACS, senza scrivere un
 // package YAML a mano. Due parti:
-//  1) dmCreateEnergyHelper / dmCreateCostHelper: creano i due helper nativi di
+//  1) shcCreateEnergyHelper / shcCreateCostHelper: creano i due helper nativi di
 //     HA (integrazione Riemann per il kWh, input_number per il costo) con le
 //     stesse chiamate che userebbe l'interfaccia "Impostazioni > Dispositivi e
 //     servizi > Helper" - solo automatizzate. Girano nel browser di chi
 //     installa la card, con i SUOI permessi hass: nessuna dipendenza da me.
-//  2) dmComputeAutoPeriods: legge le statistiche a lungo termine gia' salvate
+//  2) shcComputeAutoPeriods: legge le statistiche a lungo termine gia' salvate
 //     da HA per quel sensore energia (campo "change" = consumo del periodo,
 //     nessun bisogno di cycle_sensor/utility_meter/week_rows scritti a mano).
 // -----------------------------------------------------------------------
-async function dmCreateHelperFlow(hass, handler, data) {
+async function shcCreateHelperFlow(hass, handler, data) {
   const flow = await hass.callApi("POST", "config/config_entries/flow", { handler, show_advanced_options: false });
   const result = await hass.callApi("POST", `config/config_entries/flow/${flow.flow_id}`, data);
   if (result.type !== "create_entry") {
@@ -722,8 +722,8 @@ async function dmCreateHelperFlow(hass, handler, data) {
   throw new Error("Helper creato ma non trovo ancora la sua entita': riprova tra poco (Impostazioni > Dispositivi e servizi > Helper).");
 }
 
-async function dmCreateEnergyHelper(hass, { name, sourceEntity, round = 2 }) {
-  return dmCreateHelperFlow(hass, "integration", {
+async function shcCreateEnergyHelper(hass, { name, sourceEntity, round = 2 }) {
+  return shcCreateHelperFlow(hass, "integration", {
     name,
     unit_time: "h",
     source: sourceEntity,
@@ -733,7 +733,7 @@ async function dmCreateEnergyHelper(hass, { name, sourceEntity, round = 2 }) {
   });
 }
 
-async function dmCreateCostHelper(hass, { name, initial = 0.25 }) {
+async function shcCreateCostHelper(hass, { name, initial = 0.25 }) {
   const result = await hass.callWS({
     type: "input_number/create",
     name,
@@ -746,7 +746,7 @@ async function dmCreateCostHelper(hass, { name, initial = 0.25 }) {
   return `input_number.${result.id}`;
 }
 
-async function dmComputeAutoPeriods(hass, energyEntity, costPerKwh) {
+async function shcComputeAutoPeriods(hass, energyEntity, costPerKwh) {
   const now = new Date();
   const iso = (d) => d.toISOString();
   const sumChange = async (start, end, period) => {
@@ -784,16 +784,16 @@ async function dmComputeAutoPeriods(hass, energyEntity, costPerKwh) {
   return { today: mk(today), yesterday: mk(yesterday), month: mk(month), month_prev: mk(monthPrev), year: mk(year), year_prev: mk(yearPrev) };
 }
 
-function dmBindGraph(card) {
-  const b = card._root.querySelector(".dm-ap-graph");
+function shcBindGraph(card) {
+  const b = card._root.querySelector(".shc-ap-graph");
   if (!b) return;
   b.addEventListener("click", (e) => {
     e.stopPropagation();
-    dmOpenChartPopup(card, { title: card._config.name, series: card._graphSeries() });
+    shcOpenChartPopup(card, { title: card._config.name, series: card._graphSeries() });
   });
 }
 
-function dmOpenChartPopup(card, opts) {
+function shcOpenChartPopup(card, opts) {
   const root = card._root;
   const hass = () => card._hass;
   const series = (opts.series || [])
@@ -807,22 +807,22 @@ function dmOpenChartPopup(card, opts) {
     }));
   if (!series.length) return;
 
-  root.querySelectorAll(".dm-gc-ov").forEach((n) => n.remove());
+  root.querySelectorAll(".shc-gc-ov").forEach((n) => n.remove());
   const ov = document.createElement("div");
-  ov.className = "dm-ap-overlay dm-gc-ov";
-  ov.innerHTML = `<div class="dm-gc-dialog">
-    <div class="dm-gc-head"><h3 class="dm-gc-title">${esc(opts.title || series[0].label)}</h3>
-      <button type="button" class="dm-gc-close">✕ Chiudi</button></div>
-    <div class="dm-gc-tabs">${GC_RANGES.map((r) => `<button type="button" class="dm-gc-tab" data-range="${r.key}">${r.label}</button>`).join("")}<button type="button" class="dm-gc-tab" data-range="custom">Da … a</button></div>
-    <div class="dm-gc-custom" hidden>
-      <label><span>Da</span><input type="datetime-local" class="dm-gc-from"></label>
-      <label><span>A</span><input type="datetime-local" class="dm-gc-to"></label>
-      <button type="button" class="dm-gc-apply">Applica</button>
-      <small class="dm-gc-msg"></small>
+  ov.className = "shc-ap-overlay shc-gc-ov";
+  ov.innerHTML = `<div class="shc-gc-dialog">
+    <div class="shc-gc-head"><h3 class="shc-gc-title">${esc(opts.title || series[0].label)}</h3>
+      <button type="button" class="shc-gc-close">✕ Chiudi</button></div>
+    <div class="shc-gc-tabs">${GC_RANGES.map((r) => `<button type="button" class="shc-gc-tab" data-range="${r.key}">${r.label}</button>`).join("")}<button type="button" class="shc-gc-tab" data-range="custom">Da … a</button></div>
+    <div class="shc-gc-custom" hidden>
+      <label><span>Da</span><input type="datetime-local" class="shc-gc-from"></label>
+      <label><span>A</span><input type="datetime-local" class="shc-gc-to"></label>
+      <button type="button" class="shc-gc-apply">Applica</button>
+      <small class="shc-gc-msg"></small>
     </div>
-    <div class="dm-gc-chips"></div>
-    <div class="dm-gc-plot"><div class="dm-gc-loading">Caricamento…</div><div class="dm-gc-svgwrap"></div><div class="dm-gc-tip" hidden></div></div>
-    <div class="dm-gc-sum"></div>
+    <div class="shc-gc-chips"></div>
+    <div class="shc-gc-plot"><div class="shc-gc-loading">Caricamento…</div><div class="shc-gc-svgwrap"></div><div class="shc-gc-tip" hidden></div></div>
+    <div class="shc-gc-sum"></div>
   </div>`;
   root.appendChild(ov);
   const q = (s) => ov.querySelector(s);
@@ -833,23 +833,23 @@ function dmOpenChartPopup(card, opts) {
   ov.addEventListener("click", (e) => {
     if (e.target === ov) close();
   });
-  q(".dm-gc-close").addEventListener("click", close);
+  q(".shc-gc-close").addEventListener("click", close);
 
   const st = { range: "24h", start: 0, end: 0, active: new Set([Math.min(Math.max(opts.active || 0, 0), series.length - 1)]) };
   let ro = null;
 
-  const chipsEl = q(".dm-gc-chips");
+  const chipsEl = q(".shc-gc-chips");
   const drawChips = () => {
     if (series.length < 2) {
       chipsEl.hidden = true;
       return;
     }
     chipsEl.innerHTML = series
-      .map((s, i) => `<button type="button" class="dm-gc-chip${st.active.has(i) ? " on" : ""}" data-i="${i}" style="--c:${s.color}"><i></i>${esc(s.label)}</button>`)
+      .map((s, i) => `<button type="button" class="shc-gc-chip${st.active.has(i) ? " on" : ""}" data-i="${i}" style="--c:${s.color}"><i></i>${esc(s.label)}</button>`)
       .join("");
   };
   chipsEl.addEventListener("click", (e) => {
-    const b = e.target.closest(".dm-gc-chip");
+    const b = e.target.closest(".shc-gc-chip");
     if (!b) return;
     const i = Number(b.dataset.i);
     const same = [...st.active].every((k) => series[k].unit === series[i].unit);
@@ -869,18 +869,18 @@ function dmOpenChartPopup(card, opts) {
     return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" });
   };
 
-  const wrap = q(".dm-gc-svgwrap");
-  const tip = q(".dm-gc-tip");
+  const wrap = q(".shc-gc-svgwrap");
+  const tip = q(".shc-gc-tip");
   let geo = null;
 
   function render() {
     const act = [...st.active].map((i) => series[i]);
-    const W = Math.max(260, Math.floor(wrap.clientWidth || q(".dm-gc-plot").clientWidth || 600));
+    const W = Math.max(260, Math.floor(wrap.clientWidth || q(".shc-gc-plot").clientWidth || 600));
     const H = W < 520 ? Math.round(Math.min(420, Math.max(290, (window.innerHeight || 700) * 0.42))) : 360;
     const all = act.flatMap((s) => s.pts.map((p) => p.y));
     if (!all.length) {
-      wrap.innerHTML = `<div class="dm-ap-chart-empty" style="height:${H}px;display:grid;place-items:center">Nessun dato nel periodo</div>`;
-      q(".dm-gc-sum").innerHTML = "";
+      wrap.innerHTML = `<div class="shc-ap-chart-empty" style="height:${H}px;display:grid;place-items:center">Nessun dato nel periodo</div>`;
+      q(".shc-gc-sum").innerHTML = "";
       geo = null;
       return;
     }
@@ -913,13 +913,13 @@ function dmOpenChartPopup(card, opts) {
     const nx = W < 520 ? 4 : 6;
     let g = "";
     ticks.forEach((t) => {
-      g += `<line x1="${m.l}" y1="${Y(t).toFixed(1)}" x2="${W - m.r}" y2="${Y(t).toFixed(1)}" class="dm-gc-grid"/>
-        <text x="${m.l - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" class="dm-gc-ax">${gcFmt(t)}</text>`;
+      g += `<line x1="${m.l}" y1="${Y(t).toFixed(1)}" x2="${W - m.r}" y2="${Y(t).toFixed(1)}" class="shc-gc-grid"/>
+        <text x="${m.l - 6}" y="${(Y(t) + 3.5).toFixed(1)}" text-anchor="end" class="shc-gc-ax">${gcFmt(t)}</text>`;
     });
     for (let i = 0; i < nx; i++) {
       const t = st.start + (span * i) / (nx - 1);
       const anchor = i === 0 ? "start" : i === nx - 1 ? "end" : "middle";
-      g += `<text x="${X(t).toFixed(1)}" y="${H - 7}" text-anchor="${anchor}" class="dm-gc-ax">${fmtX(t, span)}</text>`;
+      g += `<text x="${X(t).toFixed(1)}" y="${H - 7}" text-anchor="${anchor}" class="shc-gc-ax">${fmtX(t, span)}</text>`;
     }
     let defs = "";
     let body = "";
@@ -939,19 +939,19 @@ function dmOpenChartPopup(card, opts) {
       body += `<polygon points="${first},${Y(yMin).toFixed(1)} ${line.join(" ")} ${last},${Y(yMin).toFixed(1)}" fill="url(#${gid})"/>
         <polyline points="${line.join(" ")}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
     });
-    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="dm-gc-svg"><defs>${defs}</defs>${g}${body}
-      <line class="dm-gc-cross" x1="0" y1="${m.t}" x2="0" y2="${m.t + ph}" hidden/></svg>`;
+    wrap.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="shc-gc-svg"><defs>${defs}</defs>${g}${body}
+      <line class="shc-gc-cross" x1="0" y1="${m.t}" x2="0" y2="${m.t + ph}" hidden/></svg>`;
     geo = { W, H, m, X, Y, act, pw, ph };
 
     const s0 = act[0];
     const vals = s0.pts.map((p) => p.y);
     const avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
-    q(".dm-gc-sum").innerHTML = act
+    q(".shc-gc-sum").innerHTML = act
       .map((s) => {
         const v = s.pts.map((p) => p.y);
         if (!v.length) return "";
         const a = v.reduce((x, y) => x + y, 0) / v.length;
-        return `<span class="dm-gc-sumrow"><b style="color:${s.color}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
+        return `<span class="shc-gc-sumrow"><b style="color:${s.color}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
       })
       .join("");
     void avg;
@@ -981,14 +981,14 @@ function dmOpenChartPopup(card, opts) {
       .filter(Boolean);
     if (!rows.length) return;
     const cx = px;
-    const cross = svg.querySelector(".dm-gc-cross");
+    const cross = svg.querySelector(".shc-gc-cross");
     cross.setAttribute("x1", cx);
     cross.setAttribute("x2", cx);
     cross.removeAttribute("hidden");
-    svg.querySelectorAll(".dm-gc-dot").forEach((n) => n.remove());
+    svg.querySelectorAll(".shc-gc-dot").forEach((n) => n.remove());
     rows.forEach((r) => {
       const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      c.setAttribute("class", "dm-gc-dot");
+      c.setAttribute("class", "shc-gc-dot");
       c.setAttribute("cx", px);
       c.setAttribute("cy", geo.Y(r.p.y));
       c.setAttribute("r", 4);
@@ -996,11 +996,11 @@ function dmOpenChartPopup(card, opts) {
       svg.appendChild(c);
     });
     const when = new Date(tms).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    tip.innerHTML = `<div class="dm-gc-tip-t">${when}</div>${rows
+    tip.innerHTML = `<div class="shc-gc-tip-t">${when}</div>${rows
       .map((r) => `<div><i style="background:${r.s.color}"></i>${geo.act.length > 1 ? esc(r.s.label) + ": " : ""}<b>${gcFmt(r.p.y, r.s.unit)}</b></div>`)
       .join("")}`;
     tip.hidden = false;
-    const plot = q(".dm-gc-plot").getBoundingClientRect();
+    const plot = q(".shc-gc-plot").getBoundingClientRect();
     let left = ev.clientX - plot.left + 14;
     if (left + tip.offsetWidth > plot.width - 4) left = ev.clientX - plot.left - tip.offsetWidth - 14;
     tip.style.left = `${Math.max(4, left)}px`;
@@ -1010,15 +1010,15 @@ function dmOpenChartPopup(card, opts) {
   wrap.addEventListener("pointerdown", onMove);
   wrap.addEventListener("pointerleave", () => {
     tip.hidden = true;
-    const c = wrap.querySelector(".dm-gc-cross");
+    const c = wrap.querySelector(".shc-gc-cross");
     if (c) c.setAttribute("hidden", "");
-    wrap.querySelectorAll(".dm-gc-dot").forEach((n) => n.remove());
+    wrap.querySelectorAll(".shc-gc-dot").forEach((n) => n.remove());
   });
 
   let token = 0;
   async function load() {
     const my = ++token;
-    q(".dm-gc-loading").style.display = "flex";
+    q(".shc-gc-loading").style.display = "flex";
     try {
       const idx = [...st.active];
       const need = series.map((_, i) => i).filter((i) => idx.includes(i) && !series[i]._key?.startsWith(`${st.start}|${st.end}`));
@@ -1029,12 +1029,12 @@ function dmOpenChartPopup(card, opts) {
         }),
       );
     } catch (e) {
-      if (my === token) wrap.innerHTML = `<div class="dm-ap-chart-empty">Errore caricamento dati</div>`;
-      q(".dm-gc-loading").style.display = "none";
+      if (my === token) wrap.innerHTML = `<div class="shc-ap-chart-empty">Errore caricamento dati</div>`;
+      q(".shc-gc-loading").style.display = "none";
       return;
     }
     if (my !== token) return;
-    q(".dm-gc-loading").style.display = "none";
+    q(".shc-gc-loading").style.display = "none";
     render();
   }
 
@@ -1048,13 +1048,13 @@ function dmOpenChartPopup(card, opts) {
 
   function setRange(key) {
     st.range = key;
-    ov.querySelectorAll(".dm-gc-tab").forEach((b) => b.classList.toggle("on", b.dataset.range === key));
-    const custom = q(".dm-gc-custom");
+    ov.querySelectorAll(".shc-gc-tab").forEach((b) => b.classList.toggle("on", b.dataset.range === key));
+    const custom = q(".shc-gc-custom");
     if (key === "custom") {
       custom.hidden = false;
-      if (!q(".dm-gc-from").value) {
-        q(".dm-gc-from").value = gcToLocalInput(Date.now() - 3 * 86400e3);
-        q(".dm-gc-to").value = gcToLocalInput(Date.now());
+      if (!q(".shc-gc-from").value) {
+        q(".shc-gc-from").value = gcToLocalInput(Date.now() - 3 * 86400e3);
+        q(".shc-gc-to").value = gcToLocalInput(Date.now());
       }
       return;
     }
@@ -1064,11 +1064,11 @@ function dmOpenChartPopup(card, opts) {
     st.start = st.end - r.ms;
     render();
   }
-  ov.querySelectorAll(".dm-gc-tab").forEach((b) => b.addEventListener("click", () => setRange(b.dataset.range)));
-  q(".dm-gc-apply").addEventListener("click", () => {
-    const a = new Date(q(".dm-gc-from").value).getTime();
-    const b = new Date(q(".dm-gc-to").value).getTime();
-    const msg = q(".dm-gc-msg");
+  ov.querySelectorAll(".shc-gc-tab").forEach((b) => b.addEventListener("click", () => setRange(b.dataset.range)));
+  q(".shc-gc-apply").addEventListener("click", () => {
+    const a = new Date(q(".shc-gc-from").value).getTime();
+    const b = new Date(q(".shc-gc-to").value).getTime();
+    const msg = q(".shc-gc-msg");
     if (!Number.isFinite(a) || !Number.isFinite(b)) {
       msg.textContent = "Scegli entrambe le date";
       return;
@@ -1097,11 +1097,11 @@ function dmOpenChartPopup(card, opts) {
       origRender();
     }
   }) : null;
-  if (ro) ro.observe(q(".dm-gc-plot"));
+  if (ro) ro.observe(q(".shc-gc-plot"));
   setRange("24h");
 }
 
-class DmApplianceCloneCard extends HTMLElement {
+class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
     if (!config.power_entity) throw new Error("power_entity \u00e8 obbligatorio");
     this._config = {
@@ -1130,84 +1130,84 @@ class DmApplianceCloneCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.dishwasher)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.dishwasher;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card">
-        ${this._config.label ? `<span class="dm-test-flag">${esc(this._config.label)}</span>` : ""}
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
-            <span class="dm-ap-room" hidden></span>
+      <article class="shc-ap-card">
+        ${this._config.label ? `<span class="shc-test-flag">${esc(this._config.label)}</span>` : ""}
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
+            <span class="shc-ap-room" hidden></span>
           </span>
-          <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Ultimo ciclo</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_FLAG}</span><small>Fine</small></span><b class="dm-c-end">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Durata</small></span><b class="dm-c-duration">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="dm-c-energy">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="dm-c-cost">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Ultimo ciclo</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_FLAG}</span><small>Fine</small></span><b class="shc-c-end">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Durata</small></span><b class="shc-c-duration">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-c-energy">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="shc-c-cost">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel dm-ap-power-open" role="button" tabindex="0">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter">
-              <div class="dm-ap-meter-row"><span>${esc(this._config.power_label || "Potenza attuale")}</span><strong class="dm-ap-power-val">0 W</strong></div>
-              <div class="dm-ap-bar"><i style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel shc-ap-power-open" role="button" tabindex="0">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>${esc(this._config.power_label || "Potenza attuale")}</span><strong class="shc-ap-power-val">0 W</strong></div>
+              <div class="shc-ap-bar"><i style="width:0%"></i></div>
             </div>
             ${
               this._config.live?.progress_entity
-                ? `<div class="dm-ap-meter">
-              <div class="dm-ap-meter-row"><span>Avanzamento programma</span><strong class="dm-ap-progress-val">\u2014</strong></div>
-              <div class="dm-ap-bar"><i class="dm-ap-progress-bar" style="width:0%"></i></div>
+                ? `<div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Avanzamento programma</span><strong class="shc-ap-progress-val">\u2014</strong></div>
+              <div class="shc-ap-bar"><i class="shc-ap-progress-bar" style="width:0%"></i></div>
             </div>`
                 : ""
             }
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
     if (this._config.room) {
-      const room = this._root.querySelector(".dm-ap-room");
+      const room = this._root.querySelector(".shc-ap-room");
       room.hidden = false;
       room.textContent = this._config.room;
     }
-    this._root.querySelector(".dm-ap-notif-center").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-notif-center").addEventListener("click", (e) => {
       e.stopPropagation();
       history.pushState(null, "", "/lovelace/centronotifiche");
       window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
     });
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    const heroEl = this._root.querySelector(".dm-ap-hero");
+    const heroEl = this._root.querySelector(".shc-ap-hero");
     if (heroEl) {
       heroEl.addEventListener("click", (e) => {
         e.stopPropagation();
         this._openWeek();
       });
     }
-    const powerEl = this._root.querySelector(".dm-ap-power-open");
+    const powerEl = this._root.querySelector(".shc-ap-power-open");
     if (powerEl) {
       powerEl.addEventListener("click", (e) => {
         e.stopPropagation();
-        dmOpenChartPopup(this, { title: this._config.name, series: this._graphSeries() });
+        shcOpenChartPopup(this, { title: this._config.name, series: this._graphSeries() });
       });
     }
   }
@@ -1219,10 +1219,10 @@ class DmApplianceCloneCard extends HTMLElement {
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -1236,11 +1236,11 @@ class DmApplianceCloneCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -1248,30 +1248,30 @@ class DmApplianceCloneCard extends HTMLElement {
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
@@ -1279,18 +1279,18 @@ class DmApplianceCloneCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
       .join("");
 
     const resetBtn = this._config.reset_script
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Manutenzione</div>
-           <button type="button" class="dm-ap-reset-btn" data-reset-script="${esc(this._config.reset_script)}">${ICON_RESTART} Reset contatori</button>
-           ${this._config.reset_date_entity ? `<div class="dm-ap-reset-note">Ultimo reset: ${esc(hass.states[this._config.reset_date_entity]?.state || "\u2014")}</div>` : ""}
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Manutenzione</div>
+           <button type="button" class="shc-ap-reset-btn" data-reset-script="${esc(this._config.reset_script)}">${ICON_RESTART} Reset contatori</button>
+           ${this._config.reset_date_entity ? `<div class="shc-ap-reset-note">Ultimo reset: ${esc(hass.states[this._config.reset_date_entity]?.state || "\u2014")}</div>` : ""}
          </div>`
       : "";
 
@@ -1353,12 +1353,12 @@ class DmApplianceCloneCard extends HTMLElement {
     const cost = pAttrs.cost ? attrs[pAttrs.cost] : null;
     const costTxt = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
     const label = cfg.period_labels[periodKey] || periodKey;
-    return `<div class="dm-ap-week-row">
-      <div class="dm-ap-week-day">${esc(label)}</div>
-      <div class="dm-ap-week-stats cols3">
-        <div class="dm-ap-week-stat"><small>Cicli</small><b>${esc(cycles)}</b></div>
-        <div class="dm-ap-week-stat"><small>Tempo</small><b>${esc(time)}</b></div>
-        <div class="dm-ap-week-stat"><small>Costo</small><b>${costTxt}</b></div>
+    return `<div class="shc-ap-week-row">
+      <div class="shc-ap-week-day">${esc(label)}</div>
+      <div class="shc-ap-week-stats cols3">
+        <div class="shc-ap-week-stat"><small>Cicli</small><b>${esc(cycles)}</b></div>
+        <div class="shc-ap-week-stat"><small>Tempo</small><b>${esc(time)}</b></div>
+        <div class="shc-ap-week-stat"><small>Costo</small><b>${costTxt}</b></div>
       </div>
     </div>`;
   }
@@ -1371,25 +1371,25 @@ class DmApplianceCloneCard extends HTMLElement {
     if (live.state_entity) {
       const raw = hass.states[live.state_entity]?.state;
       const mapped = this._config.state_map[raw];
-      liveHtml += this._row("Stato apparecchio", `<span class="dm-ap-row-val">${esc(mapped?.label || raw || "n/d")}</span>`);
+      liveHtml += this._row("Stato apparecchio", `<span class="shc-ap-row-val">${esc(mapped?.label || raw || "n/d")}</span>`);
     }
     if (live.progress_entity) {
       const st = hass.states[live.progress_entity];
       const val = st && st.state !== "unavailable" && st.state !== "unknown" ? `${st.state}%` : "n/d";
-      liveHtml += this._row("Avanzamento programma", `<span class="dm-ap-row-val">${esc(val)}</span>`);
+      liveHtml += this._row("Avanzamento programma", `<span class="shc-ap-row-val">${esc(val)}</span>`);
     }
     if (live.remaining_entity) {
       const st = hass.states[live.remaining_entity];
       const val = st && st.state !== "unavailable" && st.state !== "unknown" ? new Date(st.state).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "n/d";
-      liveHtml += this._row("Fine prevista", `<span class="dm-ap-row-val">${esc(val)}</span>`);
+      liveHtml += this._row("Fine prevista", `<span class="shc-ap-row-val">${esc(val)}</span>`);
     }
     if (live.salt_entity) {
       const st = hass.states[live.salt_entity]?.state;
-      liveHtml += this._row("Sale", `<span class="dm-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
+      liveHtml += this._row("Sale", `<span class="shc-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
     }
     if (live.rinse_entity) {
       const st = hass.states[live.rinse_entity]?.state;
-      liveHtml += this._row("Brillantante", `<span class="dm-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
+      liveHtml += this._row("Brillantante", `<span class="shc-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
     }
     // Righe extra generiche per apparecchi con sensori/attributi che non
     // rientrano nei campi fissi sopra (es. fase ciclo di un'asciugatrice,
@@ -1414,7 +1414,7 @@ class DmApplianceCloneCard extends HTMLElement {
       } else {
         val = row.unit ? `${raw}${row.unit}` : raw;
       }
-      liveHtml += this._row(row.label, `<span class="dm-ap-row-val">${esc(val)}</span>`);
+      liveHtml += this._row(row.label, `<span class="shc-ap-row-val">${esc(val)}</span>`);
     });
 
     // "Storici automatici" (auto_stats + energy_stat_entity, impostati dall'editor visuale):
@@ -1424,11 +1424,11 @@ class DmApplianceCloneCard extends HTMLElement {
     const useAutoStats = !!(this._config.auto_stats && this._config.energy_stat_entity);
 
     this._openDialog("Statistiche", `
-      ${liveHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : ""}
+      ${liveHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : ""}
       ${useAutoStats ? this._autoConsumiHtml() : this._consumiHtml()}
       ${this._energyBarsHtml()}
     `);
-    const overlay = this._root.querySelector(".dm-ap-overlay:not(.dm-gc-ov)");
+    const overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
     this._loadEnergyBars(overlay);
     if (useAutoStats) this._loadAutoPeriods(overlay);
   }
@@ -1477,23 +1477,23 @@ class DmApplianceCloneCard extends HTMLElement {
         const consumo = Number.isFinite(consumoNum) ? `${consumoNum.toFixed(2)} kWh` : "\u2014";
         const costoNum = Number(hass.states[row.costo]?.state);
         const costo = Number.isFinite(costoNum) ? `${costoNum.toFixed(2)} \u20ac` : "\u2014";
-        return `<div class="dm-ap-week-row">
-          <div class="dm-ap-week-day">${esc(row._label)}</div>
-          <div class="dm-ap-week-stats">
-            <div class="dm-ap-week-stat"><small>Cicli</small><b>${esc(cicli)}</b></div>
-            <div class="dm-ap-week-stat"><small>Tempo</small><b>${esc(tempo)}</b></div>
-            <div class="dm-ap-week-stat"><small>Consumo</small><b>${consumo}</b></div>
-            <div class="dm-ap-week-stat"><small>Costo</small><b>${costo}</b></div>
+        return `<div class="shc-ap-week-row">
+          <div class="shc-ap-week-day">${esc(row._label)}</div>
+          <div class="shc-ap-week-stats">
+            <div class="shc-ap-week-stat"><small>Cicli</small><b>${esc(cicli)}</b></div>
+            <div class="shc-ap-week-stat"><small>Tempo</small><b>${esc(tempo)}</b></div>
+            <div class="shc-ap-week-stat"><small>Consumo</small><b>${consumo}</b></div>
+            <div class="shc-ap-week-stat"><small>Costo</small><b>${costo}</b></div>
           </div>
         </div>`;
       })
       .join("");
 
     return `
-      ${periodRows ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Consumi per periodo</div><div class="dm-ap-week-list">${periodRows}</div></div>` : ""}
-      <div class="dm-ap-sec">
-        <div class="dm-ap-sec-cap">Ultimi 7 giorni</div>
-        <div class="dm-ap-week-list">${body || `<div class="dm-ap-row-val">Nessun dato configurato</div>`}</div>
+      ${periodRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div><div class="shc-ap-week-list">${periodRows}</div></div>` : ""}
+      <div class="shc-ap-sec">
+        <div class="shc-ap-sec-cap">Ultimi 7 giorni</div>
+        <div class="shc-ap-week-list">${body || `<div class="shc-ap-row-val">Nessun dato configurato</div>`}</div>
       </div>`;
   }
 
@@ -1506,9 +1506,9 @@ class DmApplianceCloneCard extends HTMLElement {
   // cycle_sensor scritto a mano. Niente "cicli"/"tempo" qui: dalla sola energia non si contano i
   // cicli di un elettrodomestico, serve ancora un sensore di stato per quello (facoltativo).
   _autoConsumiHtml() {
-    return `<div class="dm-ap-sec">
-      <div class="dm-ap-sec-cap">Consumi per periodo</div>
-      <div class="dm-ap-week-list" data-auto-periods><div class="dm-ap-row-val">Caricamento…</div></div>
+    return `<div class="shc-ap-sec">
+      <div class="shc-ap-sec-cap">Consumi per periodo</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento…</div></div>
     </div>`;
   }
 
@@ -1518,17 +1518,17 @@ class DmApplianceCloneCard extends HTMLElement {
     if (!slot || !cfg.energy_stat_entity) return;
     const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
     try {
-      const p = await dmComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
+      const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
       const labels = cfg.period_labels || {};
       const row = (key, def) => {
         const d = p[key];
         const kwh = Number.isFinite(d?.kwh) ? `${d.kwh.toFixed(2)} kWh` : "—";
         const cost = Number.isFinite(d?.cost) ? `${d.cost.toFixed(2)} €` : "—";
-        return `<div class="dm-ap-week-row">
-          <div class="dm-ap-week-day">${esc(labels[key] || def)}</div>
-          <div class="dm-ap-week-stats cols2">
-            <div class="dm-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
-            <div class="dm-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+        return `<div class="shc-ap-week-row">
+          <div class="shc-ap-week-day">${esc(labels[key] || def)}</div>
+          <div class="shc-ap-week-stats cols2">
+            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
           </div>
         </div>`;
       };
@@ -1541,15 +1541,15 @@ class DmApplianceCloneCard extends HTMLElement {
         row("year_prev", "Anno prec."),
       ].join("");
     } catch (e) {
-      slot.innerHTML = `<div class="dm-ap-row-val">Statistiche non disponibili al momento</div>`;
+      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
     }
   }
 
   // Istogrammi del consumo di questo mese (per giorno) e di quest'anno (per mese).
   _energyBarsHtml() {
     if (!this._config.energy_stat_entity) return "";
-    return `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="dm-ap-chart-loading" data-chart="month">Caricamento...</div></div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="dm-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
   }
 
   _loadEnergyBars(overlay) {
@@ -1574,7 +1574,7 @@ class DmApplianceCloneCard extends HTMLElement {
         const el = slot("year");
         if (!el) return;
         const bars = rows.map((r) => ({ value: r.value }));
-        const labels = `<div class="dm-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
+        const labels = `<div class="shc-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
         el.outerHTML = `<div data-chart="year">${this._barChartSvg(bars, "#0ea5e9")}${labels}</div>`;
       })
       .catch(() => {
@@ -1594,7 +1594,7 @@ class DmApplianceCloneCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color, fixedMax) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     // asse sinistro: riserva spazio per i valori min/max, riferimento comune ai 3 grafici
@@ -1615,7 +1615,7 @@ class DmApplianceCloneCard extends HTMLElement {
       return `${x},${y}`;
     });
     const area = `${plotX0},${height} ${coords.join(" ")} ${width},${height}`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -1625,7 +1625,7 @@ class DmApplianceCloneCard extends HTMLElement {
   }
 
   _barChartSvg(bars, color) {
-    if (!bars.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 24;
@@ -1659,7 +1659,7 @@ class DmApplianceCloneCard extends HTMLElement {
     const axis = `<line x1="${plotX0}" y1="${labelSpace}" x2="${plotX0}" y2="${height}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="${labelSpace + 6}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 1}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">0</text>`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">${axis}${parts}</svg>`;
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">${axis}${parts}</svg>`;
   }
 
   async _fetchHistory24h(entityId) {
@@ -1703,7 +1703,7 @@ class DmApplianceCloneCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _openPowerHistory() {
@@ -1713,11 +1713,11 @@ class DmApplianceCloneCard extends HTMLElement {
 
     this._openDialog(
       "Andamento potenza",
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 24 ore</div><div class="dm-ap-chart-loading" data-chart="24h">Caricamento...</div></div>
-       ${energyEntity ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Questo mese</div><div class="dm-ap-chart-loading" data-chart="month">Caricamento...</div></div>` : ""}
-       ${energyEntity ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Quest'anno</div><div class="dm-ap-chart-loading" data-chart="year">Caricamento...</div></div>` : ""}`,
+      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultime 24 ore</div><div class="shc-ap-chart-loading" data-chart="24h">Caricamento...</div></div>
+       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>` : ""}
+       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>` : ""}`,
     );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
+    const overlay = this._root.querySelector(".shc-ap-overlay");
     const slot = (name) => overlay?.querySelector(`[data-chart="${name}"]`);
 
     if (powerEntity) {
@@ -1761,7 +1761,7 @@ class DmApplianceCloneCard extends HTMLElement {
           const el = slot("year");
           if (!el) return;
           const bars = rows.map((r) => ({ value: r.value }));
-          const labels = `<div class="dm-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
+          const labels = `<div class="shc-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
           el.outerHTML = `<div data-chart="year">${this._barChartSvg(bars, "#0ea5e9")}${labels}</div>`;
         })
         .catch(() => {
@@ -1800,29 +1800,29 @@ class DmApplianceCloneCard extends HTMLElement {
       label = "STANDBY";
     }
 
-    const card = this._root.querySelector(".dm-ap-card");
+    const card = this._root.querySelector(".shc-ap-card");
     card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm");
     card.classList.add(`is-${mode === "running" ? "run" : mode}`);
 
-    const badge = this._root.querySelector(".dm-ap-badge");
+    const badge = this._root.querySelector(".shc-ap-badge");
     badge.classList.remove("run", "standby", "off", "unavailable");
     badge.classList.add(mode === "running" ? "run" : mode);
-    this._root.querySelector(".dm-ap-badge-label").textContent = label;
+    this._root.querySelector(".shc-ap-badge-label").textContent = label;
 
     const powerVal = Number.isFinite(watts) ? Math.max(0, watts) : 0;
     const powerUnit = cfg.power_unit || "W";
     if (powerUnit === "W") {
-      this._root.querySelector(".dm-ap-power-val").textContent =
+      this._root.querySelector(".shc-ap-power-val").textContent =
         powerVal >= 1000 ? `${(powerVal / 1000).toFixed(1)} kW` : `${Math.round(powerVal)} W`;
     } else {
       const powerDecimals = cfg.power_decimals ?? 1;
-      this._root.querySelector(".dm-ap-power-val").textContent = `${powerVal.toFixed(powerDecimals)} ${powerUnit}`;
+      this._root.querySelector(".shc-ap-power-val").textContent = `${powerVal.toFixed(powerDecimals)} ${powerUnit}`;
     }
-    this._root.querySelector(".dm-ap-bar i").style.width =
+    this._root.querySelector(".shc-ap-bar i").style.width =
       `${Math.min(100, Math.round((powerVal / cfg.max_power) * 100))}%`;
 
     const progressEntity = cfg.live?.progress_entity;
-    const progressBar = this._root.querySelector(".dm-ap-progress-bar");
+    const progressBar = this._root.querySelector(".shc-ap-progress-bar");
     if (progressEntity && progressBar) {
       const pState = hass.states[progressEntity];
       const pVal = pState && !["unavailable", "unknown"].includes(pState.state) ? Number(pState.state) : NaN;
@@ -1838,7 +1838,7 @@ class DmApplianceCloneCard extends HTMLElement {
           valText += ` \u00b7 manca ${h > 0 ? `${h}h ${m}m` : `${m} min`}`;
         }
       }
-      this._root.querySelector(".dm-ap-progress-val").textContent = valText;
+      this._root.querySelector(".shc-ap-progress-val").textContent = valText;
       progressBar.style.width = `${Number.isFinite(pVal) ? Math.min(100, Math.max(0, pVal)) : 0}%`;
     }
 
@@ -1846,12 +1846,12 @@ class DmApplianceCloneCard extends HTMLElement {
     const duration = this._cycleAttr(hass, "duration");
     const energy = this._cycleAttr(hass, "energy");
     const cost = this._cycleAttr(hass, "cost");
-    this._root.querySelector(".dm-c-end").textContent = end ?? "\u2014";
-    this._root.querySelector(".dm-c-duration").textContent = duration ?? "\u2014";
-    this._root.querySelector(".dm-c-energy").textContent = energy ?? "\u2014";
-    this._root.querySelector(".dm-c-cost").textContent = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
+    this._root.querySelector(".shc-c-end").textContent = end ?? "\u2014";
+    this._root.querySelector(".shc-c-duration").textContent = duration ?? "\u2014";
+    this._root.querySelector(".shc-c-energy").textContent = energy ?? "\u2014";
+    this._root.querySelector(".shc-c-cost").textContent = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
     const activeWarnings = (cfg.warn_entities || [])
       .filter((w) => hass.states[w.entity]?.state === w.on_state)
       .map((w) => w.label);
@@ -1874,7 +1874,7 @@ class DmApplianceCloneCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-appliance-clone-card-editor");
+    return document.createElement("shc-appliance-clone-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -1900,7 +1900,7 @@ class DmApplianceCloneCard extends HTMLElement {
 // week_rows, period_attrs, energy_stat_entity...) resta come lo trovi:
 // l'editor lo lascia intatto, si modifica solo passando alla vista YAML.
 // -----------------------------------------------------------------------
-const DM_APPLIANCE_TYPES = [
+const SHC_APPLIANCE_TYPES = [
   { value: "washer", label: "Lavatrice", domotico: false },
   { value: "dryer", label: "Asciugatrice", domotico: true },
   { value: "dishwasher", label: "Lavastoviglie", domotico: true },
@@ -1908,30 +1908,30 @@ const DM_APPLIANCE_TYPES = [
   { value: "tv", label: "TV", domotico: true },
 ];
 
-const DM_EDITOR_STYLE = `
+const SHC_EDITOR_STYLE = `
   :host{display:block;padding:4px 0 12px}
-  .dm-ed-row{margin-bottom:14px}
-  .dm-ed-label{display:block;font-size:13px;font-weight:700;color:var(--primary-text-color);margin-bottom:6px}
-  .dm-ed-hint{font-size:12px;color:var(--secondary-text-color);margin:2px 0 8px;line-height:1.4}
-  .dm-ed-types{display:flex;flex-wrap:wrap;gap:8px}
-  .dm-ed-type-btn{flex:1 1 30%;min-width:100px;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px 8px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
-  .dm-ed-type-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12);color:var(--primary-color,#03a9f4)}
-  .dm-ed-choice{display:flex;gap:8px}
-  .dm-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
-  .dm-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
-  .dm-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
-  .dm-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
-  .dm-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .shc-ed-row{margin-bottom:14px}
+  .shc-ed-label{display:block;font-size:13px;font-weight:700;color:var(--primary-text-color);margin-bottom:6px}
+  .shc-ed-hint{font-size:12px;color:var(--secondary-text-color);margin:2px 0 8px;line-height:1.4}
+  .shc-ed-types{display:flex;flex-wrap:wrap;gap:8px}
+  .shc-ed-type-btn{flex:1 1 30%;min-width:100px;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px 8px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+  .shc-ed-type-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12);color:var(--primary-color,#03a9f4)}
+  .shc-ed-choice{display:flex;gap:8px}
+  .shc-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
+  .shc-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
+  .shc-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
+  .shc-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
+  .shc-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   ha-entity-picker{width:100%}
-  .dm-ed-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid var(--divider-color,#e0e0e0);background:var(--card-background-color,#fff);color:var(--primary-text-color);font:inherit;font-size:14px}
-  .dm-ed-input:focus{outline:none;border-color:var(--primary-color,#03a9f4)}
-  details.dm-ed-adv{margin-top:16px}
-  details.dm-ed-adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--primary-color,#03a9f4);padding:6px 0}
-  .dm-ed-missing{color:#c62828;font-size:12px;margin-top:4px}
-  .dm-ed-btn{margin-top:8px;padding:9px 14px;border:1px solid var(--primary-color,#03a9f4);border-radius:10px;background:rgba(3,169,244,.1);color:var(--primary-color,#03a9f4);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
-  .dm-ed-btn:disabled{opacity:.6;cursor:default}
-  .dm-ed-checkrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary-text-color);cursor:pointer}
-  .dm-ed-storici-msg{display:block;color:#c62828;font-size:12px;margin-top:4px}
+  .shc-ed-input{width:100%;box-sizing:border-box;padding:11px 12px;border-radius:10px;border:1px solid var(--divider-color,#e0e0e0);background:var(--card-background-color,#fff);color:var(--primary-text-color);font:inherit;font-size:14px}
+  .shc-ed-input:focus{outline:none;border-color:var(--primary-color,#03a9f4)}
+  details.shc-ed-adv{margin-top:16px}
+  details.shc-ed-adv summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--primary-color,#03a9f4);padding:6px 0}
+  .shc-ed-missing{color:#c62828;font-size:12px;margin-top:4px}
+  .shc-ed-btn{margin-top:8px;padding:9px 14px;border:1px solid var(--primary-color,#03a9f4);border-radius:10px;background:rgba(3,169,244,.1);color:var(--primary-color,#03a9f4);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+  .shc-ed-btn:disabled{opacity:.6;cursor:default}
+  .shc-ed-checkrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary-text-color);cursor:pointer}
+  .shc-ed-storici-msg{display:block;color:#c62828;font-size:12px;margin-top:4px}
 `;
 
 // -----------------------------------------------------------------------
@@ -1941,11 +1941,11 @@ const DM_EDITOR_STYLE = `
 // campi. Ogni card definisce solo il suo elenco (sezioni + campi), il
 // motore che disegna il form ed emette config-changed e' unico.
 // -----------------------------------------------------------------------
-function dmGetPath(obj, path) {
+function shcGetPath(obj, path) {
   return path.split(".").reduce((o, k) => (o != null ? o[k] : undefined), obj);
 }
 
-function dmSetPath(root, path, value) {
+function shcSetPath(root, path, value) {
   const keys = path.split(".");
   let obj = root;
   for (let i = 0; i < keys.length - 1; i++) {
@@ -1962,7 +1962,7 @@ function dmSetPath(root, path, value) {
   return root;
 }
 
-class DmSimpleCardEditorBase extends HTMLElement {
+class ShcSimpleCardEditorBase extends HTMLElement {
   // Sottoclassi: implementano get schema() -> [{ title, fields: [{key,label,kind,domain,required,hint}] }]
   get schema() {
     return [];
@@ -1987,36 +1987,36 @@ class DmSimpleCardEditorBase extends HTMLElement {
   }
 
   _set(path, value) {
-    this._config = dmSetPath({ ...this._config }, path, value);
+    this._config = shcSetPath({ ...this._config }, path, value);
     this._emit();
   }
 
   _render() {
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
-      this._root.innerHTML = `<style>${DM_EDITOR_STYLE}</style><div class="dm-ed-body"></div>`;
+      this._root.innerHTML = `<style>${SHC_EDITOR_STYLE}</style><div class="shc-ed-body"></div>`;
     }
-    const body = this._root.querySelector(".dm-ed-body");
+    const body = this._root.querySelector(".shc-ed-body");
     const cfg = this._config;
     body.innerHTML = this.schema
       .map(
         (sec) => `
-      <div class="dm-ed-sec">${esc(sec.title)}</div>
+      <div class="shc-ed-sec">${esc(sec.title)}</div>
       ${sec.fields
         .map((f) => {
-          const val = dmGetPath(cfg, f.key);
+          const val = shcGetPath(cfg, f.key);
           if (f.kind === "entity" || !f.kind) {
-            return `<div class="dm-ed-row">
-              <span class="dm-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
-              ${f.hint ? `<p class="dm-ed-hint">${esc(f.hint)}</p>` : ""}
+            return `<div class="shc-ed-row">
+              <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+              ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
               <ha-entity-picker data-key="${esc(f.key)}" ${f.domain ? `include-domains='${JSON.stringify(f.domain)}'` : ""} allow-custom-entity></ha-entity-picker>
-              ${f.required && !val ? `<div class="dm-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+              ${f.required && !val ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
             </div>`;
           }
-          return `<div class="dm-ed-row">
-            <span class="dm-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
-            ${f.hint ? `<p class="dm-ed-hint">${esc(f.hint)}</p>` : ""}
-            <input class="dm-ed-input" data-key="${esc(f.key)}" type="${f.kind === "number" ? "number" : "text"}" placeholder="${esc(f.placeholder || "")}">
+          return `<div class="shc-ed-row">
+            <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+            ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
+            <input class="shc-ed-input" data-key="${esc(f.key)}" type="${f.kind === "number" ? "number" : "text"}" placeholder="${esc(f.placeholder || "")}">
           </div>`;
         })
         .join("")}
@@ -2026,14 +2026,14 @@ class DmSimpleCardEditorBase extends HTMLElement {
 
     body.querySelectorAll("ha-entity-picker[data-key]").forEach((el) => {
       el.hass = this._hass;
-      el.value = dmGetPath(cfg, el.dataset.key) || "";
+      el.value = shcGetPath(cfg, el.dataset.key) || "";
       el.addEventListener("value-changed", (e) => {
         e.stopPropagation();
         this._set(el.dataset.key, e.detail.value);
       });
     });
-    body.querySelectorAll("input.dm-ed-input[data-key]").forEach((el) => {
-      const v = dmGetPath(cfg, el.dataset.key);
+    body.querySelectorAll("input.shc-ed-input[data-key]").forEach((el) => {
+      const v = shcGetPath(cfg, el.dataset.key);
       el.value = v ?? "";
       el.addEventListener("change", () => {
         this._set(el.dataset.key, el.type === "number" ? Number(el.value) : el.value);
@@ -2042,7 +2042,7 @@ class DmSimpleCardEditorBase extends HTMLElement {
   }
 }
 
-class DmFritzCardEditor extends DmSimpleCardEditorBase {
+class ShcFritzCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [
@@ -2063,9 +2063,9 @@ class DmFritzCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-fritz-card-editor", DmFritzCardEditor);
+customElements.define("shc-fritz-card-editor", ShcFritzCardEditor);
 
-class DmServerCardEditor extends DmSimpleCardEditorBase {
+class ShcServerCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Home Assistant" }]},
@@ -2084,9 +2084,9 @@ class DmServerCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-server-card-editor", DmServerCardEditor);
+customElements.define("shc-server-card-editor", ShcServerCardEditor);
 
-class DmNasCardEditor extends DmSimpleCardEditorBase {
+class ShcNasCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [
@@ -2110,9 +2110,9 @@ class DmNasCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-nas-card-editor", DmNasCardEditor);
+customElements.define("shc-nas-card-editor", ShcNasCardEditor);
 
-class DmProxmoxCardEditor extends DmSimpleCardEditorBase {
+class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Proxmox" }]},
@@ -2127,9 +2127,9 @@ class DmProxmoxCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-proxmox-card-editor", DmProxmoxCardEditor);
+customElements.define("shc-proxmox-card-editor", ShcProxmoxCardEditor);
 
-class DmUpsCardEditor extends DmSimpleCardEditorBase {
+class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [
@@ -2152,9 +2152,9 @@ class DmUpsCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-ups-card-editor", DmUpsCardEditor);
+customElements.define("shc-ups-card-editor", ShcUpsCardEditor);
 
-class DmGarbageCardEditor extends DmSimpleCardEditorBase {
+class ShcGarbageCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
       { title: "Base", fields: [
@@ -2176,9 +2176,9 @@ class DmGarbageCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-garbage-card-editor", DmGarbageCardEditor);
+customElements.define("shc-garbage-card-editor", ShcGarbageCardEditor);
 
-class DmEnergyCardEditor extends DmSimpleCardEditorBase {
+class ShcEnergyCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     const circuits = [0, 1, 2, 3].map((i) => ({
       title: `Barra ${i + 1}`,
@@ -2199,9 +2199,9 @@ class DmEnergyCardEditor extends DmSimpleCardEditorBase {
     ];
   }
 }
-customElements.define("dm-energy-card-editor", DmEnergyCardEditor);
+customElements.define("shc-energy-card-editor", ShcEnergyCardEditor);
 
-class DmApplianceCloneCardEditor extends HTMLElement {
+class ShcApplianceCloneCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = { ...config };
     this._render();
@@ -2222,7 +2222,7 @@ class DmApplianceCloneCardEditor extends HTMLElement {
   _guess(kind) {
     const hass = this._hass;
     if (!hass) return "";
-    const type = DM_APPLIANCE_TYPES.find((t) => t.value === this._config.artwork);
+    const type = SHC_APPLIANCE_TYPES.find((t) => t.value === this._config.artwork);
     const nameWords = [type?.label, this._config.name].filter(Boolean).map((s) => s.toLowerCase());
     const ids = Object.keys(hass.states);
     const score = (id, st) => {
@@ -2274,31 +2274,31 @@ class DmApplianceCloneCardEditor extends HTMLElement {
   _storiciHtml(cfg) {
     const hasLegacy = !!(cfg.period_attrs || cfg.cycle_sensor || cfg.week_rows);
     if (hasLegacy) {
-      return `<div class="dm-ed-sec">Storici</div>
-        <p class="dm-ed-hint">Configurazione avanzata rilevata (package YAML): i consumi per periodo restano quelli gia' in uso, invariati.</p>`;
+      return `<div class="shc-ed-sec">Storici</div>
+        <p class="shc-ed-hint">Configurazione avanzata rilevata (package YAML): i consumi per periodo restano quelli gia' in uso, invariati.</p>`;
     }
-    return `<div class="dm-ed-sec">Storici (consumi per periodo, senza YAML)</div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Sensore energia (kWh)</span>
-        <ha-entity-picker class="dm-ed-energy-stat" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.energy_stat_entity && cfg.power_entity ? `<button type="button" class="dm-ed-btn dm-ed-create-energy">Crea automaticamente dal sensore di potenza</button>` : ""}
+    return `<div class="shc-ed-sec">Storici (consumi per periodo, senza YAML)</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Sensore energia (kWh)</span>
+        <ha-entity-picker class="shc-ed-energy-stat" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.energy_stat_entity && cfg.power_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-energy">Crea automaticamente dal sensore di potenza</button>` : ""}
       </div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Costo energia (€/kWh)</span>
-        <ha-entity-picker class="dm-ed-cost" include-domains='["input_number"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.cost_entity ? `<button type="button" class="dm-ed-btn dm-ed-create-cost">Crea helper costo (0,25 €/kWh di partenza)</button>` : ""}
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Costo energia (€/kWh)</span>
+        <ha-entity-picker class="shc-ed-cost" include-domains='["input_number"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.cost_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-cost">Crea helper costo (0,25 €/kWh di partenza)</button>` : ""}
       </div>
-      <div class="dm-ed-row">
-        <label class="dm-ed-checkrow">
-          <input type="checkbox" class="dm-ed-auto-stats" ${cfg.auto_stats ? "checked" : ""} ${!cfg.energy_stat_entity ? "disabled" : ""}>
+      <div class="shc-ed-row">
+        <label class="shc-ed-checkrow">
+          <input type="checkbox" class="shc-ed-auto-stats" ${cfg.auto_stats ? "checked" : ""} ${!cfg.energy_stat_entity ? "disabled" : ""}>
           <span>Mostra "Consumi per periodo" nella card (Statistiche)</span>
         </label>
       </div>
-      <small class="dm-ed-storici-msg"></small>`;
+      <small class="shc-ed-storici-msg"></small>`;
   }
 
   async _runStorici(btn, label, fn) {
-    const msg = this._root.querySelector(".dm-ed-storici-msg");
+    const msg = this._root.querySelector(".shc-ed-storici-msg");
     const prevText = btn.textContent;
     btn.disabled = true;
     btn.textContent = "Creazione in corso…";
@@ -2315,91 +2315,91 @@ class DmApplianceCloneCardEditor extends HTMLElement {
   _render() {
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
-      this._root.innerHTML = `<style>${DM_EDITOR_STYLE}</style><div class="dm-ed-body"></div>`;
+      this._root.innerHTML = `<style>${SHC_EDITOR_STYLE}</style><div class="shc-ed-body"></div>`;
     }
-    const body = this._root.querySelector(".dm-ed-body");
+    const body = this._root.querySelector(".shc-ed-body");
     const cfg = this._config;
-    const currentType = DM_APPLIANCE_TYPES.find((t) => t.value === cfg.artwork);
+    const currentType = SHC_APPLIANCE_TYPES.find((t) => t.value === cfg.artwork);
     const isDomotico = this._domoticoOverride ?? (cfg.live?.state_entity ? true : currentType ? currentType.domotico : false);
 
     body.innerHTML = `
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Che elettrodomestico e'?</span>
-        <div class="dm-ed-types">
-          ${DM_APPLIANCE_TYPES.map(
-            (t) => `<button type="button" class="dm-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.label)}</button>`,
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Che elettrodomestico e'?</span>
+        <div class="shc-ed-types">
+          ${SHC_APPLIANCE_TYPES.map(
+            (t) => `<button type="button" class="shc-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.label)}</button>`,
           ).join("")}
         </div>
       </div>
 
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Nome</span>
-        <input class="dm-ed-input dm-ed-name" type="text" placeholder="es. Lavastoviglie">
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Nome</span>
+        <input class="shc-ed-input shc-ed-name" type="text" placeholder="es. Lavastoviglie">
       </div>
 
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
-        <p class="dm-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
-        <div class="dm-ed-choice">
-          <button type="button" class="dm-ed-choice-btn${!isDomotico ? " on" : ""}" data-domotico="0">Solo presa<small>Misura solo i Watt</small></button>
-          <button type="button" class="dm-ed-choice-btn${isDomotico ? " on" : ""}" data-domotico="1">Domotico<small>Ha stati e programmi</small></button>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
+        <p class="shc-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
+        <div class="shc-ed-choice">
+          <button type="button" class="shc-ed-choice-btn${!isDomotico ? " on" : ""}" data-domotico="0">Solo presa<small>Misura solo i Watt</small></button>
+          <button type="button" class="shc-ed-choice-btn${isDomotico ? " on" : ""}" data-domotico="1">Domotico<small>Ha stati e programmi</small></button>
         </div>
       </div>
 
-      <div class="dm-ed-sec">Potenza</div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Sensore della potenza (Watt) — obbligatorio</span>
-        <ha-entity-picker class="dm-ed-power" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.power_entity ? `<div class="dm-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+      <div class="shc-ed-sec">Potenza</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Sensore della potenza (Watt) — obbligatorio</span>
+        <ha-entity-picker class="shc-ed-power" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+        ${!cfg.power_entity ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
       </div>
 
       ${
         isDomotico
-          ? `<div class="dm-ed-sec">Stato e programma (domotico)</div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Entita' dello stato (es. "in funzione", "pronto"...)</span>
-        <ha-entity-picker class="dm-ed-live-state" allow-custom-entity></ha-entity-picker>
+          ? `<div class="shc-ed-sec">Stato e programma (domotico)</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Entita' dello stato (es. "in funzione", "pronto"...)</span>
+        <ha-entity-picker class="shc-ed-live-state" allow-custom-entity></ha-entity-picker>
       </div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Avanzamento programma (facoltativo)</span>
-        <ha-entity-picker class="dm-ed-live-progress" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Avanzamento programma (facoltativo)</span>
+        <ha-entity-picker class="shc-ed-live-progress" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>
-      <div class="dm-ed-row">
-        <span class="dm-ed-label">Fine prevista (facoltativo)</span>
-        <ha-entity-picker class="dm-ed-live-remaining" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">Fine prevista (facoltativo)</span>
+        <ha-entity-picker class="shc-ed-live-remaining" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>`
           : ""
       }
 
-      <details class="dm-ed-adv">
+      <details class="shc-ed-adv">
         <summary>Impostazioni avanzate (soglie, layout)</summary>
-        <div class="dm-ed-grid2">
-          <div class="dm-ed-row">
-            <span class="dm-ed-label">Soglia "in funzione" (W)</span>
-            <input class="dm-ed-input dm-ed-thr-run" type="number" value="${cfg.threshold_run ?? 5}">
+        <div class="shc-ed-grid2">
+          <div class="shc-ed-row">
+            <span class="shc-ed-label">Soglia "in funzione" (W)</span>
+            <input class="shc-ed-input shc-ed-thr-run" type="number" value="${cfg.threshold_run ?? 5}">
           </div>
-          <div class="dm-ed-row">
-            <span class="dm-ed-label">Soglia "standby" (W)</span>
-            <input class="dm-ed-input dm-ed-thr-standby" type="number" value="${cfg.threshold_standby ?? 1}">
+          <div class="shc-ed-row">
+            <span class="shc-ed-label">Soglia "standby" (W)</span>
+            <input class="shc-ed-input shc-ed-thr-standby" type="number" value="${cfg.threshold_standby ?? 1}">
           </div>
-          <div class="dm-ed-row">
-            <span class="dm-ed-label">Fondo scala barra potenza (W)</span>
-            <input class="dm-ed-input dm-ed-max-power" type="number" value="${cfg.max_power ?? 2200}">
+          <div class="shc-ed-row">
+            <span class="shc-ed-label">Fondo scala barra potenza (W)</span>
+            <input class="shc-ed-input shc-ed-max-power" type="number" value="${cfg.max_power ?? 2200}">
           </div>
-          <div class="dm-ed-row">
-            <span class="dm-ed-label">Menu layout (facoltativo)</span>
-            <ha-entity-picker class="dm-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
+          <div class="shc-ed-row">
+            <span class="shc-ed-label">Menu layout (facoltativo)</span>
+            <ha-entity-picker class="shc-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
           </div>
         </div>
-        <p class="dm-ed-hint">Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
+        <p class="shc-ed-hint">Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
       </details>
 
       ${this._storiciHtml(cfg)}
     `;
 
-    body.querySelectorAll(".dm-ed-type-btn").forEach((btn) => {
+    body.querySelectorAll(".shc-ed-type-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const type = DM_APPLIANCE_TYPES.find((t) => t.value === btn.dataset.type);
+        const type = SHC_APPLIANCE_TYPES.find((t) => t.value === btn.dataset.type);
         this._config = { ...this._config, artwork: type.value };
         if (!this._config.name) this._config.name = type.label;
         if (this._domoticoOverride === undefined) this._domoticoOverride = type.domotico;
@@ -2407,14 +2407,14 @@ class DmApplianceCloneCardEditor extends HTMLElement {
         this._render();
       });
     });
-    body.querySelectorAll(".dm-ed-choice-btn").forEach((btn) => {
+    body.querySelectorAll(".shc-ed-choice-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         this._domoticoOverride = btn.dataset.domotico === "1";
         this._emit();
         this._render();
       });
     });
-    const name = body.querySelector(".dm-ed-name");
+    const name = body.querySelector(".shc-ed-name");
     name.value = cfg.name || "";
     name.addEventListener("change", () => this._set("name", name.value));
 
@@ -2430,27 +2430,27 @@ class DmApplianceCloneCardEditor extends HTMLElement {
         this._set(path, e.detail.value);
       });
     };
-    wirePicker(".dm-ed-power", cfg.power_entity, "power", "power_entity");
-    wirePicker(".dm-ed-live-state", cfg.live?.state_entity, "state", "live.state_entity");
-    wirePicker(".dm-ed-live-progress", cfg.live?.progress_entity, null, "live.progress_entity");
-    wirePicker(".dm-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
-    wirePicker(".dm-ed-layout", cfg.layout_entity, null, "layout_entity");
+    wirePicker(".shc-ed-power", cfg.power_entity, "power", "power_entity");
+    wirePicker(".shc-ed-live-state", cfg.live?.state_entity, "state", "live.state_entity");
+    wirePicker(".shc-ed-live-progress", cfg.live?.progress_entity, null, "live.progress_entity");
+    wirePicker(".shc-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
+    wirePicker(".shc-ed-layout", cfg.layout_entity, null, "layout_entity");
     ["thr-run:threshold_run", "thr-standby:threshold_standby", "max-power:max_power"].forEach((pair) => {
       const [cls, key] = pair.split(":");
-      const el = body.querySelector(".dm-ed-" + cls);
+      const el = body.querySelector(".shc-ed-" + cls);
       if (el) el.addEventListener("change", () => this._set(key, Number(el.value)));
     });
 
     // Storici automatici: picker + pulsanti "crea" (v. _storiciHtml/_runStorici).
-    wirePicker(".dm-ed-energy-stat", cfg.energy_stat_entity, null, "energy_stat_entity");
-    wirePicker(".dm-ed-cost", cfg.cost_entity, null, "cost_entity");
-    const autoStatsBox = body.querySelector(".dm-ed-auto-stats");
+    wirePicker(".shc-ed-energy-stat", cfg.energy_stat_entity, null, "energy_stat_entity");
+    wirePicker(".shc-ed-cost", cfg.cost_entity, null, "cost_entity");
+    const autoStatsBox = body.querySelector(".shc-ed-auto-stats");
     if (autoStatsBox) autoStatsBox.addEventListener("change", () => this._set("auto_stats", autoStatsBox.checked));
-    const createEnergyBtn = body.querySelector(".dm-ed-create-energy");
+    const createEnergyBtn = body.querySelector(".shc-ed-create-energy");
     if (createEnergyBtn) {
       createEnergyBtn.addEventListener("click", () =>
         this._runStorici(createEnergyBtn, "energia", async () => {
-          const entityId = await dmCreateEnergyHelper(this._hass, {
+          const entityId = await shcCreateEnergyHelper(this._hass, {
             name: `${cfg.name || "Elettrodomestico"} - Energia`,
             sourceEntity: cfg.power_entity,
           });
@@ -2460,11 +2460,11 @@ class DmApplianceCloneCardEditor extends HTMLElement {
         }),
       );
     }
-    const createCostBtn = body.querySelector(".dm-ed-create-cost");
+    const createCostBtn = body.querySelector(".shc-ed-create-cost");
     if (createCostBtn) {
       createCostBtn.addEventListener("click", () =>
         this._runStorici(createCostBtn, "costo", async () => {
-          const entityId = await dmCreateCostHelper(this._hass, { name: "Costo energia" });
+          const entityId = await shcCreateCostHelper(this._hass, { name: "Costo energia" });
           this._config = { ...this._config, cost_entity: entityId };
           this._emit();
           this._render();
@@ -2473,24 +2473,24 @@ class DmApplianceCloneCardEditor extends HTMLElement {
     }
   }
 }
-customElements.define("dm-appliance-clone-card-editor", DmApplianceCloneCardEditor);
+customElements.define("shc-appliance-clone-card-editor", ShcApplianceCloneCardEditor);
 
-customElements.define("dm-appliance-clone-card", DmApplianceCloneCard);
+customElements.define("shc-appliance-clone-card", ShcApplianceCloneCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-appliance-clone-card",
+  type: "shc-appliance-clone-card",
   name: "Elettrodomestico",
   description: "Card per gli elettrodomestici, con popup impostazioni/statistiche completi",
   author: "Simonz82",
 });
 
 // -----------------------------------------------------------------------
-// dm-fritz-card: stessa grammatica visiva (STYLE, dialog, righe) applicata
+// shc-fritz-card: stessa grammatica visiva (STYLE, dialog, righe) applicata
 // a un dispositivo di rete invece che a un elettrodomestico a ciclo/potenza.
-// Nessuna dipendenza da DmApplianceCloneCard, ma stesse classi CSS/STYLE.
+// Nessuna dipendenza da ShcApplianceCloneCard, ma stesse classi CSS/STYLE.
 // -----------------------------------------------------------------------
 
-class DmFritzCard extends HTMLElement {
+class ShcFritzCard extends HTMLElement {
   setConfig(config) {
     if (!config.connection_entity) throw new Error("connection_entity \u00e8 obbligatorio");
     this._config = {
@@ -2508,83 +2508,83 @@ class DmFritzCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.fritzbox)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.fritzbox;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="dm-ap-tool dm-ap-consumi" title="Test di banda">${ICON_SPEED}</button>
-            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Test di banda">${ICON_SPEED}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Connessione</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_GLOBE}</span><small>IP</small></span><b class="dm-c-ip">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Da</small></span><b class="dm-c-uptime">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_DOWNLOAD}</span><small>Portante Down</small></span><b class="dm-c-pdown">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_UPLOAD}</span><small>Portante Up</small></span><b class="dm-c-pup">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Connessione</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_GLOBE}</span><small>IP</small></span><b class="shc-c-ip">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Da</small></span><b class="shc-c-uptime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_DOWNLOAD}</span><small>Portante Down</small></span><b class="shc-c-pdown">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_UPLOAD}</span><small>Portante Up</small></span><b class="shc-c-pup">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter dm-c-meter-clickable" data-graph="0">
-              <div class="dm-ap-meter-row"><span>Download ora (live)</span><strong class="dm-c-mbps-down-val">0 Mbps</strong></div>
-              <div class="dm-ap-bar"><i class="dm-c-mbps-down-bar" style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="0">
+              <div class="shc-ap-meter-row"><span>Download ora (live)</span><strong class="shc-c-mbps-down-val">0 Mbps</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-mbps-down-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable" data-graph="1">
-              <div class="dm-ap-meter-row"><span>Upload ora (live)</span><strong class="dm-c-mbps-up-val">0 Mbps</strong></div>
-              <div class="dm-ap-bar"><i class="dm-c-mbps-up-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="1">
+              <div class="shc-ap-meter-row"><span>Upload ora (live)</span><strong class="shc-c-mbps-up-val">0 Mbps</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-mbps-up-bar" style="width:0%"></i></div>
             </div>
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
     // Toccando una delle due barre live si apre il grafico storico (24 h / 7 gg / 30 gg / da ... a)
-    this._root.querySelectorAll(".dm-c-meter-clickable").forEach((m) => {
+    this._root.querySelectorAll(".shc-c-meter-clickable").forEach((m) => {
       m.addEventListener("click", (e) => {
         e.stopPropagation();
-        dmOpenChartPopup(this, { title: this._config.name, series: this._graphSeries(), active: Number(m.dataset.graph) });
+        shcOpenChartPopup(this, { title: this._config.name, series: this._graphSeries(), active: Number(m.dataset.graph) });
       });
     });
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
     });
-    this._root.querySelector(".dm-ap-update").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-update").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openUpdate();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-ap-consumi").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-consumi").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openConsumi();
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -2598,11 +2598,11 @@ class DmFritzCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -2618,32 +2618,32 @@ class DmFritzCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
   _actionRowHtml(row) {
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -2651,8 +2651,8 @@ class DmFritzCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
@@ -2660,8 +2660,8 @@ class DmFritzCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
@@ -2698,7 +2698,7 @@ class DmFritzCard extends HTMLElement {
   // per voce, etichetta a sinistra e valore a destra, stesso "chip" visivo
   // gia' usato in Impostazioni - non il riquadro compatto usato altrove.
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   // Una riga sola per una coppia di valori (download/upload o simile):
@@ -2707,7 +2707,7 @@ class DmFritzCard extends HTMLElement {
     const arrows = aLabel === "Download" && bLabel === "Upload";
     const aTxt = arrows ? `\u2193 ${esc(aVal)}` : `${esc(aLabel)} ${esc(aVal)}`;
     const bTxt = arrows ? `\u2191 ${esc(bVal)}` : `${esc(bLabel)} ${esc(bVal)}`;
-    return this._row(label, `<span class="dm-ap-row-val">${aTxt}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${bTxt}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${aTxt}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${bTxt}</span>`);
   }
 
   _openStats() {
@@ -2742,9 +2742,9 @@ class DmFritzCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Connessione</div><div class="dm-ap-week-list">${connessioneHtml}</div></div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Segnale</div><div class="dm-ap-week-list">${segnaleHtml}</div></div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Sistema</div><div class="dm-ap-week-list">${sistemaHtml}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Connessione</div><div class="shc-ap-week-list">${connessioneHtml}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Segnale</div><div class="shc-ap-week-list">${segnaleHtml}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div><div class="shc-ap-week-list">${sistemaHtml}</div></div>
     `);
   }
 
@@ -2762,7 +2762,7 @@ class DmFritzCard extends HTMLElement {
       this._statRow("Firmware disponibile", latest),
       this._statRow("Stato", upToDate ? "Aggiornato" : "Aggiornamento disponibile"),
     ].join("");
-    this._openDialog("Aggiornamenti", `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Firmware FritzOS</div><div class="dm-ap-week-list">${html}</div></div>`);
+    this._openDialog("Aggiornamenti", `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Firmware FritzOS</div><div class="shc-ap-week-list">${html}</div></div>`);
   }
 
   _openConsumi() {
@@ -2790,8 +2790,8 @@ class DmFritzCard extends HTMLElement {
       : "";
 
     this._openDialog("Test di banda", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Banda in tempo reale</div><div class="dm-ap-week-list">${liveHtml}</div></div>
-      ${speedtestHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Speedtest Ookla (misurazione periodica)</div><div class="dm-ap-week-list">${speedtestHtml}</div></div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Banda in tempo reale</div><div class="shc-ap-week-list">${liveHtml}</div></div>
+      ${speedtestHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Speedtest Ookla (misurazione periodica)</div><div class="shc-ap-week-list">${speedtestHtml}</div></div>` : ""}
     `);
   }
 
@@ -2817,42 +2817,42 @@ class DmFritzCard extends HTMLElement {
     const attrs = conn?.attributes || {};
     const mode = conn ? (online ? "running" : "off") : "unavailable";
 
-    const card = this._root.querySelector(".dm-ap-card");
+    const card = this._root.querySelector(".shc-ap-card");
     card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm");
     card.classList.add(`is-${mode === "running" ? "run" : mode}`);
 
-    const badge = this._root.querySelector(".dm-ap-badge");
+    const badge = this._root.querySelector(".shc-ap-badge");
     badge.classList.remove("run", "standby", "off", "unavailable");
     badge.classList.add(mode === "running" ? "run" : mode);
-    this._root.querySelector(".dm-ap-badge-label").textContent = conn
+    this._root.querySelector(".shc-ap-badge-label").textContent = conn
       ? online
         ? "CONNESSO"
         : "DISCONNESSO"
       : "N/D";
 
-    this._root.querySelector(".dm-c-ip").textContent = attrs.ip ?? "\u2014";
-    this._root.querySelector(".dm-c-uptime").textContent = this._fmtDateTime(attrs.uptime_connect);
+    this._root.querySelector(".shc-c-ip").textContent = attrs.ip ?? "\u2014";
+    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(attrs.uptime_connect);
     const s = cfg.stats || {};
     const portanteDown = s.portante_down ? hass.states[s.portante_down] : null;
     const portanteUp = s.portante_up ? hass.states[s.portante_up] : null;
-    this._root.querySelector(".dm-c-pdown").textContent = portanteDown
+    this._root.querySelector(".shc-c-pdown").textContent = portanteDown
       ? `${Number(portanteDown.state).toFixed(1)} ${portanteDown.attributes?.unit_of_measurement || ""}`
       : "\u2014";
-    this._root.querySelector(".dm-c-pup").textContent = portanteUp
+    this._root.querySelector(".shc-c-pup").textContent = portanteUp
       ? `${Number(portanteUp.state).toFixed(1)} ${portanteUp.attributes?.unit_of_measurement || ""}`
       : "\u2014";
 
     const mbpsDown = s.mbps_down ? Number(hass.states[s.mbps_down]?.state) : NaN;
     const downVal = Number.isFinite(mbpsDown) ? Math.max(0, mbpsDown) : 0;
-    this._root.querySelector(".dm-c-mbps-down-val").textContent = `${downVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".dm-c-mbps-down-bar").style.width = `${Math.min(100, Math.round((downVal / this._maxMbps(portanteDown)) * 100))}%`;
+    this._root.querySelector(".shc-c-mbps-down-val").textContent = `${downVal.toFixed(1)} Mbps`;
+    this._root.querySelector(".shc-c-mbps-down-bar").style.width = `${Math.min(100, Math.round((downVal / this._maxMbps(portanteDown)) * 100))}%`;
 
     const mbpsUp = s.mbps_up ? Number(hass.states[s.mbps_up]?.state) : NaN;
     const upVal = Number.isFinite(mbpsUp) ? Math.max(0, mbpsUp) : 0;
-    this._root.querySelector(".dm-c-mbps-up-val").textContent = `${upVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".dm-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / this._maxMbps(portanteUp)) * 100))}%`;
+    this._root.querySelector(".shc-c-mbps-up-val").textContent = `${upVal.toFixed(1)} Mbps`;
+    this._root.querySelector(".shc-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / this._maxMbps(portanteUp)) * 100))}%`;
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
     const upd = cfg.update_entity ? hass.states[cfg.update_entity] : null;
     const installed = upd?.attributes?.installed_version ?? attrs.firmware_installato;
     const latest = upd?.attributes?.latest_version ?? attrs.firmware_disponibilie;
@@ -2878,7 +2878,7 @@ class DmFritzCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-fritz-card-editor");
+    return document.createElement("shc-fritz-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -2890,23 +2890,23 @@ class DmFritzCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-fritz-card", DmFritzCard);
+customElements.define("shc-fritz-card", ShcFritzCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-fritz-card",
+  type: "shc-fritz-card",
   name: "FritzBox",
   description: "Card per FritzBox/router: stato, banda, segnale, popup statistiche/impostazioni",
   author: "Simonz82",
 });
 
 // -----------------------------------------------------------------------
-// dm-server-card: stessa grammatica visiva applicata al server/host che fa
+// shc-server-card: stessa grammatica visiva applicata al server/host che fa
 // girare Home Assistant (CPU/RAM/disco, aggiornamenti, backup, riavvii
 // programmati, certificato SSL, conteggio entita'...). Stessa STYLE/classi
-// CSS di DmApplianceCloneCard/DmFritzCard, nessuna dipendenza da esse.
+// CSS di ShcApplianceCloneCard/ShcFritzCard, nessuna dipendenza da esse.
 // -----------------------------------------------------------------------
 
-class DmServerCard extends HTMLElement {
+class ShcServerCard extends HTMLElement {
   setConfig(config) {
     this._config = {
       name: "Home Assistant",
@@ -2923,52 +2923,52 @@ class DmServerCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.server;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card is-run">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge run"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label">ONLINE</span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Sistema</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TAG}</span><small>Versione Core</small></span><b class="dm-c-core">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato da</small></span><b class="dm-c-uptime">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_SHIELD}</span><small>Certificato SSL</small></span><b class="dm-c-ssl">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Sistema</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TAG}</span><small>Versione Core</small></span><b class="shc-c-core">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato da</small></span><b class="shc-c-uptime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small>Certificato SSL</small></span><b class="shc-c-ssl">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter dm-c-meter-clickable dm-c-meter-cpu">
-              <div class="dm-ap-meter-row"><span>CPU</span><strong class="dm-c-cpu-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-c-cpu-bar" style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-cpu">
+              <div class="shc-ap-meter-row"><span>CPU</span><strong class="shc-c-cpu-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-cpu-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-c-meter-ram">
-              <div class="dm-ap-meter-row"><span>RAM</span><strong class="dm-c-ram-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-c-ram-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-ram">
+              <div class="shc-ap-meter-row"><span>RAM</span><strong class="shc-c-ram-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-ram-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-c-meter-disk">
-              <div class="dm-ap-meter-row"><span>Disco HA</span><strong class="dm-c-disk-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-c-disk-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-disk">
+              <div class="shc-ap-meter-row"><span>Disco HA</span><strong class="shc-c-disk-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-disk-bar" style="width:0%"></i></div>
             </div>
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       // Riusa pari pari il vecchio popup "Impostazioni" (browser_mod) della
       // card Statistiche Home Assistant, invece del dialog interno moderno:
@@ -2981,41 +2981,41 @@ class DmServerCard extends HTMLElement {
         this._openSettings();
       }
     });
-    this._root.querySelector(".dm-ap-update").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-update").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openUpdate();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStatsOrLegacy();
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStatsOrLegacy();
     });
-    this._root.querySelector(".dm-c-meter-cpu").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-c-meter-cpu").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.cpu, "CPU", "#38bdf8");
     });
-    this._root.querySelector(".dm-c-meter-ram").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-c-meter-ram").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.ram_pct, "RAM", "#22c55e");
     });
-    this._root.querySelector(".dm-c-meter-disk").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-c-meter-disk").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.disk_pct, "Disco HA", "#eab308");
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -3029,11 +3029,11 @@ class DmServerCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -3056,25 +3056,25 @@ class DmServerCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
@@ -3093,46 +3093,46 @@ class DmServerCard extends HTMLElement {
       const st = hass.states[row.time];
       const timeTxt = st ? String(st.state).slice(0, 5) : "—";
       chips.push(
-        `<span class="dm-ap-chip" data-open-entity="${esc(row.time)}">${ICON_TIMER}<b>${esc(timeTxt)}</b></span>`,
+        `<span class="shc-ap-chip" data-open-entity="${esc(row.time)}">${ICON_TIMER}<b>${esc(timeTxt)}</b></span>`,
       );
     }
     if (row.days) {
-      chips.push(`<span class="dm-ap-chip" data-open-days="${idx}">${ICON_CALENDAR}Giorni</span>`);
+      chips.push(`<span class="shc-ap-chip" data-open-days="${idx}">${ICON_CALENDAR}Giorni</span>`);
     }
     (row.numbers || []).forEach((nu) => {
       const st = hass.states[nu.entity];
       const unit = st?.attributes?.unit_of_measurement || "";
       chips.push(
-        `<span class="dm-ap-chip" data-open-entity="${esc(nu.entity)}">${esc(nu.label)} <b>${st ? esc(st.state) : "—"}${unit ? esc(unit) : ""}</b></span>`,
+        `<span class="shc-ap-chip" data-open-entity="${esc(nu.entity)}">${esc(nu.label)} <b>${st ? esc(st.state) : "—"}${unit ? esc(unit) : ""}</b></span>`,
       );
     });
     (row.extraToggles || []).forEach((ex) => {
       const st = hass.states[ex.entity];
       const exOn = st?.state === "on";
       chips.push(
-        `<span class="dm-ap-chip${exOn ? " on" : ""}" data-entity="${esc(ex.entity)}">${esc(ex.label)}</span>`,
+        `<span class="shc-ap-chip${exOn ? " on" : ""}" data-entity="${esc(ex.entity)}">${esc(ex.label)}</span>`,
       );
     });
     if (row.action) {
       chips.push(
-        `<span class="dm-ap-chip dm-ap-chip-action" data-action-target="${esc(row.action.script)}" data-action-kind="script">${esc(row.action.label)}</span>`,
+        `<span class="shc-ap-chip shc-ap-chip-action" data-action-target="${esc(row.action.script)}" data-action-kind="script">${esc(row.action.label)}</span>`,
       );
     }
 
-    return `<div class="dm-ap-row-group">
-      <div class="dm-ap-row-group-top">
-        <span class="dm-ap-row-group-label"><span class="dm-ap-row-group-ic">${icon}</span>${esc(row.label)}</span>
-        ${row.toggle ? `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.toggle)}" aria-pressed="${on}"></button>` : ""}
+    return `<div class="shc-ap-row-group">
+      <div class="shc-ap-row-group-top">
+        <span class="shc-ap-row-group-label"><span class="shc-ap-row-group-ic">${icon}</span>${esc(row.label)}</span>
+        ${row.toggle ? `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.toggle)}" aria-pressed="${on}"></button>` : ""}
       </div>
-      ${chips.length ? `<div class="dm-ap-row-chips">${chips.join("")}</div>` : ""}
+      ${chips.length ? `<div class="shc-ap-row-chips">${chips.join("")}</div>` : ""}
     </div>`;
   }
 
   _actionRowHtml(row) {
     const target = row.service ? row.service : row.entity;
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -3152,8 +3152,8 @@ class DmServerCard extends HTMLElement {
     this._settingsGroupRows = [];
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => (row.type === "group" ? this._settingsGroupRowHtml(hass, row) : this._settingsRowHtml(hass, row))).join("")}
         </div>`,
       )
@@ -3161,8 +3161,8 @@ class DmServerCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
@@ -3178,16 +3178,16 @@ class DmServerCard extends HTMLElement {
       .map((entityId, i) => {
         const st = hass.states[entityId];
         const on = st?.state === "on";
-        return `<div class="dm-ap-row">
-          <span class="dm-ap-row-label">${esc(DAY_LABELS[i])}</span>
-          <button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(entityId)}" aria-pressed="${on}"></button>
+        return `<div class="shc-ap-row">
+          <span class="shc-ap-row-label">${esc(DAY_LABELS[i])}</span>
+          <button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(entityId)}" aria-pressed="${on}"></button>
         </div>`;
       })
       .join("");
 
     const overlay = this._openDialog(`Giorni – ${row.label}`, `
-      <div class="dm-ap-sub-back" data-back>${ICON_BACK} Impostazioni</div>
-      <div class="dm-ap-sec">${rowsHtml}</div>
+      <div class="shc-ap-sub-back" data-back>${ICON_BACK} Impostazioni</div>
+      <div class="shc-ap-sec">${rowsHtml}</div>
     `);
     this._wireSettingsOverlay(overlay);
     overlay.querySelector("[data-back]")?.addEventListener("click", () => {
@@ -3240,7 +3240,7 @@ class DmServerCard extends HTMLElement {
   // Righe semplici (stile "lista" della vecchia card): etichetta a
   // sinistra, valore a destra, stesso chip visivo usato in Impostazioni.
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   _val(hass, entityId, digits) {
@@ -3276,7 +3276,7 @@ class DmServerCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 24;
@@ -3289,7 +3289,7 @@ class DmServerCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -3307,7 +3307,7 @@ class DmServerCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _fetchHistory6h(entityId) {
@@ -3329,7 +3329,7 @@ class DmServerCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
+    shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   // Riusa pari pari il vecchio popup "Statistiche" (browser_mod) della card
@@ -3375,10 +3375,10 @@ class DmServerCard extends HTMLElement {
     const dbHtml = cfg.db_size ? this._statRow("Spazio MariaDB", val(cfg.db_size, 1)) : "";
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Rete</div>${reteHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Avvio</div>${avvioHtml}</div>
-      ${dbHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Database</div>${dbHtml}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete</div>${reteHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvio</div>${avvioHtml}</div>
+      ${dbHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Database</div>${dbHtml}</div>` : ""}
     `);
   }
 
@@ -3408,8 +3408,8 @@ class DmServerCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Aggiornamenti", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Aggiornamenti disponibili</div>${aggiornamentiHtml}</div>
-      ${manutenzioneHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Manutenzione</div>${manutenzioneHtml}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Aggiornamenti disponibili</div>${aggiornamentiHtml}</div>
+      ${manutenzioneHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Manutenzione</div>${manutenzioneHtml}</div>` : ""}
     `);
   }
 
@@ -3423,34 +3423,34 @@ class DmServerCard extends HTMLElement {
     const up = cfg.uptime || {};
 
     const coreUpd = u.core ? hass.states[u.core] : null;
-    this._root.querySelector(".dm-c-core").textContent = coreUpd?.attributes?.installed_version ?? "\u2014";
-    this._root.querySelector(".dm-c-uptime").textContent = this._fmtDateTime(hass.states[up.ha_since]?.state);
+    this._root.querySelector(".shc-c-core").textContent = coreUpd?.attributes?.installed_version ?? "\u2014";
+    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(hass.states[up.ha_since]?.state);
     const sslIso = cfg.ssl_cert ? hass.states[cfg.ssl_cert]?.state : null;
     const sslDays = this._daysUntil(sslIso);
-    this._root.querySelector(".dm-c-ssl").textContent = sslDays != null ? `${sslDays} gg` : "\u2014";
+    this._root.querySelector(".shc-c-ssl").textContent = sslDays != null ? `${sslDays} gg` : "\u2014";
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
-    this._root.querySelector(".dm-c-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
-    const cpuBar = this._root.querySelector(".dm-c-cpu-bar");
+    this._root.querySelector(".shc-c-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
+    const cpuBar = this._root.querySelector(".shc-c-cpu-bar");
     cpuBar.style.width = `${Math.min(100, Math.max(0, cpuVal))}%`;
     cpuBar.style.background = meterSeverityColor(cpuVal);
 
     const ram = s.ram_pct ? Number(hass.states[s.ram_pct]?.state) : NaN;
     const ramVal = Number.isFinite(ram) ? ram : 0;
-    this._root.querySelector(".dm-c-ram-val").textContent = `${ramVal.toFixed(0)}%`;
-    const ramBar = this._root.querySelector(".dm-c-ram-bar");
+    this._root.querySelector(".shc-c-ram-val").textContent = `${ramVal.toFixed(0)}%`;
+    const ramBar = this._root.querySelector(".shc-c-ram-bar");
     ramBar.style.width = `${Math.min(100, Math.max(0, ramVal))}%`;
     ramBar.style.background = meterSeverityColor(ramVal);
 
     const disk = s.disk_pct ? Number(hass.states[s.disk_pct]?.state) : NaN;
     const diskVal = Number.isFinite(disk) ? disk : 0;
-    this._root.querySelector(".dm-c-disk-val").textContent = `${diskVal.toFixed(0)}%`;
-    const diskBar = this._root.querySelector(".dm-c-disk-bar");
+    this._root.querySelector(".shc-c-disk-val").textContent = `${diskVal.toFixed(0)}%`;
+    const diskBar = this._root.querySelector(".shc-c-disk-bar");
     diskBar.style.width = `${Math.min(100, Math.max(0, diskVal))}%`;
     diskBar.style.background = meterSeverityColor(diskVal);
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
     const supUpd = u.supervisor ? hass.states[u.supervisor] : null;
     const addonCount = u.addon_count ? Number(hass.states[u.addon_count]?.state) : 0;
     const hacsCount = u.hacs_count ? Number(hass.states[u.hacs_count]?.state) : 0;
@@ -3460,7 +3460,7 @@ class DmServerCard extends HTMLElement {
     if (addonCount > 0) warnings.push(`${addonCount} addon`);
     if (hacsCount > 0) warnings.push(`${hacsCount} HACS`);
     if (sslDays != null && sslDays <= 14) warnings.push(`SSL scade tra ${sslDays}gg`);
-    const card = this._root.querySelector(".dm-ap-card");
+    const card = this._root.querySelector(".shc-ap-card");
     if (warnings.length) {
       warnEl.hidden = false;
       warnEl.textContent = "\u26a0 " + warnings.join(" \u00b7 ");
@@ -3485,7 +3485,7 @@ class DmServerCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-server-card-editor");
+    return document.createElement("shc-server-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -3496,16 +3496,16 @@ class DmServerCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-server-card", DmServerCard);
+customElements.define("shc-server-card", ShcServerCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-server-card",
+  type: "shc-server-card",
   name: "Server Home Assistant",
   description: "Card per il server/host di Home Assistant: CPU/RAM/disco, aggiornamenti, backup, riavvii",
   author: "Simonz82",
 });
 
-class DmNasCard extends HTMLElement {
+class ShcNasCard extends HTMLElement {
   setConfig(config) {
     if (!config.update_entity) throw new Error("update_entity \u00e8 obbligatorio");
     this._config = {
@@ -3524,120 +3524,120 @@ class DmNasCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.nas)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.nas;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card is-run">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge run"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label">ONLINE</span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="dm-ap-tool dm-ap-consumi" title="Consumi">${ICON_BOLT}</button>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Sistema</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOX}</span><small>Modello</small></span><b class="dm-n-model">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TAG}</span><small>DSM</small></span><b class="dm-n-dsm">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_SHIELD}</span><small>Sicurezza</small></span><b class="dm-n-security">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="dm-n-watt-front">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Sistema</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOX}</span><small>Modello</small></span><b class="shc-n-model">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TAG}</span><small>DSM</small></span><b class="shc-n-dsm">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small>Sicurezza</small></span><b class="shc-n-security">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-n-watt-front">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-cpu">
-              <div class="dm-ap-meter-row"><span>CPU</span><strong class="dm-n-cpu-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-cpu-bar" style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-cpu">
+              <div class="shc-ap-meter-row"><span>CPU</span><strong class="shc-n-cpu-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-cpu-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-ram">
-              <div class="dm-ap-meter-row"><span>RAM</span><strong class="dm-n-ram-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-ram-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-ram">
+              <div class="shc-ap-meter-row"><span>RAM</span><strong class="shc-n-ram-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-ram-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-vol1">
-              <div class="dm-ap-meter-row"><span class="dm-n-vol1-label">Volume 1</span><strong class="dm-n-vol1-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-vol1-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-vol1">
+              <div class="shc-ap-meter-row"><span class="shc-n-vol1-label">Volume 1</span><strong class="shc-n-vol1-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-vol1-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-vol2">
-              <div class="dm-ap-meter-row"><span class="dm-n-vol2-label">Volume 2</span><strong class="dm-n-vol2-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-vol2-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-vol2">
+              <div class="shc-ap-meter-row"><span class="shc-n-vol2-label">Volume 2</span><strong class="shc-n-vol2-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-vol2-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-usb" hidden>
-              <div class="dm-ap-meter-row"><span>USB</span><strong class="dm-n-usb-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-usb-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-usb" hidden>
+              <div class="shc-ap-meter-row"><span>USB</span><strong class="shc-n-usb-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-usb-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-n-meter-temp">
-              <div class="dm-ap-meter-row"><span>Temperatura</span><strong class="dm-n-temp-val">0°C</strong></div>
-              <div class="dm-ap-bar"><i class="dm-n-temp-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-temp">
+              <div class="shc-ap-meter-row"><span>Temperatura</span><strong class="shc-n-temp-val">0°C</strong></div>
+              <div class="shc-ap-bar"><i class="shc-n-temp-bar" style="width:0%"></i></div>
             </div>
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
     });
-    this._root.querySelector(".dm-ap-update").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-update").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openUpdate();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-ap-consumi").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-consumi").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openConsumi();
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-n-meter-cpu").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-cpu").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.cpu, "CPU", "#38bdf8");
     });
-    this._root.querySelector(".dm-n-meter-ram").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-ram").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.ram_pct, "RAM", "#22c55e");
     });
-    this._root.querySelector(".dm-n-meter-vol1").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-vol1").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.vol1, this._config.sensors?.vol1_label || "Volume 1", "#eab308");
     });
-    this._root.querySelector(".dm-n-meter-vol2").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-vol2").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.vol2, this._config.sensors?.vol2_label || "Volume 2", "#f97316");
     });
-    this._root.querySelector(".dm-n-meter-usb").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-usb").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.usb_pct, "USB", "#a855f7");
     });
-    this._root.querySelector(".dm-n-meter-temp").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-n-meter-temp").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.temp, "Temperatura", "#ef4444");
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -3651,11 +3651,11 @@ class DmNasCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -3671,25 +3671,25 @@ class DmNasCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
@@ -3701,9 +3701,9 @@ class DmNasCard extends HTMLElement {
     const domain = row.entity ? row.entity.split(".")[0] : row.service ? row.service.split(".")[0] : "";
     const target = row.service ? row.service : row.entity;
     const kind = row.service ? "service" : domain === "button" ? "button" : "script";
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${kind}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${kind}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -3711,8 +3711,8 @@ class DmNasCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
@@ -3720,8 +3720,8 @@ class DmNasCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
@@ -3762,11 +3762,11 @@ class DmNasCard extends HTMLElement {
   }
 
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   _statRow2(label, aVal, bVal) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(aVal)}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${esc(bVal)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(aVal)}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${esc(bVal)}</span>`);
   }
 
   _val(hass, entityId, digits) {
@@ -3802,7 +3802,7 @@ class DmNasCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 24;
@@ -3815,7 +3815,7 @@ class DmNasCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -3833,7 +3833,7 @@ class DmNasCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _fetchHistory6h(entityId) {
@@ -3855,7 +3855,7 @@ class DmNasCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
+    shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _stateLabel(raw) {
@@ -3891,10 +3891,10 @@ class DmNasCard extends HTMLElement {
       : "";
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      ${volumiHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Volumi</div>${volumiHtml}</div>` : ""}
-      ${dischiHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Dischi</div>${dischiHtml}</div>` : ""}
-      ${reteHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Rete</div>${reteHtml}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
+      ${volumiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Volumi</div>${volumiHtml}</div>` : ""}
+      ${dischiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Dischi</div>${dischiHtml}</div>` : ""}
+      ${reteHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete</div>${reteHtml}</div>` : ""}
     `);
   }
 
@@ -3912,7 +3912,7 @@ class DmNasCard extends HTMLElement {
       this._statRow("Stato", upToDate ? "Aggiornato" : "Aggiornamento disponibile"),
     ].join("");
 
-    this._openDialog("Aggiornamenti", `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Sistema Operativo (DSM)</div>${html}</div>`);
+    this._openDialog("Aggiornamenti", `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema Operativo (DSM)</div>${html}</div>`);
   }
 
   _openConsumi() {
@@ -3931,8 +3931,8 @@ class DmNasCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Consumi", `
-      ${attualeHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In tempo reale</div>${attualeHtml}</div>` : ""}
-      ${energiaHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Energia NAS</div>${energiaHtml}</div>` : ""}
+      ${attualeHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${attualeHtml}</div>` : ""}
+      ${energiaHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Energia NAS</div>${energiaHtml}</div>` : ""}
     `);
   }
 
@@ -3943,42 +3943,42 @@ class DmNasCard extends HTMLElement {
     const cfg = this._config;
     const s = cfg.sensors || {};
 
-    this._root.querySelector(".dm-n-model").textContent = cfg.model || "\u2014";
+    this._root.querySelector(".shc-n-model").textContent = cfg.model || "\u2014";
     const upd = hass.states[cfg.update_entity];
-    this._root.querySelector(".dm-n-dsm").textContent = upd?.attributes?.installed_version ?? "\u2014";
+    this._root.querySelector(".shc-n-dsm").textContent = upd?.attributes?.installed_version ?? "\u2014";
 
     const secSt = cfg.security_entity ? hass.states[cfg.security_entity] : null;
-    this._root.querySelector(".dm-n-security").textContent = secSt ? (secSt.state === "on" ? "Attenzione" : "OK") : "\u2014";
+    this._root.querySelector(".shc-n-security").textContent = secSt ? (secSt.state === "on" ? "Attenzione" : "OK") : "\u2014";
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
-    this._root.querySelector(".dm-n-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
-    const cpuBar = this._root.querySelector(".dm-n-cpu-bar");
+    this._root.querySelector(".shc-n-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
+    const cpuBar = this._root.querySelector(".shc-n-cpu-bar");
     cpuBar.style.width = `${Math.min(100, Math.max(0, cpuVal))}%`;
     cpuBar.style.background = meterSeverityColor(cpuVal);
 
     const ram = s.ram_pct ? Number(hass.states[s.ram_pct]?.state) : NaN;
     const ramVal = Number.isFinite(ram) ? ram : 0;
-    this._root.querySelector(".dm-n-ram-val").textContent = `${ramVal.toFixed(0)}%`;
-    const ramBar = this._root.querySelector(".dm-n-ram-bar");
+    this._root.querySelector(".shc-n-ram-val").textContent = `${ramVal.toFixed(0)}%`;
+    const ramBar = this._root.querySelector(".shc-n-ram-bar");
     ramBar.style.width = `${Math.min(100, Math.max(0, ramVal))}%`;
     ramBar.style.background = meterSeverityColor(ramVal);
 
     if (s.vol1) {
-      this._root.querySelector(".dm-n-vol1-label").textContent = s.vol1_label || "Volume 1";
+      this._root.querySelector(".shc-n-vol1-label").textContent = s.vol1_label || "Volume 1";
       const v1 = Number(hass.states[s.vol1]?.state);
       const v1Val = Number.isFinite(v1) ? v1 : 0;
-      this._root.querySelector(".dm-n-vol1-val").textContent = `${v1Val.toFixed(0)}%`;
-      const vol1Bar = this._root.querySelector(".dm-n-vol1-bar");
+      this._root.querySelector(".shc-n-vol1-val").textContent = `${v1Val.toFixed(0)}%`;
+      const vol1Bar = this._root.querySelector(".shc-n-vol1-bar");
       vol1Bar.style.width = `${Math.min(100, Math.max(0, v1Val))}%`;
       vol1Bar.style.background = meterSeverityColor(v1Val);
     }
     if (s.vol2) {
-      this._root.querySelector(".dm-n-vol2-label").textContent = s.vol2_label || "Volume 2";
+      this._root.querySelector(".shc-n-vol2-label").textContent = s.vol2_label || "Volume 2";
       const v2 = Number(hass.states[s.vol2]?.state);
       const v2Val = Number.isFinite(v2) ? v2 : 0;
-      this._root.querySelector(".dm-n-vol2-val").textContent = `${v2Val.toFixed(0)}%`;
-      const vol2Bar = this._root.querySelector(".dm-n-vol2-bar");
+      this._root.querySelector(".shc-n-vol2-val").textContent = `${v2Val.toFixed(0)}%`;
+      const vol2Bar = this._root.querySelector(".shc-n-vol2-bar");
       vol2Bar.style.width = `${Math.min(100, Math.max(0, v2Val))}%`;
       vol2Bar.style.background = meterSeverityColor(v2Val);
     }
@@ -3986,35 +3986,35 @@ class DmNasCard extends HTMLElement {
     // Il volume USB compare solo quando c'e' davvero un disco collegato
     // (il sensore Synology va "unavailable" quando la porta e' vuota) -
     // "a scomparsa" come richiesto, non una barra vuota permanente.
-    const usbMeter = this._root.querySelector(".dm-n-meter-usb");
+    const usbMeter = this._root.querySelector(".shc-n-meter-usb");
     const usbSt = s.usb_pct ? hass.states[s.usb_pct] : null;
     const usbConnected = usbSt && usbSt.state !== "unavailable" && usbSt.state !== "unknown";
     usbMeter.hidden = !usbConnected;
     if (usbConnected) {
       const usbVal = Number(usbSt.state) || 0;
-      this._root.querySelector(".dm-n-usb-val").textContent = `${usbVal.toFixed(0)}%`;
-      const usbBar = this._root.querySelector(".dm-n-usb-bar");
+      this._root.querySelector(".shc-n-usb-val").textContent = `${usbVal.toFixed(0)}%`;
+      const usbBar = this._root.querySelector(".shc-n-usb-bar");
       usbBar.style.width = `${Math.min(100, Math.max(0, usbVal))}%`;
       usbBar.style.background = meterSeverityColor(usbVal);
     }
 
     const nasTemp = s.temp ? Number(hass.states[s.temp]?.state) : NaN;
     const nasTempVal = Number.isFinite(nasTemp) ? nasTemp : 0;
-    this._root.querySelector(".dm-n-temp-val").textContent = `${nasTempVal.toFixed(0)}°C`;
-    const nasTempBar = this._root.querySelector(".dm-n-temp-bar");
+    this._root.querySelector(".shc-n-temp-val").textContent = `${nasTempVal.toFixed(0)}°C`;
+    const nasTempBar = this._root.querySelector(".shc-n-temp-bar");
     nasTempBar.style.width = `${Math.min(100, Math.max(0, (nasTempVal / 100) * 100))}%`;
     nasTempBar.style.background = nasTempVal >= 90 ? "#ef4444" : nasTempVal >= 80 ? "#f97316" : "#eab308";
 
     const en = cfg.energy || {};
     const watt = en.power ? Number(hass.states[en.power]?.state) : NaN;
     const wattVal = Number.isFinite(watt) ? Math.max(0, watt) : 0;
-    this._root.querySelector(".dm-n-watt-front").textContent = en.power ? `${wattVal.toFixed(0)} W` : "\u2014";
+    this._root.querySelector(".shc-n-watt-front").textContent = en.power ? `${wattVal.toFixed(0)} W` : "\u2014";
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
     const warnings = [];
     if (upd?.state === "on") warnings.push(`DSM \u2192 ${upd.attributes?.latest_version}`);
     if (secSt?.state === "on") warnings.push("Controllo sicurezza da verificare");
-    const card = this._root.querySelector(".dm-ap-card");
+    const card = this._root.querySelector(".shc-ap-card");
     if (warnings.length) {
       warnEl.hidden = false;
       warnEl.textContent = "\u26a0 " + warnings.join(" \u00b7 ");
@@ -4042,7 +4042,7 @@ class DmNasCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-nas-card-editor");
+    return document.createElement("shc-nas-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -4054,16 +4054,16 @@ class DmNasCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-nas-card", DmNasCard);
+customElements.define("shc-nas-card", ShcNasCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-nas-card",
+  type: "shc-nas-card",
   name: "NAS Synology",
   description: "Card per il NAS Synology: CPU/RAM/volumi, aggiornamenti DSM, consumi, riavvii",
   author: "Simonz82",
 });
 
-class DmEnergyCard extends HTMLElement {
+class ShcEnergyCard extends HTMLElement {
   setConfig(config) {
     if (!config.power_entity) throw new Error("power_entity \u00e8 obbligatorio");
     this._config = {
@@ -4085,55 +4085,55 @@ class DmEnergyCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.energy)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.energy;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card dm-e-card is-run${this._config.layout === "centrato" ? " layout-centrato" : ""}">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card shc-e-card is-run${this._config.layout === "centrato" ? " layout-centrato" : ""}">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge run"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label">ONLINE</span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="dm-ap-tool dm-ap-consumi" title="Circuiti">${ICON_BOLT}</button>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Circuiti">${ICON_BOLT}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Oggi</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="dm-e-today-kwh">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="dm-e-today-cost">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_EURO}</span><small>Costo mese</small></span><b class="dm-e-month-cost">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TREND}</span><small>Top consumo</small></span><b class="dm-e-top">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Oggi</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-e-today-kwh">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="shc-e-today-cost">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo mese</small></span><b class="shc-e-month-cost">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small>Top consumo</small></span><b class="shc-e-top">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters"></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters"></div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
 
     // Le prime 4 voci di "circuits" (Generale/Prese/Luce/Cantina nel setup
     // reale) diventano le barre sul fronte, come CPU/RAM sulle altre card;
     // il resto compare solo nel popup Circuiti - stesso split usato per
     // Volume1/Volume2/USB sulla card NAS.
-    const metersEl = this._root.querySelector(".dm-ap-meters");
+    const metersEl = this._root.querySelector(".shc-ap-meters");
     (this._config.circuits || []).slice(0, 4).forEach((c, i) => {
       // Barra mostrata solo se configurata davvero: serve l'entita' da misurare e una scala
       // (max_entity selezionabile, oppure max fisso). Se manca, la barra non compare.
       if (!(c.entity || c.entity_helper) || !(c.max_entity || c.max)) return;
       const div = document.createElement("div");
-      div.className = "dm-ap-meter dm-c-meter-clickable";
+      div.className = "shc-ap-meter shc-c-meter-clickable";
       div.dataset.circuitIndex = i;
-      div.innerHTML = `<div class="dm-ap-meter-row"><span class="dm-e-c-label">${esc(c.label || "")}</span><strong class="dm-e-c-val">0 W</strong></div>
-        <div class="dm-ap-bar"><i class="dm-e-c-bar" style="width:0%"></i></div>`;
+      div.innerHTML = `<div class="shc-ap-meter-row"><span class="shc-e-c-label">${esc(c.label || "")}</span><strong class="shc-e-c-val">0 W</strong></div>
+        <div class="shc-ap-bar"><i class="shc-e-c-bar" style="width:0%"></i></div>`;
       div.addEventListener("click", (e) => {
         e.stopPropagation();
         const eid = this._barEntity(c, this._hass);
@@ -4142,12 +4142,12 @@ class DmEnergyCard extends HTMLElement {
       metersEl.appendChild(div);
     });
 
-    this._root.querySelector(".dm-ap-notif-center").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-notif-center").addEventListener("click", (e) => {
       e.stopPropagation();
       history.pushState(null, "", "/lovelace/centronotifiche");
       window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
     });
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       if (this._config.legacy_settings_popup) {
         const event = new Event("ll-custom", { bubbles: true, composed: true });
@@ -4157,29 +4157,29 @@ class DmEnergyCard extends HTMLElement {
         this._openSettings();
       }
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-ap-consumi").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-consumi").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openConsumi();
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openConsumi();
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -4193,11 +4193,11 @@ class DmEnergyCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -4206,33 +4206,33 @@ class DmEnergyCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
   _actionRowHtml(row) {
     const target = row.service ? row.service : row.entity;
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -4240,8 +4240,8 @@ class DmEnergyCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
@@ -4253,15 +4253,15 @@ class DmEnergyCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const overlay = this._openDialog(
       "Impostazioni",
-      `${sections}${switchesHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Interruttori</div>${switchesHtml}</div>` : ""}${actionsHtml}`,
+      `${sections}${switchesHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Interruttori</div>${switchesHtml}</div>` : ""}${actionsHtml}`,
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -4296,11 +4296,11 @@ class DmEnergyCard extends HTMLElement {
   }
 
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   _statRow2(label, aVal, bVal) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(aVal)}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${esc(bVal)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(aVal)}&nbsp;&nbsp;\u00b7&nbsp;&nbsp;${esc(bVal)}</span>`);
   }
 
   _val(hass, entityId, digits, attr) {
@@ -4337,7 +4337,7 @@ class DmEnergyCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color, fixedMax) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 200; // grafico alto (prima 90, risultava schiacciato)
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava "2623")
@@ -4350,7 +4350,7 @@ class DmEnergyCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg dm-e-chart-tall" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg shc-e-chart-tall" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -4368,7 +4368,7 @@ class DmEnergyCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _fetchHistory6h(entityId) {
@@ -4390,16 +4390,16 @@ class DmEnergyCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
+    shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openPowerHistory() {
     const cfg = this._config;
     this._openDialog(
       "Andamento potenza",
-      `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultime 24 ore</div><div class="dm-ap-chart-loading" data-chart="24h">Caricamento...</div></div>`,
+      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultime 24 ore</div><div class="shc-ap-chart-loading" data-chart="24h">Caricamento...</div></div>`,
     );
-    const overlay = this._root.querySelector(".dm-ap-overlay");
+    const overlay = this._root.querySelector(".shc-ap-overlay");
     const slot = overlay?.querySelector('[data-chart="24h"]');
     (async () => {
       const end = new Date();
@@ -4446,14 +4446,14 @@ class DmEnergyCard extends HTMLElement {
     const mediaHtml = cfg.media_entity ? this._statRow("Media settimanale", val(cfg.media_entity, 1)) : "";
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Consumi per periodo</div>${periodsHtml}</div>
-      ${prevHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Periodo precedente</div>${prevHtml}</div>` : ""}
-      ${weekHtml ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Ultimi 7 giorni</div>${weekHtml}${mediaHtml}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div>${periodsHtml}</div>
+      ${prevHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Periodo precedente</div>${prevHtml}</div>` : ""}
+      ${weekHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi 7 giorni</div>${weekHtml}${mediaHtml}</div>` : ""}
     `);
-    const overlay = this._root.querySelector(".dm-ap-overlay");
+    const overlay = this._root.querySelector(".shc-ap-overlay");
     const chartBtn = document.createElement("button");
     chartBtn.type = "button";
-    chartBtn.className = "dm-ap-action-btn";
+    chartBtn.className = "shc-ap-action-btn";
     chartBtn.style.width = "100%";
     chartBtn.style.marginTop = "2px";
     chartBtn.textContent = "Andamento potenza (24h)";
@@ -4461,7 +4461,7 @@ class DmEnergyCard extends HTMLElement {
       e.stopPropagation();
       this._openPowerHistory();
     });
-    overlay.querySelector(".dm-ap-dialog-body").appendChild(chartBtn);
+    overlay.querySelector(".shc-ap-dialog-body").appendChild(chartBtn);
   }
 
   // Entita' misurata da una barra: se il circuito ha "entity_helper" (input_text riempito dal
@@ -4495,8 +4495,8 @@ class DmEnergyCard extends HTMLElement {
     const topSt = cfg.top_entity ? hass.states[cfg.top_entity]?.state : null;
 
     this._openDialog("Circuiti", `
-      ${topSt ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">In evidenza</div>${this._statRow("Top consumo", topSt)}</div>` : ""}
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Tutti i circuiti (live)</div>${rows}</div>
+      ${topSt ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In evidenza</div>${this._statRow("Top consumo", topSt)}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Tutti i circuiti (live)</div>${rows}</div>
     `);
   }
 
@@ -4508,18 +4508,18 @@ class DmEnergyCard extends HTMLElement {
 
     const watt = Number(hass.states[cfg.power_entity]?.state);
     const wattVal = Number.isFinite(watt) ? Math.max(0, watt) : 0;
-    const wattText = this._root.querySelector(".dm-e-watt");
+    const wattText = this._root.querySelector(".shc-e-watt");
     if (wattText) wattText.textContent = wattVal.toFixed(0);
 
     if (cfg.periods?.[1]) {
-      this._root.querySelector(".dm-e-today-kwh").textContent = this._val(hass, cfg.periods[1].energy, 2);
-      this._root.querySelector(".dm-e-today-cost").textContent = this._val(hass, cfg.periods[1].cost, 2);
+      this._root.querySelector(".shc-e-today-kwh").textContent = this._val(hass, cfg.periods[1].energy, 2);
+      this._root.querySelector(".shc-e-today-cost").textContent = this._val(hass, cfg.periods[1].cost, 2);
     }
     if (cfg.periods?.[3]) {
-      this._root.querySelector(".dm-e-month-cost").textContent = this._val(hass, cfg.periods[3].cost, 2);
+      this._root.querySelector(".shc-e-month-cost").textContent = this._val(hass, cfg.periods[3].cost, 2);
     }
     // "Nome: 57 W": si accorcia (con ...) solo il nome del dispositivo, i watt restano sempre visibili.
-    const topEl = this._root.querySelector(".dm-e-top");
+    const topEl = this._root.querySelector(".shc-e-top");
     const topTxt = cfg.top_entity ? String(hass.states[cfg.top_entity]?.state ?? "\u2014") : "\u2014";
     const cut = topTxt.lastIndexOf(":");
     if (cut > 0 && /W\s*$/.test(topTxt)) {
@@ -4529,10 +4529,10 @@ class DmEnergyCard extends HTMLElement {
         topEl.dataset.v = topTxt;
         topEl.textContent = "";
         const n = document.createElement("span");
-        n.className = "dm-e-top-n";
+        n.className = "shc-e-top-n";
         n.textContent = nome;
         const w = document.createElement("span");
-        w.className = "dm-e-top-w";
+        w.className = "shc-e-top-w";
         w.textContent = watt;
         topEl.append(n, w);
       }
@@ -4546,10 +4546,10 @@ class DmEnergyCard extends HTMLElement {
       if (!el) return;
       const eid = this._barEntity(c, hass);
       if (!eid || !hass.states[eid]) { el.style.display = "none"; return; }
-      el.querySelector(".dm-e-c-label").textContent = this._barLabel(c, hass, eid);
+      el.querySelector(".shc-e-c-label").textContent = this._barLabel(c, hass, eid);
       const v = Number(hass.states[eid]?.state);
       const vVal = Number.isFinite(v) ? v : 0;
-      el.querySelector(".dm-e-c-val").textContent = `${vVal.toFixed(0)} W`;
+      el.querySelector(".shc-e-c-val").textContent = `${vVal.toFixed(0)} W`;
       // Scala della barra: se il circuito ha "max_entity" (input_number modificabile dalle
       // Impostazioni) vale quel valore, altrimenti il "max" fisso della configurazione.
       const maxLive = c.max_entity ? Number(hass.states[c.max_entity]?.state) : NaN;
@@ -4558,14 +4558,14 @@ class DmEnergyCard extends HTMLElement {
       el.style.display = maxUsed ? "" : "none";
       if (!maxUsed) return;
       const pct = maxUsed ? Math.min(100, (vVal / maxUsed) * 100) : 0;
-      const bar = el.querySelector(".dm-e-c-bar");
+      const bar = el.querySelector(".shc-e-c-bar");
       bar.style.width = `${pct}%`;
       bar.style.background = meterSeverityColor(pct);
     });
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
     const soglia = cfg.soglia_entity ? Number(hass.states[cfg.soglia_entity]?.state) : null;
-    const card = this._root.querySelector(".dm-ap-card");
+    const card = this._root.querySelector(".shc-ap-card");
     // Layout: se c'e' "layout_entity" (un input_select Classico/Centrato scelto dalle Impostazioni)
     // vale quella scelta, altrimenti il parametro "layout" della configurazione.
     let layoutScelto = cfg.layout;
@@ -4599,7 +4599,7 @@ class DmEnergyCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-energy-card-editor");
+    return document.createElement("shc-energy-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -4613,16 +4613,16 @@ class DmEnergyCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-energy-card", DmEnergyCard);
+customElements.define("shc-energy-card", ShcEnergyCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-energy-card",
+  type: "shc-energy-card",
   name: "Energia Casa",
   description: "Card per il controllo energia totale casa: consumo istantaneo, circuiti, storici, costi",
   author: "Simonz82",
 });
 
-class DmUpsCard extends HTMLElement {
+class ShcUpsCard extends HTMLElement {
   setConfig(config) {
     if (!config.status_entity) throw new Error("status_entity \u00e8 obbligatorio");
     this._config = {
@@ -4639,79 +4639,79 @@ class DmUpsCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.ups)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.ups;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card is-run">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge run"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label">ONLINE</span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Stato</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_PULSE}</span><small>Stato</small></span><b class="dm-u-status">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BATTERY}</span><small>Autonomia</small></span><b class="dm-u-runtime">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_PLUG}</span><small>Ingresso</small></span><b class="dm-u-voltage">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOLT}</span><small>Carico</small></span><b class="dm-u-load-front">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Stato</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PULSE}</span><small>Stato</small></span><b class="shc-u-status">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small>Autonomia</small></span><b class="shc-u-runtime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small>Ingresso</small></span><b class="shc-u-voltage">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Carico</small></span><b class="shc-u-load-front">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter dm-c-meter-clickable dm-u-meter-battery">
-              <div class="dm-ap-meter-row"><span>Batteria</span><strong class="dm-u-battery-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-u-battery-bar" style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable shc-u-meter-battery">
+              <div class="shc-ap-meter-row"><span>Batteria</span><strong class="shc-u-battery-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-u-battery-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-u-meter-load">
-              <div class="dm-ap-meter-row"><span>Carico</span><strong class="dm-u-load-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-u-load-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-u-meter-load">
+              <div class="shc-ap-meter-row"><span>Carico</span><strong class="shc-u-load-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-u-load-bar" style="width:0%"></i></div>
             </div>
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
 
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-u-meter-battery").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-u-meter-battery").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.battery_entity, "Batteria", "#22c55e");
     });
-    this._root.querySelector(".dm-u-meter-load").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-u-meter-load").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.power_entity || this._config.load_entity, "Carico", "#38bdf8");
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -4725,11 +4725,11 @@ class DmUpsCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -4738,25 +4738,25 @@ class DmUpsCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
@@ -4770,7 +4770,7 @@ class DmUpsCard extends HTMLElement {
     // Sezione "Aspetto" (scelta del layout) a parte, in cima; le altre righe restano sotto "Automazioni".
     const aspettoHtml = (cfg.settings_sections || [])
       .filter((sec) => sec.title === "Aspetto")
-      .map((sec) => `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">${esc(sec.title)}</div>${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}</div>`)
+      .map((sec) => `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(sec.title)}</div>${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}</div>`)
       .join("");
     (cfg.settings_sections || []).filter((sec) => sec.title !== "Aspetto").forEach((sec) => {
       sec.rows.forEach((row) => rows.push(this._settingsRowHtml(hass, row)));
@@ -4778,7 +4778,7 @@ class DmUpsCard extends HTMLElement {
 
     const overlay = this._openDialog(
       "Impostazioni",
-      aspettoHtml + (rows.length ? `<div class="dm-ap-sec"><div class="dm-ap-sec-cap">Automazioni</div>${rows.join("")}</div>` : (aspettoHtml ? "" : `<div class="dm-ap-row-val">Nessuna impostazione</div>`)),
+      aspettoHtml + (rows.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Automazioni</div>${rows.join("")}</div>` : (aspettoHtml ? "" : `<div class="shc-ap-row-val">Nessuna impostazione</div>`)),
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -4800,7 +4800,7 @@ class DmUpsCard extends HTMLElement {
   }
 
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   _val(hass, entityId, digits) {
@@ -4846,7 +4846,7 @@ class DmUpsCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 24;
@@ -4859,7 +4859,7 @@ class DmUpsCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -4877,7 +4877,7 @@ class DmUpsCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _fetchHistory6h(entityId) {
@@ -4899,7 +4899,7 @@ class DmUpsCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
+    shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openStats() {
@@ -4930,9 +4930,9 @@ class DmUpsCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Generale</div>${generaleHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Batteria</div>${batteriaHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Rete elettrica</div>${reteHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Generale</div>${generaleHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Batteria</div>${batteriaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete elettrica</div>${reteHtml}</div>
     `);
   }
 
@@ -4944,39 +4944,39 @@ class DmUpsCard extends HTMLElement {
 
     const statusSt = cfg.status_entity ? hass.states[cfg.status_entity] : null;
     const statusRaw = statusSt?.state ?? "\u2014";
-    this._root.querySelector(".dm-u-status").textContent = statusRaw;
-    this._root.querySelector(".dm-u-runtime").textContent = this._fmtMinutes(hass.states[cfg.runtime_entity]?.state);
-    this._root.querySelector(".dm-u-voltage").textContent = this._val(hass, cfg.input_voltage_entity, 0);
+    this._root.querySelector(".shc-u-status").textContent = statusRaw;
+    this._root.querySelector(".shc-u-runtime").textContent = this._fmtMinutes(hass.states[cfg.runtime_entity]?.state);
+    this._root.querySelector(".shc-u-voltage").textContent = this._val(hass, cfg.input_voltage_entity, 0);
 
     const powerW = cfg.power_entity ? Number(hass.states[cfg.power_entity]?.state) : NaN;
     const hasPower = Number.isFinite(powerW);
-    this._root.querySelector(".dm-u-load-front").textContent = hasPower
+    this._root.querySelector(".shc-u-load-front").textContent = hasPower
       ? `${powerW.toFixed(0)} W`
       : this._val(hass, cfg.load_entity, 0);
 
     const battery = Number(hass.states[cfg.battery_entity]?.state);
     const batteryVal = Number.isFinite(battery) ? battery : 0;
-    this._root.querySelector(".dm-u-battery-val").textContent = `${batteryVal.toFixed(0)}%`;
-    const batteryBar = this._root.querySelector(".dm-u-battery-bar");
+    this._root.querySelector(".shc-u-battery-val").textContent = `${batteryVal.toFixed(0)}%`;
+    const batteryBar = this._root.querySelector(".shc-u-battery-bar");
     batteryBar.style.width = `${Math.min(100, Math.max(0, batteryVal))}%`;
     batteryBar.style.background = inverseSeverityColor(batteryVal);
 
     let loadPct;
     if (hasPower) {
       loadPct = (powerW / (cfg.rated_watts || 450)) * 100;
-      this._root.querySelector(".dm-u-load-val").textContent = `${powerW.toFixed(0)} W`;
+      this._root.querySelector(".shc-u-load-val").textContent = `${powerW.toFixed(0)} W`;
     } else {
       const load = Number(hass.states[cfg.load_entity]?.state);
       loadPct = Number.isFinite(load) ? load : 0;
-      this._root.querySelector(".dm-u-load-val").textContent = `${loadPct.toFixed(0)}%`;
+      this._root.querySelector(".shc-u-load-val").textContent = `${loadPct.toFixed(0)}%`;
     }
-    const loadBar = this._root.querySelector(".dm-u-load-bar");
+    const loadBar = this._root.querySelector(".shc-u-load-bar");
     loadBar.style.width = `${Math.min(100, Math.max(0, loadPct))}%`;
     loadBar.style.background = meterSeverityColor(loadPct);
 
     // Batteria disegnata sull'hero: si riempie dal basso in proporzione alla
     // carica reale, stesso spirito del Watt live sulla card Energia.
-    const battFill = this._root.querySelector(".dm-u-battery-fill");
+    const battFill = this._root.querySelector(".shc-u-battery-fill");
     if (battFill) {
       const cavityY = 76;
       const cavityH = 100;
@@ -4987,16 +4987,16 @@ class DmUpsCard extends HTMLElement {
     }
 
     const onBattery = statusRaw !== "Online" && statusRaw !== "\u2014";
-    const led = this._root.querySelector(".dm-u-led");
+    const led = this._root.querySelector(".shc-u-led");
     if (led) led.setAttribute("fill", onBattery ? "#ef4444" : "#22c55e");
 
-    const badge = this._root.querySelector(".dm-ap-badge-label");
+    const badge = this._root.querySelector(".shc-ap-badge-label");
     if (badge) badge.textContent = onBattery ? "A BATTERIA" : "ONLINE";
-    const badgeEl = this._root.querySelector(".dm-ap-badge");
+    const badgeEl = this._root.querySelector(".shc-ap-badge");
     if (badgeEl) badgeEl.classList.toggle("run", !onBattery);
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
-    const card = this._root.querySelector(".dm-ap-card");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
+    const card = this._root.querySelector(".shc-ap-card");
     if (onBattery) {
       warnEl.hidden = false;
       warnEl.textContent = `\u26a0 In funzione a batteria \u2014 autonomia ${this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)}`;
@@ -5020,7 +5020,7 @@ class DmUpsCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-ups-card-editor");
+    return document.createElement("shc-ups-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -5033,23 +5033,23 @@ class DmUpsCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-ups-card", DmUpsCard);
+customElements.define("shc-ups-card", ShcUpsCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-ups-card",
+  type: "shc-ups-card",
   name: "UPS",
   description: "Card per il gruppo di continuit\u00e0: stato, batteria, carico, autonomia",
   author: "Simonz82",
 });
 
 // -----------------------------------------------------------------------
-// dm-garbage-card: stessa grammatica visiva applicata alla raccolta
+// shc-garbage-card: stessa grammatica visiva applicata alla raccolta
 // differenziata. Unica card della famiglia con un "hero" dinamico invece
 // di un disegno fisso: l'immagine mostrata cambia in base allo stato del
 // sensore (Carta/Vetro/Organico/Plastica/...), leggendo la mappa
 // state_images invece di un artwork singolo. Nessuna dipendenza dalle
 // altre card della raccolta.
-class DmGarbageCard extends HTMLElement {
+class ShcGarbageCard extends HTMLElement {
   setConfig(config) {
     if (!config.entity) throw new Error("entity è obbligatorio");
     this._config = {
@@ -5063,37 +5063,37 @@ class DmGarbageCard extends HTMLElement {
     this._root = this._root || this.attachShadow({ mode: "open" });
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.garbage;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-alexa" title="Notifiche Alexa">${ICON_MEGAPHONE}</button>
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-types" title="Tipi di raccolta" hidden>${ICON_TYPES}</button>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-alexa" title="Notifiche Alexa">${ICON_MEGAPHONE}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-types" title="Tipi di raccolta" hidden>${ICON_TYPES}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row" style="padding-bottom:10px">
-          <div class="dm-ap-hero" style="display:flex;align-items:center;justify-content:center;overflow:visible">
-            <img class="dm-c-garbage-img" style="width:100%;height:100%;object-fit:contain;transform:scale(0.95) translateY(-5px)" alt="">
-            <div class="dm-c-garbage-emoji" style="display:none;font-size:92px;line-height:1"></div>
+        <div class="shc-ap-top-row" style="padding-bottom:10px">
+          <div class="shc-ap-hero" style="display:flex;align-items:center;justify-content:center;overflow:visible">
+            <img class="shc-c-garbage-img" style="width:100%;height:100%;object-fit:contain;transform:scale(0.95) translateY(-5px)" alt="">
+            <div class="shc-c-garbage-emoji" style="display:none;font-size:92px;line-height:1"></div>
           </div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Info</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi è</small></span><b class="dm-c-weekday">—</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Esporre dalle</small></span><b class="dm-c-exposetime">—</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TREND}</span><small>Giorno del ritiro</small></span><b class="dm-c-pickupday">—</b></div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Info</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi è</small></span><b class="shc-c-weekday">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Esporre dalle</small></span><b class="shc-c-exposetime">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small>Giorno del ritiro</small></span><b class="shc-c-pickupday">—</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
+        <div class="shc-ap-warn" hidden></div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       if (this._config.legacy_settings_popup) {
         const event = new Event("ll-custom", { bubbles: true, composed: true });
@@ -5103,7 +5103,7 @@ class DmGarbageCard extends HTMLElement {
         this._openSettings();
       }
     });
-    const typesBtn = this._root.querySelector(".dm-ap-types");
+    const typesBtn = this._root.querySelector(".shc-ap-types");
     if (this._config.types_entity) {
       typesBtn.hidden = false;
       typesBtn.addEventListener("click", (e) => {
@@ -5111,12 +5111,12 @@ class DmGarbageCard extends HTMLElement {
         this._openTypes();
       });
     }
-    this._root.querySelector(".dm-ap-alexa").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-alexa").addEventListener("click", (e) => {
       e.stopPropagation();
       history.pushState(null, "", "/lovelace/centronotifiche");
       window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", () => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", () => {
       const e = new Event("hass-more-info", { bubbles: true, composed: true });
       e.detail = { entityId: this._config.entity };
       this.dispatchEvent(e);
@@ -5124,14 +5124,14 @@ class DmGarbageCard extends HTMLElement {
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -5145,11 +5145,11 @@ class DmGarbageCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -5158,32 +5158,32 @@ class DmGarbageCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
   _actionRowHtml(row) {
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -5191,8 +5191,8 @@ class DmGarbageCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
@@ -5200,8 +5200,8 @@ class DmGarbageCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
@@ -5269,31 +5269,31 @@ class DmGarbageCard extends HTMLElement {
     const val = st && !["unknown", "unavailable"].includes(st.state) ? st.state : "";
     const overlay = this._openDialog(
       "Tipi di raccolta",
-      `<div class="dm-ap-sec">
-        <div class="dm-ap-sec-cap">Configura la raccolta del tuo comune</div>
-        <p class="dm-gt-help">Scrivi le <b>voci</b> dei rifiuti, separate da virgola. <b>Ogni voce è ciò che viene ritirato in una singola giornata</b>: quando poi imposti i giorni, per ogni giorno scegli <b>una sola voce</b>. Se in un giorno fanno <b>due ritiri insieme</b>, scrivi una voce apposta che li comprende entrambi.</p>
-        <div class="dm-gt-example"><b>Esempio</b><br>Scrivi: <i>Carta, Vetro, Plastica, Organico, Organico e Resto</i><br>• il lunedì scegli <b>Organico</b> (ritirano solo l'organico)<br>• il giovedì scegli <b>Organico e Resto</b> (quel giorno ritirano organico e resto insieme)<br>• il sabato scegli <b>Nulla</b> (nessun ritiro, viene aggiunta da sola)</div>
-        <p class="dm-gt-help" style="margin-top:8px">A ogni voce viene aggiunta un'icona in automatico. Le scelte già fatte per i giorni restano, se la voce esiste ancora.</p>
-        <textarea class="dm-gt-input" rows="3" maxlength="255" placeholder="Carta, Vetro, Plastica, Organico, Organico e Resto">${esc(val)}</textarea>
-        <div class="dm-gt-count"></div>
-        <div class="dm-ap-sec-cap" style="margin-top:12px">Anteprima dei menu</div>
-        <div class="dm-gt-preview"></div>
-        <button type="button" class="dm-ap-reset-btn dm-gt-save" style="margin-top:12px">Salva elenco</button>
-        <div class="dm-ap-reset-note dm-gt-msg"></div>
+      `<div class="shc-ap-sec">
+        <div class="shc-ap-sec-cap">Configura la raccolta del tuo comune</div>
+        <p class="shc-gt-help">Scrivi le <b>voci</b> dei rifiuti, separate da virgola. <b>Ogni voce è ciò che viene ritirato in una singola giornata</b>: quando poi imposti i giorni, per ogni giorno scegli <b>una sola voce</b>. Se in un giorno fanno <b>due ritiri insieme</b>, scrivi una voce apposta che li comprende entrambi.</p>
+        <div class="shc-gt-example"><b>Esempio</b><br>Scrivi: <i>Carta, Vetro, Plastica, Organico, Organico e Resto</i><br>• il lunedì scegli <b>Organico</b> (ritirano solo l'organico)<br>• il giovedì scegli <b>Organico e Resto</b> (quel giorno ritirano organico e resto insieme)<br>• il sabato scegli <b>Nulla</b> (nessun ritiro, viene aggiunta da sola)</div>
+        <p class="shc-gt-help" style="margin-top:8px">A ogni voce viene aggiunta un'icona in automatico. Le scelte già fatte per i giorni restano, se la voce esiste ancora.</p>
+        <textarea class="shc-gt-input" rows="3" maxlength="255" placeholder="Carta, Vetro, Plastica, Organico, Organico e Resto">${esc(val)}</textarea>
+        <div class="shc-gt-count"></div>
+        <div class="shc-ap-sec-cap" style="margin-top:12px">Anteprima dei menu</div>
+        <div class="shc-gt-preview"></div>
+        <button type="button" class="shc-ap-reset-btn shc-gt-save" style="margin-top:12px">Salva elenco</button>
+        <div class="shc-ap-reset-note shc-gt-msg"></div>
       </div>`,
     );
-    overlay.querySelector(".dm-ap-dialog").style.maxHeight = "min(92vh, 900px)";
-    const input = overlay.querySelector(".dm-gt-input");
+    overlay.querySelector(".shc-ap-dialog").style.maxHeight = "min(92vh, 900px)";
+    const input = overlay.querySelector(".shc-gt-input");
     const draw = () => {
       const items = this._parseTypes(input.value).concat(["\u{1F937} Nulla"]);
-      overlay.querySelector(".dm-gt-preview").innerHTML = items.map((i) => `<span class="dm-gt-chip">${esc(i)}</span>`).join("");
-      overlay.querySelector(".dm-gt-count").textContent = `${input.value.length}/255`;
+      overlay.querySelector(".shc-gt-preview").innerHTML = items.map((i) => `<span class="shc-gt-chip">${esc(i)}</span>`).join("");
+      overlay.querySelector(".shc-gt-count").textContent = `${input.value.length}/255`;
     };
     input.addEventListener("input", draw);
     draw();
-    overlay.querySelector(".dm-gt-save").addEventListener("click", async (e) => {
+    overlay.querySelector(".shc-gt-save").addEventListener("click", async (e) => {
       e.stopPropagation();
-      const msg = overlay.querySelector(".dm-gt-msg");
+      const msg = overlay.querySelector(".shc-gt-msg");
       if (!this._parseTypes(input.value).length) {
         msg.textContent = "Scrivi almeno un tipo di raccolta.";
         return;
@@ -5321,16 +5321,16 @@ class DmGarbageCard extends HTMLElement {
     const st = hass.states[cfg.entity];
     const state = st?.state;
 
-    const badge = this._root.querySelector(".dm-ap-badge");
+    const badge = this._root.querySelector(".shc-ap-badge");
     badge.classList.remove("run", "standby", "off", "unavailable");
     const nothingDue = !state || state === "Nulla" || state === "unknown" || state === "unavailable";
     badge.classList.add(nothingDue ? "off" : "run");
-    this._root.querySelector(".dm-ap-badge-label").textContent = state || "N/D";
+    this._root.querySelector(".shc-ap-badge-label").textContent = state || "N/D";
 
-    const img = this._root.querySelector(".dm-c-garbage-img");
+    const img = this._root.querySelector(".shc-c-garbage-img");
     // Un tipo scritto a mano puo' non avere una foto: allora si mostra la sua icona grande.
     const own = (cfg.state_images || {})[state];
-    const emojiEl = this._root.querySelector(".dm-c-garbage-emoji");
+    const emojiEl = this._root.querySelector(".shc-c-garbage-emoji");
     const emoji = st?.attributes?.emoji;
     const useEmoji = !own && !nothingDue && !!emoji;
     emojiEl.style.display = useEmoji ? "block" : "none";
@@ -5343,14 +5343,14 @@ class DmGarbageCard extends HTMLElement {
     }
 
     if (cfg.weekday_entity) {
-      this._root.querySelector(".dm-c-weekday").textContent = hass.states[cfg.weekday_entity]?.state ?? "—";
+      this._root.querySelector(".shc-c-weekday").textContent = hass.states[cfg.weekday_entity]?.state ?? "—";
     }
     if (cfg.expose_time_entity) {
       const t = hass.states[cfg.expose_time_entity]?.state;
-      this._root.querySelector(".dm-c-exposetime").textContent = t ? t.slice(0, 5) : "—";
+      this._root.querySelector(".shc-c-exposetime").textContent = t ? t.slice(0, 5) : "—";
     }
     if (cfg.pickup_day_entity) {
-      this._root.querySelector(".dm-c-pickupday").textContent = hass.states[cfg.pickup_day_entity]?.state ?? "—";
+      this._root.querySelector(".shc-c-pickupday").textContent = hass.states[cfg.pickup_day_entity]?.state ?? "—";
     }
   }
 
@@ -5359,7 +5359,7 @@ class DmGarbageCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-garbage-card-editor");
+    return document.createElement("shc-garbage-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -5370,16 +5370,16 @@ class DmGarbageCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-garbage-card", DmGarbageCard);
+customElements.define("shc-garbage-card", ShcGarbageCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-garbage-card",
+  type: "shc-garbage-card",
   name: "Raccolta Differenziata",
   description: "Card per la raccolta differenziata: immagine dinamica in base al rifiuto del giorno, giorno del ritiro, orario di esposizione",
   author: "Simonz82",
 });
 
-class DmProxmoxCard extends HTMLElement {
+class ShcProxmoxCard extends HTMLElement {
   setConfig(config) {
     this._config = {
       name: "Proxmox",
@@ -5396,107 +5396,107 @@ class DmProxmoxCard extends HTMLElement {
     const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.server;
     this._root.innerHTML = `<style>${STYLE}</style>
-      <article class="dm-ap-card is-run">
-        <div class="dm-ap-top">
-          <span class="dm-ap-chip">${chip}</span>
-          <span class="dm-ap-headings">
-            <span class="dm-ap-name"></span>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${chip}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
           </span>
-          <span class="dm-ap-badge"><i class="dm-ap-dot"></i><span class="dm-ap-badge-label"></span></span>
-          <span class="dm-ap-tools">
-            <button type="button" class="dm-ap-tool dm-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="dm-ap-tool dm-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="dm-ap-tool dm-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="dm-ap-tool dm-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
           </span>
         </div>
-        <div class="dm-ap-top-row">
-          <div class="dm-ap-hero">${hero}</div>
-          <div class="dm-ap-cycle-side">
-            <span class="dm-ap-cycle-cap">Nodo</span>
-            <div class="dm-ap-cycle-list">
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_CUBE}</span><small>Contenitori attivi</small></span><b class="dm-px-ct">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_MONITOR}</span><small>VM attive</small></span><b class="dm-px-vm">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato il</small></span><b class="dm-px-boot">\u2014</b></div>
-              <div class="dm-ap-cycle-row dm-ap-cycle-row-b"><span class="dm-ap-cycle-label"><span class="dm-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="dm-px-power-info">\u2014</b></div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Nodo</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CUBE}</span><small>Contenitori attivi</small></span><b class="shc-px-ct">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_MONITOR}</span><small>VM attive</small></span><b class="shc-px-vm">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato il</small></span><b class="shc-px-boot">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-px-power-info">\u2014</b></div>
             </div>
           </div>
         </div>
-        <div class="dm-ap-warn" hidden></div>
-        <div class="dm-ap-panel">
-          <div class="dm-ap-meters">
-            <div class="dm-ap-meter dm-c-meter-clickable dm-px-meter-cpu">
-              <div class="dm-ap-meter-row"><span>CPU</span><strong class="dm-px-cpu-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-px-cpu-bar" style="width:0%"></i></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-cpu">
+              <div class="shc-ap-meter-row"><span>CPU</span><strong class="shc-px-cpu-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-px-cpu-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-px-meter-gpu">
-              <div class="dm-ap-meter-row"><span>GPU</span><strong class="dm-px-gpu-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-px-gpu-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-gpu">
+              <div class="shc-ap-meter-row"><span>GPU</span><strong class="shc-px-gpu-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-px-gpu-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-px-meter-ram">
-              <div class="dm-ap-meter-row"><span>RAM</span><strong class="dm-px-ram-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-px-ram-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-ram">
+              <div class="shc-ap-meter-row"><span>RAM</span><strong class="shc-px-ram-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-px-ram-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-px-meter-disk">
-              <div class="dm-ap-meter-row"><span>Disco</span><strong class="dm-px-disk-val">0%</strong></div>
-              <div class="dm-ap-bar"><i class="dm-px-disk-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-disk">
+              <div class="shc-ap-meter-row"><span>Disco</span><strong class="shc-px-disk-val">0%</strong></div>
+              <div class="shc-ap-bar"><i class="shc-px-disk-bar" style="width:0%"></i></div>
             </div>
-            <div class="dm-ap-meter dm-c-meter-clickable dm-px-meter-cputemp">
-              <div class="dm-ap-meter-row"><span>Temp CPU</span><strong class="dm-px-cputemp-val">0\u00b0C</strong></div>
-              <div class="dm-ap-bar"><i class="dm-px-cputemp-bar" style="width:0%"></i></div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-cputemp">
+              <div class="shc-ap-meter-row"><span>Temp CPU</span><strong class="shc-px-cputemp-val">0\u00b0C</strong></div>
+              <div class="shc-ap-bar"><i class="shc-px-cputemp-bar" style="width:0%"></i></div>
             </div>
           </div>
         </div>
       </article>`;
-    this._root.querySelector(".dm-ap-name").textContent = this._config.name;
-    dmBindGraph(this);
-    this._root.querySelector(".dm-ap-settings").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
     });
-    this._root.querySelector(".dm-ap-update").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-update").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openUpdate();
     });
-    this._root.querySelector(".dm-ap-stats").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-ap-hero").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
     });
-    this._root.querySelector(".dm-px-meter-cpu").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-px-meter-cpu").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.cpu, "CPU", "#38bdf8");
     });
-    this._root.querySelector(".dm-px-meter-ram").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-px-meter-ram").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.ram_pct, "RAM", "#22c55e");
     });
-    this._root.querySelector(".dm-px-meter-disk").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-px-meter-disk").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.disk_pct, "Disco", "#eab308");
     });
-    this._root.querySelector(".dm-px-meter-cputemp").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-px-meter-cputemp").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.cpu_temp, "Temp CPU", "#ef4444");
     });
-    this._root.querySelector(".dm-px-meter-gpu").addEventListener("click", (e) => {
+    this._root.querySelector(".shc-px-meter-gpu").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.gpu_pct, "GPU", "#a855f7");
     });
   }
 
   _row(label, valueHtml) {
-    return `<div class="dm-ap-row"><span class="dm-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
   }
 
   _openDialog(title, bodyHtml) {
-    let overlay = this._root.querySelector(".dm-ap-overlay");
+    let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
       overlay = document.createElement("div");
-      overlay.className = "dm-ap-overlay";
+      overlay.className = "shc-ap-overlay";
       overlay.hidden = true;
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) overlay.hidden = true;
@@ -5510,11 +5510,11 @@ class DmProxmoxCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
-    overlay.innerHTML = `<div class="dm-ap-dialog">
-      <div class="dm-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="dm-ap-dialog-close">${ICON_CLOSE}</button></div>
-      <div class="dm-ap-dialog-body">${bodyHtml}</div>
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
-    overlay.querySelector(".dm-ap-dialog-close").addEventListener("click", () => {
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
     });
     overlay.hidden = false;
@@ -5530,33 +5530,33 @@ class DmProxmoxCard extends HTMLElement {
 
   _settingsRowHtml(hass, row) {
     const st = hass.states[row.entity];
-    if (!st) return this._row(row.label, `<span class="dm-ap-row-val">n/d</span>`);
+    if (!st) return this._row(row.label, `<span class="shc-ap-row-val">n/d</span>`);
     const domain = row.entity.split(".")[0];
     if (["input_boolean", "automation", "switch"].includes(domain)) {
       const on = st.state === "on";
       return this._row(
         row.label,
-        `<button type="button" class="dm-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
+        `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
     if (domain === "input_select") {
       const opts = (st.attributes?.options || [])
         .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
         .join("");
-      return this._row(row.label, `<select class="dm-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
+      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
     }
     const unit = st.attributes?.unit_of_measurement || "";
-    return `<div class="dm-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <span class="dm-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
+    return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
   }
 
   _actionRowHtml(row) {
     const target = row.service ? row.service : row.entity;
-    return `<div class="dm-ap-row">
-      <span class="dm-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="dm-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+    return `<div class="shc-ap-row">
+      <span class="shc-ap-row-label">${esc(row.label)}</span>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
     </div>`;
   }
 
@@ -5564,8 +5564,8 @@ class DmProxmoxCard extends HTMLElement {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
       .map(
-        (sec) => `<div class="dm-ap-sec">
-          <div class="dm-ap-sec-cap">${esc(sec.title)}</div>
+        (sec) => `<div class="shc-ap-sec">
+          <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
           ${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}
         </div>`,
       )
@@ -5573,8 +5573,8 @@ class DmProxmoxCard extends HTMLElement {
 
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
-      ? `<div class="dm-ap-sec">
-           <div class="dm-ap-sec-cap">Strumenti</div>
+      ? `<div class="shc-ap-sec">
+           <div class="shc-ap-sec-cap">Strumenti</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
@@ -5613,7 +5613,7 @@ class DmProxmoxCard extends HTMLElement {
   }
 
   _statRow(label, value) {
-    return this._row(label, `<span class="dm-ap-row-val">${esc(value)}</span>`);
+    return this._row(label, `<span class="shc-ap-row-val">${esc(value)}</span>`);
   }
 
   _val(hass, entityId, digits) {
@@ -5649,7 +5649,7 @@ class DmProxmoxCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="dm-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 24;
@@ -5662,7 +5662,7 @@ class DmProxmoxCard extends HTMLElement {
     const coords = points.map((p, i) => [plotX0 + i * stepX, height - ((p.y - min) / range) * (height - 6) - 3]);
     const lineD = this._smoothPath(coords);
     const areaD = `${lineD} L ${coords[coords.length - 1][0].toFixed(1)},${height} L ${coords[0][0].toFixed(1)},${height} Z`;
-    return `<svg viewBox="0 0 ${width} ${height}" class="dm-ap-chart-svg" preserveAspectRatio="none">
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">
       <line x1="${plotX0}" y1="3" x2="${plotX0}" y2="${height - 3}" stroke="#94a3b840" stroke-width="1"/>
       <text x="${plotX0 - 4}" y="8" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
       <text x="${plotX0 - 4}" y="${height - 3}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(min)}</text>
@@ -5680,7 +5680,7 @@ class DmProxmoxCard extends HTMLElement {
     }
     const seen = new Set();
     const unique = idxs.filter((i) => (seen.has(i) ? false : (seen.add(i), true)));
-    return `<div class="dm-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
+    return `<div class="shc-ap-chart-labels">${unique.map((i) => `<span>${formatFn(items[i], i)}</span>`).join("")}</div>`;
   }
 
   async _fetchHistory6h(entityId) {
@@ -5702,7 +5702,7 @@ class DmProxmoxCard extends HTMLElement {
 
   _openMeterChart(entityId, title, color) {
     if (!entityId) return;
-    dmOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
+    shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
   _openStats() {
@@ -5742,9 +5742,9 @@ class DmProxmoxCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Statistiche", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Consumo</div>${consumoHtml}</div>
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Disco fisico</div>${diskHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumo</div>${consumoHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Disco fisico</div>${diskHtml}</div>
     `);
   }
 
@@ -5760,7 +5760,7 @@ class DmProxmoxCard extends HTMLElement {
     ].join("");
 
     this._openDialog("Aggiornamenti", `
-      <div class="dm-ap-sec"><div class="dm-ap-sec-cap">Proxmox VE</div>${aggiornamentiHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Proxmox VE</div>${aggiornamentiHtml}</div>
     `);
   }
 
@@ -5773,56 +5773,56 @@ class DmProxmoxCard extends HTMLElement {
     const dh = cfg.disk_health || {};
 
     const online = s.status ? hass.states[s.status]?.state === "on" : true;
-    const badge = this._root.querySelector(".dm-ap-badge");
+    const badge = this._root.querySelector(".shc-ap-badge");
     badge.classList.remove("run", "standby", "off", "unavailable");
     badge.classList.add(online ? "run" : "off");
-    this._root.querySelector(".dm-ap-badge-label").textContent = online ? "ONLINE" : "OFFLINE";
-    this._root.querySelector(".dm-px-ct").textContent = this._val(hass, s.containers, 0);
-    this._root.querySelector(".dm-px-vm").textContent = this._val(hass, s.vms, 0);
-    this._root.querySelector(".dm-px-boot").textContent = this._fmtDateTime(hass.states[s.last_boot]?.state);
+    this._root.querySelector(".shc-ap-badge-label").textContent = online ? "ONLINE" : "OFFLINE";
+    this._root.querySelector(".shc-px-ct").textContent = this._val(hass, s.containers, 0);
+    this._root.querySelector(".shc-px-vm").textContent = this._val(hass, s.vms, 0);
+    this._root.querySelector(".shc-px-boot").textContent = this._fmtDateTime(hass.states[s.last_boot]?.state);
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
-    this._root.querySelector(".dm-px-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
-    const cpuBar = this._root.querySelector(".dm-px-cpu-bar");
+    this._root.querySelector(".shc-px-cpu-val").textContent = `${cpuVal.toFixed(0)}%`;
+    const cpuBar = this._root.querySelector(".shc-px-cpu-bar");
     cpuBar.style.width = `${Math.min(100, Math.max(0, cpuVal))}%`;
     cpuBar.style.background = meterSeverityColor(cpuVal);
 
     const ram = s.ram_pct ? Number(hass.states[s.ram_pct]?.state) : NaN;
     const ramVal = Number.isFinite(ram) ? ram : 0;
-    this._root.querySelector(".dm-px-ram-val").textContent = `${ramVal.toFixed(0)}%`;
-    const ramBar = this._root.querySelector(".dm-px-ram-bar");
+    this._root.querySelector(".shc-px-ram-val").textContent = `${ramVal.toFixed(0)}%`;
+    const ramBar = this._root.querySelector(".shc-px-ram-bar");
     ramBar.style.width = `${Math.min(100, Math.max(0, ramVal))}%`;
     ramBar.style.background = meterSeverityColor(ramVal);
 
     const disk = s.disk_pct ? Number(hass.states[s.disk_pct]?.state) : NaN;
     const diskVal = Number.isFinite(disk) ? disk : 0;
-    this._root.querySelector(".dm-px-disk-val").textContent = `${diskVal.toFixed(0)}%`;
-    const diskBar = this._root.querySelector(".dm-px-disk-bar");
+    this._root.querySelector(".shc-px-disk-val").textContent = `${diskVal.toFixed(0)}%`;
+    const diskBar = this._root.querySelector(".shc-px-disk-bar");
     diskBar.style.width = `${Math.min(100, Math.max(0, diskVal))}%`;
     diskBar.style.background = meterSeverityColor(diskVal);
 
     const powerCfg = cfg.power || {};
     const power = powerCfg.power ? Number(hass.states[powerCfg.power]?.state) : NaN;
     const powerVal = Number.isFinite(power) ? power : 0;
-    this._root.querySelector(".dm-px-power-info").textContent = `${powerVal.toFixed(1)} W`;
+    this._root.querySelector(".shc-px-power-info").textContent = `${powerVal.toFixed(1)} W`;
 
     const cpuTemp = s.cpu_temp ? Number(hass.states[s.cpu_temp]?.state) : NaN;
     const cpuTempVal = Number.isFinite(cpuTemp) ? cpuTemp : 0;
-    this._root.querySelector(".dm-px-cputemp-val").textContent = `${cpuTempVal.toFixed(0)}\u00b0C`;
-    const cpuTempBar = this._root.querySelector(".dm-px-cputemp-bar");
+    this._root.querySelector(".shc-px-cputemp-val").textContent = `${cpuTempVal.toFixed(0)}\u00b0C`;
+    const cpuTempBar = this._root.querySelector(".shc-px-cputemp-bar");
     cpuTempBar.style.width = `${Math.min(100, Math.max(0, (cpuTempVal / 100) * 100))}%`;
     cpuTempBar.style.background = cpuTempVal >= 85 ? "#ef4444" : cpuTempVal >= 70 ? "#f97316" : "#38bdf8";
 
     const gpuPct = s.gpu_pct ? Number(hass.states[s.gpu_pct]?.state) : NaN;
     const gpuVal = Number.isFinite(gpuPct) ? gpuPct : 0;
-    this._root.querySelector(".dm-px-gpu-val").textContent = `${gpuVal.toFixed(0)}%`;
-    const gpuBar = this._root.querySelector(".dm-px-gpu-bar");
+    this._root.querySelector(".shc-px-gpu-val").textContent = `${gpuVal.toFixed(0)}%`;
+    const gpuBar = this._root.querySelector(".shc-px-gpu-bar");
     gpuBar.style.width = `${Math.min(100, Math.max(0, gpuVal))}%`;
     gpuBar.style.background = "#a855f7";
 
-    const warnEl = this._root.querySelector(".dm-ap-warn");
-    const card = this._root.querySelector(".dm-ap-card");
+    const warnEl = this._root.querySelector(".shc-ap-warn");
+    const card = this._root.querySelector(".shc-ap-card");
     const diskProblem = dh.health ? hass.states[dh.health]?.state === "on" : false;
     const updAvail = cfg.update ? hass.states[cfg.update]?.state === "on" : false;
     const warnings = [];
@@ -5858,7 +5858,7 @@ class DmProxmoxCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("dm-proxmox-card-editor");
+    return document.createElement("shc-proxmox-card-editor");
   }
 
   static getStubConfig(hass) {
@@ -5869,10 +5869,10 @@ class DmProxmoxCard extends HTMLElement {
   }
 }
 
-customElements.define("dm-proxmox-card", DmProxmoxCard);
+customElements.define("shc-proxmox-card", ShcProxmoxCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "dm-proxmox-card",
+  type: "shc-proxmox-card",
   name: "Proxmox",
   description: "Card per l'host Proxmox: CPU/RAM/disco, contenitori/VM attive, consumo, salute SSD",
   author: "Simonz82",

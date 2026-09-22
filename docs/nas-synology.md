@@ -1,4 +1,4 @@
-# 💾 Card NAS Synology (`dm-nas-card`)
+# 💾 Card NAS Synology (`shc-nas-card`)
 
 CPU/RAM/volumi/dischi del NAS, stato di sicurezza, consumo elettrico, pulsanti di riavvio/spegnimento.
 
@@ -88,7 +88,7 @@ actions:
 ## Esempio completo
 
 ```yaml
-type: custom:dm-nas-card
+type: custom:shc-nas-card
 name: Synology NAS
 model: "DS925+"
 update_entity: update.nas_aggiornamento_dsm

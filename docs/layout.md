@@ -47,7 +47,7 @@ Togli dal file le righe delle card che non usi.
 Nella configurazione della card aggiungi `layout_entity`:
 
 ```yaml
-type: custom:dm-appliance-clone-card
+type: custom:shc-appliance-clone-card
 name: Lavatrice
 layout_entity: input_select.layout_lavatrice   # <- il menu del layout
 # ...il resto della configurazione

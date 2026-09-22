@@ -1,4 +1,4 @@
-# ♻️ Card Raccolta Differenziata (`dm-garbage-card`)
+# ♻️ Card Raccolta Differenziata (`shc-garbage-card`)
 
 Mostra un'immagine diversa in base al rifiuto da buttare **oggi**, il giorno della settimana e il giorno del ritiro. Un promemoria (notifica push + annuncio vocale su Alexa) avvisa finché non lo disattivi. I **tipi di raccolta si scrivono a mano dalla card**, non sono fissi: ogni comune raccoglie cose diverse.
 
@@ -27,7 +27,7 @@ Il package completo — automazioni giorno/ritiro, promemoria orario, tipi di ra
 ## Configurazione minima
 
 ```yaml
-type: custom:dm-garbage-card
+type: custom:shc-garbage-card
 name: Raccolta Differenziata
 entity: sensor.rifiuto_di_oggi
 state_images:
