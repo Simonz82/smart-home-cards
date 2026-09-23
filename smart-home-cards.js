@@ -4307,7 +4307,7 @@ class ShcEnergyCard extends HTMLElement {
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Circuiti">${ICON_BOLT}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
@@ -4645,40 +4645,30 @@ class ShcEnergyCard extends HTMLElement {
       });
   }
 
+  // Top consumo + tutti i circuiti in ordine decrescente, con una barra proporzionale al
+  // consumo di ognuno (stile "istogramma") - pulsante Statistiche (barrette).
   _openStats() {
     const hass = this._hass;
     const cfg = this._config;
-    const val = (id, digits, attr) => this._val(hass, id, digits, attr);
+    const circuits = (cfg.circuits || [])
+      .map((c) => ({ ...c, live: Number(hass.states[c.entity]?.state) || 0 }))
+      .sort((a, b) => b.live - a.live);
+    const maxLive = Math.max(...circuits.map((c) => c.live), 1);
 
-    const periodsHtml = (cfg.periods || [])
-      .map((p) => this._statRow2(p.label, val(p.energy, 2), val(p.cost, 2)))
+    const rows = circuits
+      .map(
+        (c) => `<div class="shc-ap-meter">
+          <div class="shc-ap-meter-row"><span>${esc(c.label)}</span><strong>${c.live.toFixed(0)} W</strong></div>
+          <div class="shc-ap-bar"><i style="width:${Math.min(100, (c.live / maxLive) * 100).toFixed(0)}%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></i></div>
+        </div>`,
+      )
       .join("");
-
-    const prevHtml = (cfg.periods_prev || [])
-      .map((p) => this._statRow2(p.label, val(p.energy, 2, p.energy_attr), val(p.cost, 2)))
-      .join("");
-
-    const weekEntries = Object.entries(cfg.weekdays || {});
-    const weekHtml = weekEntries.map(([label, entity]) => this._statRow(label, val(entity, 2))).join("");
-    const mediaHtml = cfg.media_entity ? this._statRow("Media settimanale", val(cfg.media_entity, 1)) : "";
+    const topSt = cfg.top_entity ? hass.states[cfg.top_entity]?.state : null;
 
     this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div>${periodsHtml}</div>
-      ${prevHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Periodo precedente</div>${prevHtml}</div>` : ""}
-      ${weekHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi 7 giorni</div>${weekHtml}${mediaHtml}</div>` : ""}
+      ${topSt ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In evidenza</div>${this._statRow("Top consumo", topSt)}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Tutti i circuiti (live, ordine decrescente)</div><div class="shc-ap-meters">${rows}</div></div>
     `);
-    const overlay = this._root.querySelector(".shc-ap-overlay");
-    const chartBtn = document.createElement("button");
-    chartBtn.type = "button";
-    chartBtn.className = "shc-ap-action-btn";
-    chartBtn.style.width = "100%";
-    chartBtn.style.marginTop = "2px";
-    chartBtn.textContent = "Andamento potenza (24h)";
-    chartBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this._openPowerHistory();
-    });
-    overlay.querySelector(".shc-ap-dialog-body").appendChild(chartBtn);
   }
 
   // Entita' misurata da una barra: se il circuito ha "entity_helper" (input_text riempito dal
@@ -4701,20 +4691,42 @@ class ShcEnergyCard extends HTMLElement {
     return nome.charAt(0).toUpperCase() + nome.slice(1);
   }
 
+  // Costi e consumi per periodo - pulsante Consumi (fulmine), stesso posto e stesso tipo di
+  // contenuto delle altre card (elettrodomestici, NAS, Proxmox).
   _openConsumi() {
     const hass = this._hass;
     const cfg = this._config;
-    const circuits = (cfg.circuits || [])
-      .map((c) => ({ ...c, live: Number(hass.states[c.entity]?.state) || 0 }))
-      .sort((a, b) => b.live - a.live);
+    const val = (id, digits, attr) => this._val(hass, id, digits, attr);
 
-    const rows = circuits.map((c) => this._statRow(c.label, `${c.live.toFixed(0)} W`)).join("");
-    const topSt = cfg.top_entity ? hass.states[cfg.top_entity]?.state : null;
+    const periodsHtml = (cfg.periods || [])
+      .map((p) => this._statRow2(p.label, val(p.energy, 2), val(p.cost, 2)))
+      .join("");
 
-    this._openDialog("Circuiti", `
-      ${topSt ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In evidenza</div>${this._statRow("Top consumo", topSt)}</div>` : ""}
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Tutti i circuiti (live)</div>${rows}</div>
+    const prevHtml = (cfg.periods_prev || [])
+      .map((p) => this._statRow2(p.label, val(p.energy, 2, p.energy_attr), val(p.cost, 2)))
+      .join("");
+
+    const weekEntries = Object.entries(cfg.weekdays || {});
+    const weekHtml = weekEntries.map(([label, entity]) => this._statRow(label, val(entity, 2))).join("");
+    const mediaHtml = cfg.media_entity ? this._statRow("Media settimanale", val(cfg.media_entity, 1)) : "";
+
+    this._openDialog("Consumi", `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div>${periodsHtml}</div>
+      ${prevHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Periodo precedente</div>${prevHtml}</div>` : ""}
+      ${weekHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi 7 giorni</div>${weekHtml}${mediaHtml}</div>` : ""}
     `);
+    const overlay = this._root.querySelector(".shc-ap-overlay");
+    const chartBtn = document.createElement("button");
+    chartBtn.type = "button";
+    chartBtn.className = "shc-ap-action-btn";
+    chartBtn.style.width = "100%";
+    chartBtn.style.marginTop = "2px";
+    chartBtn.textContent = "Andamento potenza (24h)";
+    chartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openPowerHistory();
+    });
+    overlay.querySelector(".shc-ap-dialog-body").appendChild(chartBtn);
   }
 
   set hass(hass) {

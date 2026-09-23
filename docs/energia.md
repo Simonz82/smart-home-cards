@@ -177,14 +177,16 @@ Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscura
 |---|---|
 | ![](screenshot/popup/energia-impostazioni-light.png) | ![](screenshot/popup/energia-impostazioni-dark.png) |
 
-**Statistiche (barrette)**
+**Statistiche (barrette)** — top consumo ed elenco di tutti i circuiti live, in ordine decrescente, con una barra proporzionale per ognuno
 
 | Chiaro | Scuro |
 |---|---|
 | ![](screenshot/popup/energia-statistiche-light.png) | ![](screenshot/popup/energia-statistiche-dark.png) |
 
-**Circuiti (fulmine)**
+**Consumi (fulmine)** — consumi e costi per periodo (ogni ora/oggi/settimana/mese/bimestre/anno), confronto col periodo precedente, ultimi 7 giorni — stesso pulsante, stesso tipo di contenuto delle altre card (elettrodomestici, NAS, Proxmox)
 
 | Chiaro | Scuro |
 |---|---|
 | ![](screenshot/popup/energia-circuiti-light.png) | ![](screenshot/popup/energia-circuiti-dark.png) |
+
+*(le due immagini sopra sono ancora quelle di prima dello scambio dei pulsanti — il contenuto reale è quello appena descritto, gli screenshot verranno rifatti al prossimo giro di documentazione)*
