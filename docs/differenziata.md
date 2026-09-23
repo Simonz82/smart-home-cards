@@ -10,7 +10,7 @@ Progetto storico ripreso da una card più vecchia condivisa tempo fa (con basi d
 
 ## Cosa ti serve prima di iniziare
 
-Nulla di hardware: basta un `input_text` (per l'elenco tipi di raccolta) e qualche automazione, tutto già pronto nel package qui sotto. Il promemoria vocale è opzionale e usa lo stesso motore condiviso di Alexa delle altre card.
+Nulla di hardware: basta un `input_text` (per l'elenco tipi di raccolta) e qualche automazione, tutto già pronto nel package qui sotto. Il promemoria vocale è **opzionale** (senza, restano comunque l'immagine sulla card e la notifica push) e usa lo stesso motore condiviso di Alexa delle altre card: se lo vuoi, serve l'integrazione HACS **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)** (non è nativa in Home Assistant) e un dispositivo Alexa già collegato al tuo account Amazon — dettagli in [notifiche-personalizzate.md](notifiche-personalizzate.md).
 
 ## 🚀 Metodo veloce: usa il mio package originale
 
