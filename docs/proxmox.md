@@ -44,12 +44,14 @@ sensors:
   last_boot: sensor.proxmox_ultimo_avvio
   cpu_temp: sensor.proxmox_cpu_temperatura     # opzionale, vedi sopra
   gpu_pct: sensor.proxmox_gpu_utilizzo         # opzionale, vedi sopra
-power:                                          # opzionale, serve una presa smart a monte
+power:                                          # opzionale, serve una presa smart a monte - popup "Consumi" (fulmine)
   power: sensor.proxmox_power
   voltage: sensor.proxmox_voltage
   current: sensor.proxmox_current
   energy_day: sensor.proxmox_energia_oggi
   energy_month: sensor.proxmox_energia_mese
+energy_stat_entity: sensor.proxmox_kwh_storico  # opzionale: sensore kWh con storico a lungo termine - aggiunge consumi per periodo + istogrammi mese/anno al popup "Consumi"
+cost_entity: input_number.costo_energia         # opzionale, tariffa €/kWh per calcolare i costi insieme a energy_stat_entity
 disk_health:                                    # opzionale, richiede SMART (es. via smartctl/scrutiny)
   temp: sensor.ssd_proxmox_temperatura
   wearout: sensor.ssd_proxmox_usura
@@ -114,3 +116,7 @@ Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscura
 | Chiaro | Scuro |
 |---|---|
 | ![](screenshot/popup/proxmox-statistiche-light.png) | ![](screenshot/popup/proxmox-statistiche-dark.png) |
+
+**Consumi (fulmine)** — potenza istantanea, tensione, corrente, energia oggi/mese; con `energy_stat_entity` anche i totali per periodo e gli istogrammi mese/anno (stesso pulsante, stesso contenuto della card NAS Synology)
+
+![](screenshot/popup/proxmox-consumi-dark.png)

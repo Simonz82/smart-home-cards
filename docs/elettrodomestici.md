@@ -248,7 +248,9 @@ settings_sections:
 
 ## 📈 Grafici
 
-Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra la **potenza** del dispositivo; nel popup **Statistiche** (barrette) trovi i consumi per periodo, per giorno della settimana e gli istogrammi mese/anno. Vedi la guida completa: [Grafici](grafici.md).
+Il pulsante con la **linea che sale** apre il grafico storico in **24 h · 7 gg · 30 gg · da … a**. Il grafico mostra la **potenza** del dispositivo. Vedi la guida completa: [Grafici](grafici.md).
+
+I due popup hanno ognuno un solo scopo: **Statistiche** (barrette, solo sugli apparecchi domotici) mostra lo stato live — programma in corso, avanzamento, fine prevista, sale/brillantante — e si nasconde da sola se l'apparecchio non è domotico (niente da mostrare lì). **Consumi** (fulmine) mostra invece i consumi per periodo, per giorno della settimana e gli istogrammi mese/anno — stesso pulsante, stesso contenuto, su tutte le card che misurano energia (anche NAS e Proxmox).
 
 | Chiaro | Scuro |
 |---|---|

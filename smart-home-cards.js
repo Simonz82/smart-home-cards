@@ -1157,8 +1157,9 @@ class ShcApplianceCloneCard extends HTMLElement {
           <span class="shc-ap-tools">
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche" hidden>${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
@@ -1217,6 +1218,10 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
+    });
+    this._root.querySelector(".shc-ap-consumi").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openConsumi();
     });
     const heroEl = this._root.querySelector(".shc-ap-hero");
     if (heroEl) {
@@ -1439,14 +1444,22 @@ class ShcApplianceCloneCard extends HTMLElement {
       liveHtml += this._row(row.label, `<span class="shc-ap-row-val">${esc(val)}</span>`);
     });
 
+    this._openDialog("Statistiche", `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${liveHtml}</div>
+    `);
+  }
+
+  // Consumi per periodo + istogrammi mese/anno: pulsante "Consumi" (fulmine), separato da
+  // "Statistiche" (stato live) cosi' ogni pulsante ha un solo scopo, stesso posto su tutte le
+  // card che misurano energia (NAS, Proxmox, elettrodomestici).
+  _openConsumi() {
     // "Storici automatici" (auto_stats + energy_stat_entity, impostati dall'editor visuale):
     // consumi per periodo calcolati dalle statistiche HA, alternativa a period_attrs/cycle_sensor
     // scritti a mano nel package. Se la card ha gia' una configurazione avanzata (period_attrs),
     // quella resta quella che si vede - questo percorso non la sostituisce mai da solo.
     const useAutoStats = !!(this._config.auto_stats && this._config.energy_stat_entity);
 
-    this._openDialog("Statistiche", `
-      ${liveHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${liveHtml}</div>` : ""}
+    this._openDialog("Consumi", `
       ${useAutoStats ? this._autoConsumiHtml() : this._consumiHtml()}
       ${this._energyBarsHtml()}
     `);
@@ -1799,6 +1812,14 @@ class ShcApplianceCloneCard extends HTMLElement {
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
+    // "Statistiche" (barrette) mostra solo lo stato live del dispositivo (domotico): senza
+    // nessuno di questi campi non avrebbe nulla da mostrare, quindi si nasconde da sola. I
+    // consumi per periodo vivono nel pulsante "Consumi" (fulmine), non qui.
+    const live = cfg.live || {};
+    const hasLive = !!(live.state_entity || live.progress_entity || live.remaining_entity || live.salt_entity || live.rinse_entity || (live.extra && live.extra.length));
+    const statsBtn = this._root.querySelector(".shc-ap-stats");
+    if (statsBtn) statsBtn.hidden = !hasLive;
+
     const powerState = hass.states[cfg.power_entity];
     const watts = powerState ? Number(powerState.state) : null;
     const powerUnavailable = !powerState || ["unavailable", "unknown"].includes(powerState.state);
@@ -2128,6 +2149,11 @@ class ShcNasCardEditor extends ShcSimpleCardEditorBase {
         { key: "vol1_label", label: "Nome Volume 1", kind: "text", placeholder: "Volume 1" },
         { key: "vol2_label", label: "Nome Volume 2", kind: "text", placeholder: "Volume 2" },
       ]},
+      { title: "Consumi (pulsante fulmine)", fields: [
+        { key: "energy.power", label: "Consumo attuale (W)", domain: ["sensor"] },
+        { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
+        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number"] },
+      ]},
       { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
     ];
   }
@@ -2144,6 +2170,13 @@ class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
         { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
         { key: "sensors.cpu_temp", label: "Temperatura CPU", domain: ["sensor"] },
         { key: "sensors.gpu_pct", label: "GPU (%)", domain: ["sensor"] },
+      ]},
+      { title: "Consumi (pulsante fulmine)", fields: [
+        { key: "power.power", label: "Consumo attuale (W)", domain: ["sensor"] },
+        { key: "power.voltage", label: "Tensione", domain: ["sensor"] },
+        { key: "power.current", label: "Corrente", domain: ["sensor"] },
+        { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
+        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number"] },
       ]},
       { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
     ];
@@ -3979,10 +4012,138 @@ class ShcNasCard extends HTMLElement {
       Number.isFinite(monthKwh) ? this._statRow2("Mese", `${monthKwh.toFixed(2)} kWh`, `${(monthKwh * costoKwh).toFixed(2)} \u20ac`) : "",
     ].join("");
 
+    const useAutoStats = !!cfg.energy_stat_entity;
     this._openDialog("Consumi", `
       ${attualeHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${attualeHtml}</div>` : ""}
       ${energiaHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Energia NAS</div>${energiaHtml}</div>` : ""}
+      ${useAutoStats ? this._autoConsumiHtml() : ""}
+      ${this._energyBarsHtml()}
     `);
+    if (useAutoStats) {
+      const overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
+      this._loadEnergyBars(overlay);
+      this._loadAutoPeriods(overlay);
+    }
+  }
+
+  // Consumi per periodo (oggi/ieri/mese/anno) calcolati dalle statistiche HA, piu' gli
+  // istogrammi mese/anno - stesso motore "storici automatici" della card Elettrodomestici,
+  // qui attivo se configuri energy_stat_entity (sensore kWh con storico a lungo termine).
+  _autoConsumiHtml() {
+    return `<div class="shc-ap-sec">
+      <div class="shc-ap-sec-cap">Consumi per periodo</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento…</div></div>
+    </div>`;
+  }
+
+  async _loadAutoPeriods(overlay) {
+    const cfg = this._config;
+    const slot = overlay?.querySelector("[data-auto-periods]");
+    if (!slot || !cfg.energy_stat_entity) return;
+    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    try {
+      const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
+      const row = (key, def) => {
+        const d = p[key];
+        const kwh = Number.isFinite(d?.kwh) ? `${d.kwh.toFixed(2)} kWh` : "—";
+        const cost = Number.isFinite(d?.cost) ? `${d.cost.toFixed(2)} €` : "—";
+        return `<div class="shc-ap-week-row">
+          <div class="shc-ap-week-day">${esc(def)}</div>
+          <div class="shc-ap-week-stats cols2">
+            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+          </div>
+        </div>`;
+      };
+      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("");
+    } catch (e) {
+      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
+    }
+  }
+
+  _energyBarsHtml() {
+    if (!this._config.energy_stat_entity) return "";
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+  }
+
+  async _fetchAutoStats(entityId, period, start, end) {
+    const result = await this._hass.connection.sendMessagePromise({
+      type: "recorder/statistics_during_period",
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      statistic_ids: [entityId],
+      period,
+    });
+    const rows = result?.[entityId] || [];
+    return rows.map((r) => ({ t: new Date(r.start), value: Math.max(0, Number(r.change ?? 0)) }));
+  }
+
+  _barChartSvg(bars, color) {
+    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    const width = 300;
+    const height = 90;
+    const plotX0 = 24;
+    const plotW = width - plotX0;
+    const labelSpace = 22;
+    const barAreaH = height - labelSpace;
+    const max = Math.max(...bars.map((b) => b.value), 0.01);
+    const gap = 3;
+    const barW = (plotW - gap * (bars.length - 1)) / bars.length;
+    const fmt = (v) => {
+      if (!(v > 0)) return "";
+      const s = v.toFixed(1);
+      return s.endsWith(".0") ? s.slice(0, -2) : s;
+    };
+    const parts = bars
+      .map((b, i) => {
+        const h = Math.max(1, (b.value / max) * (barAreaH - 2));
+        const x = (plotX0 + i * (barW + gap)).toFixed(1);
+        const y = (height - h).toFixed(1);
+        const cx = (plotX0 + i * (barW + gap) + barW / 2).toFixed(1);
+        const labelY = (height - h - 4).toFixed(1);
+        const label = fmt(b.value);
+        const text = label
+          ? `<text x="${cx}" y="${labelY}" transform="rotate(-90 ${cx} ${labelY})" text-anchor="start" font-size="10" font-weight="800" fill="#94a3b8">${label}</text>`
+          : "";
+        return `<rect x="${x}" y="${y}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${color}"/>${text}`;
+      })
+      .join("");
+    const axis = `<line x1="${plotX0}" y1="${labelSpace}" x2="${plotX0}" y2="${height}" stroke="#94a3b840" stroke-width="1"/>
+      <text x="${plotX0 - 4}" y="${labelSpace + 6}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
+      <text x="${plotX0 - 4}" y="${height - 1}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">0</text>`;
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">${axis}${parts}</svg>`;
+  }
+
+  _loadEnergyBars(overlay) {
+    const energyEntity = this._config.energy_stat_entity;
+    if (!energyEntity || !overlay) return;
+    const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
+    const now = new Date();
+    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    this._fetchAutoStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
+      .then((rows) => {
+        const el = slot("month");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        el.outerHTML = `<div data-chart="month">${this._barChartSvg(bars, "#0ea5e9")}${this._labelSpans(rows, 8, (r) => r.t.getDate())}</div>`;
+      })
+      .catch(() => {
+        const el = slot("month");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
+    this._fetchAutoStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
+      .then((rows) => {
+        const el = slot("year");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        const labels = `<div class="shc-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
+        el.outerHTML = `<div data-chart="year">${this._barChartSvg(bars, "#0ea5e9")}${labels}</div>`;
+      })
+      .catch(() => {
+        const el = slot("year");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
   }
 
   set hass(hass) {
@@ -5471,6 +5632,7 @@ class ShcProxmoxCard extends HTMLElement {
             <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
@@ -5524,6 +5686,10 @@ class ShcProxmoxCard extends HTMLElement {
     this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
+    });
+    this._root.querySelector(".shc-ap-consumi").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openConsumi();
     });
     this._root.querySelector(".shc-ap-hero").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -5772,7 +5938,6 @@ class ShcProxmoxCard extends HTMLElement {
     const hass = this._hass;
     const cfg = this._config;
     const s = cfg.sensors || {};
-    const p = cfg.power || {};
     const dh = cfg.disk_health || {};
     const val = (id, digits) => this._val(hass, id, digits);
 
@@ -5788,14 +5953,6 @@ class ShcProxmoxCard extends HTMLElement {
       this._statRow("Avviato il", this._fmtDateTime(hass.states[s.last_boot]?.state)),
     ].join("");
 
-    const consumoHtml = [
-      this._statRow("Potenza attuale", val(p.power, 1)),
-      this._statRow("Tensione", val(p.voltage, 0)),
-      this._statRow("Corrente", val(p.current, 2)),
-      this._statRow("Energia oggi", val(p.energy_day, 2)),
-      this._statRow("Energia mese", val(p.energy_month, 1)),
-    ].join("");
-
     const diskHtml = [
       this._statRow("Temperatura SSD", val(dh.temp, 0)),
       this._statRow("Usura SSD", val(dh.wearout, 0)),
@@ -5806,9 +5963,156 @@ class ShcProxmoxCard extends HTMLElement {
 
     this._openDialog("Statistiche", `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumo</div>${consumoHtml}</div>
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Disco fisico</div>${diskHtml}</div>
     `);
+  }
+
+  // Consumo elettrico: pulsante "Consumi" (fulmine), separato da "Statistiche" cosi' ogni
+  // pulsante ha un solo scopo, stesso posto su tutte le card che misurano energia (NAS,
+  // elettrodomestici). In piu' dei valori istantanei, se configuri energy_stat_entity (sensore
+  // kWh con storico a lungo termine) mostra anche i totali per periodo e gli istogrammi mese/anno.
+  _openConsumi() {
+    const hass = this._hass;
+    const cfg = this._config;
+    const p = cfg.power || {};
+    const val = (id, digits) => this._val(hass, id, digits);
+
+    const consumoHtml = [
+      this._statRow("Potenza attuale", val(p.power, 1)),
+      this._statRow("Tensione", val(p.voltage, 0)),
+      this._statRow("Corrente", val(p.current, 2)),
+      this._statRow("Energia oggi", val(p.energy_day, 2)),
+      this._statRow("Energia mese", val(p.energy_month, 1)),
+    ].join("");
+
+    const useAutoStats = !!cfg.energy_stat_entity;
+    this._openDialog("Consumi", `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${consumoHtml}</div>
+      ${useAutoStats ? this._autoConsumiHtml() : ""}
+      ${this._energyBarsHtml()}
+    `);
+    if (useAutoStats) {
+      const overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
+      this._loadEnergyBars(overlay);
+      this._loadAutoPeriods(overlay);
+    }
+  }
+
+  _autoConsumiHtml() {
+    return `<div class="shc-ap-sec">
+      <div class="shc-ap-sec-cap">Consumi per periodo</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento\u2026</div></div>
+    </div>`;
+  }
+
+  async _loadAutoPeriods(overlay) {
+    const cfg = this._config;
+    const slot = overlay?.querySelector("[data-auto-periods]");
+    if (!slot || !cfg.energy_stat_entity) return;
+    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    try {
+      const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
+      const row = (key, def) => {
+        const d = p[key];
+        const kwh = Number.isFinite(d?.kwh) ? `${d.kwh.toFixed(2)} kWh` : "\u2014";
+        const cost = Number.isFinite(d?.cost) ? `${d.cost.toFixed(2)} \u20ac` : "\u2014";
+        return `<div class="shc-ap-week-row">
+          <div class="shc-ap-week-day">${esc(def)}</div>
+          <div class="shc-ap-week-stats cols2">
+            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+          </div>
+        </div>`;
+      };
+      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("");
+    } catch (e) {
+      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
+    }
+  }
+
+  _energyBarsHtml() {
+    if (!this._config.energy_stat_entity) return "";
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+  }
+
+  async _fetchAutoStats(entityId, period, start, end) {
+    const result = await this._hass.connection.sendMessagePromise({
+      type: "recorder/statistics_during_period",
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      statistic_ids: [entityId],
+      period,
+    });
+    const rows = result?.[entityId] || [];
+    return rows.map((r) => ({ t: new Date(r.start), value: Math.max(0, Number(r.change ?? 0)) }));
+  }
+
+  _barChartSvg(bars, color) {
+    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    const width = 300;
+    const height = 90;
+    const plotX0 = 24;
+    const plotW = width - plotX0;
+    const labelSpace = 22;
+    const barAreaH = height - labelSpace;
+    const max = Math.max(...bars.map((b) => b.value), 0.01);
+    const gap = 3;
+    const barW = (plotW - gap * (bars.length - 1)) / bars.length;
+    const fmt = (v) => {
+      if (!(v > 0)) return "";
+      const s = v.toFixed(1);
+      return s.endsWith(".0") ? s.slice(0, -2) : s;
+    };
+    const parts = bars
+      .map((b, i) => {
+        const h = Math.max(1, (b.value / max) * (barAreaH - 2));
+        const x = (plotX0 + i * (barW + gap)).toFixed(1);
+        const y = (height - h).toFixed(1);
+        const cx = (plotX0 + i * (barW + gap) + barW / 2).toFixed(1);
+        const labelY = (height - h - 4).toFixed(1);
+        const label = fmt(b.value);
+        const text = label
+          ? `<text x="${cx}" y="${labelY}" transform="rotate(-90 ${cx} ${labelY})" text-anchor="start" font-size="10" font-weight="800" fill="#94a3b8">${label}</text>`
+          : "";
+        return `<rect x="${x}" y="${y}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" rx="2" fill="${color}"/>${text}`;
+      })
+      .join("");
+    const axis = `<line x1="${plotX0}" y1="${labelSpace}" x2="${plotX0}" y2="${height}" stroke="#94a3b840" stroke-width="1"/>
+      <text x="${plotX0 - 4}" y="${labelSpace + 6}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">${this._fmtAxis(max)}</text>
+      <text x="${plotX0 - 4}" y="${height - 1}" text-anchor="end" font-size="10" font-weight="800" fill="#94a3b8">0</text>`;
+    return `<svg viewBox="0 0 ${width} ${height}" class="shc-ap-chart-svg" preserveAspectRatio="none">${axis}${parts}</svg>`;
+  }
+
+  _loadEnergyBars(overlay) {
+    const energyEntity = this._config.energy_stat_entity;
+    if (!energyEntity || !overlay) return;
+    const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
+    const now = new Date();
+    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    this._fetchAutoStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
+      .then((rows) => {
+        const el = slot("month");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        el.outerHTML = `<div data-chart="month">${this._barChartSvg(bars, "#0ea5e9")}${this._labelSpans(rows, 8, (r) => r.t.getDate())}</div>`;
+      })
+      .catch(() => {
+        const el = slot("month");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
+    this._fetchAutoStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
+      .then((rows) => {
+        const el = slot("year");
+        if (!el) return;
+        const bars = rows.map((r) => ({ value: r.value }));
+        const labels = `<div class="shc-ap-chart-labels">${rows.map((r) => `<span>${MONTH_ABBR[r.t.getMonth()]}</span>`).join("")}</div>`;
+        el.outerHTML = `<div data-chart="year">${this._barChartSvg(bars, "#0ea5e9")}${labels}</div>`;
+      })
+      .catch(() => {
+        const el = slot("year");
+        if (el) el.textContent = "Errore caricamento dati";
+      });
   }
 
   _openUpdate() {

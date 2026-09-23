@@ -24,6 +24,17 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"NAS Synol
 | `name` | No | Titolo card (default `"Synology NAS"`) |
 | `model` | No | Testo libero, es. `"DS925+"` |
 | `security_entity` | No | `binary_sensor` stato di sicurezza del NAS (Synology lo espone nativamente) |
+| `energy_stat_entity` | No | `sensor` kWh con storico a lungo termine (es. un helper "Integrazione" da un sensore Watt) — se lo colleghi, il pulsante **Consumi** (fulmine) mostra anche i totali per periodo (oggi/ieri/mese/anno) e gli istogrammi mese/anno |
+| `cost_entity` | No | `input_number` con la tariffa €/kWh, usato per calcolare i costi insieme a `energy_stat_entity` |
+
+### `energy` — consumo istantaneo (pulsante fulmine)
+
+```yaml
+energy:
+  power: sensor.nas_potenza_istantanea   # W
+  today_kwh: sensor.nas_energia_oggi     # opzionale, se il NAS/la presa lo espone gia' calcolato
+  month_kwh: sensor.nas_energia_mese     # opzionale
+```
 
 ### `sensors`
 
