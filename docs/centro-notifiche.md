@@ -55,3 +55,5 @@ Tutti e 5 i campi entità sono **obbligatori** — senza uno di questi la card n
 | `orario_fine_entity` | **Sì** | `input_datetime` (solo ora) con la fine della finestra |
 
 Trascina gli slider o tocca gli orari direttamente sulla card: ogni modifica scrive subito sull'helper corrispondente, nessun popup Impostazioni da aprire.
+
+**Se la card mostra un avviso "Manca la configurazione di..."** invece dei controlli, uno o più campi entità si sono svuotati (capita facilmente se tocchi per sbaglio la "✕" di un campo nell'editor mentre riorganizzi la dashboard) — apri "Modifica" (⋮ sulla card, in modalità modifica dashboard) e ricompila i campi mancanti. La card non sparisce più con l'errore generico di Home Assistant, dice sempre esattamente cosa manca.

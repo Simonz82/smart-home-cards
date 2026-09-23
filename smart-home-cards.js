@@ -5950,15 +5950,43 @@ window.customCards.push({
 // prova da vedere sotto alle card di Centro Notifiche prima di deciderlo.
 // -----------------------------------------------------------------------
 class ShcNotifCenterCard extends HTMLElement {
+  // Campi obbligatori: qui NON si lancia un'eccezione se mancano (che darebbe la generica,
+  // criptica "Configuration error" di HA, senza dire quale campo manca ne' un modo ovvio per
+  // sistemarlo) - si mostra invece un avviso chiaro sulla card stessa, con lo stesso stile
+  // delle altre, e il pulsante "Modifica" per compilarli resta comunque raggiungibile.
+  static get REQUIRED_FIELDS() {
+    return [
+      ["volume_notifica_entity", "Volume annuncio"],
+      ["volume_ripristino_entity", "Volume ripristino"],
+      ["tempo_messaggio_entity", "Tempo del messaggio"],
+      ["orario_inizio_entity", "Orario inizio"],
+      ["orario_fine_entity", "Orario fine"],
+    ];
+  }
+
   setConfig(config) {
-    if (!config.volume_notifica_entity || !config.volume_ripristino_entity || !config.tempo_messaggio_entity || !config.orario_inizio_entity || !config.orario_fine_entity) {
-      throw new Error("volume_notifica_entity, volume_ripristino_entity, tempo_messaggio_entity, orario_inizio_entity e orario_fine_entity sono tutti obbligatori");
-    }
     this._config = {
       name: "Centro Notifiche",
       ...config,
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
+    const missing = ShcNotifCenterCard.REQUIRED_FIELDS.filter(([key]) => !this._config[key]);
+    if (missing.length) {
+      this._root.innerHTML = `<style>${STYLE}</style>
+        <article class="shc-ap-card">
+          <div class="shc-ap-top">
+            <span class="shc-ap-chip">${ICON_BELL}</span>
+            <span class="shc-ap-headings"><span class="shc-ap-name">${esc(this._config.name)}</span></span>
+          </div>
+          <div class="shc-ap-panel">
+            <div class="shc-ap-meters">
+              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+              <div class="shc-ap-row-val">Apri "Modifica" (⋮ sulla card, in modalità modifica dashboard) e ricompila i campi.</div>
+            </div>
+          </div>
+        </article>`;
+      return;
+    }
     const hero = HERO_BUILDERS.alexa("nc" + Math.random().toString(36).slice(2, 8));
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -6034,6 +6062,7 @@ class ShcNotifCenterCard extends HTMLElement {
     this._hass = hass;
     const cfg = this._config;
     if (!cfg || !this._root) return;
+    if (ShcNotifCenterCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
     const fillRange = (el, pct) => {
       el.style.background = `linear-gradient(to right, var(--shc-blue) ${pct}%, var(--shc-border) ${pct}%)`;
     };
