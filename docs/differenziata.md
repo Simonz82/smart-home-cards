@@ -57,10 +57,9 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Raccolta 
 | `expose_time_entity` | No | — | `input_datetime`/`sensor` con l'orario in cui esporre i bidoni |
 | `types_entity` | No | — | `input_text` con l'elenco dei tipi di raccolta scritti a mano (v. sotto) — se la colleghi compare il pulsante dedicato |
 | `layout_entity` | No | — | Menu classico/centrato, vedi [layout.md](layout.md) |
+| `notif_center_path` | No | — | Percorso di una tua pagina Lovelace condivisa (es. `/lovelace/centronotifiche`) dove centralizzi le impostazioni Alexa di più card. Senza questo campo il pulsante megafono resta **nascosto** |
 | `actions` | No | `[]` | Pulsanti extra con conferma, stesso formato delle altre card — vedi [fritzbox.md](fritzbox.md#actions--pulsanti-con-conferma) |
 | `settings_sections` | No | `[]` | Vedi [settings-sections.md](settings-sections.md) |
-
-Il pulsante megafono (in alto) porta sempre a `/lovelace/centronotifiche`: se non hai una pagina con quel percorso, crea una vista Lovelace vuota lì o rimuovi il pulsante non collegandolo (resta comunque visibile, semplicemente la pagina non esisterà finché non la crei).
 
 ## 🗂️ Configura i tipi di raccolta del tuo comune
 

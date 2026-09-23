@@ -51,6 +51,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Energia C
 | `max_power` | No | Fondo scala barra di potenza (es. la potenza contrattuale) |
 | `top_entity` | No | `sensor` testuale con il nome del circuito che sta consumando di più in questo momento (calcolato da te con un template, se vuoi mostrarlo) |
 | `soglia_entity` | No | `input_number` con la soglia oltre la quale scatta l'allarme "sovraccarico" |
+| `notif_center_path` | No | Percorso di una tua pagina Lovelace condivisa dove centralizzi le impostazioni Alexa di più card. Senza questo campo il pulsante megafono resta **nascosto** |
 
 ### `periods` / `periods_prev` — box energia/costo per fascia temporale
 

@@ -1140,7 +1140,7 @@ class ShcApplianceCloneCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
@@ -1183,11 +1183,18 @@ class ShcApplianceCloneCard extends HTMLElement {
       room.hidden = false;
       room.textContent = this._config.room;
     }
-    this._root.querySelector(".shc-ap-notif-center").addEventListener("click", (e) => {
-      e.stopPropagation();
-      history.pushState(null, "", "/lovelace/centronotifiche");
-      window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
-    });
+    // Pulsante "Centro Notifiche": compare solo se configuri notif_center_path (facoltativo,
+    // pensato per chi centralizza le impostazioni di piu' card in un'unica pagina condivisa -
+    // senza, il pulsante resta nascosto invece di puntare a una pagina che non esiste).
+    const notifBtn = this._root.querySelector(".shc-ap-notif-center");
+    if (this._config.notif_center_path) {
+      notifBtn.hidden = false;
+      notifBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        history.pushState(null, "", this._config.notif_center_path);
+        window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
+      });
+    }
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openSettings();
@@ -2170,7 +2177,7 @@ class ShcGarbageCardEditor extends ShcSimpleCardEditorBase {
         { key: "types_entity", label: "Elenco tipi di raccolta (mostra il pulsante sulla card)", domain: ["input_text"], hint: "Facoltativo: se lo colleghi compare il pulsante per scrivere i tipi di raccolta del tuo comune." },
       ]},
       { title: "Avanzate", fields: [
-        { key: "alexa_settings_path", label: "Percorso pagina notifiche Alexa (facoltativo)", kind: "text", placeholder: "/lovelace/notifiche-alexa" },
+        { key: "notif_center_path", label: "Percorso pagina Centro Notifiche (facoltativo)", kind: "text", placeholder: "/lovelace/centronotifiche", hint: "Senza questo campo il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste." },
         { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
       ]},
     ];
@@ -2195,7 +2202,10 @@ class ShcEnergyCardEditor extends ShcSimpleCardEditorBase {
         { key: "max_power", label: "Fondo scala generale (W)", kind: "number", placeholder: "4500" },
       ]},
       ...circuits,
-      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+      { title: "Avanzate", fields: [
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+        { key: "notif_center_path", label: "Percorso pagina Centro Notifiche (facoltativo)", kind: "text", placeholder: "/lovelace/centronotifiche", hint: "Senza questo campo il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste." },
+      ]},
     ];
   }
 }
@@ -2390,8 +2400,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
             <span class="shc-ed-label">Menu layout (facoltativo)</span>
             <ha-entity-picker class="shc-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
           </div>
+          <div class="shc-ed-row">
+            <span class="shc-ed-label">Percorso pagina Centro Notifiche (facoltativo)</span>
+            <input class="shc-ed-input shc-ed-notif-path" type="text" placeholder="/lovelace/centronotifiche" value="${esc(cfg.notif_center_path || "")}">
+          </div>
         </div>
-        <p class="shc-ed-hint">Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
+        <p class="shc-ed-hint">Senza il percorso Centro Notifiche, il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste. Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
       </details>
 
       ${this._storiciHtml(cfg)}
@@ -2440,6 +2454,8 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       const el = body.querySelector(".shc-ed-" + cls);
       if (el) el.addEventListener("change", () => this._set(key, Number(el.value)));
     });
+    const notifPathEl = body.querySelector(".shc-ed-notif-path");
+    if (notifPathEl) notifPathEl.addEventListener("change", () => this._set("notif_center_path", notifPathEl.value));
 
     // Storici automatici: picker + pulsanti "crea" (v. _storiciHtml/_runStorici).
     wirePicker(".shc-ed-energy-stat", cfg.energy_stat_entity, null, "energy_stat_entity");
@@ -4093,7 +4109,7 @@ class ShcEnergyCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche">${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
@@ -4142,11 +4158,18 @@ class ShcEnergyCard extends HTMLElement {
       metersEl.appendChild(div);
     });
 
-    this._root.querySelector(".shc-ap-notif-center").addEventListener("click", (e) => {
-      e.stopPropagation();
-      history.pushState(null, "", "/lovelace/centronotifiche");
-      window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
-    });
+    // Pulsante "Centro Notifiche": compare solo se configuri notif_center_path (facoltativo,
+    // pensato per chi centralizza le impostazioni di piu' card in un'unica pagina condivisa -
+    // senza, il pulsante resta nascosto invece di puntare a una pagina che non esiste).
+    const notifBtn = this._root.querySelector(".shc-ap-notif-center");
+    if (this._config.notif_center_path) {
+      notifBtn.hidden = false;
+      notifBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        history.pushState(null, "", this._config.notif_center_path);
+        window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
+      });
+    }
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
       if (this._config.legacy_settings_popup) {
@@ -5071,7 +5094,7 @@ class ShcGarbageCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-alexa" title="Notifiche Alexa">${ICON_MEGAPHONE}</button>
+            <button type="button" class="shc-ap-tool shc-ap-alexa" title="Centro Notifiche" hidden>${ICON_MEGAPHONE}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-types" title="Tipi di raccolta" hidden>${ICON_TYPES}</button>
           </span>
@@ -5111,11 +5134,18 @@ class ShcGarbageCard extends HTMLElement {
         this._openTypes();
       });
     }
-    this._root.querySelector(".shc-ap-alexa").addEventListener("click", (e) => {
-      e.stopPropagation();
-      history.pushState(null, "", "/lovelace/centronotifiche");
-      window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
-    });
+    // Pulsante "Centro Notifiche": compare solo se configuri notif_center_path (facoltativo,
+    // pensato per chi centralizza le impostazioni di piu' card in un'unica pagina condivisa -
+    // senza, il pulsante resta nascosto invece di puntare a una pagina che non esiste).
+    const alexaBtn = this._root.querySelector(".shc-ap-alexa");
+    if (this._config.notif_center_path) {
+      alexaBtn.hidden = false;
+      alexaBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        history.pushState(null, "", this._config.notif_center_path);
+        window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
+      });
+    }
     this._root.querySelector(".shc-ap-hero").addEventListener("click", () => {
       const e = new Event("hass-more-info", { bubbles: true, composed: true });
       e.detail = { entityId: this._config.entity };

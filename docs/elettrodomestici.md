@@ -86,6 +86,7 @@ Per un tipo **domotico** (es. TV) compaiono anche i campi di stato/programma nat
 | `state_map` | No | vedi sotto | Rimappa gli stati grezzi di un `live.state_entity` in stato/etichetta della card |
 | `settings_sections` | No | `[]` | Contenuto del popup ⚙️ — vedi [settings-sections.md](settings-sections.md) |
 | `warn_entities` | No | `[]` | Avvisi lampeggianti (es. "Sale in esaurimento") — vedi sotto |
+| `notif_center_path` | No | — | Percorso di una tua pagina Lovelace condivisa dove centralizzi le impostazioni Alexa di più card. Senza questo campo il pulsante megafono resta **nascosto** |
 
 ### `live` — stato dettagliato da un dispositivo "smart" (opzionale)
 
