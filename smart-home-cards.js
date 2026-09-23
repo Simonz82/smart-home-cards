@@ -150,6 +150,13 @@ const HERO_BUILDERS = {
     <rect x="76" y="178" width="88" height="10" rx="5" fill="#1f2937"/>
     <circle cx="196" cy="52" r="3" fill="#22c55e"/>
   </svg>`,
+  alexa: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs>
+    <ellipse cx="120" cy="222" rx="72" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <image href="/local/foto-pkg/echo-dot.png" x="8" y="8" width="224" height="224" preserveAspectRatio="xMidYMid meet"/>
+  </svg>`,
   fritzbox: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -537,6 +544,14 @@ const STYLE = `
   .shc-ap-dialog{width:100%;max-width:100%;height:94vh;max-height:94vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column}
   .shc-ap-dialog-body{flex:1}
 }
+.shc-notif-range{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:999px;margin:7px 0 0;background:var(--shc-border);outline:none;cursor:pointer}
+.shc-notif-range::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:transparent}
+.shc-notif-range::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;margin-top:-3.5px;border-radius:50%;background:#fff;border:3px solid var(--shc-blue);box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer}
+.shc-notif-range::-moz-range-track{height:8px;border-radius:999px;background:transparent}
+.shc-notif-range::-moz-range-thumb{width:15px;height:15px;border:3px solid var(--shc-blue);border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);cursor:pointer}
+.shc-notif-times{display:flex;align-items:center;gap:6px}
+.shc-notif-time{border:0;background:transparent;color:var(--shc-blue);font:inherit;font-size:13px;font-weight:850;padding:0;text-align:right;width:100px}
+.shc-notif-times b{color:var(--shc-dim);font-weight:700}
 `;
 
 function esc(s) {
@@ -2160,6 +2175,24 @@ class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
   }
 }
 customElements.define("shc-ups-card-editor", ShcUpsCardEditor);
+
+class ShcNotifCenterCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Centro Notifiche" }]},
+      { title: "Volumi e tempi", fields: [
+        { key: "volume_notifica_entity", label: "Volume annuncio", domain: ["input_number"], required: true },
+        { key: "volume_ripristino_entity", label: "Volume ripristino", domain: ["input_number"], required: true },
+        { key: "tempo_messaggio_entity", label: "Tempo del messaggio (secondi)", domain: ["input_number"], required: true },
+      ]},
+      { title: "Orario notifiche", fields: [
+        { key: "orario_inizio_entity", label: "Orario inizio", domain: ["input_datetime"], required: true },
+        { key: "orario_fine_entity", label: "Orario fine", domain: ["input_datetime"], required: true },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-notif-center-card-editor", ShcNotifCenterCardEditor);
 
 class ShcGarbageCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
@@ -5905,5 +5938,154 @@ window.customCards.push({
   type: "shc-proxmox-card",
   name: "Proxmox",
   description: "Card per l'host Proxmox: CPU/RAM/disco, contenitori/VM attive, consumo, salute SSD",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// PROTOTIPO 23/09/2026: shc-notif-center-card - stessa grammatica visiva
+// (STYLE, shc-ap-card/top/chip) delle altre card, ma layout fisso, senza
+// classico/centrato ne' hero: e' una card di impostazioni pura (volumi +
+// finestra oraria del Centro Notifiche Alexa condiviso), tutto in vista
+// diretta sulla card, niente popup. NON ancora nel repo pubblico/HACS -
+// prova da vedere sotto alle card di Centro Notifiche prima di deciderlo.
+// -----------------------------------------------------------------------
+class ShcNotifCenterCard extends HTMLElement {
+  setConfig(config) {
+    if (!config.volume_notifica_entity || !config.volume_ripristino_entity || !config.tempo_messaggio_entity || !config.orario_inizio_entity || !config.orario_fine_entity) {
+      throw new Error("volume_notifica_entity, volume_ripristino_entity, tempo_messaggio_entity, orario_inizio_entity e orario_fine_entity sono tutti obbligatori");
+    }
+    this._config = {
+      name: "Centro Notifiche",
+      ...config,
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    const hero = HERO_BUILDERS.alexa("nc" + Math.random().toString(36).slice(2, 8));
+    this._root.innerHTML = `<style>${STYLE}</style>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${ICON_BELL}</span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name">${esc(this._config.name)}</span>
+          </span>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ALEXA</span></span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+        </div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Volume annuncio</span><strong class="shc-notif-vol1-val">—</strong></div>
+              <input type="range" class="shc-notif-range shc-notif-vol1" min="0" max="100" step="1">
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Volume ripristino</span><strong class="shc-notif-vol2-val">—</strong></div>
+              <input type="range" class="shc-notif-range shc-notif-vol2" min="0" max="100" step="1">
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Tempo del messaggio</span><strong class="shc-notif-tempo-val">—</strong></div>
+              <input type="range" class="shc-notif-range shc-notif-tempo" min="0" max="30" step="1">
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row">
+                <span>Orario notifiche</span>
+                <span class="shc-notif-times">
+                  <input type="time" class="shc-notif-time shc-notif-time-start"><b>–</b><input type="time" class="shc-notif-time shc-notif-time-end">
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>`;
+
+    const cfg = this._config;
+    const fillRange = (el, pct) => {
+      el.style.background = `linear-gradient(to right, var(--shc-blue) ${pct}%, var(--shc-border) ${pct}%)`;
+    };
+    const bindSlider = (cls, valCls, entity, unit, toState) => {
+      const el = this._root.querySelector("." + cls);
+      const valEl = this._root.querySelector("." + valCls);
+      el.addEventListener("input", () => {
+        valEl.textContent = el.value + unit;
+        fillRange(el, (100 * (Number(el.value) - Number(el.min))) / (Number(el.max) - Number(el.min)));
+      });
+      el.addEventListener("change", () => {
+        this._hass?.callService("input_number", "set_value", { entity_id: entity, value: toState(Number(el.value)) });
+      });
+    };
+    bindSlider("shc-notif-vol1", "shc-notif-vol1-val", cfg.volume_notifica_entity, "%", (v) => v / 100);
+    bindSlider("shc-notif-vol2", "shc-notif-vol2-val", cfg.volume_ripristino_entity, "%", (v) => v / 100);
+    bindSlider("shc-notif-tempo", "shc-notif-tempo-val", cfg.tempo_messaggio_entity, "s", (v) => v);
+
+    const bindTime = (cls, entity) => {
+      const el = this._root.querySelector("." + cls);
+      el.addEventListener("change", () => {
+        if (!el.value) return;
+        this._hass?.callService("input_datetime", "set_datetime", { entity_id: entity, time: el.value + ":00" });
+      });
+    };
+    bindTime("shc-notif-time-start", cfg.orario_inizio_entity);
+    bindTime("shc-notif-time-end", cfg.orario_fine_entity);
+
+    if (this._hass) this.hass = this._hass;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    const cfg = this._config;
+    if (!cfg || !this._root) return;
+    const fillRange = (el, pct) => {
+      el.style.background = `linear-gradient(to right, var(--shc-blue) ${pct}%, var(--shc-border) ${pct}%)`;
+    };
+    const setSlider = (cls, valCls, entity, unit, toDisplay) => {
+      const st = hass.states[entity];
+      if (!st) return;
+      const slider = this._root.querySelector("." + cls);
+      const val = this._root.querySelector("." + valCls);
+      const raw = toDisplay(Number(st.state));
+      if (document.activeElement !== slider) {
+        slider.value = raw;
+        fillRange(slider, (100 * (raw - Number(slider.min))) / (Number(slider.max) - Number(slider.min)));
+      }
+      val.textContent = raw + unit;
+    };
+    setSlider("shc-notif-vol1", "shc-notif-vol1-val", cfg.volume_notifica_entity, "%", (v) => Math.round(v * 100));
+    setSlider("shc-notif-vol2", "shc-notif-vol2-val", cfg.volume_ripristino_entity, "%", (v) => Math.round(v * 100));
+    setSlider("shc-notif-tempo", "shc-notif-tempo-val", cfg.tempo_messaggio_entity, "s", (v) => Math.round(v));
+    const setTime = (cls, entity) => {
+      const st = hass.states[entity];
+      const el = this._root.querySelector("." + cls);
+      if (!st || document.activeElement === el) return;
+      el.value = (st.state || "").slice(0, 5);
+    };
+    setTime("shc-notif-time-start", cfg.orario_inizio_entity);
+    setTime("shc-notif-time-end", cfg.orario_fine_entity);
+  }
+
+  getCardSize() {
+    return 5;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-notif-center-card-editor");
+  }
+
+  static getStubConfig() {
+    return {
+      name: "Centro Notifiche",
+      volume_notifica_entity: "",
+      volume_ripristino_entity: "",
+      tempo_messaggio_entity: "",
+      orario_inizio_entity: "",
+      orario_fine_entity: "",
+    };
+  }
+}
+customElements.define("shc-notif-center-card", ShcNotifCenterCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-notif-center-card",
+  name: "Centro Notifiche",
+  description: "Volumi e finestra oraria del Centro Notifiche Alexa condiviso, stessa grafica delle altre card",
   author: "Simonz82",
 });
