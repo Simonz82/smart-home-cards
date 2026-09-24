@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-24 — Nuove card Alexa: Annuncio Testo e Memo
+
+- **Nuova card 🔊 Alexa Annuncio Testo** (`shc-alexa-text-card`): scrivi un messaggio, scegli lo speaker (o il gruppo multiroom) e il volume, e lo riproduci con un tap su Alexa. Guida: [docs/alexa.md](docs/alexa.md).
+- **Nuova card 🔊 Alexa Memo** (`shc-alexa-memo-card`): fino a **4 promemoria vocali indipendenti**, ciascuno con proprio testo, intervallo di date + orario (oppure singola data/ora se non ripetuto) e dispositivi Alexa scelti con chip multi-selezione nell'editor visuale. Campo **Persona** opzionale: se all'orario previsto la persona non è in casa, l'annuncio resta "in sospeso" e viene fatto pochi minuti dopo il suo rientro. Uno stepper sulla card Memo 1 sblocca progressivamente Memo 3 e 4.
+- Entrambe riusano il motore vocale condiviso di `centro_notifiche_alexa.yaml`, lo stesso già usato da Raccolta Differenziata e dalle altre card.
+- Nuovi package: [`packages/alexa_google_text.yaml`](packages/alexa_google_text.yaml), [`packages/memo_alexa.yaml`](packages/memo_alexa.yaml).
+
 ## 2026-09-21 (sera) — Grafici, Statistiche e differenziata
 
 - **Nuovo pulsante 📈 Grafici** su tutte le card: finestra con il grafico storico in **24 h · 7 gg · 30 gg · da … a** (date a scelta), che si adatta a PC e smartphone, con linea guida, minimo/media/massimo e curve sovrapposte dove serve. Guida: [docs/grafici.md](docs/grafici.md).

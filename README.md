@@ -2,7 +2,7 @@
 
 Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e complete" senza impilare 4-5 card diverse (HACS) una dentro l'altra. Ogni card è un unico file JavaScript, gira su qualunque dashboard (anche sul cellulare), ha un popup Impostazioni e uno Statistiche integrati, e un **editor visuale nativo** (niente YAML obbligatorio: "Aggiungi card" → cerchi il nome → compili i campi).
 
-**Repository unico**: le 9 card (elettrodomestici, energia, FritzBox, server HA, NAS, Proxmox, UPS, raccolta differenziata, centro notifiche) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
+**Repository unico**: le 11 card (elettrodomestici, energia, FritzBox, server HA, NAS, Proxmox, UPS, raccolta differenziata, centro notifiche, annuncio testo Alexa, memo Alexa) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
 
 **Non serve programmare nulla**: si installa il file, si aggiunge la card alla dashboard, si scrivono i nomi delle proprie entità al posto di quelle di esempio. Tutte le istruzioni qui sotto sono scritte per chi non ha mai installato una card personalizzata prima.
 
@@ -21,6 +21,7 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 | [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
 | [♻️ Raccolta Differenziata](docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Nessun hardware, solo un `input_text` |
 | [🔔 Centro Notifiche](docs/centro-notifiche.md) | Volumi e finestra oraria degli annunci Alexa condivisi da tutte le altre card, in un'unica card di impostazioni | Il package `centro_notifiche_alexa.yaml` + integrazione Alexa Media Player |
+| [🔊 Alexa Annuncio Testo / Memo](docs/alexa.md) | Annuncio vocale al volo con selettore multiroom e volume; oppure fino a 4 promemoria vocali programmati, con ripetizione, data/ora singola e riprova al rientro in casa | Integrazione Alexa Media Player |
 | [📈 Grafici 24 h / 7 gg / 30 gg / da … a](docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
 | [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
 
@@ -41,7 +42,7 @@ Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In b
 5. (Facoltativo) Per scegliere il layout dalle Impostazioni copia anche [`packages/layout_schede.yaml`](packages/layout_schede.yaml) (vedi [docs/layout.md](docs/layout.md)).
 6. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
 
-Un solo file JS contiene tutte e 9 le card — installi una volta sola, poi usi quelle che ti servono.
+Un solo file JS contiene tutte e 11 le card — installi una volta sola, poi usi quelle che ti servono.
 
 ## 🎛️ Due layout per ogni card
 

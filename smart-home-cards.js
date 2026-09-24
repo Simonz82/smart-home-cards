@@ -294,6 +294,8 @@ const ICON_SPEED =
   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l3-3"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>';
 const ICON_BOLT =
   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>';
+const ICON_INFO =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.7" r="0.15" fill="currentColor" stroke-width="2.6"/></svg>';
 const ICON_FLAG =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 4h11l-2 4 2 4H4"/></svg>';
 const ICON_TIMER =
@@ -377,6 +379,20 @@ const STYLE = `
 .shc-ap-badge.standby{background:#dbeafe;color:#2563eb}
 .shc-ap-badge.off{background:#f1f5f9;color:#64748b}
 .shc-ap-badge.unavailable{background:#fee2e2;color:#b91c1c}
+.shc-ap-badge.pending{background:#fef3c7;color:#b45309}
+[data-theme-dark] .shc-ap-badge.pending,:host-context([data-theme="dark"]) .shc-ap-badge.pending{background:rgba(245,158,11,.18);color:#fbbf24}
+.shc-am-block{display:flex;flex-direction:column;gap:8px}
+.shc-am-block[hidden]{display:none}
+.shc-am-status{font-size:12.5px;font-weight:700;color:var(--shc-dim);padding:2px 2px 0}
+.shc-am-status.warn{color:#b45309}
+[data-theme-dark] .shc-am-status.warn,:host-context([data-theme="dark"]) .shc-am-status.warn{color:#fbbf24}
+.shc-am-chips{display:flex;flex-wrap:wrap;gap:6px}
+.shc-am-dev-chip{padding:7px 12px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.shc-am-dev-chip.on{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-am-slots{display:flex;align-items:center;gap:8px}
+.shc-am-slots-val{min-width:34px;text-align:center;font-size:13.5px;font-weight:800;color:var(--shc-text)}
+.shc-am-info-body p{margin:0 0 10px;font-size:14px;line-height:1.5;color:var(--shc-text)}
+.shc-am-info-body p:last-child{margin-bottom:0}
 [data-theme-dark] .shc-ap-badge.off,:host-context([data-theme="dark"]) .shc-ap-badge.off{background:rgba(148,163,184,.16);color:#94a3b8}
 .shc-ap-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 .shc-ap-tools{display:flex;gap:4px;flex:0 0 auto}
@@ -552,6 +568,13 @@ const STYLE = `
 .shc-notif-times{display:flex;align-items:center;gap:6px}
 .shc-notif-time{border:0;background:transparent;color:var(--shc-blue);font:inherit;font-size:13px;font-weight:850;padding:0;text-align:right;width:100px}
 .shc-notif-times b{color:var(--shc-dim);font-weight:700}
+.shc-at-speaker-row{display:flex;align-items:center;gap:8px}
+.shc-at-pm{flex:0 0 auto;width:34px;height:34px;border-radius:10px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font-size:18px;font-weight:900;line-height:1;cursor:pointer}
+.shc-at-pm:active{background:var(--shc-blue);color:#fff;border-color:var(--shc-blue)}
+.shc-at-select{flex:1;min-width:0;border:1px solid var(--shc-border);border-radius:10px;background:var(--shc-card);color:var(--shc-text);font:inherit;font-size:13.5px;font-weight:700;padding:9px 10px}
+.shc-at-active{display:flex;flex-direction:column;gap:6px}
+.shc-at-active-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:var(--shc-text)}
+.shc-at-active-row small{color:var(--shc-dim);font-weight:800;text-transform:uppercase;letter-spacing:.3px;font-size:10px}
 `;
 
 function esc(s) {
@@ -6388,7 +6411,7 @@ class ShcNotifCenterCard extends HTMLElement {
       const slider = this._root.querySelector("." + cls);
       const val = this._root.querySelector("." + valCls);
       const raw = toDisplay(Number(st.state));
-      if (document.activeElement !== slider) {
+      if (this._root.activeElement !== slider) {
         slider.value = raw;
         fillRange(slider, (100 * (raw - Number(slider.min))) / (Number(slider.max) - Number(slider.min)));
       }
@@ -6400,7 +6423,7 @@ class ShcNotifCenterCard extends HTMLElement {
     const setTime = (cls, entity) => {
       const st = hass.states[entity];
       const el = this._root.querySelector("." + cls);
-      if (!st || document.activeElement === el) return;
+      if (!st || this._root.activeElement === el) return;
       el.value = (st.state || "").slice(0, 5);
     };
     setTime("shc-notif-time-start", cfg.orario_inizio_entity);
@@ -6432,5 +6455,514 @@ window.customCards.push({
   type: "shc-notif-center-card",
   name: "Centro Notifiche",
   description: "Volumi e finestra oraria del Centro Notifiche Alexa condiviso, stessa grafica delle altre card",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// PROTOTIPO 23/09/2026: shc-alexa-text-card - stessa impaginazione della
+// vecchia card "Alexa Google Speaker Text" (selettore speaker +/-, testo
+// libero, volume, pulsante riproduci, elenco dispositivi attivi), ma con
+// grafica/colori della famiglia nuova. Solo locale, non ancora nel repo
+// pubblico/HACS - prova da confrontare con la vecchia prima di deciderlo.
+// -----------------------------------------------------------------------
+class ShcAlexaTextCard extends HTMLElement {
+  static get REQUIRED_FIELDS() {
+    return [
+      ["speaker_select_entity", "Selettore speaker"],
+      ["add_script", "Script aggiungi speaker"],
+      ["remove_script", "Script rimuovi speaker"],
+      ["text_entity", "Campo testo"],
+      ["volume_entity", "Volume"],
+      ["play_script", "Script riproduci"],
+      ["group_entity", "Gruppo multiroom"],
+    ];
+  }
+
+  setConfig(config) {
+    this._config = { name: "Alexa", ...config };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    const missing = ShcAlexaTextCard.REQUIRED_FIELDS.filter(([key]) => !this._config[key]);
+    if (missing.length) {
+      this._root.innerHTML = `<style>${STYLE}</style>
+        <article class="shc-ap-card">
+          <div class="shc-ap-top">
+            <span class="shc-ap-chip">${ICON_MEGAPHONE}</span>
+          </div>
+          <div class="shc-ap-panel">
+            <div class="shc-ap-meters">
+              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+            </div>
+          </div>
+        </article>`;
+      return;
+    }
+    this._root.innerHTML = `<style>${STYLE}</style>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${ICON_MEGAPHONE}</span>
+          <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">TTS</span></span>
+        </div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Speaker</span></div>
+              <div class="shc-at-speaker-row">
+                <button type="button" class="shc-at-pm shc-at-minus" title="Rimuovi dal gruppo">−</button>
+                <select class="shc-at-select"></select>
+                <button type="button" class="shc-at-pm shc-at-plus" title="Aggiungi al gruppo">+</button>
+              </div>
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Testo</span></div>
+              <input type="text" class="shc-ed-input shc-at-text" placeholder="Scrivi il messaggio...">
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Volume</span><strong class="shc-at-vol-val">—</strong></div>
+              <input type="range" class="shc-notif-range shc-at-vol" min="0" max="100" step="1">
+            </div>
+            <button type="button" class="shc-ap-reset-btn shc-at-play">${ICON_MEGAPHONE} Riproduci</button>
+            <div class="shc-ap-sec-cap">In riproduzione su</div>
+            <div class="shc-at-active"></div>
+          </div>
+        </div>
+      </article>`;
+
+    const cfg = this._config;
+    this._root.querySelector(".shc-at-minus").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._hass?.callService("script", "turn_on", { entity_id: cfg.remove_script });
+    });
+    this._root.querySelector(".shc-at-plus").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._hass?.callService("script", "turn_on", { entity_id: cfg.add_script });
+    });
+    this._root.querySelector(".shc-at-select").addEventListener("change", (e) => {
+      this._hass?.callService("input_select", "select_option", { entity_id: cfg.speaker_select_entity, option: e.target.value });
+    });
+    this._root.querySelector(".shc-at-text").addEventListener("change", (e) => {
+      this._hass?.callService("input_text", "set_value", { entity_id: cfg.text_entity, value: e.target.value });
+    });
+    const volEl = this._root.querySelector(".shc-at-vol");
+    const volValEl = this._root.querySelector(".shc-at-vol-val");
+    volEl.addEventListener("input", () => {
+      volValEl.textContent = volEl.value + "%";
+      volEl.style.background = `linear-gradient(to right, var(--shc-blue) ${volEl.value}%, var(--shc-border) ${volEl.value}%)`;
+    });
+    volEl.addEventListener("change", () => {
+      this._hass?.callService("input_number", "set_value", { entity_id: cfg.volume_entity, value: Number(volEl.value) / 100 });
+    });
+    this._root.querySelector(".shc-at-play").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._hass?.callService("script", "turn_on", { entity_id: cfg.play_script });
+    });
+
+    if (this._hass) this.hass = this._hass;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    const cfg = this._config;
+    if (!cfg || !this._root) return;
+    if (ShcAlexaTextCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
+
+    const selectEl = this._root.querySelector(".shc-at-select");
+    if (selectEl && this._root.activeElement !== selectEl) {
+      const options = hass.states[cfg.speaker_select_entity]?.attributes?.options || [];
+      const current = hass.states[cfg.speaker_select_entity]?.state || "";
+      selectEl.innerHTML = options.map((o) => `<option value="${esc(o)}"${o === current ? " selected" : ""}>${esc(o)}</option>`).join("");
+    }
+
+    const textEl = this._root.querySelector(".shc-at-text");
+    if (textEl && this._root.activeElement !== textEl) {
+      textEl.value = hass.states[cfg.text_entity]?.state || "";
+    }
+
+    const volEl = this._root.querySelector(".shc-at-vol");
+    const volValEl = this._root.querySelector(".shc-at-vol-val");
+    const volSt = hass.states[cfg.volume_entity];
+    if (volEl && volSt && this._root.activeElement !== volEl) {
+      const pct = Math.round(Number(volSt.state) * 100);
+      volEl.value = pct;
+      volValEl.textContent = pct + "%";
+      volEl.style.background = `linear-gradient(to right, var(--shc-blue) ${pct}%, var(--shc-border) ${pct}%)`;
+    }
+
+    const activeEl = this._root.querySelector(".shc-at-active");
+    if (activeEl) {
+      const ids = hass.states[cfg.group_entity]?.attributes?.entity_id || [];
+      activeEl.innerHTML = ids.length
+        ? ids
+            .map((id) => {
+              const st = hass.states[id];
+              const name = st?.attributes?.friendly_name || id;
+              const state = (st?.state || "—").toUpperCase();
+              return `<div class="shc-at-active-row"><span>${esc(name)}</span><small>${esc(state)}</small></div>`;
+            })
+            .join("")
+        : `<div class="shc-ap-row-val">Nessun dispositivo inserito per la riproduzione.</div>`;
+    }
+  }
+
+  getCardSize() {
+    return 5;
+  }
+}
+customElements.define("shc-alexa-text-card", ShcAlexaTextCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-alexa-text-card",
+  name: "Alexa Annuncio Testo",
+  description: "Scrivi un testo e falo annunciare su uno o più speaker Alexa, con selettore multiroom e volume",
+  author: "Simonz82",
+});
+
+class ShcAlexaMemoCard extends HTMLElement {
+  static get REQUIRED_FIELDS() {
+    return [
+      ["active_entity", "Attivo"],
+      ["text_entity", "Messaggio"],
+      ["repeat_entity", "Ripetizione"],
+      ["date_start_entity", "Data inizio"],
+      ["date_end_entity", "Data fine"],
+      ["time_entity", "Orario"],
+      ["once_datetime_entity", "Data/ora singola"],
+      ["person_entity", "Persona"],
+      ["pending_entity", "In sospeso"],
+      ["retry_delay_entity", "Ritardo rientro"],
+      ["devices_entity", "Dispositivi Alexa"],
+    ];
+  }
+
+  static get DEVICES() {
+    return [
+      ["media_player.alexa_salone", "Salone"],
+      ["media_player.alexa_bagno", "Bagno"],
+      ["media_player.alexa_cameretta", "Cameretta"],
+      ["media_player.alexa_camera", "Camera"],
+    ];
+  }
+
+  _openDialog(title, bodyHtml) {
+    let overlay = this._root.querySelector(".shc-ap-overlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "shc-ap-overlay";
+      overlay.hidden = true;
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.hidden = true;
+      });
+      this._root.appendChild(overlay);
+    }
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
+    </div>`;
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
+      overlay.hidden = true;
+    });
+    overlay.hidden = false;
+    return overlay;
+  }
+
+  _openInfo() {
+    this._openDialog(
+      "Come funziona",
+      `<div class="shc-am-info-body">
+        <p>Annuncia un messaggio vocale su Alexa a un orario stabilito: ogni giorno per un periodo, oppure una tantum in una data precisa.</p>
+        <p>Se imposti una <b>Persona</b> e all'orario previsto non è in casa, l'annuncio non va perso: viene ripetuto pochi minuti dopo il suo rientro.</p>
+        <p>Il volume, il tempo di attesa e la finestra oraria in cui è permesso annunciare sono <b>condivisi con tutte le notifiche Alexa</b> e si impostano nella card Centro Notifiche qui sopra, valgono anche per questo memo.</p>
+      </div>`,
+    );
+  }
+
+  setConfig(config) {
+    this._config = { name: "Memo", ...config };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    const missing = ShcAlexaMemoCard.REQUIRED_FIELDS.filter(([key]) => !this._config[key]);
+    if (missing.length) {
+      this._root.innerHTML = `<style>${STYLE}</style>
+        <article class="shc-ap-card">
+          <div class="shc-ap-top">
+            <span class="shc-ap-chip">${ICON_BELL}</span>
+            <span class="shc-ap-headings"><span class="shc-ap-name">${esc(this._config.name)}</span></span>
+          </div>
+          <div class="shc-ap-panel">
+            <div class="shc-ap-meters">
+              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+            </div>
+          </div>
+        </article>`;
+      return;
+    }
+    const cfg = this._config;
+    const slotsRow = cfg.slot_count_entity
+      ? `<div class="shc-ap-row">
+           <span class="shc-ap-row-label">Altri memo attivi</span>
+           <div class="shc-am-slots">
+             <button type="button" class="shc-at-pm shc-am-slots-minus" title="Meno memo">−</button>
+             <span class="shc-am-slots-val">—</span>
+             <button type="button" class="shc-at-pm shc-am-slots-plus" title="Più memo">+</button>
+           </div>
+         </div>`
+      : "";
+    this._root.innerHTML = `<style>${STYLE}</style>
+      <article class="shc-ap-card is-run">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${ICON_BELL}</span>
+          <span class="shc-ap-headings"><span class="shc-ap-name">${esc(this._config.name)}</span></span>
+          <span class="shc-ap-badge off"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">OFF</span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-am-info" title="Come funziona">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-row">
+              <span class="shc-ap-row-label">Attivo</span>
+              <button type="button" class="shc-ap-switch shc-am-active"></button>
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Messaggio</span></div>
+              <input type="text" class="shc-ed-input shc-am-text" placeholder="Scrivi il messaggio...">
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Dispositivi Alexa (vuoto = predefinito)</span></div>
+              <div class="shc-am-chips">
+                ${ShcAlexaMemoCard.DEVICES.map(([id, label]) => `<button type="button" class="shc-am-dev-chip" data-device="${esc(id)}">${esc(label)}</button>`).join("")}
+              </div>
+            </div>
+            <div class="shc-ap-row">
+              <span class="shc-ap-row-label">Ripeti ogni giorno nel periodo</span>
+              <button type="button" class="shc-ap-switch shc-am-repeat"></button>
+            </div>
+            <div class="shc-am-block shc-am-repeat-block">
+              <div class="shc-ap-meter">
+                <div class="shc-ap-meter-row"><span>Data inizio</span></div>
+                <input type="date" class="shc-ed-input shc-am-date-start">
+              </div>
+              <div class="shc-ap-meter">
+                <div class="shc-ap-meter-row"><span>Data fine</span></div>
+                <input type="date" class="shc-ed-input shc-am-date-end">
+              </div>
+              <div class="shc-ap-meter">
+                <div class="shc-ap-meter-row"><span>Orario</span></div>
+                <input type="time" class="shc-ed-input shc-am-time">
+              </div>
+            </div>
+            <div class="shc-am-block shc-am-once-block" hidden>
+              <div class="shc-ap-meter">
+                <div class="shc-ap-meter-row"><span>Data e ora</span></div>
+                <input type="datetime-local" class="shc-ed-input shc-am-once">
+              </div>
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Persona (opzionale)</span></div>
+              <select class="shc-ap-select shc-am-person" style="max-width:100%;width:100%"></select>
+            </div>
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span>Ritardo dopo il rientro</span><strong class="shc-am-retry-val">—</strong></div>
+              <input type="range" class="shc-notif-range shc-am-retry" min="0" max="60" step="1">
+            </div>
+            ${slotsRow}
+            <div class="shc-am-status"></div>
+          </div>
+        </div>
+      </article>`;
+
+    const call = (domain, service, data) => this._hass?.callService(domain, service, data);
+
+    this._root.querySelector(".shc-am-info").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openInfo();
+    });
+    this._root.querySelector(".shc-am-active").addEventListener("click", (e) => {
+      e.stopPropagation();
+      call("input_boolean", "toggle", { entity_id: cfg.active_entity });
+    });
+    this._root.querySelector(".shc-am-repeat").addEventListener("click", (e) => {
+      e.stopPropagation();
+      call("input_boolean", "toggle", { entity_id: cfg.repeat_entity });
+    });
+    this._root.querySelector(".shc-am-text").addEventListener("change", (e) => {
+      call("input_text", "set_value", { entity_id: cfg.text_entity, value: e.target.value });
+    });
+    this._root.querySelectorAll(".shc-am-dev-chip").forEach((chip) => {
+      chip.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const current = (this._hass?.states?.[cfg.devices_entity]?.state || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s && s !== "unknown" && s !== "unavailable");
+        const id = chip.dataset.device;
+        const next = current.includes(id) ? current.filter((x) => x !== id) : current.concat([id]);
+        call("input_text", "set_value", { entity_id: cfg.devices_entity, value: next.join(",") });
+      });
+    });
+    this._root.querySelector(".shc-am-date-start").addEventListener("change", (e) => {
+      if (e.target.value) call("input_datetime", "set_datetime", { entity_id: cfg.date_start_entity, date: e.target.value });
+    });
+    this._root.querySelector(".shc-am-date-end").addEventListener("change", (e) => {
+      if (e.target.value) call("input_datetime", "set_datetime", { entity_id: cfg.date_end_entity, date: e.target.value });
+    });
+    this._root.querySelector(".shc-am-time").addEventListener("change", (e) => {
+      if (e.target.value) call("input_datetime", "set_datetime", { entity_id: cfg.time_entity, time: e.target.value + ":00" });
+    });
+    this._root.querySelector(".shc-am-once").addEventListener("change", (e) => {
+      if (e.target.value) call("input_datetime", "set_datetime", { entity_id: cfg.once_datetime_entity, datetime: e.target.value.replace("T", " ") + ":00" });
+    });
+    this._root.querySelector(".shc-am-person").addEventListener("change", (e) => {
+      call("input_text", "set_value", { entity_id: cfg.person_entity, value: e.target.value });
+    });
+    const retryEl = this._root.querySelector(".shc-am-retry");
+    const retryValEl = this._root.querySelector(".shc-am-retry-val");
+    retryEl.addEventListener("input", () => {
+      retryValEl.textContent = retryEl.value + " min";
+    });
+    retryEl.addEventListener("change", () => {
+      call("input_number", "set_value", { entity_id: cfg.retry_delay_entity, value: Number(retryEl.value) });
+    });
+    if (cfg.slot_count_entity) {
+      const step = (delta) => {
+        const cur = Number(this._hass?.states?.[cfg.slot_count_entity]?.state ?? 1);
+        const next = Math.max(1, Math.min(4, Math.round(cur) + delta));
+        call("input_number", "set_value", { entity_id: cfg.slot_count_entity, value: next });
+      };
+      this._root.querySelector(".shc-am-slots-minus").addEventListener("click", (e) => {
+        e.stopPropagation();
+        step(-1);
+      });
+      this._root.querySelector(".shc-am-slots-plus").addEventListener("click", (e) => {
+        e.stopPropagation();
+        step(1);
+      });
+    }
+
+    if (this._hass) this.hass = this._hass;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    const cfg = this._config;
+    if (!cfg || !this._root) return;
+    if (ShcAlexaMemoCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
+
+    const activeOn = hass.states[cfg.active_entity]?.state === "on";
+    const repeatOn = hass.states[cfg.repeat_entity]?.state === "on";
+    const pendingOn = hass.states[cfg.pending_entity]?.state === "on";
+    const personId = hass.states[cfg.person_entity]?.state || "";
+    const personValid = personId && personId !== "unknown" && personId !== "unavailable";
+
+    const badge = this._root.querySelector(".shc-ap-badge");
+    const badgeLabel = this._root.querySelector(".shc-ap-badge-label");
+    badge.className = "shc-ap-badge " + (pendingOn ? "pending" : activeOn ? "run" : "off");
+    badgeLabel.textContent = pendingOn ? "IN SOSPESO" : activeOn ? "ON" : "OFF";
+
+    const activeBtn = this._root.querySelector(".shc-am-active");
+    activeBtn.classList.toggle("on", activeOn);
+    const repeatBtn = this._root.querySelector(".shc-am-repeat");
+    repeatBtn.classList.toggle("on", repeatOn);
+
+    this._root.querySelector(".shc-am-repeat-block").hidden = !repeatOn;
+    this._root.querySelector(".shc-am-once-block").hidden = repeatOn;
+
+    const textEl = this._root.querySelector(".shc-am-text");
+    if (textEl && this._root.activeElement !== textEl) {
+      textEl.value = hass.states[cfg.text_entity]?.state || "";
+    }
+
+    const selectedDevices = (hass.states[cfg.devices_entity]?.state || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s && s !== "unknown" && s !== "unavailable");
+    this._root.querySelectorAll(".shc-am-dev-chip").forEach((chip) => {
+      chip.classList.toggle("on", selectedDevices.includes(chip.dataset.device));
+    });
+
+    const setDateField = (cls, entity) => {
+      const el = this._root.querySelector("." + cls);
+      const st = hass.states[entity];
+      if (!el || !st || this._root.activeElement === el) return;
+      el.value = ["unknown", "unavailable"].includes(st.state) ? "" : st.state;
+    };
+    setDateField("shc-am-date-start", cfg.date_start_entity);
+    setDateField("shc-am-date-end", cfg.date_end_entity);
+
+    const timeEl = this._root.querySelector(".shc-am-time");
+    const timeSt = hass.states[cfg.time_entity];
+    if (timeEl && timeSt && this._root.activeElement !== timeEl) {
+      timeEl.value = (timeSt.state || "").slice(0, 5);
+    }
+
+    const onceEl = this._root.querySelector(".shc-am-once");
+    const onceSt = hass.states[cfg.once_datetime_entity];
+    if (onceEl && onceSt && this._root.activeElement !== onceEl) {
+      onceEl.value = ["unknown", "unavailable"].includes(onceSt.state) ? "" : onceSt.state.slice(0, 16).replace(" ", "T");
+    }
+
+    const personEl = this._root.querySelector(".shc-am-person");
+    if (personEl && this._root.activeElement !== personEl) {
+      const persons = Object.values(hass.states)
+        .filter((s) => s.entity_id.startsWith("person."))
+        .sort((a, b) => (a.attributes?.friendly_name || a.entity_id).localeCompare(b.attributes?.friendly_name || b.entity_id));
+      const opts = [`<option value=""${!personValid ? " selected" : ""}>Nessuna – annuncia sempre</option>`]
+        .concat(
+          persons.map(
+            (s) =>
+              `<option value="${esc(s.entity_id)}"${s.entity_id === personId ? " selected" : ""}>${esc(s.attributes?.friendly_name || s.entity_id)}</option>`,
+          ),
+        )
+        .join("");
+      personEl.innerHTML = opts;
+    }
+
+    const retryEl = this._root.querySelector(".shc-am-retry");
+    const retryValEl = this._root.querySelector(".shc-am-retry-val");
+    const retrySt = hass.states[cfg.retry_delay_entity];
+    if (retryEl && retrySt && this._root.activeElement !== retryEl) {
+      retryEl.value = retrySt.state;
+      retryValEl.textContent = Math.round(Number(retrySt.state)) + " min";
+    }
+
+    if (cfg.slot_count_entity) {
+      const slotsValEl = this._root.querySelector(".shc-am-slots-val");
+      if (slotsValEl) {
+        const n = Math.round(Number(hass.states[cfg.slot_count_entity]?.state ?? 1));
+        slotsValEl.textContent = `${n} di 4`;
+      }
+    }
+
+    const statusEl = this._root.querySelector(".shc-am-status");
+    if (statusEl) {
+      let text = "";
+      let warn = false;
+      if (!activeOn) {
+        text = "Disattivato.";
+      } else if (pendingOn) {
+        const personName = personValid ? hass.states[personId]?.attributes?.friendly_name || personId : "";
+        text = personName ? `⏳ In sospeso — annuncerà al rientro di ${personName}.` : "⏳ In sospeso.";
+        warn = true;
+      } else if (repeatOn) {
+        const start = hass.states[cfg.date_start_entity]?.state || "—";
+        const end = hass.states[cfg.date_end_entity]?.state || "—";
+        const time = (hass.states[cfg.time_entity]?.state || "").slice(0, 5) || "—";
+        text = `Ogni giorno alle ${time}, dal ${start} al ${end}.`;
+      } else {
+        const raw = hass.states[cfg.once_datetime_entity]?.state || "";
+        text = raw && !["unknown", "unavailable"].includes(raw) ? `Una tantum: ${raw.slice(0, 16).replace("T", " ")}.` : "Nessuna data impostata.";
+      }
+      statusEl.textContent = text;
+      statusEl.classList.toggle("warn", warn);
+    }
+  }
+
+  getCardSize() {
+    return 6;
+  }
+}
+customElements.define("shc-alexa-memo-card", ShcAlexaMemoCard);
+window.customCards.push({
+  type: "shc-alexa-memo-card",
+  name: "Alexa Memo",
+  description: "Promemoria vocale programmato su Alexa, con ripetizione opzionale e riprova automatica al rientro in casa",
   author: "Simonz82",
 });

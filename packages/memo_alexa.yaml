@@ -1,0 +1,579 @@
+####################################################
+#                                                  #
+#   Memo Alexa - fino a 4 note testuali            #
+#   indipendenti (la card Memo 1 permette di       #
+#   sbloccarne altre in base all'esigenza),        #
+#   ciascuna con proprio intervallo di date        #
+#   (inizio/fine) e orario di annuncio, oppure      #
+#   una singola data/ora se non ripetuta. Quando   #
+#   attiva e la finestra e' valida, il messaggio   #
+#   viene annunciato su Alexa (sui dispositivi      #
+#   scelti, o su quello di default) riusando lo    #
+#   script condiviso di centro_notifiche_alexa.yaml.#
+#                                                  #
+#   Campo "Persona": se impostato, se all'orario   #
+#   previsto la persona non e' in casa, l'annuncio #
+#   NON viene perso: resta "in sospeso" e viene    #
+#   fatto pochi minuti dopo il suo rientro.         #
+#                                                  #
+####################################################
+
+input_text:
+  memo_alexa_1_testo:
+    name: "Memo Alexa 1 - Messaggio"
+    icon: mdi:message-text
+    max: 255
+  memo_alexa_2_testo:
+    name: "Memo Alexa 2 - Messaggio"
+    icon: mdi:message-text
+    max: 255
+  memo_alexa_3_testo:
+    name: "Memo Alexa 3 - Messaggio"
+    icon: mdi:message-text
+    max: 255
+  memo_alexa_4_testo:
+    name: "Memo Alexa 4 - Messaggio"
+    icon: mdi:message-text
+    max: 255
+  memo_alexa_1_persona:
+    name: "Memo Alexa 1 - Persona (entity_id, vuoto = nessuna)"
+    icon: mdi:account-check
+    max: 60
+  memo_alexa_2_persona:
+    name: "Memo Alexa 2 - Persona (entity_id, vuoto = nessuna)"
+    icon: mdi:account-check
+    max: 60
+  memo_alexa_3_persona:
+    name: "Memo Alexa 3 - Persona (entity_id, vuoto = nessuna)"
+    icon: mdi:account-check
+    max: 60
+  memo_alexa_4_persona:
+    name: "Memo Alexa 4 - Persona (entity_id, vuoto = nessuna)"
+    icon: mdi:account-check
+    max: 60
+  memo_alexa_1_dispositivi:
+    name: "Memo Alexa 1 - Dispositivi Alexa (entity_id separati da virgola, vuoto = predefinito)"
+    icon: mdi:speaker-multiple
+    max: 255
+  memo_alexa_2_dispositivi:
+    name: "Memo Alexa 2 - Dispositivi Alexa (entity_id separati da virgola, vuoto = predefinito)"
+    icon: mdi:speaker-multiple
+    max: 255
+  memo_alexa_3_dispositivi:
+    name: "Memo Alexa 3 - Dispositivi Alexa (entity_id separati da virgola, vuoto = predefinito)"
+    icon: mdi:speaker-multiple
+    max: 255
+  memo_alexa_4_dispositivi:
+    name: "Memo Alexa 4 - Dispositivi Alexa (entity_id separati da virgola, vuoto = predefinito)"
+    icon: mdi:speaker-multiple
+    max: 255
+
+input_boolean:
+  memo_alexa_1_attivo:
+    name: "Memo Alexa 1 - Attivo"
+    icon: mdi:bell-ring
+  memo_alexa_2_attivo:
+    name: "Memo Alexa 2 - Attivo"
+    icon: mdi:bell-ring
+  memo_alexa_3_attivo:
+    name: "Memo Alexa 3 - Attivo"
+    icon: mdi:bell-ring
+  memo_alexa_4_attivo:
+    name: "Memo Alexa 4 - Attivo"
+    icon: mdi:bell-ring
+  memo_alexa_1_ripetizione:
+    name: "Memo Alexa 1 - Ripeti ogni giorno nel periodo"
+    icon: mdi:repeat
+    initial: true
+  memo_alexa_2_ripetizione:
+    name: "Memo Alexa 2 - Ripeti ogni giorno nel periodo"
+    icon: mdi:repeat
+    initial: true
+  memo_alexa_3_ripetizione:
+    name: "Memo Alexa 3 - Ripeti ogni giorno nel periodo"
+    icon: mdi:repeat
+    initial: true
+  memo_alexa_4_ripetizione:
+    name: "Memo Alexa 4 - Ripeti ogni giorno nel periodo"
+    icon: mdi:repeat
+    initial: true
+  memo_alexa_1_pending:
+    name: "Memo Alexa 1 - In sospeso (interno)"
+    icon: mdi:clock-alert-outline
+  memo_alexa_2_pending:
+    name: "Memo Alexa 2 - In sospeso (interno)"
+    icon: mdi:clock-alert-outline
+  memo_alexa_3_pending:
+    name: "Memo Alexa 3 - In sospeso (interno)"
+    icon: mdi:clock-alert-outline
+  memo_alexa_4_pending:
+    name: "Memo Alexa 4 - In sospeso (interno)"
+    icon: mdi:clock-alert-outline
+
+input_datetime:
+  memo_alexa_1_data_inizio:
+    name: "Memo Alexa 1 - Data Inizio"
+    icon: mdi:calendar-start
+    has_date: true
+    has_time: false
+  memo_alexa_1_data_fine:
+    name: "Memo Alexa 1 - Data Fine"
+    icon: mdi:calendar-end
+    has_date: true
+    has_time: false
+  memo_alexa_1_orario:
+    name: "Memo Alexa 1 - Orario Annuncio"
+    icon: mdi:clock-outline
+    has_date: false
+    has_time: true
+  memo_alexa_1_data_singola:
+    name: "Memo Alexa 1 - Data e Ora (una tantum)"
+    icon: mdi:calendar-clock
+    has_date: true
+    has_time: true
+  memo_alexa_2_data_inizio:
+    name: "Memo Alexa 2 - Data Inizio"
+    icon: mdi:calendar-start
+    has_date: true
+    has_time: false
+  memo_alexa_2_data_fine:
+    name: "Memo Alexa 2 - Data Fine"
+    icon: mdi:calendar-end
+    has_date: true
+    has_time: false
+  memo_alexa_2_orario:
+    name: "Memo Alexa 2 - Orario Annuncio"
+    icon: mdi:clock-outline
+    has_date: false
+    has_time: true
+  memo_alexa_2_data_singola:
+    name: "Memo Alexa 2 - Data e Ora (una tantum)"
+    icon: mdi:calendar-clock
+    has_date: true
+    has_time: true
+  memo_alexa_3_data_inizio:
+    name: "Memo Alexa 3 - Data Inizio"
+    icon: mdi:calendar-start
+    has_date: true
+    has_time: false
+  memo_alexa_3_data_fine:
+    name: "Memo Alexa 3 - Data Fine"
+    icon: mdi:calendar-end
+    has_date: true
+    has_time: false
+  memo_alexa_3_orario:
+    name: "Memo Alexa 3 - Orario Annuncio"
+    icon: mdi:clock-outline
+    has_date: false
+    has_time: true
+  memo_alexa_3_data_singola:
+    name: "Memo Alexa 3 - Data e Ora (una tantum)"
+    icon: mdi:calendar-clock
+    has_date: true
+    has_time: true
+  memo_alexa_4_data_inizio:
+    name: "Memo Alexa 4 - Data Inizio"
+    icon: mdi:calendar-start
+    has_date: true
+    has_time: false
+  memo_alexa_4_data_fine:
+    name: "Memo Alexa 4 - Data Fine"
+    icon: mdi:calendar-end
+    has_date: true
+    has_time: false
+  memo_alexa_4_orario:
+    name: "Memo Alexa 4 - Orario Annuncio"
+    icon: mdi:clock-outline
+    has_date: false
+    has_time: true
+  memo_alexa_4_data_singola:
+    name: "Memo Alexa 4 - Data e Ora (una tantum)"
+    icon: mdi:calendar-clock
+    has_date: true
+    has_time: true
+
+input_number:
+  memo_alexa_slot_attivi:
+    name: "Memo Alexa - Quanti memo mostrare"
+    icon: mdi:playlist-plus
+    min: 1
+    max: 4
+    step: 1
+    initial: 1
+  memo_alexa_1_ritardo_rientro:
+    name: "Memo Alexa 1 - Ritardo dopo il rientro (minuti)"
+    icon: mdi:timer-outline
+    min: 0
+    max: 60
+    step: 1
+    initial: 5
+  memo_alexa_2_ritardo_rientro:
+    name: "Memo Alexa 2 - Ritardo dopo il rientro (minuti)"
+    icon: mdi:timer-outline
+    min: 0
+    max: 60
+    step: 1
+    initial: 5
+  memo_alexa_3_ritardo_rientro:
+    name: "Memo Alexa 3 - Ritardo dopo il rientro (minuti)"
+    icon: mdi:timer-outline
+    min: 0
+    max: 60
+    step: 1
+    initial: 5
+  memo_alexa_4_ritardo_rientro:
+    name: "Memo Alexa 4 - Ritardo dopo il rientro (minuti)"
+    icon: mdi:timer-outline
+    min: 0
+    max: 60
+    step: 1
+    initial: 5
+
+automation:
+  - alias: "Memo Alexa 1 - Annuncio"
+    id: memo_alexa_1_annuncio
+    trigger:
+      - platform: time
+        at: input_datetime.memo_alexa_1_orario
+        id: repeat
+      - platform: time
+        at: input_datetime.memo_alexa_1_data_singola
+        id: once
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_1_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_1_testo') | trim != '' }}"
+      - condition: template
+        value_template: >-
+          {{ (trigger.id | default('repeat', true) == 'repeat'
+              and is_state('input_boolean.memo_alexa_1_ripetizione', 'on')
+              and states('input_datetime.memo_alexa_1_data_inizio') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_1_data_fine') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_1_data_inizio') <= now().strftime('%Y-%m-%d')
+              and now().strftime('%Y-%m-%d') <= states('input_datetime.memo_alexa_1_data_fine'))
+             or
+             (trigger.id | default('repeat', true) == 'once'
+              and is_state('input_boolean.memo_alexa_1_ripetizione', 'off')) }}
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ states('input_text.memo_alexa_1_persona') in ['', 'unknown', 'unavailable']
+                     or is_state(states('input_text.memo_alexa_1_persona'), 'home') }}
+            sequence:
+              - service: script.notifica_vocale_alexa
+                data:
+                  messaggio: "{{ states('input_text.memo_alexa_1_testo') }}"
+                  target: "{{ (states('input_text.memo_alexa_1_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.memo_alexa_1_pending
+        default:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.memo_alexa_1_pending
+    mode: single
+
+  - alias: "Memo Alexa 1 - Annuncio al rientro"
+    id: memo_alexa_1_annuncio_rientro
+    trigger:
+      - platform: state
+        entity_id:
+          - person.residente_1
+          - person.residente_2
+          - person.residente_3
+          - person.residente_4
+          - person.tablet
+          - person.auto
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_1_pending
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_1_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.entity_id == states('input_text.memo_alexa_1_persona') }}"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_1_testo') | trim != '' }}"
+    action:
+      - delay:
+          minutes: "{{ states('input_number.memo_alexa_1_ritardo_rientro') | int(5) }}"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_1_pending
+        state: "on"
+      - condition: template
+        value_template: "{{ is_state(states('input_text.memo_alexa_1_persona'), 'home') }}"
+      - service: script.notifica_vocale_alexa
+        data:
+          messaggio: "{{ states('input_text.memo_alexa_1_testo') }}"
+          target: "{{ (states('input_text.memo_alexa_1_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.memo_alexa_1_pending
+    mode: single
+
+  - alias: "Memo Alexa 2 - Annuncio"
+    id: memo_alexa_2_annuncio
+    trigger:
+      - platform: time
+        at: input_datetime.memo_alexa_2_orario
+        id: repeat
+      - platform: time
+        at: input_datetime.memo_alexa_2_data_singola
+        id: once
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_2_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_2_testo') | trim != '' }}"
+      - condition: template
+        value_template: >-
+          {{ (trigger.id | default('repeat', true) == 'repeat'
+              and is_state('input_boolean.memo_alexa_2_ripetizione', 'on')
+              and states('input_datetime.memo_alexa_2_data_inizio') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_2_data_fine') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_2_data_inizio') <= now().strftime('%Y-%m-%d')
+              and now().strftime('%Y-%m-%d') <= states('input_datetime.memo_alexa_2_data_fine'))
+             or
+             (trigger.id | default('repeat', true) == 'once'
+              and is_state('input_boolean.memo_alexa_2_ripetizione', 'off')) }}
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ states('input_text.memo_alexa_2_persona') in ['', 'unknown', 'unavailable']
+                     or is_state(states('input_text.memo_alexa_2_persona'), 'home') }}
+            sequence:
+              - service: script.notifica_vocale_alexa
+                data:
+                  messaggio: "{{ states('input_text.memo_alexa_2_testo') }}"
+                  target: "{{ (states('input_text.memo_alexa_2_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.memo_alexa_2_pending
+        default:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.memo_alexa_2_pending
+    mode: single
+
+  - alias: "Memo Alexa 2 - Annuncio al rientro"
+    id: memo_alexa_2_annuncio_rientro
+    trigger:
+      - platform: state
+        entity_id:
+          - person.residente_1
+          - person.residente_2
+          - person.residente_3
+          - person.residente_4
+          - person.tablet
+          - person.auto
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_2_pending
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_2_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.entity_id == states('input_text.memo_alexa_2_persona') }}"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_2_testo') | trim != '' }}"
+    action:
+      - delay:
+          minutes: "{{ states('input_number.memo_alexa_2_ritardo_rientro') | int(5) }}"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_2_pending
+        state: "on"
+      - condition: template
+        value_template: "{{ is_state(states('input_text.memo_alexa_2_persona'), 'home') }}"
+      - service: script.notifica_vocale_alexa
+        data:
+          messaggio: "{{ states('input_text.memo_alexa_2_testo') }}"
+          target: "{{ (states('input_text.memo_alexa_2_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.memo_alexa_2_pending
+    mode: single
+
+  - alias: "Memo Alexa 3 - Annuncio"
+    id: memo_alexa_3_annuncio
+    trigger:
+      - platform: time
+        at: input_datetime.memo_alexa_3_orario
+        id: repeat
+      - platform: time
+        at: input_datetime.memo_alexa_3_data_singola
+        id: once
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_3_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_3_testo') | trim != '' }}"
+      - condition: template
+        value_template: >-
+          {{ (trigger.id | default('repeat', true) == 'repeat'
+              and is_state('input_boolean.memo_alexa_3_ripetizione', 'on')
+              and states('input_datetime.memo_alexa_3_data_inizio') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_3_data_fine') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_3_data_inizio') <= now().strftime('%Y-%m-%d')
+              and now().strftime('%Y-%m-%d') <= states('input_datetime.memo_alexa_3_data_fine'))
+             or
+             (trigger.id | default('repeat', true) == 'once'
+              and is_state('input_boolean.memo_alexa_3_ripetizione', 'off')) }}
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ states('input_text.memo_alexa_3_persona') in ['', 'unknown', 'unavailable']
+                     or is_state(states('input_text.memo_alexa_3_persona'), 'home') }}
+            sequence:
+              - service: script.notifica_vocale_alexa
+                data:
+                  messaggio: "{{ states('input_text.memo_alexa_3_testo') }}"
+                  target: "{{ (states('input_text.memo_alexa_3_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.memo_alexa_3_pending
+        default:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.memo_alexa_3_pending
+    mode: single
+
+  - alias: "Memo Alexa 3 - Annuncio al rientro"
+    id: memo_alexa_3_annuncio_rientro
+    trigger:
+      - platform: state
+        entity_id:
+          - person.residente_1
+          - person.residente_2
+          - person.residente_3
+          - person.residente_4
+          - person.tablet
+          - person.auto
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_3_pending
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_3_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.entity_id == states('input_text.memo_alexa_3_persona') }}"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_3_testo') | trim != '' }}"
+    action:
+      - delay:
+          minutes: "{{ states('input_number.memo_alexa_3_ritardo_rientro') | int(5) }}"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_3_pending
+        state: "on"
+      - condition: template
+        value_template: "{{ is_state(states('input_text.memo_alexa_3_persona'), 'home') }}"
+      - service: script.notifica_vocale_alexa
+        data:
+          messaggio: "{{ states('input_text.memo_alexa_3_testo') }}"
+          target: "{{ (states('input_text.memo_alexa_3_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.memo_alexa_3_pending
+    mode: single
+
+  - alias: "Memo Alexa 4 - Annuncio"
+    id: memo_alexa_4_annuncio
+    trigger:
+      - platform: time
+        at: input_datetime.memo_alexa_4_orario
+        id: repeat
+      - platform: time
+        at: input_datetime.memo_alexa_4_data_singola
+        id: once
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_4_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_4_testo') | trim != '' }}"
+      - condition: template
+        value_template: >-
+          {{ (trigger.id | default('repeat', true) == 'repeat'
+              and is_state('input_boolean.memo_alexa_4_ripetizione', 'on')
+              and states('input_datetime.memo_alexa_4_data_inizio') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_4_data_fine') not in ['unknown','unavailable']
+              and states('input_datetime.memo_alexa_4_data_inizio') <= now().strftime('%Y-%m-%d')
+              and now().strftime('%Y-%m-%d') <= states('input_datetime.memo_alexa_4_data_fine'))
+             or
+             (trigger.id | default('repeat', true) == 'once'
+              and is_state('input_boolean.memo_alexa_4_ripetizione', 'off')) }}
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ states('input_text.memo_alexa_4_persona') in ['', 'unknown', 'unavailable']
+                     or is_state(states('input_text.memo_alexa_4_persona'), 'home') }}
+            sequence:
+              - service: script.notifica_vocale_alexa
+                data:
+                  messaggio: "{{ states('input_text.memo_alexa_4_testo') }}"
+                  target: "{{ (states('input_text.memo_alexa_4_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.memo_alexa_4_pending
+        default:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.memo_alexa_4_pending
+    mode: single
+
+  - alias: "Memo Alexa 4 - Annuncio al rientro"
+    id: memo_alexa_4_annuncio_rientro
+    trigger:
+      - platform: state
+        entity_id:
+          - person.residente_1
+          - person.residente_2
+          - person.residente_3
+          - person.residente_4
+          - person.tablet
+          - person.auto
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: input_boolean.memo_alexa_4_pending
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_4_attivo
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.entity_id == states('input_text.memo_alexa_4_persona') }}"
+      - condition: template
+        value_template: "{{ states('input_text.memo_alexa_4_testo') | trim != '' }}"
+    action:
+      - delay:
+          minutes: "{{ states('input_number.memo_alexa_4_ritardo_rientro') | int(5) }}"
+      - condition: state
+        entity_id: input_boolean.memo_alexa_4_pending
+        state: "on"
+      - condition: template
+        value_template: "{{ is_state(states('input_text.memo_alexa_4_persona'), 'home') }}"
+      - service: script.notifica_vocale_alexa
+        data:
+          messaggio: "{{ states('input_text.memo_alexa_4_testo') }}"
+          target: "{{ (states('input_text.memo_alexa_4_dispositivi') | trim).split(',') | map('trim') | reject('in', ['', 'unknown', 'unavailable']) | list }}"
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.memo_alexa_4_pending
+    mode: single
