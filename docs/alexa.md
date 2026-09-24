@@ -5,6 +5,10 @@ Due card pensate per usare Alexa come "citofono di casa", senza passare da autom
 - **Alexa Annuncio Testo**: scrivi un messaggio al volo, scegli su quale speaker (o gruppo multiroom) farlo sentire, regoli il volume e lo riproduci con un tap. Pensata per gli annunci "adesso", non programmati.
 - **Alexa Memo**: fino a **4 promemoria vocali indipendenti** (la card Memo 1 permette di sbloccarne altre, 2/3/4, in base a quanti ti servono), ognuno con un proprio testo, un intervallo di date + orario (oppure una singola data/ora se non ripetuto) e, opzionalmente, un **dispositivo Alexa dedicato**. Il campo **Persona** (opzionale) evita che un promemoria vada perso se all'orario previsto quella persona non è in casa: resta "in sospeso" e viene annunciato pochi minuti dopo il suo rientro.
 
+| Alexa Annuncio Testo | Alexa Memo |
+|---|---|
+| ![Card Alexa Annuncio Testo](screenshot/alexa-text.png) | ![Card Alexa Memo](screenshot/alexa-memo.png) |
+
 Entrambe riusano lo stesso motore vocale condiviso di [`packages/centro_notifiche_alexa.yaml`](../packages/centro_notifiche_alexa.yaml) (script `script.notifica_vocale_alexa`), lo stesso usato dalle altre card di questa raccolta — vedi [notifiche-personalizzate.md](notifiche-personalizzate.md).
 
 ## Cosa ti serve prima di iniziare
@@ -14,7 +18,7 @@ Entrambe riusano lo stesso motore vocale condiviso di [`packages/centro_notifich
 
 ## 🚀 Metodo veloce: usa i miei package originali
 
-- **Alexa Annuncio Testo** → [`packages/alexa_google_text.yaml`](../packages/alexa_google_text.yaml). In cima trovi il blocco `IMPOSTAZIONI PACKAGE`: sostituisci il servizio di notifica push (`mobile_app_il_tuo_telefono`) col tuo, e nella lista `list_alexa_google_speaker_multiroom_text` metti i **friendly name** dei tuoi `media_player.*` Alexa al posto dei miei.
+- **Alexa Annuncio Testo** → [`packages/alexa_text.yaml`](../packages/alexa_text.yaml). In cima trovi il blocco `IMPOSTAZIONI PACKAGE`: sostituisci il servizio di notifica push (`mobile_app_il_tuo_telefono`) col tuo, e nella lista `list_alexa_speaker_multiroom_text` metti i **friendly name** dei tuoi `media_player.*` Alexa al posto dei miei.
 - **Alexa Memo** → [`packages/memo_alexa.yaml`](../packages/memo_alexa.yaml). Nessun dato da cambiare in cima: crea solo gli `input_text`/`input_boolean`/`input_datetime`/`input_number` per i 4 memo e le automazioni che li annunciano. Nelle automazioni "Annuncio al rientro" sostituisci gli `entity_id` di esempio (`person.residente_1`, `person.residente_2`, …) con i tuoi `person.*` reali, oppure lascia solo quelli che ti servono.
 - Copia entrambi i file dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi) insieme a `centro_notifiche_alexa.yaml`, poi riavvia Home Assistant.
 
@@ -23,13 +27,13 @@ Entrambe riusano lo stesso motore vocale condiviso di [`packages/centro_notifich
 ```yaml
 type: custom:shc-alexa-text-card
 name: Alexa
-speaker_select_entity: input_select.list_alexa_google_speaker_multiroom_text
-add_script: script.add_alexa_google_text
-remove_script: script.remove_alexa_google_text
-text_entity: input_text.alexa_google_text
-volume_entity: input_number.volume_alexa_google_text
+speaker_select_entity: input_select.list_alexa_speaker_multiroom_text
+add_script: script.add_alexa_text
+remove_script: script.remove_alexa_text
+text_entity: input_text.alexa_text
+volume_entity: input_number.volume_alexa_text
 play_script: script.alexa_text_normale
-group_entity: group.multiroom_alexa_google_text
+group_entity: group.multiroom_alexa_text
 ```
 
 ### Campo per campo
@@ -89,6 +93,14 @@ visibility:
 | `slot_count_entity` | No (solo su Memo 1) | `input_number` che mostra sulla card 1 uno stepper "Altri memo attivi" per sbloccare Memo 3/4 |
 | `name` | No | Titolo card (default `"Alexa"`) |
 
+Il pulsante ℹ️ sulla card Memo apre un piccolo popup che spiega il funzionamento (utile per chi la usa, non solo per chi la configura):
+
+![Come funziona il memo](screenshot/alexa-memo-info.png)
+
 ## 🖊️ Editor visuale (senza YAML)
 
-Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"** o **"Alexa Memo"** → compili i campi. Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano.
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"** o **"Alexa Memo"** → compili i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano.
+
+| Editor Alexa Annuncio Testo | Editor Alexa Memo |
+|---|---|
+| ![Editor Alexa Annuncio Testo](screenshot/editor-alexa-text.png) | ![Editor Alexa Memo](screenshot/editor-alexa-memo.png) |

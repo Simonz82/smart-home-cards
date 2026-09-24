@@ -2159,6 +2159,7 @@ class ShcNasCardEditor extends ShcSimpleCardEditorBase {
         { key: "name", label: "Nome", kind: "text", placeholder: "Synology NAS" },
         { key: "model", label: "Modello", kind: "text", placeholder: "DS925+" },
         { key: "update_entity", label: "Aggiornamento DSM", domain: ["update"], required: true },
+        { key: "security_entity", label: "Stato di sicurezza", domain: ["binary_sensor"], hint: "Creato in automatico dall'integrazione Synology DSM (device_class 'safety': acceso = problema rilevato)" },
       ]},
       { title: "Sistema", fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
