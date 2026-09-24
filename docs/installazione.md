@@ -14,6 +14,8 @@ Se hai [HACS](https://hacs.xyz) installato, puoi aggiungere questo repository co
 
 Da questo momento, quando pubblico un aggiornamento, HACS te lo segnala e lo installi con un clic, senza ricopiare nulla a mano.
 
+⚠️ **HACS scarica solo il file della card**, non le altre cartelle del repository. Se la tua card è tra quelle con una **foto prodotto** (FritzBox, Server HA, NAS, Proxmox, UPS), quella foto **non arriva da sola**: copia comunque a mano la cartella [`foto-pkg/`](../foto-pkg/) come spiegato nel punto "[Immagini prodotto](#immagini-prodotto-facoltativo)" qui sotto, altrimenti quel riquadro resta vuoto (dalla versione con questo avviso, non mostra più un'icona di errore).
+
 Se preferisci il metodo manuale (nessuna dipendenza da HACS), salta questo punto e continua da qui sotto.
 
 ## 1. Cosa ti serve prima di iniziare

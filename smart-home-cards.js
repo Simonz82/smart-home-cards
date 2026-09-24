@@ -155,7 +155,7 @@ const HERO_BUILDERS = {
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
     <ellipse cx="120" cy="222" rx="72" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
-    <image href="/local/foto-pkg/echo-dot.png" x="8" y="8" width="224" height="224" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/echo-dot.png" x="8" y="8" width="224" height="224" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   fritzbox: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
@@ -168,28 +168,28 @@ const HERO_BUILDERS = {
       <path d="M95 30c13-11 37-11 50 0"/>
     </g>
     <circle cx="120" cy="44" r="2.6" fill="#38bdf8"/>
-    <image href="/local/foto-pkg/fritz-box.png" x="-44.43" y="1" width="328.86" height="260.82" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/fritz-box.png" x="-44.43" y="1" width="328.86" height="260.82" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   server: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
     <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
-    <image href="/local/foto-pkg/ha_logo.gif" x="21.33" y="16.3" width="197.34" height="197.34" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/ha_logo.gif" x="21.33" y="16.3" width="197.34" height="197.34" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   proxmox: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
     <ellipse cx="120" cy="216" rx="66" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
-    <image href="/local/foto-pkg/proxmox-logo.svg" x="-1" y="10" width="242" height="193.6" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/proxmox-logo.svg" x="-1" y="10" width="242" height="193.6" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   nas: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
     <ellipse cx="120" cy="222" rx="70" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
-    <image href="/local/foto-pkg/synology-ds925.png" x="-1" y="-7" width="242" height="242" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/synology-ds925.png" x="-1" y="-7" width="242" height="242" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   energy: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
@@ -218,7 +218,7 @@ const HERO_BUILDERS = {
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
     </defs>
     <ellipse cx="120" cy="222" rx="60" ry="9" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
-    <image href="/local/foto-pkg/apc-ups.png" x="17.15" y="14" width="205.7" height="211.75" preserveAspectRatio="xMidYMid meet"/>
+    <image href="/local/foto-pkg/apc-ups.png" x="17.15" y="14" width="205.7" height="211.75" preserveAspectRatio="xMidYMid meet" onerror="this.style.display='none'"/>
   </svg>`,
   boiler: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
@@ -2250,6 +2250,55 @@ class ShcNotifCenterCardEditor extends ShcSimpleCardEditorBase {
   }
 }
 customElements.define("shc-notif-center-card-editor", ShcNotifCenterCardEditor);
+
+class ShcAlexaTextCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Alexa" }] },
+      { title: "Speaker e testo", fields: [
+        { key: "speaker_select_entity", label: "Selettore speaker", domain: ["input_select"], required: true },
+        { key: "add_script", label: "Script aggiungi speaker al gruppo", domain: ["script"], required: true },
+        { key: "remove_script", label: "Script rimuovi speaker dal gruppo", domain: ["script"], required: true },
+        { key: "text_entity", label: "Campo testo", domain: ["input_text"], required: true },
+      ]},
+      { title: "Riproduzione", fields: [
+        { key: "volume_entity", label: "Volume", domain: ["input_number"], required: true },
+        { key: "play_script", label: "Script riproduci", domain: ["script"], required: true },
+        { key: "group_entity", label: "Gruppo multiroom", domain: ["group"], required: true, hint: "Il group.* aggiornato dagli script aggiungi/rimuovi speaker, mostrato in card come \"In riproduzione su\"." },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-alexa-text-card-editor", ShcAlexaTextCardEditor);
+
+class ShcAlexaMemoCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Memo" }] },
+      { title: "Messaggio", fields: [
+        { key: "active_entity", label: "Attivo", domain: ["input_boolean"], required: true },
+        { key: "text_entity", label: "Messaggio", domain: ["input_text"], required: true },
+        { key: "devices_entity", label: "Dispositivi Alexa scelti", domain: ["input_text"], required: true, hint: "input_text con gli entity_id dei media_player scelti, separati da virgola (vuoto = dispositivo predefinito)." },
+      ]},
+      { title: "Quando annunciare", fields: [
+        { key: "repeat_entity", label: "Ripeti ogni giorno nel periodo", domain: ["input_boolean"], required: true },
+        { key: "date_start_entity", label: "Data inizio", domain: ["input_datetime"], required: true },
+        { key: "date_end_entity", label: "Data fine", domain: ["input_datetime"], required: true },
+        { key: "time_entity", label: "Orario", domain: ["input_datetime"], required: true },
+        { key: "once_datetime_entity", label: "Data e ora (una tantum)", domain: ["input_datetime"], required: true },
+      ]},
+      { title: "Persona e riprova al rientro", fields: [
+        { key: "person_entity", label: "Persona (entity_id salvato qui, vuoto = nessuna)", domain: ["input_text"], required: true },
+        { key: "pending_entity", label: "In sospeso (interno)", domain: ["input_boolean"], required: true },
+        { key: "retry_delay_entity", label: "Ritardo dopo il rientro (minuti)", domain: ["input_number"], required: true },
+      ]},
+      { title: "Avanzate", fields: [
+        { key: "slot_count_entity", label: "Quanti memo mostrare (solo su Memo 1)", domain: ["input_number"], hint: "Facoltativo: collegalo solo sulla card Memo 1 per far apparire lo stepper che sblocca Memo 3/4." },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-alexa-memo-card-editor", ShcAlexaMemoCardEditor);
 
 class ShcGarbageCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
@@ -6607,6 +6656,16 @@ class ShcAlexaTextCard extends HTMLElement {
   getCardSize() {
     return 5;
   }
+
+  static getConfigElement() {
+    return document.createElement("shc-alexa-text-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Alexa",
+    };
+  }
 }
 customElements.define("shc-alexa-text-card", ShcAlexaTextCard);
 window.customCards = window.customCards || [];
@@ -6958,6 +7017,16 @@ class ShcAlexaMemoCard extends HTMLElement {
 
   getCardSize() {
     return 6;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-alexa-memo-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    return {
+      name: "Memo",
+    };
   }
 }
 customElements.define("shc-alexa-memo-card", ShcAlexaMemoCard);
