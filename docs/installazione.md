@@ -16,7 +16,18 @@ Da questo momento, quando pubblico un aggiornamento, HACS te lo segnala e lo ins
 
 ⚠️ **HACS scarica solo il file della card**, non le altre cartelle del repository. Se la tua card è tra quelle con una **foto prodotto** (FritzBox, Server HA, NAS, Proxmox, UPS), quella foto **non arriva da sola**: copia comunque a mano la cartella [`foto-pkg/`](../foto-pkg/) come spiegato nel punto "[Immagini prodotto](#immagini-prodotto-facoltativo)" qui sotto, altrimenti quel riquadro resta vuoto (dalla versione con questo avviso, non mostra più un'icona di errore).
 
-Se preferisci il metodo manuale (nessuna dipendenza da HACS), salta questo punto e continua da qui sotto.
+### ✅ Checklist: cosa devi ancora fare a mano (con HACS o senza)
+
+**HACS (o il file copiato a mano) installa solo il codice della card.** Da solo mostra la card "vuota", con solo qualche sensore se lo colleghi dall'editor visuale. Per avere davvero **tutto** — foto, notifiche, e il pulsante ⚙️ Impostazioni popolato — mancano ancora questi passaggi, sempre manuali, HACS o no:
+
+1. **Foto prodotto** (solo FritzBox, Server HA, NAS, Proxmox, UPS) — copia la cartella [`foto-pkg/`](../foto-pkg/) dentro `/config/www/foto-pkg/`. Senza, quel riquadro resta vuoto (non più un'icona rotta, ma resta vuoto). Dettagli: "[Immagini prodotto](#immagini-prodotto-facoltativo)" qui sotto.
+2. **Il "vero" package** (sensori, notifiche, automazioni dietro la card) — ogni guida di card ha in cima una sezione **"🚀 Metodo veloce: usa il mio package originale"** con il file reale da copiare in `/config/packages/` e le poche righe da adattare. Senza questo, la card mostra solo i sensori che le colleghi a mano, niente report/notifiche/backup automatici.
+3. **Il blocco `settings_sections` / `actions` nella configurazione della card** — è quello che riempie il popup dell'ingranaggio ⚙️ (report, notifiche, soglie, backup, riavvii...). **L'editor visuale non può scriverlo**: sono elenchi troppo complessi per un editor a campi, quindi restano sempre YAML da incollare a mano. Senza, l'ingranaggio si apre ma mostra solo "Nessuna impostazione configurata" — non è un errore, è normale finché non lo aggiungi. Lo trovi già scritto, pronto da copiare e adattare, nell'esempio YAML della guida della tua card (stessa sezione del punto 2).
+4. **Layout classico/centrato** (facoltativo) — copia anche [`packages/layout_schede.yaml`](../packages/layout_schede.yaml) e aggiungi `layout_entity: input_select.layout_<nome>` alla card. Senza, la card resta comunque nel layout di default, solo senza il menu per cambiarlo. Dettagli: [layout.md](layout.md).
+
+Ogni guida di card (NAS, Server HA, FritzBox, ecc.) ripete i punti 2 e 3 nella propria sezione "🖊️ Editor visuale", con i nomi esatti dei file e delle entità per quella card.
+
+Se preferisci il metodo manuale (nessuna dipendenza da HACS), salta questo punto e continua da qui sotto — la checklist qui sopra vale comunque, alla fine.
 
 ## 1. Cosa ti serve prima di iniziare
 
@@ -69,12 +80,15 @@ Chiudi e riapri la scheda del browser (o l'app), meglio ancora con una ricarica 
 2. **Aggiungi card**, scorri in fondo, scegli **Manuale** (o cerca "Manual"/YAML).
 3. Cancella il contenuto di esempio e incolla la configurazione della card che ti interessa — le trovi già pronte, con spiegazione di ogni campo, in una di queste guide:
    - [🧺 Elettrodomestici](elettrodomestici.md)
-   - [⚡ Energia Casa](https://github.com/Simonz82/controllo_energia_casa)
+   - [⚡ Energia Casa](energia.md)
    - [📶 FritzBox / Router](fritzbox.md)
    - [🖥️ Server Home Assistant](homeassistant-server.md)
    - [💾 NAS Synology](nas-synology.md)
    - [🖧 Proxmox](proxmox.md)
    - [🔋 UPS](ups.md)
+   - [♻️ Raccolta Differenziata](differenziata.md)
+   - [🔔 Centro Notifiche](centro-notifiche.md)
+   - [🔊 Alexa Annuncio Testo / Memo](alexa.md)
 4. Sostituisci ogni `sensor.esempio_xxx` (o `switch.`/`input_boolean.`/ecc.) con le tue vere entità.
 5. Salva.
 

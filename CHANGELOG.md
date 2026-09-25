@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-25 — Fix ingranaggio vuoto, guida installazione più chiara
+
+- **Fix**: l'icona ⚙️ Impostazioni, su una card senza `settings_sections`/`actions` configurati (il caso di chi installa via HACS e usa solo l'editor visuale), si apriva mostrando un popup vuoto — facile scambiarlo per "non fa niente". Ora mostra "Nessuna impostazione configurata" su tutte le card che ne erano prive (Elettrodomestici, FritzBox, Server HA, NAS, Energia, Differenziata, Proxmox — la UPS lo aveva già).
+- **Guida installazione** (`docs/installazione.md`): aggiunta una checklist esplicita, per punti, di cosa resta comunque da fare a mano dopo l'installazione via HACS (foto prodotto, package reale, blocco `settings_sections`/`actions`, layout) — prima queste info erano solo accennate ed era facile perdersele, pensando che la card fosse rotta invece che semplicemente non ancora configurata. Aggiornato anche l'elenco delle guide (mancavano Differenziata, Centro Notifiche, Alexa) e corretto un link a un repo vecchio per Energia Casa.
+- Ogni guida di card ripete ora lo stesso avviso nella propria sezione "🖊️ Editor visuale": l'editor a campi non può scrivere `settings_sections`/`actions`, va sempre incollato a mano dal blocco YAML della guida.
+
 ## 2026-09-24 — Nuove card Alexa: Annuncio Testo e Memo
 
 - **Nuova card 🔊 Alexa Annuncio Testo** (`shc-alexa-text-card`): scrivi un messaggio, scegli lo speaker (o il gruppo multiroom) e il volume, e lo riproduci con un tap su Alexa. Guida: [docs/alexa.md](docs/alexa.md).

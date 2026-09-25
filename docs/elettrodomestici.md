@@ -64,6 +64,8 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Elettrodo
 
 ![Editor elettrodomestico](screenshot/editor-elettrodomestici.png)
 
+⚠️ **Non scrive `settings_sections` / `actions`**: sono elenchi troppo complessi per un editor a campi. Senza quelli, l'icona ⚙️ sulla card si apre ma mostra solo "Nessuna impostazione configurata" — non è un errore, è normale finché non li aggiungi a mano dal blocco YAML qui sotto (o dal paragrafo "🚀 Metodo veloce" in cima alla guida).
+
 Per un tipo **domotico** (es. TV) compaiono anche i campi di stato/programma nativo:
 
 ![Editor elettrodomestico, TV domotica](screenshot/editor-elettrodomestici-tv.png)

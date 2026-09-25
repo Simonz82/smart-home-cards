@@ -42,6 +42,8 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Energia C
 
 ![Editor Energia Casa](screenshot/editor-energia.png)
 
+⚠️ **Non scrive `settings_sections` / `actions`**: sono elenchi troppo complessi per un editor a campi. Senza quelli, l'icona ⚙️ sulla card si apre ma mostra solo "Nessuna impostazione configurata" — non è un errore, è normale finché non li aggiungi a mano dal blocco YAML qui sotto (o dal paragrafo "🚀 Metodo veloce" in cima alla guida).
+
 ## Campo per campo
 
 | Campo | Obbligatorio | Descrizione |
