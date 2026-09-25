@@ -1344,7 +1344,8 @@ class ShcApplianceCloneCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${resetBtn}`);
+    const shcSettingsBody = `${sections}${resetBtn}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -2821,7 +2822,8 @@ class ShcFritzCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+    const shcSettingsBody = `${sections}${actionsHtml}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -3322,7 +3324,8 @@ class ShcServerCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+    const shcSettingsBody = `${sections}${actionsHtml}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
     this._wireSettingsOverlay(overlay);
   }
 
@@ -3881,7 +3884,8 @@ class ShcNasCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+    const shcSettingsBody = `${sections}${actionsHtml}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -4549,9 +4553,10 @@ class ShcEnergyCard extends HTMLElement {
          </div>`
       : "";
 
+    const shcSettingsBody = `${sections}${switchesHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Interruttori</div>${switchesHtml}</div>` : ""}${actionsHtml}`;
     const overlay = this._openDialog(
       "Impostazioni",
-      `${sections}${switchesHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Interruttori</div>${switchesHtml}</div>` : ""}${actionsHtml}`,
+      shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`,
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -5515,7 +5520,8 @@ class ShcGarbageCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+    const shcSettingsBody = `${sections}${actionsHtml}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -5893,7 +5899,8 @@ class ShcProxmoxCard extends HTMLElement {
          </div>`
       : "";
 
-    const overlay = this._openDialog("Impostazioni", `${sections}${actionsHtml}`);
+    const shcSettingsBody = `${sections}${actionsHtml}`;
+    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
