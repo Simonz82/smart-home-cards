@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-26 (2) — Fix grafici: etichette a 4 cifre tagliate su tutte le card
+
+- **Fix**: nel popup Grafici, quando un valore arrivava a 4 cifre (es. "2623"), l'etichetta sull'asse veniva tagliata — il margine era stato allargato solo per la card Energia (che mostra spesso Watt a 4 cifre), le altre 8 card con grafico (Elettrodomestici, Server HA, NAS, UPS, Proxmox) avevano ancora il margine vecchio. Ora tutte usano lo stesso margine più largo. Verificato dal vivo sul grafico CPU/RAM della card NAS, nessuna rottura visiva.
+
 ## 2026-09-26 — Nuova card Alexa WebRadio
 
 - **Nuova card 📻 Alexa WebRadio** (`shc-alexa-webradio-card`): stazioni TuneIn e playlist Spotify/Amazon Music/Deezer su Alexa multiroom, in griglie con logo piccolo (non a schermo intero) raggruppate per servizio. Volume, chip per aggiungere/rimuovere gli speaker dal gruppo, e due pulsanti dedicati per **Sveglia programmata** (due orari, giorni della settimana) e **Volume ridotto automatico** allo spegnimento, entrambi in popup senza uscire dalla card.

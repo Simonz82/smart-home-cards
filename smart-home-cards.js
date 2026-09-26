@@ -1673,7 +1673,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const width = 300;
     const height = 90;
     // asse sinistro: riserva spazio per i valori min/max, riferimento comune ai 3 grafici
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     // Con una scala fissa (basata sul picco storico reale) il minimo resta
@@ -1703,7 +1703,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     // Spazio riservato in alto per il valore numerico, ruotato di 90 gradi
     // (si legge inclinando la testa/il monitor verso destra), come chiesto.
@@ -3481,7 +3481,7 @@ class ShcServerCard extends HTMLElement {
     if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     const min = Math.min(...values, 0);
@@ -4008,7 +4008,7 @@ class ShcNasCard extends HTMLElement {
     if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     const min = Math.min(...values, 0);
@@ -4204,7 +4204,7 @@ class ShcNasCard extends HTMLElement {
     if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const labelSpace = 22;
     const barAreaH = height - labelSpace;
@@ -5200,7 +5200,7 @@ class ShcUpsCard extends HTMLElement {
     if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     const min = Math.min(...values, 0);
@@ -6017,7 +6017,7 @@ class ShcProxmoxCard extends HTMLElement {
     if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const values = points.map((p) => p.y);
     const min = Math.min(...values, 0);
@@ -6188,7 +6188,7 @@ class ShcProxmoxCard extends HTMLElement {
     if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
     const width = 300;
     const height = 90;
-    const plotX0 = 24;
+    const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
     const plotW = width - plotX0;
     const labelSpace = 22;
     const barAreaH = height - labelSpace;
