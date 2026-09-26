@@ -1,15 +1,16 @@
-# 🔊 Card Alexa: Annuncio Testo (`shc-alexa-text-card`) e Memo (`shc-alexa-memo-card`)
+# 🔊 Card Alexa: Annuncio Testo (`shc-alexa-text-card`), Memo (`shc-alexa-memo-card`) e WebRadio (`shc-alexa-webradio-card`)
 
-Due card pensate per usare Alexa come "citofono di casa", senza passare da automazioni scritte a mano ogni volta:
+Tre card pensate per usare Alexa come "citofono/radio di casa", senza passare da automazioni scritte a mano ogni volta:
 
 - **Alexa Annuncio Testo**: scrivi un messaggio al volo, scegli su quale speaker (o gruppo multiroom) farlo sentire, regoli il volume e lo riproduci con un tap. Pensata per gli annunci "adesso", non programmati.
 - **Alexa Memo**: fino a **4 promemoria vocali indipendenti** (la card Memo 1 permette di sbloccarne altre, 2/3/4, in base a quanti ti servono), ognuno con un proprio testo, un intervallo di date + orario (oppure una singola data/ora se non ripetuto) e, opzionalmente, un **dispositivo Alexa dedicato**. Il campo **Persona** (opzionale) evita che un promemoria vada perso se all'orario previsto quella persona non è in casa: resta "in sospeso" e viene annunciato pochi minuti dopo il suo rientro.
+- **Alexa WebRadio**: accendi una radio TuneIn o una playlist Spotify/Amazon Music/Deezer sugli speaker multiroom scelti, con controllo volume, sveglia programmata (a due orari, nei giorni scelti) e volume ridotto automatico allo spegnimento.
 
 | Alexa Annuncio Testo | Alexa Memo |
 |---|---|
 | ![Card Alexa Annuncio Testo](screenshot/alexa-text.png) | ![Card Alexa Memo](screenshot/alexa-memo.png) |
 
-Entrambe riusano lo stesso motore vocale condiviso di [`packages/centro_notifiche_alexa.yaml`](../packages/centro_notifiche_alexa.yaml) (script `script.notifica_vocale_alexa`), lo stesso usato dalle altre card di questa raccolta — vedi [notifiche-personalizzate.md](notifiche-personalizzate.md).
+Le prime due riusano lo stesso motore vocale condiviso di [`packages/centro_notifiche_alexa.yaml`](../packages/centro_notifiche_alexa.yaml) (script `script.notifica_vocale_alexa`), lo stesso usato dalle altre card di questa raccolta — vedi [notifiche-personalizzate.md](notifiche-personalizzate.md). **Alexa WebRadio è indipendente** da quel motore (riproduce stazioni/playlist, non messaggi vocali) — vedi la sua sezione più sotto per i prerequisiti specifici.
 
 ## Cosa ti serve prima di iniziare
 
@@ -97,9 +98,58 @@ Il pulsante ℹ️ sulla card Memo apre un piccolo popup che spiega il funzionam
 
 ![Come funziona il memo](screenshot/alexa-memo-info.png)
 
+## 📻 Alexa WebRadio
+
+![Card Alexa WebRadio](screenshot/alexa-webradio.png)
+
+Stazioni TuneIn e playlist Spotify/Amazon Music/Deezer raggruppate in griglie con logo piccolo (non a schermo intero), tema chiaro/scuro. Tocca una stazione per selezionarla, i chip degli speaker per aggiungerli/rimuoverli dal gruppo multiroom (quello evidenziato in blu è già acceso), il cursore per il volume. I due pulsanti in alto (orologio e "restart") aprono le impostazioni di **Sveglia** e **Volume ridotto automatico** senza uscire dalla card.
+
+### Cosa ti serve
+
+- L'integrazione HACS **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)**, con almeno un dispositivo Alexa già collegato al tuo account Amazon. **Non serve** `centro_notifiche_alexa.yaml` (questa card non lo usa).
+- Un abbonamento/servizio già collegato ad Alexa per ciascuna fonte che vuoi usare (TuneIn è gratuito; Spotify/Amazon Music/Deezer richiedono l'account collegato in app Alexa).
+
+### 🚀 Metodo veloce: usa il mio package originale
+
+[`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml) — nessun dato personale da cambiare in cima. Nella sezione `input_select: list_alexa_speaker_multiroom` sostituisci i **friendly name** dei 4 speaker Alexa con i tuoi (la card ne mostra 4 come chip fissi: se ne hai un numero diverso, aggiungi/togli le righe corrispondenti nell'array `WR_SPEAKERS` dentro `smart-home-cards.js`, cercalo con Ctrl+F). L'elenco delle 17 stazioni/playlist (array `WR_STATION_GROUPS`, stesso file) è il mio: modificalo liberamente per il tuo elenco Alexa — nome stazione esattamente come compare nell'app Alexa, e un'immagine quadrata a tua scelta in `/config/www/loghi_radio_alexa/4_4/`.
+
+Copia il file dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi), copia le immagini delle stazioni in `/config/www/loghi_radio_alexa/4_4/`, poi riavvia Home Assistant.
+
+### Configurazione minima
+
+```yaml
+type: custom:shc-alexa-webradio-card
+name: Radio Alexa
+power_entity: input_boolean.web_radio_alexa
+station_select_entity: input_select.stazioni_radio_alexa
+station_sensor_entity: sensor.template_radio_alexa
+volume_entity: input_number.volume_radio_alexa
+group_entity: group.multiroom_alexa
+speaker_list_entity: input_select.list_alexa_speaker_multiroom
+alarm_entity: input_boolean.sveglia_alexa
+alarm_on_entity: input_datetime.ora_sveglia_alexa_on
+alarm_off_entity: input_datetime.ora_sveglia_alexa_off
+volume_off_automation: automation.radio_off_volume_alexa
+volume_off_entity: input_number.volume_radio_off_alexa
+```
+
+### Campo per campo
+
+| Campo | Obbligatorio | Descrizione |
+|---|---|---|
+| `power_entity` | **Sì** | `input_boolean` che accende/spegne la radio sul gruppo multiroom |
+| `station_select_entity` | **Sì** | `input_select` con l'elenco delle stazioni/playlist (i separatori `-- ... --` sono ignorati dalla card) |
+| `station_sensor_entity` | **Sì** | Sensore template con attributi `select` (nome per Alexa), `servizi` (TUNEIN/SPOTIFY/AMAZON_MUSIC/DEEZER) e `entity_picture` (logo) — vedi il package |
+| `volume_entity` | **Sì** | `input_number` (0–1) col volume del gruppo |
+| `group_entity` | **Sì** | `group` multiroom su cui viene riprodotta la radio |
+| `speaker_list_entity` | **Sì** | `input_select` usato dai chip degli speaker per selezionare quale aggiungere/rimuovere dal gruppo |
+| `alarm_entity` / `alarm_on_entity` / `alarm_off_entity` | No | Sveglia: attiva/disattiva + i due orari (i giorni della settimana sono i 7 `input_boolean.alexa_sveglia_<giorno>` del package, fissi) |
+| `volume_off_automation` / `volume_off_entity` | No | Automazione che, allo spegnimento, abbassa il volume del gruppo al valore scelto |
+| `name` | No | Titolo card (default `"Radio Alexa"`) |
+
 ## 🖊️ Editor visuale (senza YAML)
 
-Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"** o **"Alexa Memo"** → compili i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano.
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"**, **"Alexa Memo"** o **"Alexa WebRadio"** → compili i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano.
 
 | Editor Alexa Annuncio Testo | Editor Alexa Memo |
 |---|---|

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-26 — Nuova card Alexa WebRadio
+
+- **Nuova card 📻 Alexa WebRadio** (`shc-alexa-webradio-card`): stazioni TuneIn e playlist Spotify/Amazon Music/Deezer su Alexa multiroom, in griglie con logo piccolo (non a schermo intero) raggruppate per servizio. Volume, chip per aggiungere/rimuovere gli speaker dal gruppo, e due pulsanti dedicati per **Sveglia programmata** (due orari, giorni della settimana) e **Volume ridotto automatico** allo spegnimento, entrambi in popup senza uscire dalla card.
+- **Editor visuale** incluso fin dal primo rilascio (nessun giro extra come per le prime due card Alexa).
+- Nuovo package: [`packages/alexa_webradio.yaml`](packages/alexa_webradio.yaml) — ripulito dal tag di versione legacy `[V1.8]` e dalla sintassi `service:` (ora `action:`), stessa logica del package originale.
+- Guida aggiornata: [docs/alexa.md](docs/alexa.md).
+
 ## 2026-09-25 — Fix ingranaggio vuoto, guida installazione più chiara
 
 - **Fix**: l'icona ⚙️ Impostazioni, su una card senza `settings_sections`/`actions` configurati (il caso di chi installa via HACS e usa solo l'editor visuale), si apriva mostrando un popup vuoto — facile scambiarlo per "non fa niente". Ora mostra "Nessuna impostazione configurata" su tutte le card che ne erano prive (Elettrodomestici, FritzBox, Server HA, NAS, Energia, Differenziata, Proxmox — la UPS lo aveva già).

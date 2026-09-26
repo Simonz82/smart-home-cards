@@ -1,0 +1,462 @@
+homeassistant:
+  customize:
+    package.node_anchors:
+      customize: &customize
+        package: "Alexa WebRadio"
+
+####################################################
+#                                                  #
+#                INPUT TEXT                        #
+#                                                  #
+####################################################
+
+input_text:
+  multiroom_alexa:
+
+####################################################
+#                                                  #
+#                INPUT SELECT GRUPPO               #
+#                                                  #
+####################################################
+
+group:
+  multiroom_alexa:
+    name: Multiroom Alexa
+
+####################################################
+#                                                  #
+#             TEMPLATE SENSOR                      #
+#                                                  #
+####################################################
+
+template:
+  - sensor:
+      - name: Radio Alexa
+        unique_id: radio_alexa
+        state: >
+          {{ states('input_select.stazioni_radio_alexa') }}
+        attributes:
+          select: >
+            {% if is_state("input_select.stazioni_radio_alexa", "M2O") %} M2o
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO DEEJAY") %} Radio deejay
+            {% elif is_state("input_select.stazioni_radio_alexa", "RTL 102.5") %} RTL 102.5
+            {% elif is_state("input_select.stazioni_radio_alexa", "KISS KISS NAPOLI") %} KISS KISS NAPOLI
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO CAPITAL") %} Radio Capital
+            {% elif is_state("input_select.stazioni_radio_alexa", "VIRGIN RADIO") %} VIRGIN RADIO ITALY
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO ZETA") %} RADIO ZETA
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 101") %} R101
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 105") %} Radio 105
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO NORBA") %} Radio Norba
+            {% elif is_state("input_select.stazioni_radio_alexa", "RDS") %} Radio Dimensione Suono
+            {% elif is_state("input_select.stazioni_radio_alexa", "NOVITA'") %} Novita
+            {% elif is_state("input_select.stazioni_radio_alexa", "FUEGO") %} Fuego
+            {% elif is_state("input_select.stazioni_radio_alexa", "BUONA GIORNATA") %} Playlist Buona Giornata
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP HITS") %} playlist top hits
+            {% elif is_state("input_select.stazioni_radio_alexa", "FLOW") %} playlist flow
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP ITALY") %} playlist top italy
+            {% endif %}
+          servizi: >
+            {% if is_state("input_select.stazioni_radio_alexa", "M2O") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO DEEJAY") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RTL 102.5") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "KISS KISS NAPOLI") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO CAPITAL") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "VIRGIN RADIO") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO ZETA") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 101") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 105") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO NORBA") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "RDS") %} TUNEIN
+            {% elif is_state("input_select.stazioni_radio_alexa", "NOVITA'") %} SPOTIFY
+            {% elif is_state("input_select.stazioni_radio_alexa", "FUEGO") %} SPOTIFY
+            {% elif is_state("input_select.stazioni_radio_alexa", "BUONA GIORNATA") %} AMAZON_MUSIC
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP HITS") %} AMAZON_MUSIC
+            {% elif is_state("input_select.stazioni_radio_alexa", "FLOW") %} DEEZER
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP ITALY") %} DEEZER
+            {% endif %}
+          entity_picture: >
+            {% if is_state("input_select.stazioni_radio_alexa", "M2O") %} /local/loghi_radio_alexa/4_4/m2o.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO DEEJAY") %} /local/loghi_radio_alexa/4_4/radio_deejay.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RTL 102.5") %} /local/loghi_radio_alexa/4_4/rtl.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "KISS KISS NAPOLI") %} /local/loghi_radio_alexa/4_4/kisskiss.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO CAPITAL") %} /local/loghi_radio_alexa/4_4/radio_capital.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "VIRGIN RADIO") %} /local/loghi_radio_alexa/4_4/virgin_radio.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO ZETA") %} /local/loghi_radio_alexa/4_4/radio_z.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 101") %} /local/loghi_radio_alexa/4_4/101.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO 105") %} /local/loghi_radio_alexa/4_4/105.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RADIO NORBA") %} /local/loghi_radio_alexa/4_4/norba.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "RDS") %} /local/loghi_radio_alexa/4_4/rds.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "-- TUNEIN RADIO --") %} /local/loghi_radio_alexa/4_4/playlist.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "-- PLAYLIST SPOTIFY --") %} /local/loghi_radio_alexa/4_4/playlist.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "-- PLAYLIST AMAZON --") %} /local/loghi_radio_alexa/4_4/playlist.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "-- PLAYLIST DEEZER --") %} /local/loghi_radio_alexa/4_4/playlist.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "NOVITA'") %} /local/loghi_radio_alexa/4_4/spotify.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "FUEGO") %} /local/loghi_radio_alexa/4_4/spotify.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "BUONA GIORNATA") %} /local/loghi_radio_alexa/4_4/amazon.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP HITS") %} /local/loghi_radio_alexa/4_4/amazon.jpg
+            {% elif is_state("input_select.stazioni_radio_alexa", "FLOW") %} /local/loghi_radio_alexa/4_4/deezer.png
+            {% elif is_state("input_select.stazioni_radio_alexa", "TOP ITALY") %} /local/loghi_radio_alexa/4_4/deezer.png
+            {% endif %}
+
+      # Sensore di appoggio per la card: entity_id storico "alexa_speaker_multiroom",
+      # calcolato dal nome scelto in input_select.list_alexa_speaker_multiroom.
+      - name: alexa_speaker_multiroom
+        state: >
+          {%- for device in states.media_player -%}
+          {%- if device.name|lower == states('input_select.list_alexa_speaker_multiroom')|lower -%}
+          {{ device.entity_id }}
+          {%- endif -%}
+          {%- endfor -%}
+
+####################################################
+#                                                  #
+#               ELENCO STAZIONI                    #
+#                                                  #
+####################################################
+
+input_select:
+  stazioni_radio_alexa:
+    name: "Seleziona Stazione Radio o Playlist"
+    options:
+      - -- TUNEIN RADIO --
+      - M2O
+      - RADIO DEEJAY
+      - RTL 102.5
+      - KISS KISS NAPOLI
+      - RADIO CAPITAL
+      - VIRGIN RADIO
+      - RADIO ZETA
+      - RADIO 101
+      - RADIO 105
+      - RADIO NORBA
+      - RDS
+      - -- PLAYLIST SPOTIFY --
+      - "NOVITA'"
+      - FUEGO
+      - -- PLAYLIST AMAZON --
+      - BUONA GIORNATA
+      - TOP HITS
+      - -- PLAYLIST DEEZER --
+      - FLOW
+      - TOP ITALY
+    icon: mdi:play
+
+  ####################################################
+
+  alexa_sveglia:
+    name: SELEZIONA
+    options:
+      - Giorni
+
+  ####################################################
+
+  list_alexa_speaker_multiroom:
+    name: "Alexa Speaker Multiroom"
+    options: # inserire nella lista sottostante il FRIENDLY NAME dei media_player
+      - "Alexa Bagno"
+      - "Alexa Salone"
+      - "Alexa Cameretta"
+      - "Alexa Camera"
+    icon: mdi:speaker-wireless
+
+####################################################
+#                                                  #
+#                INPUT BOOLEAN                     #
+#                                                  #
+####################################################
+
+input_boolean:
+  web_radio_alexa:
+    name: Web Radio Alexa
+    icon: mdi:radio
+
+  ####################################################
+
+  sveglia_alexa:
+    name: Sveglia Alexa
+    icon: mdi:alarm
+
+  ####################################################
+
+  aggiornamento_pkg_alexa_webradio:
+    name: Aggiornamento package Alexa Webradio
+
+  ####################################################
+
+  alexa_sveglia_lunedi:
+    name: Alexa Sveglia Lunedi
+
+  ####################################################
+
+  alexa_sveglia_martedi:
+    name: Alexa Sveglia Martedi
+
+  ####################################################
+
+  alexa_sveglia_mercoledi:
+    name: Alexa Sveglia Mercoledi
+
+  ####################################################
+
+  alexa_sveglia_giovedi:
+    name: Alexa Sveglia Giovedi
+
+  ####################################################
+
+  alexa_sveglia_venerdi:
+    name: Alexa Sveglia Venerdi
+
+  ####################################################
+
+  alexa_sveglia_sabato:
+    name: Alexa Sveglia Sabato
+
+  ####################################################
+
+  alexa_sveglia_domenica:
+    name: Alexa Sveglia Domenica
+
+####################################################
+#                                                  #
+#                INPUT DATETIME                    #
+#                                                  #
+####################################################
+
+input_datetime:
+  ora_sveglia_alexa_on:
+    name: Sveglia Alexa ON
+    has_date: false
+    has_time: true
+    icon: mdi:clock-outline
+
+  ####################################################
+
+  ora_sveglia_alexa_off:
+    name: Sveglia Alexa OFF
+    has_date: false
+    has_time: true
+    icon: mdi:clock-outline
+
+####################################################
+#                                                  #
+#                INPUT NUMBER                      #
+#                                                  #
+####################################################
+
+input_number:
+  volume_radio_alexa:
+    name: Volume
+    icon: mdi:volume-high
+    min: 0
+    max: 1
+    step: 0.05
+
+  ####################################################
+
+  volume_radio_off_alexa:
+    name: Volume Radio OFF Alexa
+    icon: mdi:volume-high
+    min: 0
+    max: 1
+    step: 0.05
+
+####################################################
+#                                                  #
+#                     SCRIPT                       #
+#                                                  #
+####################################################
+
+script:
+  remove_alexa:
+    alias: "Rimuovi Alexa"
+    mode: single
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.web_radio_alexa
+                state: "off"
+            sequence:
+              - action: group.set
+                data:
+                  object_id: multiroom_alexa
+                  entities: >-
+                    {{state_attr('group.multiroom_alexa','entity_id')|list|select('ne',states('sensor.alexa_speaker_multiroom'))|list }}
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.multiroom_alexa
+                data:
+                  value: >-
+                    {{state_attr('group.multiroom_alexa','entity_id')|list }}
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.web_radio_alexa
+                state: "on"
+            sequence:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.web_radio_alexa
+              - action: group.set
+                data:
+                  object_id: multiroom_alexa
+                  entities: >-
+                    {{state_attr('group.multiroom_alexa','entity_id')|list|select('ne',states('sensor.alexa_speaker_multiroom'))|list }}
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.multiroom_alexa
+                data:
+                  value: >-
+                    {{state_attr('group.multiroom_alexa','entity_id')|list }}
+              - delay:
+                  milliseconds: 250
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.web_radio_alexa
+
+  ####################################################
+
+  add_alexa:
+    alias: Aggiungi Alexa
+    mode: single
+    sequence:
+      - action: group.set
+        data:
+          object_id: multiroom_alexa
+          entities: >-
+            {% set ns = namespace(entities=state_attr('group.multiroom_alexa','entity_id')|list|select('ne',states('sensor.alexa_speaker_multiroom'))|list)%}
+            {{ ns.entities + [states('sensor.alexa_speaker_multiroom')] }}
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.multiroom_alexa
+        data:
+          value: >-
+            {{state_attr('group.multiroom_alexa','entity_id')|list }}
+
+####################################################
+#                                                  #
+#              AUTOMAZIONI RADIO                   #
+#                                                  #
+####################################################
+
+automation:
+  - alias: Livello Volume Alexa
+    id: Livello Volume Alexa
+    trigger:
+      - platform: state
+        entity_id: input_number.volume_radio_alexa
+    condition:
+      - condition: state
+        entity_id: input_boolean.web_radio_alexa
+        state: "on"
+    action:
+      - action: media_player.volume_set
+        data:
+          entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
+          volume_level: "{{ states('input_number.volume_radio_alexa') }}"
+
+  ####################################################
+
+  - alias: Radio OFF VOLUME Alexa
+    id: Radio OFF VOLUME Alexa
+    trigger:
+      - platform: state
+        entity_id: input_boolean.web_radio_alexa
+        to: "off"
+    condition: []
+    action:
+      - delay: "1"
+      - action: media_player.volume_set
+        data:
+          entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
+          volume_level: "{{ states('input_number.volume_radio_off_alexa') }}"
+
+  ####################################################
+
+  - alias: Attiva Sveglia ALEXA
+    id: Attiva Sveglia ALEXA
+    trigger:
+      - platform: time
+        at: "input_datetime.ora_sveglia_alexa_on"
+        id: sveglia_on
+
+      - platform: time
+        at: "input_datetime.ora_sveglia_alexa_off"
+        id: sveglia_off
+
+    action:
+      - choose:
+          - alias: SVEGLIA ON
+            conditions:
+              - condition: trigger
+                id: sveglia_on
+              - condition: state
+                entity_id: input_boolean.sveglia_alexa
+                state: "on"
+              - condition: template
+                value_template: >-
+                  {% set today = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'][now().weekday()] %}
+                  {% if (is_state("input_boolean.alexa_sveglia_lunedi", "on") and today in ["Monday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_martedi", "on") and today in ["Tuesday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_mercoledi", "on") and today in ["Wednesday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_giovedi", "on") and today in ["Thursday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_venerdi", "on") and today in ["Friday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_sabato", "on") and today in ["Saturday"]) %} true
+                  {% elif (is_state("input_boolean.alexa_sveglia_domenica", "on") and today in ["Sunday"]) %} true
+                  {% else %} false
+                  {% endif %}
+            sequence:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.web_radio_alexa
+
+      - choose:
+          - alias: SVEGLIA OFF
+            conditions:
+              - condition: trigger
+                id: sveglia_off
+              - condition: state
+                entity_id: input_boolean.sveglia_alexa
+                state: "on"
+            sequence:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.web_radio_alexa
+
+  ####################################################
+
+  - alias: Multiroom Alexa
+    id: Multiroom Alexa
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.web_radio_alexa
+          - group.multiroom_alexa
+          - sensor.template_radio_alexa
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.web_radio_alexa
+                state: "on"
+            sequence:
+              - action: media_player.volume_set
+                data:
+                  entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
+                  volume_level: "{{ states('input_number.volume_radio_alexa') }}"
+
+              - action: media_player.play_media
+                data:
+                  entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
+                  media_content_type: "{{ state_attr('sensor.template_radio_alexa', 'servizi') }}"
+                  media_content_id: >
+                    {{ state_attr('sensor.template_radio_alexa', 'select') }}
+
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.web_radio_alexa
+                state: "off"
+            sequence:
+              - action: media_player.media_stop
+                data:
+                  entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
