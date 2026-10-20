@@ -175,6 +175,56 @@ Per i costi per periodo (`costo_oggi`, `costo_mese`, ecc.) il modo più semplice
 
 `week_rows` (7 giorni × cicli/tempo/consumo/costo) ed `energy_stat_entity` seguono la stessa logica — sono avanzati, aggiungili solo se ti interessa davvero uno storico settimanale dettagliato; senza, la card funziona comunque perfettamente.
 
+#### `week_rows` — sezione "Ultimi 7 giorni"
+
+Senza questa chiave, nel popup **Consumi** la sezione "Ultimi 7 giorni" mostra *Nessun dato configurato*. Se usi i miei package originali gli helper esistono già (`input_text` per cicli e tempo, `input_number` per consumo e costo, uno per giorno): basta elencarli nella card. Esempio per la lavatrice (`_1`; per gli altri elettrodomestici cambia il numero finale come nel tuo package):
+
+```yaml
+week_rows:
+  - day: Lunedì
+    cicli: input_text.lunedi_elettrodomestici_cicli_1
+    tempo: input_text.lunedi_elettrodomestici_tempo_1
+    consumo: input_number.lunedi_elettrodomestici_consumo_1
+    costo: input_number.lunedi_elettrodomestici_costo_1
+  - day: Martedì
+    cicli: input_text.martedi_elettrodomestici_cicli_1
+    tempo: input_text.martedi_elettrodomestici_tempo_1
+    consumo: input_number.martedi_elettrodomestici_consumo_1
+    costo: input_number.martedi_elettrodomestici_costo_1
+  - day: Mercoledì
+    cicli: input_text.mercoledi_elettrodomestici_cicli_1
+    tempo: input_text.mercoledi_elettrodomestici_tempo_1
+    consumo: input_number.mercoledi_elettrodomestici_consumo_1
+    costo: input_number.mercoledi_elettrodomestici_costo_1
+  - day: Giovedì
+    cicli: input_text.giovedi_elettrodomestici_cicli_1
+    tempo: input_text.giovedi_elettrodomestici_tempo_1
+    consumo: input_number.giovedi_elettrodomestici_consumo_1
+    costo: input_number.giovedi_elettrodomestici_costo_1
+  - day: Venerdì
+    cicli: input_text.venerdi_elettrodomestici_cicli_1
+    tempo: input_text.venerdi_elettrodomestici_tempo_1
+    consumo: input_number.venerdi_elettrodomestici_consumo_1
+    costo: input_number.venerdi_elettrodomestici_costo_1
+  - day: Sabato
+    cicli: input_text.sabato_elettrodomestici_cicli_1
+    tempo: input_text.sabato_elettrodomestici_tempo_1
+    consumo: input_number.sabato_elettrodomestici_consumo_1
+    costo: input_number.sabato_elettrodomestici_costo_1
+  - day: Domenica
+    cicli: input_text.domenica_elettrodomestici_cicli_1
+    tempo: input_text.domenica_elettrodomestici_tempo_1
+    consumo: input_number.domenica_elettrodomestici_consumo_1
+    costo: input_number.domenica_elettrodomestici_costo_1
+```
+
+- `day` deve essere scritto **esattamente** così, con l'accento (`Lunedì`, `Martedì`, …): la card usa il nome per riordinare le righe partendo da ieri, una riga con un nome diverso non viene mostrata.
+- Ogni casella viene scritta dal package quando quel giorno finisce, quindi dopo averla configurata i dati compaiono a partire dal giorno successivo.
+
+#### `energy_stat_entity` — grafici "Questo mese" / "Quest'anno"
+
+Gli istogrammi (kWh al giorno e al mese) leggono le **statistiche a lungo termine** di Home Assistant per il sensore indicato (nel package: `sensor.w_kwh_elettrodomestici_1`, il sensore di integrazione kWh). Se mostrano *Nessun dato*, controlla in **Strumenti per sviluppatori → Statistiche** che il sensore compaia senza errori; un sensore appena creato inizia a produrre statistiche dopo circa un'ora.
+
 ### 📊 Storici automatici, senza scrivere nulla in YAML (alternativa più semplice)
 
 Se non vuoi costruire un `cycle_sensor` a mano, c'è una scorciatoia pensata apposta per chi installa la card da zero: apri l'**editor visuale** della card (aggiungila alla dashboard, poi "Modifica" invece di "Modifica in YAML") e scorri fino alla sezione **Storici**. Da lì:
