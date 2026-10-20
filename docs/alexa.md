@@ -91,8 +91,18 @@ visibility:
 | `pending_entity` | **Sì** | `input_boolean` interno: resta acceso se l'annuncio è "in sospeso" in attesa del rientro |
 | `retry_delay_entity` | **Sì** | `input_number` con i minuti di attesa dopo il rientro prima di riprovare |
 | `devices_entity` | **Sì** | `input_text` con gli `entity_id` `media_player.*` scelti per la riproduzione (separati da virgola, vuoto = dispositivo Alexa predefinito) — nell'editor visuale è una selezione a chip |
+| `devices` | No | Speaker mostrati come chip nella card: elenco di `entity` (`media_player.*`) + `name` facoltativo (vuoto = friendly name dell'entità). Default: i miei 4 speaker (Salone, Bagno, Cameretta, Camera). Vedi l'esempio sotto la tabella |
 | `slot_count_entity` | No (solo su Memo 1) | `input_number` che mostra sulla card 1 uno stepper "Altri memo attivi" per sbloccare Memo 3/4 |
 | `name` | No | Titolo card (default `"Alexa"`) |
+
+Esempio con i tuoi speaker (basta anche il solo `entity_id`, il nome arriva dal friendly name):
+
+```yaml
+devices:
+  - entity: media_player.echo_cucina
+    name: Cucina
+  - media_player.echo_studio
+```
 
 Il pulsante ℹ️ sulla card Memo apre un piccolo popup che spiega il funzionamento (utile per chi la usa, non solo per chi la configura):
 
@@ -111,7 +121,9 @@ Stazioni TuneIn e playlist Spotify/Amazon Music/Deezer raggruppate in griglie co
 
 ### 🚀 Metodo veloce: usa il mio package originale
 
-[`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml) — nessun dato personale da cambiare in cima. Nella sezione `input_select: list_alexa_speaker_multiroom` sostituisci i **friendly name** dei 4 speaker Alexa con i tuoi (la card ne mostra 4 come chip fissi: se ne hai un numero diverso, aggiungi/togli le righe corrispondenti nell'array `WR_SPEAKERS` dentro `smart-home-cards.js`, cercalo con Ctrl+F). L'elenco delle 17 stazioni/playlist (array `WR_STATION_GROUPS`, stesso file) è il mio: modificalo liberamente per il tuo elenco Alexa — nome stazione esattamente come compare nell'app Alexa, e un'immagine quadrata a tua scelta in `/config/www/loghi_radio_alexa/4_4/`.
+[`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml) — nessun dato personale da cambiare in cima. Nella sezione `input_select: list_alexa_speaker_multiroom` sostituisci i **friendly name** dei 4 speaker Alexa con i tuoi, e in `input_select: stazioni_radio_alexa` metti le tue stazioni/playlist (nome esattamente come compare nell'app Alexa).
+
+**Non serve modificare `smart-home-cards.js`**: speaker, stazioni, script e giorni della sveglia si impostano nella configurazione della card (YAML o editor visuale), quindi restano anche dopo ogni aggiornamento HACS. Se non li imposti, la card usa i valori del mio package: 4 speaker, 17 stazioni con le immagini in `/config/www/loghi_radio_alexa/4_4/`. Vedi "[Speaker, stazioni e sveglia personalizzati](#speaker-stazioni-e-sveglia-personalizzati)" qui sotto.
 
 Copia il file dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi), copia le immagini delle stazioni in `/config/www/loghi_radio_alexa/4_4/`, poi riavvia Home Assistant.
 
@@ -143,13 +155,49 @@ volume_off_entity: input_number.volume_radio_off_alexa
 | `volume_entity` | **Sì** | `input_number` (0–1) col volume del gruppo |
 | `group_entity` | **Sì** | `group` multiroom su cui viene riprodotta la radio |
 | `speaker_list_entity` | **Sì** | `input_select` usato dai chip degli speaker per selezionare quale aggiungere/rimuovere dal gruppo |
-| `alarm_entity` / `alarm_on_entity` / `alarm_off_entity` | No | Sveglia: attiva/disattiva + i due orari (i giorni della settimana sono i 7 `input_boolean.alexa_sveglia_<giorno>` del package, fissi) |
+| `add_script` / `remove_script` | No | Script lanciati dai chip per aggiungere/rimuovere dal gruppo lo speaker appena scelto in `speaker_list_entity`. Default `script.add_alexa` / `script.remove_alexa` (quelli del package) |
+| `speakers` | No | Speaker mostrati come chip: elenco di `entity` (`media_player.*`), `name` (testo del chip) e `option` (opzione di `speaker_list_entity` da selezionare). `name` e `option` vuoti = friendly name dell'entità. Default: i miei 4 speaker |
+| `stations` | No | Stazioni/playlist mostrate in griglia: elenco di `option` (opzione di `station_select_entity`), `name`, `image` e `group` (titolo della griglia, es. "TuneIn Radio"). Default: le mie 17 stazioni |
+| `image_path` | No | Cartella delle immagini indicate in `stations` solo come nome file (default `/local/loghi_radio_alexa/4_4/`). Un'immagine che inizia con `/` o `http` è usata così com'è |
+| `alarm_entity` / `alarm_on_entity` / `alarm_off_entity` | No | Sveglia: attiva/disattiva + i due orari |
+| `alarm_days` | No | Chip dei giorni della sveglia: elenco di `entity` (`input_boolean`) + `name`. Default: i 7 `input_boolean.alexa_sveglia_<giorno>` del package |
 | `volume_off_automation` / `volume_off_entity` | No | Automazione che, allo spegnimento, abbassa il volume del gruppo al valore scelto |
 | `name` | No | Titolo card (default `"Radio Alexa"`) |
 
+### Speaker, stazioni e sveglia personalizzati
+
+Aggiungi alla card solo gli elenchi che vuoi cambiare; quelli che non scrivi restano ai valori del mio package:
+
+```yaml
+add_script: script.add_alexa
+remove_script: script.remove_alexa
+speakers:
+  - entity: media_player.echo_cucina
+    name: Cucina
+    option: Echo Cucina        # come scritto in speaker_list_entity
+  - media_player.echo_studio   # solo entity_id: nome e opzione = friendly name
+image_path: /local/loghi_radio_alexa/4_4/
+stations:
+  - option: RADIO DEEJAY       # come scritto in station_select_entity
+    name: Radio Deejay
+    image: radio_deejay.jpg
+    group: TuneIn Radio
+  - option: TOP HITS
+    name: Top Hits
+    image: /local/le_mie_immagini/amazon.jpg
+    group: Amazon Music
+alarm_days:
+  - entity: input_boolean.alexa_sveglia_lunedi
+    name: Lunedì
+  - entity: input_boolean.alexa_sveglia_martedi
+    name: Martedì
+```
+
+Gli stessi elenchi si modificano anche dall'editor visuale (sezioni Multiroom, Stazioni e playlist, Sveglia): ogni elenco si apre con "mostra/modifica" e ha i pulsanti Aggiungi e Rimuovi.
+
 ## 🖊️ Editor visuale (senza YAML)
 
-Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"**, **"Alexa Memo"** o **"Alexa WebRadio"** → compili i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano.
+Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Alexa Annuncio Testo"**, **"Alexa Memo"** o **"Alexa WebRadio"** → compili i campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit"). Sulla card Memo, il campo Dispositivi si compila con **chip a selezione multipla** (una per ogni `media_player.*` Alexa rilevato) invece di scrivere gli `entity_id` a mano. Gli speaker mostrati come chip nelle card Memo e WebRadio, le stazioni e i giorni della sveglia sono elenchi modificabili nell'editor, con Aggiungi/Rimuovi.
 
 | Editor Alexa Annuncio Testo | Editor Alexa Memo |
 |---|---|

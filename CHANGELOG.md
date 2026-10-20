@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-20 — 1.7.0: card Alexa configurabili senza toccare il JS
+
+- **Alexa Memo e Alexa WebRadio**: speaker, stazioni, script aggiungi/rimuovi e giorni della sveglia non sono più scritti dentro `smart-home-cards.js`. Sono nuove opzioni della card: `devices` (Memo), `speakers`, `stations`, `image_path`, `add_script`, `remove_script`, `alarm_days` (WebRadio). Prima andavano modificati nel file JS, e ogni aggiornamento HACS cancellava le modifiche.
+- I valori di prima restano come **default**: chi usa i miei package non deve cambiare niente, la card appare identica.
+- **Editor visuale**: gli elenchi (speaker, stazioni, giorni) si modificano con Aggiungi/Rimuovi, ogni elenco si apre con "mostra/modifica".
+- Uno speaker senza `name` prende il friendly name dell'entità.
+- I chip degli speaker della WebRadio lanciano gli script con `script.turn_on`, come la card Alexa Annuncio Testo.
+- **README e guida installazione**: per HACS si parte dalla ricerca diretta di "Smart Home Cards"; il repository personalizzato resta come alternativa.
+- **Guida Elettrodomestici**: esempio completo di `week_rows` (sezione "Ultimi 7 giorni") e controllo delle statistiche per `energy_stat_entity`.
+- Guida aggiornata: [docs/alexa.md](docs/alexa.md#speaker-stazioni-e-sveglia-personalizzati).
+
 ## 2026-09-26 (2) — Fix grafici: etichette a 4 cifre tagliate su tutte le card
 
 - **Fix**: nel popup Grafici, quando un valore arrivava a 4 cifre (es. "2623"), l'etichetta sull'asse veniva tagliata — il margine era stato allargato solo per la card Energia (che mostra spesso Watt a 4 cifre), le altre 8 card con grafico (Elettrodomestici, Server HA, NAS, UPS, Proxmox) avevano ancora il margine vecchio. Ora tutte usano lo stesso margine più largo. Verificato dal vivo sul grafico CPU/RAM della card NAS, nessuna rottura visiva.

@@ -2015,6 +2015,10 @@ const SHC_EDITOR_STYLE = `
   .shc-ed-btn:disabled{opacity:.6;cursor:default}
   .shc-ed-checkrow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--primary-text-color);cursor:pointer}
   .shc-ed-storici-msg{display:block;color:#c62828;font-size:12px;margin-top:4px}
+  .shc-ed-list-item{display:flex;flex-direction:column;gap:6px;padding:10px;margin-bottom:8px;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px}
+  .shc-ed-sublabel{font-size:11.5px;font-weight:700;color:var(--secondary-text-color)}
+  details.shc-ed-list summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--primary-color,#03a9f4);padding:6px 0}
+  .shc-ed-list-del{align-self:flex-end;margin-top:0;border-color:#c62828;background:rgba(198,40,40,.08);color:#c62828}
 `;
 
 // -----------------------------------------------------------------------
@@ -2043,6 +2047,75 @@ function shcSetPath(root, path, value) {
   if (value === "" || value === undefined) delete obj[lastKey];
   else obj[lastKey] = value;
   return root;
+}
+
+// Valori predefiniti delle card Alexa: sono quelli dei miei package (alexa_webradio.yaml ecc.).
+// Ogni elenco si puo' sostituire dalla configurazione della card (devices, speakers, stations,
+// alarm_days), quindi chi ha speaker o stazioni diverse non deve toccare questo file.
+const SHC_ALEXA_DEFAULT_DEVICES = [
+  { entity: "media_player.alexa_salone", name: "Salone" },
+  { entity: "media_player.alexa_bagno", name: "Bagno" },
+  { entity: "media_player.alexa_cameretta", name: "Cameretta" },
+  { entity: "media_player.alexa_camera", name: "Camera" },
+];
+
+const WR_DEFAULT_SPEAKERS = [
+  { entity: "media_player.alexa_salone", name: "Salone", option: "Alexa Salone" },
+  { entity: "media_player.alexa_bagno", name: "Bagno", option: "Alexa Bagno" },
+  { entity: "media_player.alexa_cameretta", name: "Cameretta", option: "Alexa Cameretta" },
+  { entity: "media_player.alexa_camera", name: "Camera", option: "Alexa Camera" },
+];
+
+const WR_DEFAULT_IMAGE_PATH = "/local/loghi_radio_alexa/4_4/";
+
+const WR_DEFAULT_STATIONS = [
+  { group: "TuneIn Radio", option: "M2O", name: "M2O", image: "m2o.jpg" },
+  { group: "TuneIn Radio", option: "RADIO DEEJAY", name: "Radio Deejay", image: "radio_deejay.jpg" },
+  { group: "TuneIn Radio", option: "RTL 102.5", name: "RTL 102.5", image: "rtl.png" },
+  { group: "TuneIn Radio", option: "KISS KISS NAPOLI", name: "Kiss Kiss Napoli", image: "kisskiss.jpg" },
+  { group: "TuneIn Radio", option: "RADIO CAPITAL", name: "Radio Capital", image: "radio_capital.jpg" },
+  { group: "TuneIn Radio", option: "VIRGIN RADIO", name: "Virgin Radio", image: "virgin_radio.jpg" },
+  { group: "TuneIn Radio", option: "RADIO ZETA", name: "Radio Zeta", image: "radio_z.jpg" },
+  { group: "TuneIn Radio", option: "RADIO 101", name: "R101", image: "101.jpg" },
+  { group: "TuneIn Radio", option: "RADIO 105", name: "Radio 105", image: "105.jpg" },
+  { group: "TuneIn Radio", option: "RADIO NORBA", name: "Radio Norba", image: "norba.jpg" },
+  { group: "TuneIn Radio", option: "RDS", name: "RDS", image: "rds.jpg" },
+  { group: "Spotify", option: "NOVITA'", name: "Novità", image: "spotify.jpg" },
+  { group: "Spotify", option: "FUEGO", name: "Fuego", image: "spotify.jpg" },
+  { group: "Amazon Music", option: "BUONA GIORNATA", name: "Buona Giornata", image: "amazon.jpg" },
+  { group: "Amazon Music", option: "TOP HITS", name: "Top Hits", image: "amazon.jpg" },
+  { group: "Deezer", option: "FLOW", name: "Flow", image: "deezer.png" },
+  { group: "Deezer", option: "TOP ITALY", name: "Top Italy", image: "deezer.png" },
+];
+
+const WR_DEFAULT_ALARM_DAYS = [
+  ["lunedi", "Lunedì"],
+  ["martedi", "Martedì"],
+  ["mercoledi", "Mercoledì"],
+  ["giovedi", "Giovedì"],
+  ["venerdi", "Venerdì"],
+  ["sabato", "Sabato"],
+  ["domenica", "Domenica"],
+].map(([key, name]) => ({ entity: `input_boolean.alexa_sveglia_${key}`, name }));
+
+// Elenco dalla config della card (oggetti, o semplici entity_id come stringhe), altrimenti i default.
+function shcConfigList(value, defaults, firstKey = "entity") {
+  const items = Array.isArray(value) ? value : defaults;
+  return items
+    .map((it) => (typeof it === "string" ? { [firstKey]: it } : it))
+    .filter((it) => it && it[firstKey]);
+}
+
+function shcEntityName(hass, entityId) {
+  return hass?.states?.[entityId]?.attributes?.friendly_name || entityId;
+}
+
+// Chip senza "name" in config: il testo segue il friendly_name, che arriva solo con hass.
+function shcRefreshAutoNames(root, hass) {
+  root.querySelectorAll("[data-autoname]").forEach((el) => {
+    const name = shcEntityName(hass, el.dataset.autoname);
+    if (el.textContent !== name) el.textContent = name;
+  });
 }
 
 class ShcSimpleCardEditorBase extends HTMLElement {
@@ -2074,6 +2147,12 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     this._emit();
   }
 
+  _listItems(f) {
+    const val = shcGetPath(this._config, f.key);
+    const items = Array.isArray(val) ? val : f.defaults || [];
+    return items.map((it) => (typeof it === "string" ? { [f.itemFields[0].key]: it } : it || {}));
+  }
+
   _render() {
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
@@ -2088,6 +2167,35 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       ${sec.fields
         .map((f) => {
           const val = shcGetPath(cfg, f.key);
+          if (f.kind === "list") {
+            // Elenco di oggetti (speaker, stazioni, giorni...): se la card non ha ancora la chiave
+            // si parte dai default, cosi' modificarne una riga salva l'elenco completo in config.
+            const items = this._listItems(f);
+            const open = this._openLists?.has(f.key) ? " open" : "";
+            return `<div class="shc-ed-row">
+              <span class="shc-ed-label">${esc(f.label)}</span>
+              ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
+              <details class="shc-ed-list" data-list-box="${esc(f.key)}"${open}>
+              <summary>${items.length} element${items.length === 1 ? "o" : "i"} — mostra/modifica</summary>
+              ${items
+                .map(
+                  (item, i) => `<div class="shc-ed-list-item">
+                ${f.itemFields
+                  .map((sf) =>
+                    `<span class="shc-ed-sublabel">${esc(sf.label)}</span>` +
+                    (sf.kind === "entity"
+                      ? `<ha-entity-picker data-list="${esc(f.key)}" data-idx="${i}" data-sub="${esc(sf.key)}" ${sf.domain ? `include-domains='${JSON.stringify(sf.domain)}'` : ""} allow-custom-entity></ha-entity-picker>`
+                      : `<input class="shc-ed-input" data-list="${esc(f.key)}" data-idx="${i}" data-sub="${esc(sf.key)}" type="text">`),
+                  )
+                  .join("")}
+                <button type="button" class="shc-ed-btn shc-ed-list-del" data-list-del="${esc(f.key)}" data-idx="${i}">Rimuovi</button>
+              </div>`,
+                )
+                .join("")}
+              <button type="button" class="shc-ed-btn" data-list-add="${esc(f.key)}">Aggiungi</button>
+              </details>
+            </div>`;
+          }
           if (f.kind === "entity" || !f.kind) {
             return `<div class="shc-ed-row">
               <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
@@ -2106,6 +2214,46 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     `,
       )
       .join("");
+
+    const listField = (key) => this.schema.flatMap((sec) => sec.fields).find((f) => f.key === key);
+    const setListValue = (el, value) => {
+      const f = listField(el.dataset.list);
+      const items = this._listItems(f).map((it) => ({ ...it }));
+      items[Number(el.dataset.idx)][el.dataset.sub] = value;
+      this._set(f.key, items);
+    };
+    body.querySelectorAll("ha-entity-picker[data-list]").forEach((el) => {
+      el.hass = this._hass;
+      el.value = this._listItems(listField(el.dataset.list))[Number(el.dataset.idx)]?.[el.dataset.sub] || "";
+      el.addEventListener("value-changed", (e) => {
+        e.stopPropagation();
+        setListValue(el, e.detail.value);
+      });
+    });
+    body.querySelectorAll("input.shc-ed-input[data-list]").forEach((el) => {
+      el.value = this._listItems(listField(el.dataset.list))[Number(el.dataset.idx)]?.[el.dataset.sub] ?? "";
+      el.addEventListener("change", () => setListValue(el, el.value));
+    });
+    // gli elenchi aperti restano aperti quando Aggiungi/Rimuovi ridisegna l'editor
+    const rememberOpenLists = () => {
+      this._openLists = new Set([...body.querySelectorAll("details[data-list-box][open]")].map((el) => el.dataset.listBox));
+    };
+    body.querySelectorAll("[data-list-add]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const f = listField(btn.dataset.listAdd);
+        rememberOpenLists();
+        this._set(f.key, this._listItems(f).concat([{}]));
+        this._render();
+      });
+    });
+    body.querySelectorAll("[data-list-del]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const f = listField(btn.dataset.listDel);
+        rememberOpenLists();
+        this._set(f.key, this._listItems(f).filter((_, i) => i !== Number(btn.dataset.idx)));
+        this._render();
+      });
+    });
 
     body.querySelectorAll("ha-entity-picker[data-key]").forEach((el) => {
       el.hass = this._hass;
@@ -2296,6 +2444,10 @@ class ShcAlexaMemoCardEditor extends ShcSimpleCardEditorBase {
         { key: "active_entity", label: "Attivo", domain: ["input_boolean"], required: true },
         { key: "text_entity", label: "Messaggio", domain: ["input_text"], required: true },
         { key: "devices_entity", label: "Dispositivi Alexa scelti", domain: ["input_text"], required: true, hint: "input_text con gli entity_id dei media_player scelti, separati da virgola (vuoto = dispositivo predefinito)." },
+        { key: "devices", label: "Speaker mostrati come chip", kind: "list", defaults: SHC_ALEXA_DEFAULT_DEVICES, itemFields: [
+          { key: "entity", label: "Speaker", kind: "entity", domain: ["media_player"] },
+          { key: "name", label: "Nome sul chip (vuoto = nome dell'entita')" },
+        ]},
       ]},
       { title: "Quando annunciare", fields: [
         { key: "repeat_entity", label: "Ripeti ogni giorno nel periodo", domain: ["input_boolean"], required: true },
@@ -2329,12 +2481,32 @@ class ShcAlexaWebradioCardEditor extends ShcSimpleCardEditorBase {
       ]},
       { title: "Multiroom", fields: [
         { key: "group_entity", label: "Gruppo multiroom", domain: ["group"], required: true },
-        { key: "speaker_list_entity", label: "Selettore speaker da aggiungere/rimuovere", domain: ["input_select"], required: true, hint: "I 4 speaker mostrati come chip (Salone/Bagno/Cameretta/Camera) sono fissi, come per la card Memo — adattali nel JS se il tuo setup ha nomi diversi." },
+        { key: "speaker_list_entity", label: "Selettore speaker da aggiungere/rimuovere", domain: ["input_select"], required: true, hint: "Toccando un chip la card sceglie qui l'opzione dello speaker e poi lancia lo script aggiungi o rimuovi." },
+        { key: "add_script", label: "Script aggiungi speaker al gruppo", domain: ["script"] },
+        { key: "remove_script", label: "Script rimuovi speaker dal gruppo", domain: ["script"] },
+        { key: "speakers", label: "Speaker mostrati come chip", kind: "list", defaults: WR_DEFAULT_SPEAKERS, itemFields: [
+          { key: "entity", label: "Speaker", kind: "entity", domain: ["media_player"] },
+          { key: "name", label: "Nome sul chip (vuoto = nome dell'entita')" },
+          { key: "option", label: "Opzione del selettore speaker (vuoto = nome dell'entita')" },
+        ]},
+      ]},
+      { title: "Stazioni e playlist", fields: [
+        { key: "image_path", label: "Cartella immagini", kind: "text", placeholder: WR_DEFAULT_IMAGE_PATH, hint: "Usata per le immagini indicate solo come nome file. Un percorso che inizia con / o http resta com'e'." },
+        { key: "stations", label: "Stazioni", kind: "list", defaults: WR_DEFAULT_STATIONS, itemFields: [
+          { key: "option", label: "Opzione del selettore stazione" },
+          { key: "name", label: "Nome mostrato (vuoto = opzione)" },
+          { key: "image", label: "Immagine (nome file o percorso)" },
+          { key: "group", label: "Gruppo (es. TuneIn Radio, Spotify)" },
+        ]},
       ]},
       { title: "Sveglia (facoltativa)", fields: [
         { key: "alarm_entity", label: "Sveglia attiva", domain: ["input_boolean"] },
         { key: "alarm_on_entity", label: "Orario accensione", domain: ["input_datetime"] },
         { key: "alarm_off_entity", label: "Orario spegnimento", domain: ["input_datetime"] },
+        { key: "alarm_days", label: "Giorni della sveglia", kind: "list", defaults: WR_DEFAULT_ALARM_DAYS, itemFields: [
+          { key: "entity", label: "Interruttore del giorno", kind: "entity", domain: ["input_boolean"] },
+          { key: "name", label: "Nome sul chip" },
+        ]},
       ]},
       { title: "Volume ridotto automatico (facoltativo)", fields: [
         { key: "volume_off_automation", label: "Automazione volume ridotto", domain: ["automation"] },
@@ -6744,15 +6916,6 @@ class ShcAlexaMemoCard extends HTMLElement {
     ];
   }
 
-  static get DEVICES() {
-    return [
-      ["media_player.alexa_salone", "Salone"],
-      ["media_player.alexa_bagno", "Bagno"],
-      ["media_player.alexa_cameretta", "Cameretta"],
-      ["media_player.alexa_camera", "Camera"],
-    ];
-  }
-
   _openDialog(title, bodyHtml) {
     let overlay = this._root.querySelector(".shc-ap-overlay");
     if (!overlay) {
@@ -6839,7 +7002,7 @@ class ShcAlexaMemoCard extends HTMLElement {
             <div class="shc-ap-meter">
               <div class="shc-ap-meter-row"><span>Dispositivi Alexa (vuoto = predefinito)</span></div>
               <div class="shc-am-chips">
-                ${ShcAlexaMemoCard.DEVICES.map(([id, label]) => `<button type="button" class="shc-am-dev-chip" data-device="${esc(id)}">${esc(label)}</button>`).join("")}
+                ${shcConfigList(cfg.devices, SHC_ALEXA_DEFAULT_DEVICES).map((d) => `<button type="button" class="shc-am-dev-chip" data-device="${esc(d.entity)}"${d.name ? "" : ` data-autoname="${esc(d.entity)}"`}>${esc(d.name || shcEntityName(this._hass, d.entity))}</button>`).join("")}
               </div>
             </div>
             <div class="shc-ap-row">
@@ -6956,6 +7119,7 @@ class ShcAlexaMemoCard extends HTMLElement {
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcAlexaMemoCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
+    shcRefreshAutoNames(this._root, hass);
 
     const activeOn = hass.states[cfg.active_entity]?.state === "on";
     const repeatOn = hass.states[cfg.repeat_entity]?.state === "on";
@@ -7088,64 +7252,6 @@ window.customCards.push({
   author: "Simonz82",
 });
 
-const WR_WEEKDAYS = [
-  ["lunedi", "Lunedì"],
-  ["martedi", "Martedì"],
-  ["mercoledi", "Mercoledì"],
-  ["giovedi", "Giovedì"],
-  ["venerdi", "Venerdì"],
-  ["sabato", "Sabato"],
-  ["domenica", "Domenica"],
-];
-
-const WR_SPEAKERS = [
-  ["media_player.alexa_salone", "Alexa Salone", "Salone"],
-  ["media_player.alexa_bagno", "Alexa Bagno", "Bagno"],
-  ["media_player.alexa_cameretta", "Alexa Cameretta", "Cameretta"],
-  ["media_player.alexa_camera", "Alexa Camera", "Camera"],
-];
-
-// [opzione input_select, etichetta, file immagine 4:4]
-const WR_STATION_GROUPS = [
-  {
-    cap: "TuneIn Radio",
-    items: [
-      ["M2O", "M2O", "m2o.jpg"],
-      ["RADIO DEEJAY", "Radio Deejay", "radio_deejay.jpg"],
-      ["RTL 102.5", "RTL 102.5", "rtl.png"],
-      ["KISS KISS NAPOLI", "Kiss Kiss Napoli", "kisskiss.jpg"],
-      ["RADIO CAPITAL", "Radio Capital", "radio_capital.jpg"],
-      ["VIRGIN RADIO", "Virgin Radio", "virgin_radio.jpg"],
-      ["RADIO ZETA", "Radio Zeta", "radio_z.jpg"],
-      ["RADIO 101", "R101", "101.jpg"],
-      ["RADIO 105", "Radio 105", "105.jpg"],
-      ["RADIO NORBA", "Radio Norba", "norba.jpg"],
-      ["RDS", "RDS", "rds.jpg"],
-    ],
-  },
-  {
-    cap: "Spotify",
-    items: [
-      ["NOVITA'", "Novità", "spotify.jpg"],
-      ["FUEGO", "Fuego", "spotify.jpg"],
-    ],
-  },
-  {
-    cap: "Amazon Music",
-    items: [
-      ["BUONA GIORNATA", "Buona Giornata", "amazon.jpg"],
-      ["TOP HITS", "Top Hits", "amazon.jpg"],
-    ],
-  },
-  {
-    cap: "Deezer",
-    items: [
-      ["FLOW", "Flow", "deezer.png"],
-      ["TOP ITALY", "Top Italy", "deezer.png"],
-    ],
-  },
-];
-
 class ShcAlexaWebradioCard extends HTMLElement {
   static get REQUIRED_FIELDS() {
     return [
@@ -7199,10 +7305,12 @@ class ShcAlexaWebradioCard extends HTMLElement {
     const cfg = this._config;
     const onEntity = cfg.alarm_on_entity;
     const offEntity = cfg.alarm_off_entity;
-    const daysHtml = WR_WEEKDAYS.map(
-      ([key, label]) =>
-        `<button type="button" class="shc-am-dev-chip shc-wr-day" data-day="${key}">${esc(label)}</button>`,
-    ).join("");
+    const daysHtml = shcConfigList(cfg.alarm_days, WR_DEFAULT_ALARM_DAYS)
+      .map(
+        (d) =>
+          `<button type="button" class="shc-am-dev-chip shc-wr-day" data-entity="${esc(d.entity)}">${esc(d.name || shcEntityName(hass, d.entity))}</button>`,
+      )
+      .join("");
     const overlay = this._openDialog(
       "Sveglia Radio",
       `<div class="shc-ap-row">
@@ -7249,7 +7357,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
     });
 
     overlay.querySelectorAll(".shc-wr-day").forEach((chip) => {
-      const entity = `input_boolean.alexa_sveglia_${chip.dataset.day}`;
+      const entity = chip.dataset.entity;
       chip.classList.toggle("on", hass.states[entity]?.state === "on");
       chip.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -7315,26 +7423,42 @@ class ShcAlexaWebradioCard extends HTMLElement {
     }
     const cfg = this._config;
 
-    const groupsHtml = WR_STATION_GROUPS.map(
-      (g) => `<div>
-        <div class="shc-ap-sec-cap">${esc(g.cap)}</div>
+    // Stazioni raggruppate per "group" nell'ordine in cui compaiono la prima volta.
+    const imagePath = cfg.image_path || WR_DEFAULT_IMAGE_PATH;
+    const imageSrc = (img) => (!img ? "" : /^(\/|https?:)/.test(img) ? img : imagePath.replace(/\/?$/, "/") + img);
+    const groups = [];
+    shcConfigList(cfg.stations, WR_DEFAULT_STATIONS, "option").forEach((st) => {
+      const cap = st.group || "";
+      let g = groups.find((x) => x.cap === cap);
+      if (!g) groups.push((g = { cap, items: [] }));
+      g.items.push(st);
+    });
+    const groupsHtml = groups
+      .map(
+        (g) => `<div>
+        ${g.cap ? `<div class="shc-ap-sec-cap">${esc(g.cap)}</div>` : ""}
         <div class="shc-wr-station-grid">
           ${g.items
             .map(
-              ([opt, label, img]) =>
-                `<button type="button" class="shc-wr-station" data-option="${esc(opt)}">
-                  <img src="/local/loghi_radio_alexa/4_4/${esc(img)}" alt="">
-                  <span>${esc(label)}</span>
+              (st) =>
+                `<button type="button" class="shc-wr-station" data-option="${esc(st.option)}">
+                  ${st.image ? `<img src="${esc(imageSrc(st.image))}" alt="">` : ""}
+                  <span>${esc(st.name || st.option)}</span>
                 </button>`,
             )
             .join("")}
         </div>
       </div>`,
-    ).join("");
+      )
+      .join("");
 
-    const chipsHtml = WR_SPEAKERS.map(
-      ([id, , label]) => `<button type="button" class="shc-am-dev-chip shc-wr-speaker" data-entity="${esc(id)}">${esc(label)}</button>`,
-    ).join("");
+    this._speakers = shcConfigList(cfg.speakers, WR_DEFAULT_SPEAKERS);
+    const chipsHtml = this._speakers
+      .map(
+        (sp) =>
+          `<button type="button" class="shc-am-dev-chip shc-wr-speaker" data-entity="${esc(sp.entity)}"${sp.name ? "" : ` data-autoname="${esc(sp.entity)}"`}>${esc(sp.name || shcEntityName(this._hass, sp.entity))}</button>`,
+      )
+      .join("");
 
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card">
@@ -7408,14 +7532,15 @@ class ShcAlexaWebradioCard extends HTMLElement {
       chip.addEventListener("click", (e) => {
         e.stopPropagation();
         const entityId = chip.dataset.entity;
-        const speakerInfo = WR_SPEAKERS.find(([id]) => id === entityId);
-        if (!speakerInfo) return;
-        const [, friendlyName] = speakerInfo;
+        const speaker = this._speakers.find((sp) => sp.entity === entityId);
+        if (!speaker) return;
+        const option = speaker.option || shcEntityName(this._hass, entityId);
         const current = this._hass?.states?.[cfg.group_entity]?.attributes?.entity_id || [];
         const alreadyIn = current.includes(entityId);
-        this._call("input_select", "select_option", { entity_id: cfg.speaker_list_entity, option: friendlyName });
+        this._call("input_select", "select_option", { entity_id: cfg.speaker_list_entity, option });
+        const script = alreadyIn ? cfg.remove_script || "script.remove_alexa" : cfg.add_script || "script.add_alexa";
         setTimeout(() => {
-          this._call("script", alreadyIn ? "remove_alexa" : "add_alexa", {});
+          this._call("script", "turn_on", { entity_id: script });
         }, 200);
       });
     });
@@ -7435,6 +7560,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcAlexaWebradioCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
+    shcRefreshAutoNames(this._root, hass);
 
     const powerOn = hass.states[cfg.power_entity]?.state === "on";
     const badge = this._root.querySelector(".shc-ap-badge");
@@ -7491,6 +7617,8 @@ class ShcAlexaWebradioCard extends HTMLElement {
       volume_off_automation: "automation.radio_off_volume_alexa",
       group_entity: "group.multiroom_alexa",
       speaker_list_entity: "input_select.list_alexa_speaker_multiroom",
+      add_script: "script.add_alexa",
+      remove_script: "script.remove_alexa",
       alarm_entity: "input_boolean.sveglia_alexa",
       alarm_on_entity: "input_datetime.ora_sveglia_alexa_on",
       alarm_off_entity: "input_datetime.ora_sveglia_alexa_off",

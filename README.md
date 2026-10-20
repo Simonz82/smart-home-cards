@@ -29,7 +29,9 @@ Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push
 
 ## 📦 Installazione con HACS
 
-Aggiungi questo repository come **repository personalizzato** in HACS (tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**) e installala da lì: aggiornamenti automatici, nessun file da ricopiare a mano. Dettagli: [docs/installazione.md](docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
+Apri **HACS**, cerca **Smart Home Cards** e installala: aggiornamenti automatici, nessun file da ricopiare a mano.
+
+Se la ricerca non la trova (la tua versione di HACS non ha ancora la raccolta nell'elenco predefinito), aggiungila come **repository personalizzato**: tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**. Dettagli: [docs/installazione.md](docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
 
 ## Installazione rapida
 
