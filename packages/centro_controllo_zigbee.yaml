@@ -31,6 +31,7 @@
 #   - input_text.zigbee_ultimi_abbinati   ultimi abbinamenti (il piu' recente prima)
 #   - input_text.zigbee_esclusi           ["nome"] esclusi da conteggio e avvisi
 #   - script.zigbee_test_notifica         notifica di prova
+#   - sensor.zigbee_abbinamento_fine      fine dell'abbinamento in corso (conto alla rovescia della card)
 #
 # Offline = tutte le entita' del dispositivo non disponibili (serve
 # availability: enabled in Zigbee2MQTT). I dispositivi a batteria vengono
@@ -132,6 +133,21 @@ script:
             Notifica di prova della rete Zigbee:
             {{ state_attr('sensor.zigbee_dispositivi_offline', 'online') }}/{{ state_attr('sensor.zigbee_dispositivi_offline', 'totale') }} online,
             LQI medio {{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_medio') }}.
+
+mqtt:
+  sensor:
+    # Zigbee2MQTT pubblica in bridge/info l'ora di chiusura del permit join
+    # (permit_join_end, millisecondi). Vuoto quando l'abbinamento e' chiuso.
+    - name: Zigbee abbinamento fine
+      unique_id: zigbee_abbinamento_fine
+      state_topic: zigbee2mqtt/bridge/info
+      device_class: timestamp
+      value_template: >-
+        {% if value_json.permit_join and value_json.permit_join_end %}
+          {{ (value_json.permit_join_end / 1000) | timestamp_local }}
+        {% else %}
+          {{ none }}
+        {% endif %}
 
 template:
   - triggers:

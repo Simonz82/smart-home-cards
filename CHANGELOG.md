@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-25 (3) — 1.8.2: abbinamento con conto alla rovescia e ripetitore scelto
+
+- **Card Rete Zigbee, ⚙️ Abbinamenti**: conto alla rovescia grande con barra del tempo che resta (anche nel badge della card), pulsante Ferma abbinamento.
+- **Abbina tramite**: si può forzare l'abbinamento da un ripetitore preciso o dal solo coordinatore, come nell'interfaccia di Zigbee2MQTT.
+- Elenco Dispositivi in **ordine alfabetico** (gli offline restano evidenziati in rosso e filtrabili).
+- Package: nuovo `sensor.zigbee_abbinamento_fine` (MQTT, da `bridge/info`). Nuove opzioni card `pairing_end_entity` e `base_topic`.
+
 ## 2026-10-25 (2) — 1.8.1: fix card Rete Zigbee
 
 - **Fix**: il pulsante "Apri" dell'interfaccia Zigbee2MQTT portava alla dashboard principale. Il percorso giusto è quello del pannello nel menu laterale (es. `/45df7312_zigbee2mqtt`): le versioni recenti di Home Assistant non hanno più `/hassio/ingress/...`. Esempio e guida corretti.

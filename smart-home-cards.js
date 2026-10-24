@@ -7705,6 +7705,14 @@ const ZB_STYLE = `
 .shc-zb-stepper{display:flex;align-items:center;gap:8px}
 .shc-zb-stepper span{min-width:58px;text-align:center;font-size:14px;font-weight:850;color:var(--shc-text)}
 .shc-zb-note{font-size:12px;line-height:1.45;color:var(--shc-dim);margin:0}
+.shc-zb-pair{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 12px;border-radius:16px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.45)}
+.shc-zb-pair small{font-size:12px;font-weight:800;color:var(--shc-dim);text-transform:uppercase;letter-spacing:.06em}
+.shc-zb-cd{font-size:38px;font-weight:900;color:#16a34a;font-variant-numeric:tabular-nums;line-height:1}
+.shc-zb-pair .shc-ap-bar{width:100%;height:6px}
+.shc-zb-pair .shc-ap-bar i{background:#22c55e;transition:width 1s linear}
+.shc-zb-pair-via{font-size:13px;font-weight:750;color:var(--shc-text);text-align:center}
+.shc-zb-pair-btns{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.shc-zb-stop{background:#ef4444 !important}
 .shc-zb-history{display:flex;flex-direction:column;gap:5px}
 .shc-zb-history div{padding:8px 11px;border-radius:12px;background:var(--shc-soft);font-size:13px;font-weight:650;color:var(--shc-text)}
 .shc-zb-history small{display:block;font-size:11px;font-weight:800;color:var(--shc-dim)}
@@ -7767,6 +7775,8 @@ class ShcZigbeeCard extends HTMLElement {
       version_entity: "sensor.zigbee2mqtt_bridge_version",
       log_level_entity: "select.zigbee2mqtt_bridge_log_level",
       history_entity: "input_text.zigbee_ultimi_abbinati",
+      pairing_end_entity: "sensor.zigbee_abbinamento_fine",
+      base_topic: "zigbee2mqtt",
       excluded_entity: "input_text.zigbee_esclusi",
       image_path: "/local/zigbee_img/",
       ...config,
@@ -7851,8 +7861,7 @@ class ShcZigbeeCard extends HTMLElement {
     const excluded = Array.isArray(a.esclusi) ? a.esclusi : [];
     const soglia = Number(a.soglia_batteria) || 15;
     const stato = (d) => (excluded.includes(d.n) ? "escl" : d.on ? "on" : "off");
-    const ordine = { off: 0, on: 1, escl: 2 };
-    const devices = [...list].sort((x, y) => ordine[stato(x)] - ordine[stato(y)] || String(x.n).localeCompare(String(y.n)));
+    const devices = [...list].sort((x, y) => String(x.n).localeCompare(String(y.n), "it", { sensitivity: "base", numeric: true }));
     const withLqi = devices.filter((d) => d.on && d.q >= 0);
     const minDev = withLqi.length ? withLqi.reduce((m, d) => (d.q < m.q ? d : m), withLqi[0]) : null;
     return {
@@ -7870,6 +7879,23 @@ class ShcZigbeeCard extends HTMLElement {
       battery: devices.filter((d) => d.b !== -2),
       low: devices.filter((d) => d.b >= 0 && d.b < soglia && stato(d) !== "escl"),
     };
+  }
+
+  // Fine dell'abbinamento in corso (ms), 0 se chiuso. Dal sensore del package,
+  // altrimenti accensione dell'interruttore + 254 s (durata standard di Zigbee2MQTT).
+  _pairEnd() {
+    const cfg = this._config;
+    const pj = this._hass?.states[cfg.permit_join_entity];
+    if (pj && pj.state !== "on") return 0;
+    const t = Date.parse(this._hass?.states[cfg.pairing_end_entity]?.state || "");
+    if (t) return t;
+    if (pj?.state === "on") return Date.parse(pj.last_changed) + 254000;
+    return 0;
+  }
+
+  _cdText(ms) {
+    const s = Math.max(0, Math.round(ms / 1000));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   }
 
   _img(model) {
@@ -7906,7 +7932,24 @@ class ShcZigbeeCard extends HTMLElement {
     const badge = this._root.querySelector(".shc-ap-badge");
     badge.classList.remove("run", "standby", "off", "unavailable");
     badge.classList.add(mode === "running" && !d.offline.length ? "run" : "unavailable");
-    this._root.querySelector(".shc-ap-badge-label").textContent = !d.st
+    const pairEnd = this._pairEnd();
+    if (pairEnd > Date.now()) {
+      if (!this._badgeTimer) {
+        this._badgeTimer = setInterval(() => {
+          const left = this._pairEnd() - Date.now();
+          if (left <= 0 || !this.isConnected) {
+            clearInterval(this._badgeTimer);
+            this._badgeTimer = null;
+            if (this._hass) this.hass = this._hass;
+            return;
+          }
+          this._root.querySelector(".shc-ap-badge-label").textContent = `ABBINAMENTO ${this._cdText(left)}`;
+        }, 1000);
+      }
+      badge.classList.remove("unavailable");
+      badge.classList.add("run");
+      this._root.querySelector(".shc-ap-badge-label").textContent = `ABBINAMENTO ${this._cdText(pairEnd - Date.now())}`;
+    } else this._root.querySelector(".shc-ap-badge-label").textContent = !d.st
       ? "N/D"
       : bridgeDown
         ? "BRIDGE OFFLINE"
@@ -7949,7 +7992,7 @@ class ShcZigbeeCard extends HTMLElement {
 
     // popup aperto: si ridisegna solo quando cambia una delle entita' della card
     const n = cfg.notify || {};
-    const key = [cfg.entity, cfg.permit_join_entity, cfg.history_entity, cfg.bridge_entity, cfg.log_level_entity, ...Object.values(n)]
+    const key = [cfg.entity, cfg.permit_join_entity, cfg.pairing_end_entity, cfg.history_entity, cfg.bridge_entity, cfg.log_level_entity, ...Object.values(n)]
       .map((e) => (e && hass.states[e] ? hass.states[e].last_updated : ""))
       .join("|");
     if (key !== this._liveKey) {
@@ -8081,7 +8124,29 @@ class ShcZigbeeCard extends HTMLElement {
     const cfg = this._config;
     const pj = hass.states[cfg.permit_join_entity];
     const pjOn = pj?.state === "on";
+    const end = this._pairEnd();
     const sinceTxt = pjOn && pj.last_changed ? new Date(pj.last_changed).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
+    const total = Math.max(1, end - Date.parse(pj?.last_changed || "") || 254000);
+    // ripetitori (dispositivi a rete online) attraverso cui forzare l'abbinamento
+    const routers = this._data().devices.filter((x) => x.b === -2 && x.on);
+    if (this._pairVia && !routers.some((x) => x.n === this._pairVia) && this._pairVia !== "Coordinator") this._pairVia = "";
+    const viaOpts = [
+      ["", "Tutta la rete"],
+      ["Coordinator", "Solo coordinatore"],
+      ...routers.map((x) => [x.n, x.n]),
+    ]
+      .map(([v, l]) => `<option value="${esc(v)}"${v === (this._pairVia || "") ? " selected" : ""}>${esc(l)}</option>`)
+      .join("");
+    const pairBox = pjOn
+      ? `<div class="shc-zb-pair">
+          <small>Abbinamento attivo dalle ${esc(sinceTxt)}</small>
+          <span class="shc-zb-cd">${end ? this._cdText(end - Date.now()) : "--:--"}</span>
+          <div class="shc-ap-bar"><i class="shc-zb-cd-bar" style="width:${end ? Math.max(0, Math.min(100, ((end - Date.now()) / total) * 100)) : 0}%"></i></div>
+          ${this._pairStartedVia === undefined ? "" : `<span class="shc-zb-pair-via">Tramite: <b>${esc(this._pairStartedVia === "Coordinator" ? "solo coordinatore" : this._pairStartedVia || "tutta la rete")}</b></span>`}
+        </div>
+        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn shc-zb-stop" data-pair="stop">Ferma abbinamento</button></div>`
+      : `${this._row("Abbina tramite", `<select class="shc-ap-select" data-via="1">${viaOpts}</select>`)}
+        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn" data-pair="start">Avvia abbinamento (4 min)</button></div>`;
     const hist = String(hass.states[cfg.history_entity]?.state || "");
     const histItems = ["", "unknown", "unavailable"].includes(hist) ? [] : hist.split(" | ");
     const ver = hass.states[cfg.version_entity]?.state;
@@ -8092,8 +8157,8 @@ class ShcZigbeeCard extends HTMLElement {
       .join("");
     const html = `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Nuovi dispositivi</div>
-        ${this._row(pjOn ? `Abbinamento attivo dalle ${sinceTxt}` : "Permetti nuovi abbinamenti", this._switchHtml(cfg.permit_join_entity))}
-        <p class="shc-zb-note">Accendi, poi metti il dispositivo in modalità abbinamento. Zigbee2MQTT richiude da solo dopo circa 4 minuti. Quando l'abbinamento riesce arriva l'avviso (nella fascia oraria delle notifiche).</p>
+        ${pairBox}
+        <p class="shc-zb-note">Avvia, poi metti il dispositivo in modalità abbinamento. "Abbina tramite" forza l'ingresso da un ripetitore preciso: scegli quello più vicino al punto dove andrà il dispositivo, così si aggancia lì e non a uno lontano. Zigbee2MQTT richiude da solo allo scadere. Quando l'abbinamento riesce arriva l'avviso (nella fascia oraria delle notifiche).</p>
       </div>
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi abbinati</div>
         <div class="shc-zb-history">${
@@ -8111,6 +8176,33 @@ class ShcZigbeeCard extends HTMLElement {
       </div>`;
     const overlay = this._openDialog("Abbinamenti", html, () => this._openPairing());
     this._bindControls(overlay, () => this._openPairing());
+    clearInterval(this._cdTimer);
+    if (pjOn && end) {
+      this._cdTimer = setInterval(() => {
+        const left = end - Date.now();
+        const cd = overlay.querySelector(".shc-zb-cd");
+        if (overlay.hidden || !cd) {
+          clearInterval(this._cdTimer);
+          return;
+        }
+        cd.textContent = this._cdText(left);
+        const bar = overlay.querySelector(".shc-zb-cd-bar");
+        if (bar) bar.style.width = `${Math.max(0, Math.min(100, (left / total) * 100))}%`;
+        if (left <= 0) clearInterval(this._cdTimer);
+      }, 1000);
+    }
+    overlay.querySelector("[data-via]")?.addEventListener("change", (e) => {
+      this._pairVia = e.target.value;
+    });
+    overlay.querySelector("[data-pair]")?.addEventListener("click", (e) => {
+      const start = e.target.dataset.pair === "start";
+      const payload = start ? { time: 254 } : { time: 0 };
+      if (start && this._pairVia) payload.device = this._pairVia;
+      this._pairStartedVia = start ? this._pairVia || "" : undefined;
+      this._call("mqtt", "publish", { topic: `${cfg.base_topic}/bridge/request/permit_join`, payload: JSON.stringify(payload) });
+      e.target.disabled = true;
+      e.target.textContent = start ? "Avvio..." : "Chiusura...";
+    });
     overlay.querySelector("[data-log]")?.addEventListener("change", (e) => {
       this._call("select", "select_option", { entity_id: cfg.log_level_entity, option: e.target.value });
     });
@@ -8335,6 +8427,8 @@ class ShcZigbeeCardEditor extends ShcSimpleCardEditorBase {
       ]},
       { title: "Zigbee2MQTT", fields: [
         { key: "permit_join_entity", label: "Permetti abbinamento (permit join)", domain: ["switch"] },
+        { key: "pairing_end_entity", label: "Fine abbinamento (conto alla rovescia)", domain: ["sensor"] },
+        { key: "base_topic", label: "Topic base MQTT di Zigbee2MQTT", kind: "text", placeholder: "zigbee2mqtt" },
         { key: "restart_entity", label: "Pulsante riavvio", domain: ["button"] },
         { key: "version_entity", label: "Versione", domain: ["sensor"] },
         { key: "log_level_entity", label: "Livello log", domain: ["select"] },
