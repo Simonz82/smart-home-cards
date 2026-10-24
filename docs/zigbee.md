@@ -7,7 +7,7 @@ Tutta la rete **Zigbee2MQTT** in una card: quanti dispositivi sono online, chi �
 | ![Card Rete Zigbee](screenshot/zigbee.png) | ![Card Rete Zigbee scuro](screenshot/zigbee-dark.png) |
 
 - **Simbolo Zigbee animato**: verde che gira con le onde radio quando tutto è online; rosso che trema, con onde veloci e bordo rosso, se anche un solo dispositivo è offline.
-- **A destra**: LQI medio, LQI minimo (con il nome del dispositivo più debole), quanti dispositivi sono a rete e quanti a batteria. La riga **Batt. bassa** compare solo quando almeno un dispositivo scende sotto la soglia (15% di default).
+- **A destra**: LQI minimo (con il nome del dispositivo più debole), quanti dispositivi sono a rete e quanti a batteria. La riga **Batt. bassa** compare solo quando almeno un dispositivo scende sotto la soglia (15% di default).
 - **Riga rossa** con i dispositivi offline e da quanto tempo: toccandola si apre l'elenco già filtrato sugli offline.
 - **Barre**: dispositivi online e segnale medio. Toccandole si apre il grafico storico.
 
@@ -43,10 +43,10 @@ type: custom:shc-zigbee-card
 name: Rete Zigbee
 entity: sensor.zigbee_dispositivi_offline
 bridge_entity: binary_sensor.zigbee2mqtt_bridge_connection_state
-frontend_url: /hassio/ingress/45df7312_zigbee2mqtt
+frontend_url: /45df7312_zigbee2mqtt
 ```
 
-`frontend_url` è il percorso dell'add-on Zigbee2MQTT: lo vedi nella barra degli indirizzi quando apri Zigbee2MQTT dal menu laterale di Home Assistant. Va bene anche un indirizzo `http://...` completo, che si apre in una nuova scheda.
+`frontend_url` è il percorso del pannello Zigbee2MQTT: lo vedi nella barra degli indirizzi quando apri Zigbee2MQTT dal menu laterale di Home Assistant (dalla 2026.x è `/<slug>`, es. `/45df7312_zigbee2mqtt`; il vecchio `/hassio/ingress/...` non esiste più e porta alla dashboard principale). Va bene anche un indirizzo `http://...` completo, che si apre in una nuova scheda.
 
 ## 🖊️ Editor visuale (senza YAML)
 

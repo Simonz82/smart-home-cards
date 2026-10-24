@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-25 (2) — 1.8.1: fix card Rete Zigbee
+
+- **Fix**: il pulsante "Apri" dell'interfaccia Zigbee2MQTT portava alla dashboard principale. Il percorso giusto è quello del pannello nel menu laterale (es. `/45df7312_zigbee2mqtt`): le versioni recenti di Home Assistant non hanno più `/hassio/ingress/...`. Esempio e guida corretti.
+- La colonna a destra non ripete più l'LQI medio, già mostrato nella barra "Segnale medio".
+
 ## 2026-10-25 — 1.8.0: nuova card Rete Zigbee
 
 - **Nuova card 📡 Rete Zigbee** (`shc-zigbee-card`) per Zigbee2MQTT, stessa grafica della card FritzBox. Simbolo Zigbee animato: verde con onde radio se tutto è online, rosso che trema se qualcosa è offline. A destra LQI medio, LQI minimo con il nome del dispositivo, dispositivi a rete e a batteria; la riga "Batt. bassa" compare solo sotto soglia.

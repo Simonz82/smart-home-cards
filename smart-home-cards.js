@@ -7797,7 +7797,6 @@ class ShcZigbeeCard extends HTMLElement {
           <div class="shc-ap-cycle-side">
             <span class="shc-ap-cycle-cap">Rete</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PULSE}</span><small>LQI medio</small></span><b class="shc-zb-avg">—</b></div>
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_ALERT}</span><small>LQI min</small></span><b class="shc-zb-min">—</b></div>
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small>A rete</small></span><b class="shc-zb-mains">—</b></div>
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small>A batteria</small></span><b class="shc-zb-batt">—</b></div>
@@ -7916,7 +7915,6 @@ class ShcZigbeeCard extends HTMLElement {
           : `${d.online}/${d.total} ONLINE`;
 
     const q = (sel) => this._root.querySelector(sel);
-    q(".shc-zb-avg").innerHTML = d.avg >= 0 ? `<span style="color:${zbLqiColor(d.avg)};font-weight:800">${d.avg}</span>` : "—";
     q(".shc-zb-min").innerHTML = d.minDev
       ? `<span style="color:${zbLqiColor(d.minDev.q)};font-weight:800">${d.minDev.q}</span> <span style="color:var(--shc-dim)">${esc(d.minDev.n)}</span>`
       : "—";
@@ -8340,7 +8338,7 @@ class ShcZigbeeCardEditor extends ShcSimpleCardEditorBase {
         { key: "restart_entity", label: "Pulsante riavvio", domain: ["button"] },
         { key: "version_entity", label: "Versione", domain: ["sensor"] },
         { key: "log_level_entity", label: "Livello log", domain: ["select"] },
-        { key: "frontend_url", label: "Indirizzo interfaccia Zigbee2MQTT", kind: "text", placeholder: "/hassio/ingress/45df7312_zigbee2mqtt", hint: "Percorso dell'add-on (Ingress) oppure un indirizzo http completo." },
+        { key: "frontend_url", label: "Indirizzo interfaccia Zigbee2MQTT", kind: "text", placeholder: "/45df7312_zigbee2mqtt", hint: "Il percorso che vedi nella barra degli indirizzi aprendo Zigbee2MQTT dal menu laterale, oppure un indirizzo http completo." },
         { key: "image_path", label: "Cartella foto dispositivi", kind: "text", placeholder: "/local/zigbee_img/", hint: "Se una foto manca la card la prende dal sito di Zigbee2MQTT." },
       ]},
       { title: "Notifiche (helper del package)", fields: [
