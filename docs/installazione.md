@@ -80,6 +80,7 @@ Chiudi e riapri la scheda del browser (o l'app), meglio ancora con una ricarica 
 3. Cancella il contenuto di esempio e incolla la configurazione della card che ti interessa — le trovi già pronte, con spiegazione di ogni campo, in una di queste guide:
    - [🧺 Elettrodomestici](elettrodomestici.md)
    - [⚡ Energia Casa](energia.md)
+   - [❄️ Climatizzatore](clima.md)
    - [📶 FritzBox / Router](fritzbox.md)
    - [📡 Rete Zigbee](zigbee.md)
    - [🖥️ Server Home Assistant](homeassistant-server.md)

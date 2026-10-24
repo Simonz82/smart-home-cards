@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-25 (5) — 1.9.0: nuova card Climatizzatore
+
+- **Nuova card ❄️ Climatizzatore** (`shc-climate-card`), layout centrato di default. Al posto della foto c'è la **gauge** (gauge-card-pro, oppure la gauge standard di HA se non è installata) con temperatura stanza, temperatura impostata e umidità.
+- Comandi diretti: accendi/spegni (riaccende nell'ultima modalità), − e + con più tocchi raccolti in un solo comando, un pulsante per ogni modalità supportata, alette oscillanti.
+- Riquadro Clima: stanza, impostata, umidità, esterna, potenza, consumo di oggi. Barre potenza e umidità.
+- **⚙️ Programmazione** accensione/spegnimento una tantum, con pillola sulla card quando è attiva. **📊 Consumi** freddo/caldo per giorno, settimana, mese, anno. **🌀 Ventola e alette** con preset. **ℹ️ Stato e diagnostica** con sensori di errore che fanno scattare l'avviso.
+- Nuovo package [`packages/clima.yaml`](packages/clima.yaml) (sintassi aggiornata `triggers:`/`actions:`). Editor visuale incluso.
+- Guida: [docs/clima.md](docs/clima.md).
+
 ## 2026-10-25 (4) — 1.8.3: ordine elenco Zigbee
 
 - Elenco Dispositivi della card Rete Zigbee: di nuovo prima gli offline, poi in ordine alfabetico.

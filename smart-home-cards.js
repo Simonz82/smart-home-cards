@@ -1,5 +1,5 @@
 // Card per Home Assistant di Simonz82: elettrodomestici (lavatrice, asciugatrice, lavastoviglie,
-// forno, TV), FritzBox, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa, raccolta
+// forno, TV), FritzBox, climatizzatore, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa, raccolta
 // differenziata e rete Zigbee. Popup Impostazioni/Statistiche/Grafici presi dai package "Centro Controllo".
 // Indipendente da altre card: legge/scrive solo via hass.
 
@@ -8465,5 +8465,740 @@ window.customCards.push({
   type: "shc-zigbee-card",
   name: "Rete Zigbee",
   description: "Card per la rete Zigbee2MQTT: dispositivi online/offline, segnale, batterie, abbinamenti e notifiche",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// shc-climate-card: climatizzatore. Stessa grafica delle altre card, layout
+// centrato di default. Al posto della foto c'e' la gauge (gauge-card-pro se
+// installata, altrimenti la gauge standard di HA) con temperatura stanza,
+// temperatura impostata e umidita'. Comandi diretti (accendi/spegni, -/+,
+// modalita', alette), popup Programmazione (ingranaggio), Consumi, Grafici,
+// Ventola e alette, Stato e diagnostica.
+// -----------------------------------------------------------------------
+
+const CL_STYLE = `
+.shc-cl-chip ha-icon{--mdc-icon-size:25px;color:#0ea5e9}
+.shc-ap-card.cl-heat .shc-cl-chip ha-icon{color:#f97316}
+.shc-ap-card.cl-off .shc-cl-chip ha-icon,.shc-ap-card.is-unavailable .shc-cl-chip ha-icon{color:#94a3b8}
+.shc-cl-card .shc-ap-hero{height:auto;min-height:170px;background:none !important;display:block;overflow:visible}
+.shc-cl-card.layout-centrato .shc-ap-hero{height:auto}
+.shc-cl-gauge{width:100%;max-width:330px;margin:0 auto}
+.shc-cl-gauge>*{--ha-card-background:transparent;--card-background-color:transparent;--ha-card-box-shadow:none;--ha-card-border-width:0;--ha-card-border-color:transparent}
+.shc-cl-card .shc-ap-tool ha-icon{--mdc-icon-size:20px}
+/* 5 pulsanti: il nome sta gia' nella gauge, qui lo nascondiamo */
+.shc-cl-card .shc-ap-headings{display:none}
+.shc-cl-card .shc-ap-top{justify-content:space-between}
+.shc-cl-ctrl{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0 2px}
+.shc-cl-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--shc-border);background:var(--shc-soft);color:var(--shc-text);display:grid;place-items:center;cursor:pointer;padding:0;transition:background .2s,color .2s}
+.shc-cl-btn ha-icon{--mdc-icon-size:22px}
+.shc-cl-btn:disabled{opacity:.4;cursor:default}
+.shc-cl-btn.on{border-color:transparent}
+.shc-cl-btn.power.on{background:rgba(34,197,94,.18);color:#16a34a}
+.shc-cl-btn.m-cool.on{background:rgba(14,165,233,.2);color:#0284c7}
+.shc-cl-btn.m-heat.on{background:rgba(249,115,22,.2);color:#ea580c}
+.shc-cl-btn.m-dry.on{background:rgba(6,182,212,.2);color:#0891b2}
+.shc-cl-btn.m-fan_only.on,.shc-cl-btn.m-heat_cool.on,.shc-cl-btn.m-auto.on{background:rgba(100,116,139,.22);color:var(--shc-text)}
+.shc-cl-btn.swing.on{background:rgba(139,92,246,.2);color:#7c3aed}
+.shc-cl-set{min-width:76px;text-align:center;font-size:26px;font-weight:900;color:var(--shc-text);font-variant-numeric:tabular-nums;line-height:1}
+.shc-cl-set small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--shc-dim);margin-top:3px}
+.shc-cl-sep{width:1px;height:28px;background:var(--shc-border);margin:0 2px}
+.shc-cl-sched{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.shc-cl-sched span{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:var(--shc-soft);border:1px solid var(--shc-border);font-size:12px;font-weight:800;color:var(--shc-text);cursor:pointer}
+.shc-cl-sched ha-icon{--mdc-icon-size:15px;color:#0ea5e9}
+.shc-cl-sched[hidden]{display:none}
+.shc-cl-chips{display:flex;flex-wrap:wrap;gap:6px}
+.shc-cl-chipbtn{display:inline-flex;align-items:center;gap:5px;padding:8px 12px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.shc-cl-chipbtn ha-icon{--mdc-icon-size:17px}
+.shc-cl-chipbtn.on{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-cl-note{font-size:12px;line-height:1.45;color:var(--shc-dim);margin:0}
+.shc-cl-stepper{display:flex;align-items:center;gap:8px}
+.shc-cl-stepper span{min-width:62px;text-align:center;font-size:14px;font-weight:850;color:var(--shc-text)}
+.shc-cl-grid{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 12px;align-items:center;font-size:13.5px;padding:8px 11px;border-radius:13px;background:var(--shc-soft)}
+.shc-cl-grid b{font-weight:900;color:var(--shc-text);text-align:right}
+.shc-cl-grid span{color:var(--shc-dim);font-weight:750}
+.shc-cl-grid .h{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--shc-dim);text-align:right}
+`;
+
+const CL_MODES = {
+  off: { label: "Spento", icon: "mdi:power" },
+  cool: { label: "Raffresca", icon: "mdi:snowflake" },
+  heat: { label: "Riscalda", icon: "mdi:fire" },
+  heat_cool: { label: "Auto", icon: "mdi:autorenew" },
+  auto: { label: "Auto", icon: "mdi:autorenew" },
+  dry: { label: "Deumidifica", icon: "mdi:water-percent" },
+  fan_only: { label: "Ventilazione", icon: "mdi:fan" },
+};
+
+const CL_FAN = { auto: "Auto", quiet: "Silenzioso", low: "Bassa", medium: "Media", high: "Alta" };
+const CL_SWING = { stop: "Ferme", swing: "Oscillanti", windnice: "Comfort", off: "Ferme", on: "Oscillanti", vertical: "Verticale", horizontal: "Orizzontale", both: "Entrambe" };
+const CL_PRESET = { none: "Normale", away: "Fuori casa", boost: "Boost", eco: "Eco", comfort: "Comfort", sleep: "Notte" };
+
+const CL_DEFAULT_SCHEDULE = {
+  on_enabled: "input_boolean.clima_salone_programmazione_attiva",
+  on_time: "input_datetime.clima_salone_orario_accensione",
+  on_mode: "input_select.clima_salone_modalita_accensione",
+  on_temperature: "input_number.clima_salone_temperatura_accensione",
+  off_enabled: "input_boolean.clima_salone_programmazione_spegnimento_attiva",
+  off_time: "input_datetime.clima_salone_orario_spegnimento",
+};
+
+function clNum(v, dec = 1) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "—";
+  return n.toFixed(dec).replace(".", ",");
+}
+
+class ShcClimateCard extends HTMLElement {
+  setConfig(config) {
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    this._config = {
+      name: "Climatizzatore",
+      layout: "centrato",
+      min: 18,
+      max: 32,
+      max_power: 1500,
+      ...config,
+      schedule: { ...CL_DEFAULT_SCHEDULE, ...(config.schedule || {}) },
+      consumption: config.consumption || {},
+      diagnostics: Array.isArray(config.diagnostics) ? config.diagnostics : [],
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._gauge = null;
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="mdi:air-conditioner"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programmazione">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Consumi">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-cl-fan" title="Ventola e alette"><ha-icon icon="mdi:fan"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-cl-info" title="Stato e diagnostica">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero"><div class="shc-cl-gauge"></div></div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Clima</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="cl-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:target" style="--mdc-icon-size:16px"></ha-icon></span><small>Impostata</small></span><b class="cl-target">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="cl-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:sun-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Esterna</small></span><b class="cl-out">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Potenza</small></span><b class="cl-power">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi</small></span><b class="cl-today">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="shc-cl-ctrl">
+          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small>impostata</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+        </div>
+        <div class="shc-cl-ctrl shc-cl-modes"></div>
+        <div class="shc-cl-sched" hidden></div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="power">
+              <div class="shc-ap-meter-row"><span>Potenza assorbita</span><strong class="cl-power-val">—</strong></div>
+              <div class="shc-ap-bar"><i class="cl-power-bar" style="width:0%"></i></div>
+            </div>
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="humidity">
+              <div class="shc-ap-meter-row"><span>Umidità stanza</span><strong class="cl-hum-val">—</strong></div>
+              <div class="shc-ap-bar"><i class="cl-hum-bar" style="width:0%"></i></div>
+            </div>
+          </div>
+        </div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
+    this._root.querySelectorAll(".shc-c-meter-clickable").forEach((m) =>
+      m.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const series = this._graphSeries();
+        const idx = Math.max(0, series.findIndex((s) => s.key === m.dataset.graph));
+        shcOpenChartPopup(this, { title: this._config.name, series, active: idx });
+      }),
+    );
+    const bind = (sel, fn) =>
+      this._root.querySelector(sel).addEventListener("click", (e) => {
+        e.stopPropagation();
+        fn(e);
+      });
+    bind(".shc-ap-settings", () => this._openSchedule());
+    bind(".shc-ap-stats", () => this._openConsumption());
+    bind(".shc-cl-fan", () => this._openFan());
+    bind(".shc-cl-info", () => this._openInfo());
+    bind(".shc-cl-sched", () => this._openSchedule());
+    bind(".shc-ap-hero", () => this._moreInfo(this._config.entity));
+    bind(".shc-cl-btn.power", () => {
+      const st = this._st();
+      if (!st || st.state === "unavailable") return;
+      if (st.state === "off") {
+        const last = this._lastMode && this._lastMode !== "off" ? this._lastMode : null;
+        if (last && (st.attributes.hvac_modes || []).includes(last)) this._call("climate", "set_hvac_mode", { entity_id: this._config.entity, hvac_mode: last });
+        else this._call("climate", "turn_on", { entity_id: this._config.entity });
+      } else this._call("climate", "turn_off", { entity_id: this._config.entity });
+    });
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._stepTarget(Number(b.dataset.step));
+      }),
+    );
+    this._buildGauge();
+  }
+
+  // --- gauge ------------------------------------------------------------------
+
+  _defaultGauge() {
+    const cfg = this._config;
+    const e = cfg.entity;
+    const hum = cfg.humidity_entity;
+    const modeTpl = `{% set m = states('${e}') %}{% if m == 'heat' %}Riscalda{% elif m == 'cool' %}Raffresca{% elif m == 'dry' %}Deumidifica{% elif m == 'fan_only' %}Ventilazione{% elif m in ['heat_cool','auto'] %}Auto{% elif m == 'off' %}Spento{% else %}Non raggiungibile{% endif %}`;
+    const g = {
+      type: "custom:gauge-card-pro",
+      entity: e,
+      min: cfg.min,
+      max: cfg.max,
+      needle: true,
+      gradient: true,
+      gradient_resolution: "high",
+      hide_background: true,
+      color_interpolation: true,
+      smooth_segments: true,
+      value: `{{ state_attr('${e}', 'current_temperature') | float(0) }}`,
+      setpoint: {
+        type: "template",
+        value: `{{ state_attr('${e}', 'temperature') | float(0) }}`,
+        color: "#d96c6c",
+        label: `{% set t = state_attr('${e}', 'temperature') | float(0) %}{{ ('%.1f' | format(t)).replace('.', ',') }}`,
+      },
+      segments: [
+        { from: 18, color: "#1565c0" },
+        { from: 20, color: "#039be5" },
+        { from: 22, color: "#00c853" },
+        { from: 24, color: "#43a047" },
+        { from: 26, color: "#7cb342" },
+        { from: 28, color: "#fb8c00" },
+        { from: 30, color: "#f4511e" },
+        { from: 32, color: "#d32f2f" },
+      ],
+      value_texts: {
+        primary: `{{ state_attr('${e}', 'current_temperature') | round(0) }}`,
+        primary_unit: "°C",
+        primary_font_size_reduction: 5,
+      },
+      titles: {
+        primary: cfg.room_name || cfg.name,
+        primary_font_size: "17px",
+        secondary: modeTpl,
+        secondary_font_size: "13px",
+      },
+      shapes: { main_needle: "M-46.8 2.4-35.6.8A.8.8 90 00-35.6-.8L-46.8-2.4A1.6 1.6 90 00-46.8 2.4Z" },
+      tap_action: { action: "more-info" },
+    };
+    if (hum) {
+      g.inner = {
+        entity: hum,
+        min: 0,
+        max: 100,
+        mode: "needle",
+        value: `{{ states('${hum}') | float(0) }}`,
+        gradient: true,
+        color_interpolation: true,
+        smooth_segments: true,
+        segments: [
+          { from: 0, color: "var(--red-color)" },
+          { from: 40, color: "var(--light-blue-color)" },
+          { from: 60, color: "var(--light-blue-color)" },
+          { from: 100, color: "var(--black-color)" },
+        ],
+      };
+      g.value_texts.secondary = `{{ states('${hum}') | round(0) }}`;
+      g.value_texts.secondary_unit = "%";
+      g.value_texts.secondary_color = "#38bdf8";
+      g.value_texts.secondary_font_size_reduction = 6;
+    }
+    return g;
+  }
+
+  async _buildGauge() {
+    const host = this._root.querySelector(".shc-cl-gauge");
+    const cfg = this._config;
+    let conf = cfg.gauge ? { ...cfg.gauge } : this._defaultGauge();
+    if (String(conf.type).includes("gauge-card-pro")) {
+      const ok = await Promise.race([
+        customElements.whenDefined("gauge-card-pro").then(() => true),
+        new Promise((r) => setTimeout(() => r(false), 4000)),
+      ]);
+      // senza gauge-card-pro: gauge standard di Home Assistant
+      if (!ok) {
+        conf = { type: "gauge", entity: cfg.temperature_entity || cfg.entity, min: cfg.min, max: cfg.max, needle: true, name: cfg.room_name || cfg.name };
+        if (!cfg.temperature_entity) conf.attribute = "current_temperature";
+      }
+    }
+    try {
+      const helpers = await window.loadCardHelpers();
+      const el = helpers.createCardElement(conf);
+      if (this._hass) el.hass = this._hass;
+      host.replaceChildren(el);
+      this._gauge = el;
+    } catch (e) {
+      host.innerHTML = `<div class="shc-cl-note" style="text-align:center;padding:30px 0">Gauge non disponibile</div>`;
+    }
+  }
+
+  // --- dati -------------------------------------------------------------------
+
+  _st() {
+    return this._hass?.states[this._config.entity];
+  }
+
+  _val(entity) {
+    const st = entity ? this._hass?.states[entity] : null;
+    if (!st || ["unknown", "unavailable", ""].includes(st.state)) return null;
+    const n = Number(st.state);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  _todayKwh() {
+    const c = this._config.consumption || {};
+    const vals = [c.cooling_day, c.heating_day].map((e) => this._val(e)).filter((v) => v !== null);
+    return vals.length ? vals.reduce((a, b) => a + b, 0) : null;
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
+    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: "Temperatura esterna", color: "#eab308" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    return s;
+  }
+
+  _stepTarget(dir) {
+    const st = this._st();
+    if (!st || st.state === "unavailable" || st.state === "off") return;
+    const step = Number(st.attributes.target_temp_step) || 0.5;
+    const min = Number(st.attributes.min_temp) || this._config.min;
+    const max = Number(st.attributes.max_temp) || this._config.max;
+    const base = this._pendingTarget ?? Number(st.attributes.temperature);
+    if (!Number.isFinite(base)) return;
+    const t = Math.min(max, Math.max(min, Math.round((base + dir * step) / step) * step));
+    this._pendingTarget = t;
+    this._root.querySelector(".cl-set-val").textContent = `${clNum(t)}°`;
+    // piu' tocchi veloci = una sola chiamata
+    clearTimeout(this._stepTimer);
+    clearTimeout(this._pendingReset);
+    this._stepTimer = setTimeout(() => {
+      this._call("climate", "set_temperature", { entity_id: this._config.entity, temperature: t });
+      this._pendingReset = setTimeout(() => (this._pendingTarget = null), 2500);
+    }, 700);
+  }
+
+  // --- card -------------------------------------------------------------------
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    if (this._gauge) this._gauge.hass = hass;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const st = this._st();
+    const q = (sel) => this._root.querySelector(sel);
+    const unav = !st || st.state === "unavailable" || st.state === "unknown";
+    const mode = unav ? "unavailable" : st.state;
+    if (!unav && mode !== "off") this._lastMode = mode;
+    const a = st?.attributes || {};
+
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm", "cl-heat", "cl-cool", "cl-off");
+    card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
+    card.classList.add(mode === "heat" ? "cl-heat" : mode === "off" || unav ? "cl-off" : "cl-cool");
+    const errors = (cfg.diagnostics || []).filter((d) => d.alarm && this._hass.states[d.entity]?.state === "on");
+    if (errors.length) card.classList.add("has-alarm");
+
+    const badge = q(".shc-ap-badge");
+    badge.classList.remove("run", "standby", "off", "unavailable");
+    badge.classList.add(unav ? "unavailable" : mode === "off" ? "off" : "run");
+    const action = a.hvac_action;
+    q(".shc-ap-badge-label").textContent = unav
+      ? "OFFLINE"
+      : mode === "off"
+        ? "SPENTO"
+        : (action === "idle" ? "IN PAUSA" : (CL_MODES[mode]?.label || mode).toUpperCase());
+
+    const room = cfg.temperature_entity ? this._val(cfg.temperature_entity) : Number.isFinite(Number(a.current_temperature)) ? Number(a.current_temperature) : null;
+    const target = Number(a.temperature);
+    const hum = this._val(cfg.humidity_entity) ?? (Number.isFinite(Number(a.current_humidity)) ? Number(a.current_humidity) : null);
+    const out = this._val(cfg.outdoor_entity);
+    const power = this._val(cfg.power_entity);
+    const today = this._todayKwh();
+    q(".cl-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
+    q(".cl-target").textContent = !unav && mode !== "off" && Number.isFinite(target) ? `${clNum(target)} °C` : "—";
+    q(".cl-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
+    q(".cl-out").textContent = out !== null ? `${clNum(out)} °C` : "—";
+    q(".cl-power").textContent = power !== null ? `${Math.round(power)} W` : "—";
+    q(".cl-today").textContent = today !== null ? `${clNum(today, 2)} kWh` : "—";
+    // righe senza sensore configurato: nascoste
+    q(".cl-hum").closest(".shc-ap-cycle-row").hidden = !cfg.humidity_entity && a.current_humidity === undefined;
+    q(".cl-out").closest(".shc-ap-cycle-row").hidden = !cfg.outdoor_entity;
+    q(".cl-power").closest(".shc-ap-cycle-row").hidden = !cfg.power_entity;
+    q(".cl-today").closest(".shc-ap-cycle-row").hidden = !cfg.consumption?.cooling_day && !cfg.consumption?.heating_day;
+
+    // comandi
+    if (this._pendingTarget == null) q(".cl-set-val").textContent = !unav && Number.isFinite(target) ? `${clNum(target)}°` : "—";
+    const pw = q(".shc-cl-btn.power");
+    pw.classList.toggle("on", !unav && mode !== "off");
+    pw.disabled = unav;
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = unav || mode === "off"));
+    const modes = (cfg.modes || a.hvac_modes || ["off", "cool", "heat"]).filter((m) => m !== "off");
+    const swingModes = a.swing_modes || [];
+    const swingOn = a.swing_mode && !["stop", "off"].includes(a.swing_mode);
+    const modesKey = `${modes.join()}|${mode}|${a.swing_mode}|${unav}`;
+    if (modesKey !== this._modesKey) {
+      this._modesKey = modesKey;
+      const box = q(".shc-cl-modes");
+      box.innerHTML =
+        modes
+          .map((m) => `<button type="button" class="shc-cl-btn m-${esc(m)}${m === mode ? " on" : ""}" data-mode="${esc(m)}" title="${esc(CL_MODES[m]?.label || m)}"${unav ? " disabled" : ""}><ha-icon icon="${CL_MODES[m]?.icon || "mdi:thermostat"}"></ha-icon></button>`)
+          .join("") +
+        (swingModes.length
+          ? `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn swing${swingOn ? " on" : ""}" data-swing="1" title="Alette: ${esc(CL_SWING[a.swing_mode] || a.swing_mode || "")}"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-up-down"></ha-icon></button>`
+          : "");
+      box.querySelectorAll("[data-mode]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._call("climate", "set_hvac_mode", { entity_id: cfg.entity, hvac_mode: b.dataset.mode });
+        }),
+      );
+      box.querySelector("[data-swing]")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const st2 = this._st();
+        const on = st2.attributes.swing_mode && !["stop", "off"].includes(st2.attributes.swing_mode);
+        const list = st2.attributes.swing_modes || [];
+        const target2 = on ? list.find((s) => ["stop", "off"].includes(s)) : list.find((s) => ["swing", "on", "vertical", "both"].includes(s)) || list.find((s) => !["stop", "off"].includes(s));
+        if (target2) this._call("climate", "set_swing_mode", { entity_id: cfg.entity, swing_mode: target2 });
+      });
+    }
+
+    // programmazione attiva
+    const sc = cfg.schedule;
+    const hs = this._hass.states;
+    const chips = [];
+    if (hs[sc.on_enabled]?.state === "on") {
+      const m = hs[sc.on_mode]?.state;
+      const t = hs[sc.on_temperature]?.state;
+      chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>Accensione ${esc(String(hs[sc.on_time]?.state || "").slice(0, 5))}${m && m !== "off" ? ` · ${esc(CL_MODES[m]?.label || m)}${t ? ` ${esc(clNum(t))}°` : ""}` : ""}</span>`);
+    }
+    if (hs[sc.off_enabled]?.state === "on") chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>Spegnimento ${esc(String(hs[sc.off_time]?.state || "").slice(0, 5))}</span>`);
+    const schedBox = q(".shc-cl-sched");
+    schedBox.hidden = !chips.length;
+    schedBox.innerHTML = chips.join("");
+
+    // barre
+    const maxP = Number(cfg.max_power) || 1500;
+    q(".cl-power-val").textContent = power !== null ? `${Math.round(power)} W` : "—";
+    const pb = q(".cl-power-bar");
+    pb.style.width = `${power !== null ? Math.min(100, (power / maxP) * 100) : 0}%`;
+    pb.style.background = power !== null ? meterSeverityColor(Math.min(100, (power / maxP) * 100)) : "";
+    q(".cl-hum-val").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
+    const hb = q(".cl-hum-bar");
+    hb.style.width = `${hum !== null ? Math.min(100, hum) : 0}%`;
+    hb.style.background = hum === null ? "" : hum < 40 || hum > 65 ? "linear-gradient(90deg,#fb923c,#ef4444)" : "linear-gradient(90deg,#38bdf8,#0284c7)";
+    q(".cl-power-val").closest(".shc-ap-meter").hidden = !cfg.power_entity;
+    q(".cl-hum-val").closest(".shc-ap-meter").hidden = hum === null && !cfg.humidity_entity;
+
+    const warn = q(".shc-ap-warn");
+    if (unav) {
+      warn.hidden = false;
+      warn.textContent = "⚠ Climatizzatore non raggiungibile: controlla alimentazione e collegamento al cloud";
+    } else if (errors.length) {
+      warn.hidden = false;
+      warn.textContent = `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`;
+    } else warn.hidden = true;
+
+    // popup aperto: si aggiorna quando cambia il clima
+    const key = [cfg.entity, ...Object.values(sc)].map((x) => hs[x]?.last_updated || "").join("|");
+    if (key !== this._liveKey) {
+      this._liveKey = key;
+      if (this._live && this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov):not([hidden])")) this._live();
+    }
+  }
+
+  // --- popup ------------------------------------------------------------------
+
+  _row(label, valueHtml) {
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+  }
+
+  _openDialog(title, bodyHtml, live) {
+    let overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "shc-ap-overlay";
+      overlay.hidden = true;
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          overlay.hidden = true;
+          this._live = null;
+        }
+      });
+      this._root.appendChild(overlay);
+    }
+    const keepScroll = overlay.dataset.title === title && !overlay.hidden ? overlay.querySelector(".shc-ap-dialog")?.scrollTop || 0 : 0;
+    overlay.dataset.title = title;
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
+    </div>`;
+    if (keepScroll) overlay.querySelector(".shc-ap-dialog").scrollTop = keepScroll;
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
+      overlay.hidden = true;
+      this._live = null;
+    });
+    overlay.hidden = false;
+    this._live = live || null;
+    return overlay;
+  }
+
+  _call(domain, service, data) {
+    return this._hass?.callService(domain, service, data);
+  }
+
+  _moreInfo(entityId) {
+    const e = new Event("hass-more-info", { bubbles: true, composed: true });
+    e.detail = { entityId };
+    this.dispatchEvent(e);
+  }
+
+  _switchHtml(entity) {
+    const st = entity ? this._hass.states[entity] : null;
+    if (!st) return `<span class="shc-ap-row-val">n/d</span>`;
+    return `<button type="button" class="shc-ap-switch${st.state === "on" ? " on" : ""}" data-toggle="${esc(entity)}"></button>`;
+  }
+
+  // ⚙️ Programmazione: accensione e spegnimento una tantum
+  _openSchedule() {
+    const hs = this._hass.states;
+    const sc = this._config.schedule;
+    const has = (e) => e && hs[e];
+    if (!has(sc.on_enabled) && !has(sc.off_enabled)) {
+      this._openDialog("Programmazione", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna programmazione configurata. Copia il package <b>clima.yaml</b> (vedi guida) oppure indica i tuoi helper nell'opzione <code>schedule</code> della card.</p></div>`);
+      return;
+    }
+    const timeHtml = (e) => (has(e) ? `<input type="time" class="shc-notif-time" data-time="${esc(e)}" value="${esc(String(hs[e].state).slice(0, 5))}">` : `<span class="shc-ap-row-val">n/d</span>`);
+    const modeSel = has(sc.on_mode)
+      ? `<div class="shc-cl-chips">${(hs[sc.on_mode].attributes.options || [])
+          .map((o) => `<button type="button" class="shc-cl-chipbtn${o === hs[sc.on_mode].state ? " on" : ""}" data-onmode="${esc(o)}"><ha-icon icon="${CL_MODES[o]?.icon || "mdi:thermostat"}"></ha-icon>${esc(CL_MODES[o]?.label || o)}</button>`)
+          .join("")}</div>`
+      : "";
+    const tSt = hs[sc.on_temperature];
+    const tempHtml = tSt
+      ? `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-num="-1">−</button><span>${esc(clNum(tSt.state))} °C</span><button type="button" class="shc-at-pm" data-num="1">+</button></span>`
+      : `<span class="shc-ap-row-val">n/d</span>`;
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Accensione programmata</div>
+        ${this._row("Attiva", this._switchHtml(sc.on_enabled))}
+        ${this._row("Alle", timeHtml(sc.on_time))}
+        ${modeSel ? `${this._row("Modalità", "")}${modeSel}` : ""}
+        ${this._row("Temperatura", tempHtml)}
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Spegnimento programmato</div>
+        ${this._row("Attivo", this._switchHtml(sc.off_enabled))}
+        ${this._row("Alle", timeHtml(sc.off_time))}
+      </div>
+      <p class="shc-cl-note">Programmazioni <b>una tantum</b>: scattano una volta sola all'orario scelto, poi si disattivano da sole. Riaccendile per la volta successiva. Quando sono attive compaiono sotto i comandi della card.</p>`;
+    const reopen = () => {
+      if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
+      this._openSchedule();
+    };
+    const overlay = this._openDialog("Programmazione", html, reopen);
+    overlay.querySelectorAll("[data-toggle]").forEach((b) =>
+      b.addEventListener("click", () => {
+        this._call("input_boolean", "toggle", { entity_id: b.dataset.toggle });
+      }),
+    );
+    overlay.querySelectorAll("[data-time]").forEach((el) =>
+      el.addEventListener("change", () => {
+        if (el.value) this._call("input_datetime", "set_datetime", { entity_id: el.dataset.time, time: `${el.value}:00` });
+      }),
+    );
+    overlay.querySelectorAll("[data-onmode]").forEach((b) =>
+      b.addEventListener("click", () => this._call("input_select", "select_option", { entity_id: sc.on_mode, option: b.dataset.onmode })),
+    );
+    overlay.querySelectorAll("[data-num]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const s = hs[sc.on_temperature];
+        const step = Number(s.attributes.step) || 0.5;
+        const v = Math.min(Number(s.attributes.max), Math.max(Number(s.attributes.min), Number(s.state) + step * Number(b.dataset.num)));
+        this._call("input_number", "set_value", { entity_id: sc.on_temperature, value: v });
+      }),
+    );
+  }
+
+  // 📊 Consumi: raffrescamento / riscaldamento per periodo
+  _openConsumption() {
+    const c = this._config.consumption || {};
+    const cfg = this._config;
+    const per = [
+      ["Oggi", "cooling_day", "heating_day"],
+      ["Settimana", "cooling_week", "heating_week"],
+      ["Mese", "cooling_month", "heating_month"],
+      ["Anno", "cooling_year", "heating_year"],
+    ].filter(([, a, b]) => c[a] || c[b]);
+    const v = (e) => {
+      const n = this._val(e);
+      return n === null ? "—" : `${clNum(n, 2)} kWh`;
+    };
+    const total = this._val(cfg.energy_entity);
+    const power = this._val(cfg.power_entity);
+    const html = `
+      ${per.length
+        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi del climatizzatore</div>
+          <div class="shc-cl-grid"><span></span><span class="h">Freddo</span><span class="h">Caldo</span>
+          ${per.map(([l, a, b]) => `<span>${l}</span><b>${v(c[a])}</b><b>${v(c[b])}</b>`).join("")}</div>
+          <p class="shc-cl-note">Valori dall'integrazione del climatizzatore (si aggiornano qualche volta all'ora).</p></div>`
+        : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Presa / misuratore</div>
+        ${cfg.power_entity ? this._row("Potenza adesso", `<span class="shc-ap-row-val">${power === null ? "—" : `${Math.round(power)} W`}</span>`) : ""}
+        ${cfg.energy_entity ? this._row("Energia totale", `<span class="shc-ap-row-val">${total === null ? "—" : `${clNum(total, 1)} kWh`}</span>`) : ""}
+        ${cfg.price_entity && total !== null ? this._row("Costo totale stimato", `<span class="shc-ap-row-val">${clNum(total * (this._val(cfg.price_entity) || 0), 2)} €</span>`) : ""}
+        ${!cfg.power_entity && !cfg.energy_entity ? `<p class="shc-cl-note">Nessun misuratore configurato (power_entity / energy_entity).</p>` : ""}
+      </div>
+      ${cfg.power_entity ? `<div class="shc-ap-sec">${this._row("Grafico della potenza", `<button type="button" class="shc-ap-action-btn" data-pg="1">Apri</button>`)}</div>` : ""}`;
+    const overlay = this._openDialog("Consumi", html);
+    overlay.querySelector("[data-pg]")?.addEventListener("click", () => {
+      overlay.hidden = true;
+      const series = this._graphSeries();
+      shcOpenChartPopup(this, { title: this._config.name, series, active: Math.max(0, series.findIndex((s) => s.key === "power")) });
+    });
+  }
+
+  // 🌀 Ventola, alette, preset
+  _openFan() {
+    const st = this._st();
+    const a = st?.attributes || {};
+    const unav = !st || st.state === "unavailable";
+    const chips = (list, cur, attr, names) =>
+      `<div class="shc-cl-chips">${list
+        .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || (/^\d+$/.test(m) ? `Velocità ${m}` : m))}</button>`)
+        .join("")}</div>`;
+    const html = `
+      ${unav ? `<p class="shc-cl-note">Il climatizzatore non è raggiungibile: i comandi tornano attivi appena si ricollega.</p>` : ""}
+      ${(a.fan_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola</div>${chips(a.fan_modes, a.fan_mode, "data-fan", CL_FAN)}</div>` : ""}
+      ${(a.swing_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Alette</div>${chips(a.swing_modes, a.swing_mode, "data-swing", CL_SWING)}</div>` : ""}
+      ${(a.preset_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità speciali</div>${chips(a.preset_modes, a.preset_mode, "data-preset", CL_PRESET)}
+        <p class="shc-cl-note">Boost: massima potenza per circa 20 minuti. Fuori casa: mantiene una temperatura di sicurezza.</p></div>` : ""}
+      ${!(a.fan_modes || a.swing_modes || a.preset_modes) ? `<p class="shc-cl-note">Il climatizzatore non espone velocità della ventola, alette o preset.</p>` : ""}`;
+    const overlay = this._openDialog("Ventola e alette", html, () => this._openFan());
+    const e = this._config.entity;
+    overlay.querySelectorAll("[data-fan]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_fan_mode", { entity_id: e, fan_mode: b.dataset.fan })));
+    overlay.querySelectorAll("[data-swing]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_swing_mode", { entity_id: e, swing_mode: b.dataset.swing })));
+    overlay.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_preset_mode", { entity_id: e, preset_mode: b.dataset.preset })));
+  }
+
+  // ℹ️ Stato e diagnostica
+  _openInfo() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const fmtState = (s) => {
+      if (!s) return "n/d";
+      if (s.state === "unavailable") return "non disponibile";
+      if (s.attributes.device_class && s.entity_id.startsWith("binary_sensor.")) return s.state === "on" ? "SÌ" : "no";
+      return `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
+    };
+    const rows = (cfg.diagnostics || [])
+      .map((d) => {
+        const s = hs[d.entity];
+        const bad = d.alarm && s?.state === "on";
+        return `<div class="shc-ap-row" data-open="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(d.name || s?.attributes?.friendly_name || d.entity)}</span><span class="shc-ap-row-val" style="${bad ? "color:#ef4444;font-weight:800" : ""}">${esc(fmtState(s))}</span></div>`;
+      })
+      .join("");
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Climatizzatore</div>
+        ${this._row("Stato", `<span class="shc-ap-row-val">${esc(!st || st.state === "unavailable" ? "Non raggiungibile" : CL_MODES[st.state]?.label || st.state)}</span>`)}
+        ${a.hvac_action ? this._row("Sta facendo", `<span class="shc-ap-row-val">${esc({ cooling: "Raffresca", heating: "Riscalda", idle: "In pausa", drying: "Deumidifica", fan: "Ventila", off: "Spento" }[a.hvac_action] || a.hvac_action)}</span>`) : ""}
+        ${st ? this._row("Ultimo cambio", `<span class="shc-ap-row-val">${esc(new Date(st.last_changed).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))}</span>`) : ""}
+        ${a.min_temp !== undefined ? this._row("Intervallo temperatura", `<span class="shc-ap-row-val">${esc(clNum(a.min_temp))} – ${esc(clNum(a.max_temp))} °C, passo ${esc(clNum(a.target_temp_step || 0.5))}</span>`) : ""}
+        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="1">Apri</button>`)}
+        ${cfg.refresh_entity && hs[cfg.refresh_entity] ? this._row("Aggiorna dati dal cloud", `<button type="button" class="shc-ap-action-btn" data-refresh="1">Aggiorna</button>`) : ""}
+      </div>
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Diagnostica</div>${rows}</div>` : ""}`;
+    const overlay = this._openDialog("Stato e diagnostica", html, () => this._openInfo());
+    overlay.querySelector("[data-more]").addEventListener("click", () => this._moreInfo(cfg.entity));
+    overlay.querySelector("[data-refresh]")?.addEventListener("click", (e) => {
+      this._call("button", "press", { entity_id: cfg.refresh_entity });
+      e.target.textContent = "Richiesto";
+    });
+    overlay.querySelectorAll("[data-open]").forEach((r) => r.addEventListener("click", () => this._moreInfo(r.dataset.open)));
+  }
+
+  getCardSize() {
+    return 8;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-climate-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.climatizzatore";
+    return { name: "Climatizzatore", entity: e };
+  }
+}
+
+class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Climatizzatore" },
+        { key: "entity", label: "Climatizzatore", domain: ["climate"], required: true },
+        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Soggiorno" },
+        { key: "temperature_entity", label: "Sensore temperatura stanza (per il grafico)", domain: ["sensor"] },
+        { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
+        { key: "outdoor_entity", label: "Sensore temperatura esterna", domain: ["sensor"] },
+      ]},
+      { title: "Consumi", fields: [
+        { key: "power_entity", label: "Potenza (W) della presa del clima", domain: ["sensor"] },
+        { key: "energy_entity", label: "Energia totale (kWh)", domain: ["sensor"] },
+        { key: "max_power", label: "Fondo scala potenza (W)", kind: "text", placeholder: "1500" },
+        { key: "consumption.cooling_day", label: "Freddo oggi (kWh)", domain: ["sensor"] },
+        { key: "consumption.heating_day", label: "Caldo oggi (kWh)", domain: ["sensor"] },
+        { key: "consumption.cooling_month", label: "Freddo mese (kWh)", domain: ["sensor"] },
+        { key: "consumption.heating_month", label: "Caldo mese (kWh)", domain: ["sensor"] },
+      ]},
+      { title: "Programmazione (helper del package clima.yaml)", fields: [
+        { key: "schedule.on_enabled", label: "Accensione programmata attiva", domain: ["input_boolean"] },
+        { key: "schedule.on_time", label: "Orario accensione", domain: ["input_datetime"] },
+        { key: "schedule.on_mode", label: "Modalità accensione", domain: ["input_select"] },
+        { key: "schedule.on_temperature", label: "Temperatura accensione", domain: ["input_number"] },
+        { key: "schedule.off_enabled", label: "Spegnimento programmato attivo", domain: ["input_boolean"] },
+        { key: "schedule.off_time", label: "Orario spegnimento", domain: ["input_datetime"] },
+      ]},
+      { title: "Altro", fields: [
+        { key: "refresh_entity", label: "Pulsante aggiorna dati (button)", domain: ["button"] },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-climate-card-editor", ShcClimateCardEditor);
+
+customElements.define("shc-climate-card", ShcClimateCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-climate-card",
+  name: "Climatizzatore",
+  description: "Card climatizzatore con gauge integrata, comandi, programmazione, consumi, ventola/alette e diagnostica",
   author: "Simonz82",
 });

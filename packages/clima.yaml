@@ -1,0 +1,145 @@
+# /config/packages/clima.yaml
+#
+# Programmazione una tantum del climatizzatore per la card shc-climate-card
+# (smart-home-cards): accensione a un orario con modalita' e temperatura
+# scelte, spegnimento a un orario. Dopo essere scattate si disattivano da sole.
+#
+# DA CAMBIARE: cerca climate.daikin_salone_temperature e metti il tuo
+# climatizzatore (Impostazioni -> Entita' -> cerca "climate.").
+
+# ---------------------------------------------------------------------------------
+# HELPERS PER LA PROGRAMMAZIONE DEL CLIMATIZZATORE DEL SALONE
+# ---------------------------------------------------------------------------------
+
+input_boolean:
+  # Abilita la programmazione di accensione una tantum
+  clima_salone_programmazione_attiva:
+    name: Abilita Programmazione Clima Salone
+    icon: mdi:calendar-clock
+
+  # Abilita la programmazione di spegnimento una tantum
+  clima_salone_programmazione_spegnimento_attiva:
+    name: Abilita Spegnimento Programmato Clima Salone
+    icon: mdi:calendar-remove
+
+input_datetime:
+  # Orario di accensione programmata
+  clima_salone_orario_accensione:
+    name: Orario Accensione Clima Salone
+    has_date: false
+    has_time: true
+    icon: mdi:clock-outline
+
+  # Orario di spegnimento programmato
+  clima_salone_orario_spegnimento:
+    name: Orario Spegnimento Clima Salone
+    has_date: false
+    has_time: true
+    icon: mdi:clock-end
+
+input_select:
+  # Modalità con cui accendere il climatizzatore
+  clima_salone_modalita_accensione:
+    name: Modalità Accensione Clima Salone
+    options:
+      - "cool"
+      - "heat"
+      - "heat_cool"
+      - "off"
+    initial: "cool"
+    icon: mdi:air-conditioner
+
+input_number:
+  # Temperatura da impostare all'accensione programmata
+  clima_salone_temperatura_accensione:
+    name: Temperatura Accensione Clima Salone
+    initial: 26
+    min: 18
+    max: 32
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+
+# ---------------------------------------------------------------------------------
+# AUTOMAZIONI
+# ---------------------------------------------------------------------------------
+
+automation:
+  # -------------------------------------------------------------------------------
+  # ACCENSIONE PROGRAMMATA UNA TANTUM
+  # -------------------------------------------------------------------------------
+  - alias: "Climatizzatore Salone - Accensione Programmata (Una Tantum)"
+    id: "climatizzatore_salone_accensione_programmata"
+    description: "Accende il clima del salone e poi disattiva la programmazione per evitare ripetizioni."
+
+    triggers:
+      - trigger: time
+        at: input_datetime.clima_salone_orario_accensione
+
+    conditions:
+      - condition: state
+        entity_id: input_boolean.clima_salone_programmazione_attiva
+        state: "on"
+
+    actions:
+      # Se la modalità scelta è OFF, spegne il clima
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.clima_salone_modalita_accensione
+                state: "off"
+            sequence:
+              - action: climate.turn_off
+                target:
+                  entity_id: climate.daikin_salone_temperature
+
+        # In tutti gli altri casi imposta modalità e temperatura
+        default:
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: climate.daikin_salone_temperature
+            data:
+              hvac_mode: "{{ states('input_select.clima_salone_modalita_accensione') }}"
+
+          - action: climate.set_temperature
+            target:
+              entity_id: climate.daikin_salone_temperature
+            data:
+              temperature: "{{ states('input_number.clima_salone_temperatura_accensione') | float }}"
+
+      # Alla fine spegne il flag per rendere la programmazione una tantum
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.clima_salone_programmazione_attiva
+
+    mode: single
+
+  # -------------------------------------------------------------------------------
+  # SPEGNIMENTO PROGRAMMATO UNA TANTUM
+  # -------------------------------------------------------------------------------
+  - alias: "Climatizzatore Salone - Spegnimento Programmato (Una Tantum)"
+    id: "climatizzatore_salone_spegnimento_programmato"
+    description: "Spegne il clima del salone e poi disattiva la programmazione per evitare ripetizioni."
+
+    triggers:
+      - trigger: time
+        at: input_datetime.clima_salone_orario_spegnimento
+
+    conditions:
+      - condition: state
+        entity_id: input_boolean.clima_salone_programmazione_spegnimento_attiva
+        state: "on"
+
+    actions:
+      # Spegne il climatizzatore
+      - action: climate.turn_off
+        target:
+          entity_id: climate.daikin_salone_temperature
+
+      # Disattiva il flag per rendere la programmazione una tantum
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.clima_salone_programmazione_spegnimento_attiva
+
+    mode: single
