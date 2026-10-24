@@ -66,7 +66,7 @@ Il conto alla rovescia legge `sensor.zigbee_abbinamento_fine` del package (Zigbe
 
 ### 📊 Dispositivi
 
-Tutti i dispositivi con foto, stato, tacche e valore del segnale, modello e batteria (o "a rete"). In ordine alfabetico; gli offline hanno il bordo rosso e da quanto tempo sono offline (filtro **Offline** per vederli da soli). Filtri **Tutti / Online / Offline / A rete / A batteria** e ricerca per nome o modello. Si apre anche toccando il simbolo Zigbee.
+Tutti i dispositivi con foto, stato, tacche e valore del segnale, modello e batteria (o "a rete"). Prima gli offline (bordo rosso e da quanto tempo sono offline), poi tutti gli altri in ordine alfabetico. Filtri **Tutti / Online / Offline / A rete / A batteria** e ricerca per nome o modello. Si apre anche toccando il simbolo Zigbee.
 
 Toccando un dispositivo si apre la sua **scheda**: produttore e modello, stato, segnale, batteria, il pulsante per aprire la pagina del dispositivo in Home Assistant e l'interruttore **Escludi da conteggio e avvisi**. Serve per un dispositivo che spegni di proposito (es. una presa usata solo d'inverno): resta in elenco, ma non fa diventare rossa la card e non manda avvisi.
 

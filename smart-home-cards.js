@@ -7861,7 +7861,11 @@ class ShcZigbeeCard extends HTMLElement {
     const excluded = Array.isArray(a.esclusi) ? a.esclusi : [];
     const soglia = Number(a.soglia_batteria) || 15;
     const stato = (d) => (excluded.includes(d.n) ? "escl" : d.on ? "on" : "off");
-    const devices = [...list].sort((x, y) => String(x.n).localeCompare(String(y.n), "it", { sensitivity: "base", numeric: true }));
+    // prima gli offline, poi in ordine di nome
+    const ordine = { off: 0, on: 1, escl: 1 };
+    const devices = [...list].sort(
+      (x, y) => ordine[stato(x)] - ordine[stato(y)] || String(x.n).localeCompare(String(y.n), "it", { sensitivity: "base", numeric: true }),
+    );
     const withLqi = devices.filter((d) => d.on && d.q >= 0);
     const minDev = withLqi.length ? withLqi.reduce((m, d) => (d.q < m.q ? d : m), withLqi[0]) : null;
     return {

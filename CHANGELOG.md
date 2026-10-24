@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-25 (4) — 1.8.3: ordine elenco Zigbee
+
+- Elenco Dispositivi della card Rete Zigbee: di nuovo prima gli offline, poi in ordine alfabetico.
+
 ## 2026-10-25 (3) — 1.8.2: abbinamento con conto alla rovescia e ripetitore scelto
 
 - **Card Rete Zigbee, ⚙️ Abbinamenti**: conto alla rovescia grande con barra del tempo che resta (anche nel badge della card), pulsante Ferma abbinamento.
