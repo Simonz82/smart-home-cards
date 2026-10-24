@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-25 — 1.8.0: nuova card Rete Zigbee
+
+- **Nuova card 📡 Rete Zigbee** (`shc-zigbee-card`) per Zigbee2MQTT, stessa grafica della card FritzBox. Simbolo Zigbee animato: verde con onde radio se tutto è online, rosso che trema se qualcosa è offline. A destra LQI medio, LQI minimo con il nome del dispositivo, dispositivi a rete e a batteria; la riga "Batt. bassa" compare solo sotto soglia.
+- **⚙️ Abbinamenti**: permit join, ultimi dispositivi abbinati, versione e stato del bridge, livello di log, apertura dell'interfaccia Zigbee2MQTT, riavvio con conferma.
+- **📊 Dispositivi**: elenco con foto (cartella locale, altrimenti dal sito di Zigbee2MQTT), filtri, ricerca, tacche del segnale, batteria, "offline da". Scheda del singolo dispositivo con esclusione da conteggio e avvisi.
+- **🔋 Segnale e batterie**: classifiche dal più debole e dalla più scarica.
+- **🔔 Notifiche**: avvisi offline/nuovi dispositivi/batteria bassa, soglie, fascia oraria con riepilogo all'apertura, già avvisati, esclusi, notifica di prova.
+- **📈 Grafici**: dispositivi online, LQI medio, LQI minimo.
+- Nuovo package [`packages/centro_controllo_zigbee.yaml`](packages/centro_controllo_zigbee.yaml): sopravvive a riavvii e ricaricamenti senza avvisi doppi. Editor visuale incluso.
+- Guida: [docs/zigbee.md](docs/zigbee.md).
+
 ## 2026-10-20 — 1.7.0: card Alexa configurabili senza toccare il JS
 
 - **Alexa Memo e Alexa WebRadio**: speaker, stazioni, script aggiungi/rimuovi e giorni della sveglia non sono più scritti dentro `smart-home-cards.js`. Sono nuove opzioni della card: `devices` (Memo), `speakers`, `stations`, `image_path`, `add_script`, `remove_script`, `alarm_days` (WebRadio). Prima andavano modificati nel file JS, e ogni aggiornamento HACS cancellava le modifiche.

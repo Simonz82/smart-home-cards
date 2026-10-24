@@ -81,6 +81,7 @@ Chiudi e riapri la scheda del browser (o l'app), meglio ancora con una ricarica 
    - [🧺 Elettrodomestici](elettrodomestici.md)
    - [⚡ Energia Casa](energia.md)
    - [📶 FritzBox / Router](fritzbox.md)
+   - [📡 Rete Zigbee](zigbee.md)
    - [🖥️ Server Home Assistant](homeassistant-server.md)
    - [💾 NAS Synology](nas-synology.md)
    - [🖧 Proxmox](proxmox.md)

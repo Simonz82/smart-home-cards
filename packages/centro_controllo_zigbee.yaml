@@ -1,0 +1,507 @@
+#################################################################
+# CENTRO CONTROLLO ZIGBEE                                       #
+#################################################################
+# Backend della card "shc-zigbee-card" (smart-home-cards). Nato dalla
+# card "Rete Zigbee" di un amico, estesa con:
+# memoria "offline da", avviso se un dispositivo resta offline oltre una
+# soglia (e quando torna), avviso batteria bassa, avviso + popup quando
+# Zigbee2MQTT abbina un dispositivo nuovo, fascia oraria degli avvisi,
+# dispositivi esclusi scelti dalla card.
+#
+# Crea:
+#   - sensor.zigbee_dispositivi_offline  stato = n. offline (esclusi a parte)
+#       attributi: totale, online, offline, esclusi, lunghi (offline oltre
+#       soglia), offline_da {nome: ISO}, lqi_medio, lqi_minimo,
+#       lqi_minimo_nome, soglia_batteria, batteria_bassa,
+#       dispositivi [{n nome, m modello, v produttore, id device_id, on,
+#                     q LQI, b batteria (-2 = a rete, -1 = sconosciuta),
+#                     da offline_da}]
+#   - sensor.zigbee_segnale_medio / _minimo, sensor.zigbee_dispositivi_online
+#       numeri semplici con storico, per il popup Grafici della card
+#   - input_select.zigbee_filtro          filtro Tutti/Online/Offline (card vecchia)
+#   - input_number.zigbee_minuti_offline  soglia avviso offline (minuti)
+#   - input_number.zigbee_soglia_batteria soglia batteria bassa (%)
+#   - input_boolean.zigbee_avvisi         interruttore generale avvisi
+#   - input_boolean.zigbee_avviso_batteria  avviso batteria bassa
+#   - input_datetime.zigbee_avvisi_dalle / _alle   fascia oraria avvisi
+#   - input_text.zigbee_memoria           {nome: epoch} ora di stacco
+#   - input_text.zigbee_avvisati          ["nome"] gia' avvisati come offline
+#   - input_text.zigbee_batterie_avvisate ["nome"] gia' avvisati batteria bassa
+#   - input_text.zigbee_nuovi_attesa      dispositivi nuovi non ancora avvisati
+#   - input_text.zigbee_ultimi_abbinati   ultimi abbinamenti (il piu' recente prima)
+#   - input_text.zigbee_esclusi           ["nome"] esclusi da conteggio e avvisi
+#   - script.zigbee_test_notifica         notifica di prova
+#
+# Offline = tutte le entita' del dispositivo non disponibili (serve
+# availability: enabled in Zigbee2MQTT). I dispositivi a batteria vengono
+# dichiarati offline da Z2M solo dopo 25 ore di silenzio.
+# Il segnale (LQI) richiede le entita' *_linkquality abilitate in HA
+# (Zigbee2MQTT le crea disabilitate).
+#
+# Gli avvisi sono calcolati dallo STATO, non dagli eventi: chi e' offline
+# oltre soglia e non e' in zigbee_avvisati viene avvisato appena si e'
+# dentro la fascia oraria. Fuori fascia non parte nulla; all'apertura
+# della fascia arriva il riepilogo. Le memorie sono input_text (senza
+# initial) perche' gli attributi del sensore a trigger NON vengono
+# ripristinati in modo affidabile dopo template.reload.
+#################################################################
+
+input_select:
+  zigbee_filtro:
+    name: Zigbee Filtro
+    options:
+      - Tutti
+      - Online
+      - Offline
+    icon: mdi:filter-variant
+
+input_number:
+  zigbee_minuti_offline:
+    name: Zigbee soglia avviso offline
+    min: 5
+    max: 720
+    step: 5
+    unit_of_measurement: min
+    mode: box
+    icon: mdi:timer-alert-outline
+  zigbee_soglia_batteria:
+    name: Zigbee soglia batteria bassa
+    min: 5
+    max: 50
+    step: 5
+    unit_of_measurement: "%"
+    mode: box
+    icon: mdi:battery-alert-variant-outline
+
+input_boolean:
+  zigbee_avvisi:
+    name: Zigbee avvisi offline e nuovi dispositivi
+    icon: mdi:zigbee
+  zigbee_avviso_batteria:
+    name: Zigbee avviso batteria bassa
+    icon: mdi:battery-alert-variant-outline
+
+input_datetime:
+  zigbee_avvisi_dalle:
+    name: Zigbee avvisi dalle
+    has_date: false
+    has_time: true
+    icon: mdi:bell-ring-outline
+  zigbee_avvisi_alle:
+    name: Zigbee avvisi alle
+    has_date: false
+    has_time: true
+    icon: mdi:bell-sleep-outline
+
+input_text:
+  zigbee_memoria:
+    name: Zigbee memoria offline
+    max: 255
+    icon: mdi:database-clock-outline
+  zigbee_avvisati:
+    name: Zigbee gia avvisati
+    max: 255
+    icon: mdi:bell-check-outline
+  zigbee_batterie_avvisate:
+    name: Zigbee batterie gia avvisate
+    max: 255
+    icon: mdi:battery-check-outline
+  zigbee_nuovi_attesa:
+    name: Zigbee nuovi in attesa
+    max: 255
+    icon: mdi:new-box
+  zigbee_ultimi_abbinati:
+    name: Zigbee ultimi abbinati
+    max: 255
+    icon: mdi:link-variant-plus
+  zigbee_esclusi:
+    name: Zigbee esclusi
+    max: 255
+    icon: mdi:eye-off-outline
+
+script:
+  zigbee_test_notifica:
+    alias: Zigbee - notifica di prova
+    icon: mdi:bell-ring
+    mode: single
+    sequence:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "📡 Zigbee - prova"
+          message: >-
+            Notifica di prova della rete Zigbee:
+            {{ state_attr('sensor.zigbee_dispositivi_offline', 'online') }}/{{ state_attr('sensor.zigbee_dispositivi_offline', 'totale') }} online,
+            LQI medio {{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_medio') }}.
+
+template:
+  - triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/+/availability
+      - trigger: time_pattern
+        minutes: /1
+      - trigger: homeassistant
+        event: start
+      - trigger: event
+        event_type: event_template_reloaded
+      - trigger: state
+        entity_id:
+          - input_text.zigbee_esclusi
+          - input_number.zigbee_soglia_batteria
+          - input_number.zigbee_minuti_offline
+    actions:
+      # lascia a HA il tempo di aggiornare le entita' dopo il messaggio MQTT
+      - delay:
+          seconds: 2
+      - variables:
+          # Dispositivi da NON contare come offline e da non avvisare:
+          # si scelgono dalla card (scheda del dispositivo), nome come in Z2M.
+          esclusi: "{{ states('input_text.zigbee_esclusi') | from_json(default=[]) }}"
+          soglia_batteria: "{{ states('input_number.zigbee_soglia_batteria') | int(15) }}"
+          dispositivi: >-
+            {% set ns = namespace(l=[]) %}
+            {% for d in integration_entities('mqtt') | map('device_id') | reject('none') | unique %}
+              {% if (device_attr(d, 'identifiers') | list | string) is search('zigbee2mqtt_0x') %}
+                {% set tutte = device_entities(d) %}
+                {% set ents = tutte | select('has_value') | list %}
+                {% set lq = tutte | select('search', '_linkquality$') | first | default('') %}
+                {% set bt = tutte | select('search', '_battery$') | first | default('') %}
+                {% set on = ents | count > 0 %}
+                {% set ns.l = ns.l + [{
+                  'n': device_attr(d, 'name_by_user') or device_attr(d, 'name'),
+                  'm': device_attr(d, 'model_id') or device_attr(d, 'model') or '',
+                  'v': device_attr(d, 'manufacturer') or '',
+                  'id': d,
+                  'on': on,
+                  'lc': '' if on else (expand(tutte) | map(attribute='last_changed') | max | default(now())).isoformat(),
+                  'q': states(lq) | int(-1) if lq else -1,
+                  'b': states(bt) | int(-1) if bt else -2
+                }] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.l | sort(attribute='n') }}
+          memoria: "{{ states('input_text.zigbee_memoria') | from_json(default={}) }}"
+          # ora di stacco: la piu' vecchia tra quella in memoria e l'ultimo
+          # cambio di stato delle sue entita' (dopo un riavvio last_changed
+          # riparte da zero, la memoria no)
+          offline_da: >-
+            {% set ns = namespace(d={}) %}
+            {% for x in dispositivi | rejectattr('on') %}
+              {% set cand = [x.lc] | select | map('as_datetime') | reject('none') | list %}
+              {% if memoria is mapping and memoria.get(x.n) is number %}
+                {% set cand = cand + [as_datetime(memoria.get(x.n))] %}
+              {% endif %}
+              {% set ns.d = dict(ns.d, **{x.n: (cand | min if cand else now()).isoformat()}) %}
+            {% endfor %}
+            {{ ns.d }}
+          soglia: "{{ states('input_number.zigbee_minuti_offline') | int(30) }}"
+          lunghi: >-
+            {% set ns = namespace(l=[]) %}
+            {% for n, t in offline_da.items() %}
+              {% if n not in esclusi and as_datetime(t) is not none
+                    and now() - as_datetime(t) >= timedelta(minutes=soglia) %}
+                {% set ns.l = ns.l + [n] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.l | sort }}
+          offline: >-
+            {{ dispositivi | rejectattr('on') | map(attribute='n') | reject('in', esclusi) | list }}
+          con_lqi: "{{ dispositivi | selectattr('on') | selectattr('q', 'ge', 0) | list }}"
+    sensor:
+      - name: Zigbee Dispositivi Offline
+        unique_id: zigbee_dispositivi_offline
+        icon: mdi:zigbee
+        state: "{{ offline | count }}"
+        attributes:
+          totale: "{{ dispositivi | map(attribute='n') | reject('in', esclusi) | list | count }}"
+          online: "{{ dispositivi | selectattr('on') | map(attribute='n') | reject('in', esclusi) | list | count }}"
+          offline: "{{ offline }}"
+          esclusi: "{{ esclusi }}"
+          lunghi: "{{ lunghi }}"
+          offline_da: "{{ offline_da }}"
+          soglia_minuti: "{{ soglia }}"
+          soglia_batteria: "{{ soglia_batteria }}"
+          lqi_medio: >-
+            {% set l = con_lqi | map(attribute='q') | list %}
+            {{ (l | sum / l | count) | round(0) | int if l | count else -1 }}
+          lqi_minimo: "{{ (con_lqi | sort(attribute='q') | first).q if con_lqi | count else -1 }}"
+          lqi_minimo_nome: "{{ (con_lqi | sort(attribute='q') | first).n if con_lqi | count else '' }}"
+          batteria_bassa: >-
+            {{ dispositivi | selectattr('b', 'ge', 0) | selectattr('b', 'lt', soglia_batteria)
+               | map(attribute='n') | reject('in', esclusi) | list }}
+          dispositivi: >-
+            {% set ns = namespace(l=[]) %}
+            {% for x in dispositivi %}
+              {% set y = dict(x, da=offline_da.get(x.n, '')) %}
+              {% set ns.l = ns.l + [dict(y | items | rejectattr(0, 'eq', 'lc') | list)] %}
+            {% endfor %}
+            {{ ns.l }}
+
+  # Numeri semplici con storico per i grafici della card (il sensore sopra
+  # e' escluso dal recorder: i suoi attributi sono troppo grandi).
+  - sensor:
+      - name: Zigbee segnale medio
+        unique_id: zigbee_segnale_medio
+        icon: mdi:signal
+        unit_of_measurement: LQI
+        state_class: measurement
+        availability: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_medio') | int(-1) >= 0 }}"
+        state: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_medio') | int(0) }}"
+      - name: Zigbee segnale minimo
+        unique_id: zigbee_segnale_minimo
+        icon: mdi:signal-cellular-1
+        unit_of_measurement: LQI
+        state_class: measurement
+        availability: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_minimo') | int(-1) >= 0 }}"
+        state: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_minimo') | int(0) }}"
+        attributes:
+          dispositivo: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lqi_minimo_nome') }}"
+      - name: Zigbee dispositivi online
+        unique_id: zigbee_dispositivi_online
+        icon: mdi:zigbee
+        unit_of_measurement: dispositivi
+        state_class: measurement
+        availability: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'online') is not none }}"
+        state: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'online') | int(0) }}"
+
+automation:
+  ################################################################
+  # Memoria "offline da" -> input_text (sempre, anche fuori fascia)
+  ################################################################
+  # Formato compatto {"nome": epoch}. Se supera 255 caratteri tiene i
+  # piu' vecchi (quelli che contano per la soglia).
+  - id: zigbee_memoria_offline
+    alias: Zigbee - memoria offline
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: sensor.zigbee_dispositivi_offline
+    conditions:
+      - condition: template
+        value_template: >-
+          {{ trigger.to_state is not none
+             and trigger.to_state.state not in ['unknown', 'unavailable']
+             and trigger.to_state.attributes.offline_da is defined }}
+    actions:
+      - variables:
+          testo: >-
+            {% set ns = namespace(l=[]) %}
+            {% for n, t in trigger.to_state.attributes.offline_da.items() %}
+              {% set ns.l = ns.l + [[as_timestamp(t, 0) | int, n]] %}
+            {% endfor %}
+            {% set ns2 = namespace(s='{}', d={}) %}
+            {% for e in ns.l | sort %}
+              {% set prova = dict(ns2.d, **{e[1]: e[0]}) | to_json %}
+              {% if prova | length <= 255 %}
+                {% set ns2.d = dict(ns2.d, **{e[1]: e[0]}) %}
+                {% set ns2.s = prova %}
+              {% endif %}
+            {% endfor %}
+            {{ ns2.s }}
+      - if:
+          - condition: template
+            value_template: "{{ testo != states('input_text.zigbee_memoria') }}"
+        then:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.zigbee_memoria
+            data:
+              value: "{{ testo }}"
+
+  ################################################################
+  # Nuovo dispositivo abbinato -> in coda + storico abbinamenti
+  ################################################################
+  # Z2M pubblica device_interview "successful" solo al primo abbinamento
+  # (o a una nuova intervista manuale), non a ogni riconnessione.
+  - id: zigbee_nuovo_dispositivo
+    alias: Zigbee - nuovo dispositivo in rete
+    mode: queued
+    triggers:
+      - trigger: mqtt
+        topic: zigbee2mqtt/bridge/event
+        value_template: "{{ value_json.type }}|{{ value_json.data.status | default('') }}"
+        payload: device_interview|successful
+    actions:
+      - variables:
+          dati: "{{ trigger.payload_json.data }}"
+          definizione: "{{ dati.definition if dati.definition is mapping else {} }}"
+          voce: >-
+            {{ dati.friendly_name }}
+            {%- if definizione %} ({{ definizione.vendor | default('') }} {{ definizione.model | default('') }}){% endif %}
+            {%- if not dati.supported | default(true) %} NON SUPPORTATO{% endif %}
+          coda: "{{ states('input_text.zigbee_nuovi_attesa') if states('input_text.zigbee_nuovi_attesa') not in ['unknown', 'unavailable'] else '' }}"
+          storico: "{{ states('input_text.zigbee_ultimi_abbinati') if states('input_text.zigbee_ultimi_abbinati') not in ['unknown', 'unavailable'] else '' }}"
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.zigbee_nuovi_attesa
+        data:
+          value: "{{ ((coda ~ '; ' if coda else '') ~ voce)[:255] }}"
+      # il piu' recente in testa; si tagliano le voci intere piu' vecchie
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.zigbee_ultimi_abbinati
+        data:
+          value: >-
+            {% set ns = namespace(s=now().strftime('%d/%m %H:%M') ~ ' ' ~ voce) %}
+            {% for v in (storico.split(' | ') if storico else []) %}
+              {% if (ns.s ~ ' | ' ~ v) | length <= 255 %}{% set ns.s = ns.s ~ ' | ' ~ v %}{% endif %}
+            {% endfor %}
+            {{ ns.s[:255] }}
+      - action: automation.trigger
+        target:
+          entity_id: automation.zigbee_avvisi
+        data:
+          skip_condition: false
+
+  ################################################################
+  # Avvisi (solo in fascia oraria)
+  ################################################################
+  - id: zigbee_avvisi
+    alias: Zigbee - avvisi
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: sensor.zigbee_dispositivi_offline
+        attribute: lunghi
+      - trigger: state
+        entity_id: sensor.zigbee_dispositivi_offline
+        attribute: offline
+      - trigger: state
+        entity_id: sensor.zigbee_dispositivi_offline
+        attribute: batteria_bassa
+      # apertura fascia: riepilogo di quanto successo di notte
+      - trigger: time
+        at: input_datetime.zigbee_avvisi_dalle
+      - trigger: state
+        entity_id:
+          - input_boolean.zigbee_avvisi
+          - input_boolean.zigbee_avviso_batteria
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.zigbee_avvisi
+        state: "on"
+      - condition: time
+        after: input_datetime.zigbee_avvisi_dalle
+        before: input_datetime.zigbee_avvisi_alle
+      - condition: template
+        value_template: >-
+          {{ states('sensor.zigbee_dispositivi_offline') not in ['unknown', 'unavailable']
+             and state_attr('sensor.zigbee_dispositivi_offline', 'lunghi') is not none }}
+    actions:
+      - variables:
+          lunghi: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'lunghi') | list }}"
+          offline: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'offline') | list }}"
+          offline_da: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'offline_da') or {} }}"
+          totale: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'totale') | int(0) }}"
+          soglia: "{{ states('input_number.zigbee_minuti_offline') | int(30) }}"
+          avvisati: "{{ states('input_text.zigbee_avvisati') | from_json(default=[]) }}"
+          da_avvisare: "{{ lunghi | reject('in', avvisati) | list }}"
+          tornati: "{{ avvisati | reject('in', offline) | list }}"
+          nuovi: "{{ states('input_text.zigbee_nuovi_attesa') if states('input_text.zigbee_nuovi_attesa') not in ['unknown', 'unavailable'] else '' }}"
+          basse: "{{ state_attr('sensor.zigbee_dispositivi_offline', 'batteria_bassa') | default([], true) | list }}"
+          batt_avvisate: "{{ states('input_text.zigbee_batterie_avvisate') | from_json(default=[]) }}"
+          batt_da_avvisare: "{{ basse | reject('in', batt_avvisate) | list if is_state('input_boolean.zigbee_avviso_batteria', 'on') else [] }}"
+          batt_ricaricate: "{{ batt_avvisate | reject('in', basse) | list }}"
+      # --- offline oltre soglia
+      - if:
+          - condition: template
+            value_template: "{{ da_avvisare | count > 0 }}"
+        then:
+          - variables:
+              messaggio: >-
+                {% if totale > 0 and lunghi | count > totale / 2 %}
+                Rete Zigbee probabilmente ferma: {{ lunghi | count }} dispositivi su {{ totale }} offline. Controllare Zigbee2MQTT e il coordinatore.
+                {% else %}
+                {% set ns = namespace(l=[]) %}
+                {% for n in da_avvisare %}
+                  {% set t = as_datetime(offline_da.get(n, '')) %}
+                  {% set ns.l = ns.l + [n ~ (' (dal ' ~ as_local(t).strftime('%d/%m %H:%M') ~ ')' if t else '')] %}
+                {% endfor %}
+                Offline da oltre {{ soglia }} minuti: {{ ns.l | join(', ') }}.
+                {% endif %}
+          - action: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "📡 Zigbee offline"
+              message: "{{ messaggio }}"
+          - action: persistent_notification.create
+            data:
+              notification_id: zigbee_offline
+              title: "📡 Zigbee offline"
+              message: "{{ messaggio }}"
+      # --- tornati online (dopo essere stati avvisati)
+      - if:
+          - condition: template
+            value_template: "{{ tornati | count > 0 }}"
+        then:
+          - action: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "📡 Zigbee di nuovo online"
+              message: "Tornati online: {{ tornati | join(', ') }}."
+      - if:
+          - condition: template
+            value_template: "{{ da_avvisare | count > 0 or tornati | count > 0 }}"
+        then:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.zigbee_avvisati
+            data:
+              value: "{{ ((avvisati | reject('in', tornati) | list) + da_avvisare) | unique | list | to_json }}"
+          - if:
+              - condition: template
+                value_template: "{{ lunghi | count == 0 }}"
+            then:
+              - action: persistent_notification.dismiss
+                data:
+                  notification_id: zigbee_offline
+      # --- batteria bassa (una volta per dispositivo, finche' non sale sopra soglia)
+      - if:
+          - condition: template
+            value_template: "{{ batt_da_avvisare | count > 0 }}"
+        then:
+          - variables:
+              righe: >-
+                {% set ns = namespace(l=[]) %}
+                {% for d in state_attr('sensor.zigbee_dispositivi_offline', 'dispositivi') | default([], true) %}
+                  {% if d.n in batt_da_avvisare %}{% set ns.l = ns.l + [d.n ~ ' ' ~ d.b ~ '%'] %}{% endif %}
+                {% endfor %}
+                {{ ns.l | join(', ') }}
+          - action: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "🪫 Zigbee batteria bassa"
+              message: "Da cambiare presto: {{ righe }}."
+      - if:
+          - condition: template
+            value_template: "{{ batt_da_avvisare | count > 0 or batt_ricaricate | count > 0 }}"
+        then:
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.zigbee_batterie_avvisate
+            data:
+              value: "{{ ((batt_avvisate | reject('in', batt_ricaricate) | list) + batt_da_avvisare) | unique | list | to_json }}"
+      # --- nuovi dispositivi in coda
+      - if:
+          - condition: template
+            value_template: "{{ nuovi | length > 0 }}"
+        then:
+          - action: notify.mobile_app_il_tuo_telefono
+            data:
+              title: "🆕 Nuovo dispositivo Zigbee"
+              message: "{{ nuovi }}"
+          - action: persistent_notification.create
+            data:
+              title: "🆕 Nuovo dispositivo Zigbee"
+              message: "{{ nuovi }}. Rinominalo da Zigbee2MQTT."
+          # popup su tutti i browser/tablet aperti con browser_mod
+          - action: browser_mod.popup
+            continue_on_error: true
+            data:
+              title: "🆕 Nuovo dispositivo Zigbee"
+              size: normal
+              timeout: 120000
+              dismissable: true
+              content: "{{ nuovi }}"
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.zigbee_nuovi_attesa
+            data:
+              value: ""

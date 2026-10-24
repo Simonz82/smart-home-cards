@@ -1,6 +1,6 @@
 // Card per Home Assistant di Simonz82: elettrodomestici (lavatrice, asciugatrice, lavastoviglie,
-// forno, TV), FritzBox, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa e raccolta
-// differenziata. Popup Impostazioni/Statistiche/Grafici presi dai package "Centro Controllo".
+// forno, TV), FritzBox, server Home Assistant, NAS Synology, Proxmox, UPS, energia casa, raccolta
+// differenziata e rete Zigbee. Popup Impostazioni/Statistiche/Grafici presi dai package "Centro Controllo".
 // Indipendente da altre card: legge/scrive solo via hass.
 
 const HERO_BUILDERS = {
@@ -7630,5 +7630,744 @@ window.customCards.push({
   type: "shc-alexa-webradio-card",
   name: "Alexa WebRadio",
   description: "Web radio e playlist su Alexa multiroom, con sveglia programmata e volume ridotto automatico",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// shc-zigbee-card: rete Zigbee (Zigbee2MQTT). Stessa grammatica visiva della
+// card FritzBox: simbolo Zigbee animato, segnale e alimentazione a destra,
+// barre online/segnale, popup Abbinamenti (ingranaggio), Dispositivi,
+// Grafici, Segnale e batterie, Notifiche (campanella).
+// Dati dal package centro_controllo_zigbee.yaml (sensor.zigbee_dispositivi_offline
+// con l'elenco dei dispositivi negli attributi).
+// -----------------------------------------------------------------------
+
+const ZB_STYLE = `
+.shc-zb-chip ha-icon{--mdc-icon-size:25px;color:#16a34a}
+.shc-ap-card.has-alarm .shc-zb-chip ha-icon{color:#ef4444}
+.shc-zb-hero{position:relative;width:100%;height:100%;display:grid;place-items:center}
+.shc-zb-hero ha-icon{position:relative;z-index:1;--mdc-icon-size:96px;color:#22c55e;filter:drop-shadow(0 0 10px rgba(34,197,94,.45));animation:shc-zb-spin 9s linear infinite}
+.shc-zb-wave{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:3px solid #22c55e;opacity:0;animation:shc-zb-wave 2.7s ease-out infinite}
+.shc-zb-wave:nth-child(2){animation-delay:.9s}
+.shc-zb-wave:nth-child(3){animation-delay:1.8s}
+.shc-ap-card.has-alarm .shc-zb-hero ha-icon{color:#ef4444;filter:drop-shadow(0 0 10px rgba(239,68,68,.55));animation:shc-zb-shake .6s ease-in-out infinite,shc-zb-blink 1.1s ease infinite}
+.shc-ap-card.has-alarm .shc-zb-wave{border-color:#ef4444;animation-duration:1.3s}
+.shc-ap-card.has-alarm .shc-zb-wave:nth-child(2){animation-delay:.43s}
+.shc-ap-card.has-alarm .shc-zb-wave:nth-child(3){animation-delay:.86s}
+.shc-ap-card.is-unavailable .shc-zb-hero ha-icon{color:#94a3b8;filter:none;animation:none}
+.shc-ap-card.is-unavailable .shc-zb-wave{display:none}
+@keyframes shc-zb-wave{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.3);opacity:0}}
+@keyframes shc-zb-spin{to{transform:rotate(360deg)}}
+@keyframes shc-zb-shake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-3px) rotate(-8deg)}40%{transform:translateX(3px) rotate(8deg)}60%{transform:translateX(-3px) rotate(-5deg)}80%{transform:translateX(3px) rotate(5deg)}}
+@keyframes shc-zb-blink{0%,100%{opacity:1}50%{opacity:.4}}
+.shc-zb-low[hidden]{display:none}
+.shc-zb-low b{color:#ef4444;font-weight:800}
+.shc-zb-filters{display:flex;flex-wrap:wrap;gap:6px}
+.shc-zb-filter{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+.shc-zb-filter b{color:var(--shc-text)}
+.shc-zb-filter.on{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-zb-filter.on b{color:#fff}
+.shc-zb-filter.alarm:not(.on){border-color:#ef4444;color:#ef4444}
+.shc-zb-search{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:12px;border:1px solid var(--shc-border);background:var(--shc-soft);color:var(--shc-text);font:inherit;font-size:14px}
+.shc-zb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:7px}
+.shc-zb-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:13px;background:var(--shc-soft);border:1px solid transparent;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.shc-zb-item.off{border-color:rgba(239,68,68,.55);background:rgba(239,68,68,.08)}
+.shc-zb-item.escl{opacity:.6}
+.shc-zb-foto{position:relative;flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center}
+.shc-zb-foto img{max-width:40px;max-height:40px}
+.shc-zb-item.off .shc-zb-foto img,.shc-zb-item.escl .shc-zb-foto img{filter:grayscale(1);opacity:.5}
+.shc-zb-dot{position:absolute;right:-2px;top:-2px;width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 5px #22c55e}
+.shc-zb-dot.off{background:#ef4444;box-shadow:0 0 5px #ef4444;animation:shc-zb-blink .8s ease infinite}
+.shc-zb-dot.escl{background:#94a3b8;box-shadow:none}
+.shc-zb-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.shc-zb-nome{font-size:13px;font-weight:800;color:var(--shc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-zb-riga{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--shc-dim)}
+.shc-zb-st{color:#16a34a}
+.shc-zb-st.off{color:#ef4444}
+.shc-zb-st.escl{color:#94a3b8}
+.shc-zb-tacche{display:inline-flex;align-items:flex-end;gap:1px;height:13px}
+.shc-zb-tacche i{display:block;width:3px;border-radius:1px}
+.shc-zb-info{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:var(--shc-dim);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.shc-zb-info svg{width:11px;height:11px;flex:0 0 auto}
+.shc-zb-da{font-size:10.5px;font-weight:800;color:#ef4444}
+.shc-zb-empty{padding:16px;text-align:center;font-size:13px;font-weight:700;color:var(--shc-dim)}
+.shc-zb-detail-head{display:flex;align-items:center;gap:12px}
+.shc-zb-detail-head img{width:64px;height:64px;object-fit:contain}
+.shc-zb-detail-head b{display:block;font-size:16px;font-weight:900;color:var(--shc-text)}
+.shc-zb-detail-head small{font-size:12px;font-weight:700;color:var(--shc-dim)}
+.shc-zb-rank{display:flex;flex-direction:column;gap:3px;padding:8px 11px;border-radius:13px;background:var(--shc-soft)}
+.shc-zb-rank-top{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;font-weight:750;color:var(--shc-text)}
+.shc-zb-rank-top span:last-child{font-weight:900;white-space:nowrap}
+.shc-zb-rank .shc-ap-bar{margin-top:3px;height:6px}
+.shc-zb-tags{display:flex;flex-wrap:wrap;gap:6px}
+.shc-zb-tag{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;background:var(--shc-card);border:1px solid var(--shc-border);font-size:12.5px;font-weight:750;color:var(--shc-text)}
+.shc-zb-tag button{border:0;background:none;color:var(--shc-dim);font-size:15px;line-height:1;cursor:pointer;padding:0 0 0 2px}
+.shc-zb-stepper{display:flex;align-items:center;gap:8px}
+.shc-zb-stepper span{min-width:58px;text-align:center;font-size:14px;font-weight:850;color:var(--shc-text)}
+.shc-zb-note{font-size:12px;line-height:1.45;color:var(--shc-dim);margin:0}
+.shc-zb-history{display:flex;flex-direction:column;gap:5px}
+.shc-zb-history div{padding:8px 11px;border-radius:12px;background:var(--shc-soft);font-size:13px;font-weight:650;color:var(--shc-text)}
+.shc-zb-history small{display:block;font-size:11px;font-weight:800;color:var(--shc-dim)}
+`;
+
+const ZB_DEFAULT_NOTIFY = {
+  enabled: "input_boolean.zigbee_avvisi",
+  battery_enabled: "input_boolean.zigbee_avviso_batteria",
+  offline_minutes: "input_number.zigbee_minuti_offline",
+  battery_threshold: "input_number.zigbee_soglia_batteria",
+  from: "input_datetime.zigbee_avvisi_dalle",
+  to: "input_datetime.zigbee_avvisi_alle",
+  notified: "input_text.zigbee_avvisati",
+  battery_notified: "input_text.zigbee_batterie_avvisate",
+  pending: "input_text.zigbee_nuovi_attesa",
+  test_script: "script.zigbee_test_notifica",
+};
+
+const ZB_DEFAULT_GRAPH = {
+  online: "sensor.zigbee_dispositivi_online",
+  lqi_avg: "sensor.zigbee_segnale_medio",
+  lqi_min: "sensor.zigbee_segnale_minimo",
+};
+
+// LQI: 0 = rosso, da 200 in su = verde pieno (come la card originale "Rete Zigbee")
+function zbLqiColor(q) {
+  return `hsl(${Math.round((Math.min(Math.max(q, 0), 200) / 200) * 120)}, 85%, 45%)`;
+}
+
+function zbTacche(q) {
+  return q >= 200 ? 4 : q >= 130 ? 3 : q >= 70 ? 2 : q > 0 ? 1 : 0;
+}
+
+function zbDurata(iso) {
+  const t = Date.parse(iso);
+  if (!t) return "";
+  const m = Math.max(0, Math.round((Date.now() - t) / 60000));
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} h ${m % 60} min`;
+  return `${Math.floor(h / 24)} g ${h % 24} h`;
+}
+
+function zbJsonList(st) {
+  try {
+    const v = JSON.parse(st?.state || "[]");
+    return Array.isArray(v) ? v : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+class ShcZigbeeCard extends HTMLElement {
+  setConfig(config) {
+    if (!config.entity) throw new Error("entity è obbligatorio (sensor.zigbee_dispositivi_offline del package)");
+    this._config = {
+      name: "Rete Zigbee",
+      permit_join_entity: "switch.zigbee2mqtt_bridge_permit_join",
+      restart_entity: "button.zigbee2mqtt_bridge_restart",
+      version_entity: "sensor.zigbee2mqtt_bridge_version",
+      log_level_entity: "select.zigbee2mqtt_bridge_log_level",
+      history_entity: "input_text.zigbee_ultimi_abbinati",
+      excluded_entity: "input_text.zigbee_esclusi",
+      image_path: "/local/zigbee_img/",
+      ...config,
+      notify: { ...ZB_DEFAULT_NOTIFY, ...(config.notify || {}) },
+      graph: { ...ZB_DEFAULT_GRAPH, ...(config.graph || {}) },
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._filter = "all";
+    this._search = "";
+    this._root.innerHTML = `<style>${STYLE}${ZB_STYLE}</style>
+      <article class="shc-ap-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-zb-chip"><ha-icon icon="mdi:zigbee"></ha-icon></span>
+          <span class="shc-ap-headings">
+            <span class="shc-ap-name"></span>
+          </span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Abbinamenti">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="Dispositivi">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-zb-signal" title="Segnale e batterie">${ICON_BATTERY}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="Notifiche">${ICON_BELL}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero"><div class="shc-zb-hero"><span class="shc-zb-wave"></span><span class="shc-zb-wave"></span><span class="shc-zb-wave"></span><ha-icon icon="mdi:zigbee"></ha-icon></div></div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Rete</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PULSE}</span><small>LQI medio</small></span><b class="shc-zb-avg">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_ALERT}</span><small>LQI min</small></span><b class="shc-zb-min">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small>A rete</small></span><b class="shc-zb-mains">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small>A batteria</small></span><b class="shc-zb-batt">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b shc-zb-low" hidden><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic" style="color:#ef4444">${ICON_BATTERY}</span><small>Batt. bassa</small></span><b class="shc-zb-lowval">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="0">
+              <div class="shc-ap-meter-row"><span>Dispositivi online</span><strong class="shc-zb-online-val">—</strong></div>
+              <div class="shc-ap-bar"><i class="shc-zb-online-bar" style="width:0%"></i></div>
+            </div>
+            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="1">
+              <div class="shc-ap-meter-row"><span>Segnale medio</span><strong class="shc-zb-lqi-val">—</strong></div>
+              <div class="shc-ap-bar"><i class="shc-zb-lqi-bar" style="width:0%"></i></div>
+            </div>
+          </div>
+        </div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    shcBindGraph(this);
+    this._root.querySelectorAll(".shc-c-meter-clickable").forEach((m) => {
+      m.addEventListener("click", (e) => {
+        e.stopPropagation();
+        shcOpenChartPopup(this, { title: this._config.name, series: this._graphSeries(), active: Number(m.dataset.graph) });
+      });
+    });
+    const bind = (sel, fn) =>
+      this._root.querySelector(sel).addEventListener("click", (e) => {
+        e.stopPropagation();
+        fn();
+      });
+    bind(".shc-ap-settings", () => this._openPairing());
+    bind(".shc-ap-stats", () => this._openDevices());
+    bind(".shc-ap-hero", () => this._openDevices());
+    bind(".shc-zb-signal", () => this._openSignal());
+    bind(".shc-ap-update", () => this._openNotify());
+    bind(".shc-ap-warn", () => {
+      this._filter = "off";
+      this._openDevices();
+    });
+  }
+
+  // --- dati ---------------------------------------------------------------
+
+  _data() {
+    const st = this._hass?.states[this._config.entity];
+    const a = st?.attributes || {};
+    const list = Array.isArray(a.dispositivi) ? a.dispositivi : [];
+    const excluded = Array.isArray(a.esclusi) ? a.esclusi : [];
+    const soglia = Number(a.soglia_batteria) || 15;
+    const stato = (d) => (excluded.includes(d.n) ? "escl" : d.on ? "on" : "off");
+    const ordine = { off: 0, on: 1, escl: 2 };
+    const devices = [...list].sort((x, y) => ordine[stato(x)] - ordine[stato(y)] || String(x.n).localeCompare(String(y.n)));
+    const withLqi = devices.filter((d) => d.on && d.q >= 0);
+    const minDev = withLqi.length ? withLqi.reduce((m, d) => (d.q < m.q ? d : m), withLqi[0]) : null;
+    return {
+      st,
+      devices,
+      excluded,
+      stato,
+      soglia,
+      total: Number(a.totale) || 0,
+      online: Number(a.online) || 0,
+      offline: devices.filter((d) => stato(d) === "off"),
+      avg: withLqi.length ? Math.round(withLqi.reduce((t, d) => t + d.q, 0) / withLqi.length) : -1,
+      minDev,
+      mains: devices.filter((d) => d.b === -2),
+      battery: devices.filter((d) => d.b !== -2),
+      low: devices.filter((d) => d.b >= 0 && d.b < soglia && stato(d) !== "escl"),
+    };
+  }
+
+  _img(model) {
+    const file = String(model || "").replace(/\//g, "_").replace(/:/g, "-").replace(/ /g, "_") + ".png";
+    const local = `${this._config.image_path}${file}`;
+    const remote = `https://www.zigbee2mqtt.io/images/devices/${file}`;
+    return `<img src="${esc(local)}" data-r="${esc(remote)}" alt="" onerror="if(this.dataset.r){this.src=this.dataset.r;this.dataset.r=''}else{this.style.visibility='hidden'}">`;
+  }
+
+  _battHtml(d) {
+    if (d.b === -2) return `${ICON_PLUG}<span>a rete</span>`;
+    if (d.b < 0) return `${ICON_BATTERY}<span>?</span>`;
+    const col = inverseSeverityColor(d.b);
+    return `<span style="color:${col};display:inline-flex">${ICON_BATTERY}</span><span style="color:${col}">${d.b}%</span>`;
+  }
+
+  // --- card -----------------------------------------------------------------
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const d = this._data();
+    const bridge = cfg.bridge_entity ? hass.states[cfg.bridge_entity] : null;
+    const bridgeDown = bridge && bridge.state !== "on";
+    const mode = !d.st || bridgeDown ? "unavailable" : "running";
+
+    const card = this._root.querySelector(".shc-ap-card");
+    card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm");
+    card.classList.add(mode === "running" ? "is-run" : "is-unavailable");
+    if (d.offline.length || bridgeDown) card.classList.add("has-alarm");
+
+    const badge = this._root.querySelector(".shc-ap-badge");
+    badge.classList.remove("run", "standby", "off", "unavailable");
+    badge.classList.add(mode === "running" && !d.offline.length ? "run" : "unavailable");
+    this._root.querySelector(".shc-ap-badge-label").textContent = !d.st
+      ? "N/D"
+      : bridgeDown
+        ? "BRIDGE OFFLINE"
+        : d.offline.length
+          ? `${d.offline.length} OFFLINE`
+          : `${d.online}/${d.total} ONLINE`;
+
+    const q = (sel) => this._root.querySelector(sel);
+    q(".shc-zb-avg").innerHTML = d.avg >= 0 ? `<span style="color:${zbLqiColor(d.avg)};font-weight:800">${d.avg}</span>` : "—";
+    q(".shc-zb-min").innerHTML = d.minDev
+      ? `<span style="color:${zbLqiColor(d.minDev.q)};font-weight:800">${d.minDev.q}</span> <span style="color:var(--shc-dim)">${esc(d.minDev.n)}</span>`
+      : "—";
+    q(".shc-zb-min").title = d.minDev ? `${d.minDev.n}: LQI ${d.minDev.q}` : "";
+    q(".shc-zb-mains").textContent = String(d.mains.length);
+    q(".shc-zb-batt").textContent = String(d.battery.length);
+    const lowRow = q(".shc-zb-low");
+    lowRow.hidden = !d.low.length;
+    q(".shc-zb-lowval").innerHTML = d.low.length ? `<b>${d.low.length}</b> <span style="color:var(--shc-dim)">sotto ${d.soglia}%</span>` : "";
+
+    const pct = d.total ? Math.round((d.online / d.total) * 100) : 0;
+    q(".shc-zb-online-val").textContent = d.st ? `${d.online}/${d.total}` : "—";
+    const ob = q(".shc-zb-online-bar");
+    ob.style.width = `${pct}%`;
+    ob.style.background = d.offline.length ? "linear-gradient(90deg,#fb923c,#ef4444)" : "linear-gradient(90deg,#4ade80,#16a34a)";
+    q(".shc-zb-lqi-val").textContent = d.avg >= 0 ? `${d.avg} LQI` : "—";
+    const lb = q(".shc-zb-lqi-bar");
+    lb.style.width = `${d.avg >= 0 ? Math.min(100, Math.round((d.avg / 255) * 100)) : 0}%`;
+    lb.style.background = d.avg >= 0 ? zbLqiColor(d.avg) : "";
+
+    const warn = q(".shc-ap-warn");
+    if (bridgeDown) {
+      warn.hidden = false;
+      warn.textContent = "⚠ Zigbee2MQTT non risponde: tutti i dispositivi risultano irraggiungibili";
+    } else if (d.offline.length) {
+      warn.hidden = false;
+      warn.style.cursor = "pointer";
+      warn.textContent = `⚠ Offline: ${d.offline.map((x) => (x.da ? `${x.n} (da ${zbDurata(x.da)})` : x.n)).join(", ")}`;
+    } else {
+      warn.hidden = true;
+    }
+
+    // popup aperto: si ridisegna solo quando cambia una delle entita' della card
+    const n = cfg.notify || {};
+    const key = [cfg.entity, cfg.permit_join_entity, cfg.history_entity, cfg.bridge_entity, cfg.log_level_entity, ...Object.values(n)]
+      .map((e) => (e && hass.states[e] ? hass.states[e].last_updated : ""))
+      .join("|");
+    if (key !== this._liveKey) {
+      this._liveKey = key;
+      if (this._live && this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov):not([hidden])")) this._live();
+    }
+  }
+
+  _graphSeries() {
+    const g = this._config.graph || {};
+    return [
+      { entity: g.online, label: "Dispositivi online", color: "#16a34a" },
+      { entity: g.lqi_avg, label: "LQI medio", color: "#0ea5e9" },
+      { entity: g.lqi_min, label: "LQI minimo", color: "#f97316" },
+    ];
+  }
+
+  // --- popup ------------------------------------------------------------------
+
+  _row(label, valueHtml) {
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+  }
+
+  _openDialog(title, bodyHtml, live) {
+    let overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "shc-ap-overlay";
+      overlay.hidden = true;
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.hidden = true;
+      });
+      this._root.appendChild(overlay);
+    }
+    const prevBody = overlay.querySelector(".shc-ap-dialog-body");
+    const keepScroll = overlay.dataset.title === title && !overlay.hidden ? overlay.querySelector(".shc-ap-dialog")?.scrollTop || 0 : 0;
+    overlay.dataset.title = title;
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
+    </div>`;
+    if (prevBody && keepScroll) overlay.querySelector(".shc-ap-dialog").scrollTop = keepScroll;
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
+      overlay.hidden = true;
+      this._live = null;
+    });
+    overlay.hidden = false;
+    this._live = live || null;
+    return overlay;
+  }
+
+  _call(domain, service, data) {
+    return this._hass?.callService(domain, service, data);
+  }
+
+  _moreInfo(entityId) {
+    const e = new Event("hass-more-info", { bubbles: true, composed: true });
+    e.detail = { entityId };
+    this.dispatchEvent(e);
+  }
+
+  _navigate(path) {
+    if (/^https?:/.test(path)) {
+      window.open(path, "_blank");
+      return;
+    }
+    history.pushState(null, "", path);
+    window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
+  }
+
+  _switchHtml(entity) {
+    const st = entity ? this._hass.states[entity] : null;
+    if (!st) return `<span class="shc-ap-row-val">n/d</span>`;
+    const on = st.state === "on";
+    return `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-toggle="${esc(entity)}" aria-pressed="${on}"></button>`;
+  }
+
+  _stepperHtml(entity, unit) {
+    const st = entity ? this._hass.states[entity] : null;
+    if (!st) return `<span class="shc-ap-row-val">n/d</span>`;
+    return `<span class="shc-zb-stepper">
+      <button type="button" class="shc-at-pm" data-step="${esc(entity)}" data-dir="-1">−</button>
+      <span>${esc(Math.round(Number(st.state)))} ${esc(unit)}</span>
+      <button type="button" class="shc-at-pm" data-step="${esc(entity)}" data-dir="1">+</button>
+    </span>`;
+  }
+
+  _timeHtml(entity) {
+    const st = entity ? this._hass.states[entity] : null;
+    if (!st) return `<span class="shc-ap-row-val">n/d</span>`;
+    return `<input type="time" class="shc-notif-time" data-time="${esc(entity)}" value="${esc(String(st.state).slice(0, 5))}">`;
+  }
+
+  // Collega i controlli comuni dei popup (interruttori, +/-, orari, pulsanti)
+  _bindControls(overlay, reopen) {
+    const hass = this._hass;
+    overlay.querySelectorAll("[data-toggle]").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const ent = b.dataset.toggle;
+        this._call(ent.split(".")[0], "toggle", { entity_id: ent });
+        setTimeout(reopen, 350);
+      }),
+    );
+    overlay.querySelectorAll("[data-step]").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const st = hass.states[b.dataset.step];
+        if (!st) return;
+        const step = Number(st.attributes.step) || 1;
+        const min = Number(st.attributes.min);
+        const max = Number(st.attributes.max);
+        const v = Math.min(max, Math.max(min, Number(st.state) + step * Number(b.dataset.dir)));
+        this._call("input_number", "set_value", { entity_id: b.dataset.step, value: v });
+        setTimeout(reopen, 350);
+      }),
+    );
+    overlay.querySelectorAll("[data-time]").forEach((el) =>
+      el.addEventListener("change", () => {
+        if (el.value) this._call("input_datetime", "set_datetime", { entity_id: el.dataset.time, time: `${el.value}:00` });
+      }),
+    );
+    overlay.querySelectorAll("[data-open-entity]").forEach((el) => el.addEventListener("click", () => this._moreInfo(el.dataset.openEntity)));
+  }
+
+  // ⚙️ Abbinamenti: permit join, ultimi abbinati, Zigbee2MQTT
+  _openPairing() {
+    const hass = this._hass;
+    const cfg = this._config;
+    const pj = hass.states[cfg.permit_join_entity];
+    const pjOn = pj?.state === "on";
+    const sinceTxt = pjOn && pj.last_changed ? new Date(pj.last_changed).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
+    const hist = String(hass.states[cfg.history_entity]?.state || "");
+    const histItems = ["", "unknown", "unavailable"].includes(hist) ? [] : hist.split(" | ");
+    const ver = hass.states[cfg.version_entity]?.state;
+    const bridge = cfg.bridge_entity ? hass.states[cfg.bridge_entity] : null;
+    const log = hass.states[cfg.log_level_entity];
+    const logOpts = (log?.attributes?.options || [])
+      .map((o) => `<option value="${esc(o)}"${o === log.state ? " selected" : ""}>${esc(o)}</option>`)
+      .join("");
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Nuovi dispositivi</div>
+        ${this._row(pjOn ? `Abbinamento attivo dalle ${sinceTxt}` : "Permetti nuovi abbinamenti", this._switchHtml(cfg.permit_join_entity))}
+        <p class="shc-zb-note">Accendi, poi metti il dispositivo in modalità abbinamento. Zigbee2MQTT richiude da solo dopo circa 4 minuti. Quando l'abbinamento riesce arriva l'avviso (nella fascia oraria delle notifiche).</p>
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi abbinati</div>
+        <div class="shc-zb-history">${
+          histItems.length
+            ? histItems.map((h) => `<div><small>${esc(h.slice(0, 11))}</small>${esc(h.slice(12))}</div>`).join("")
+            : `<div class="shc-zb-empty">Nessun abbinamento registrato finora</div>`
+        }</div>
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Zigbee2MQTT</div>
+        ${ver ? this._row("Versione", `<span class="shc-ap-row-val">${esc(ver)}</span>`) : ""}
+        ${bridge ? this._row("Bridge", `<span class="shc-ap-row-val" style="color:${bridge.state === "on" ? "#16a34a" : "#ef4444"};font-weight:800">${bridge.state === "on" ? "Connesso" : "Non connesso"}</span>`) : ""}
+        ${log ? this._row("Livello log", `<select class="shc-ap-select" data-log="1">${logOpts}</select>`) : ""}
+        ${cfg.frontend_url ? this._row("Interfaccia Zigbee2MQTT", `<button type="button" class="shc-ap-action-btn" data-z2m="1">Apri</button>`) : ""}
+        ${hass.states[cfg.restart_entity] ? this._row("Riavvia Zigbee2MQTT", `<button type="button" class="shc-ap-action-btn" data-restart="1">Riavvia</button>`) : ""}
+      </div>`;
+    const overlay = this._openDialog("Abbinamenti", html, () => this._openPairing());
+    this._bindControls(overlay, () => this._openPairing());
+    overlay.querySelector("[data-log]")?.addEventListener("change", (e) => {
+      this._call("select", "select_option", { entity_id: cfg.log_level_entity, option: e.target.value });
+    });
+    overlay.querySelector("[data-z2m]")?.addEventListener("click", () => {
+      overlay.hidden = true;
+      this._navigate(cfg.frontend_url);
+    });
+    overlay.querySelector("[data-restart]")?.addEventListener("click", () => {
+      if (!window.confirm("Riavviare Zigbee2MQTT? Per circa un minuto i dispositivi Zigbee non rispondono.")) return;
+      this._call("button", "press", { entity_id: cfg.restart_entity });
+    });
+  }
+
+  // 📊 Dispositivi: elenco completo con filtri, ricerca e scheda del singolo dispositivo
+  _openDevices() {
+    const d = this._data();
+    const cnt = {
+      all: d.devices.length,
+      on: d.devices.filter((x) => d.stato(x) === "on").length,
+      off: d.offline.length,
+      mains: d.mains.length,
+      batt: d.battery.length,
+    };
+    const filters = [
+      ["all", "Tutti"],
+      ["on", "Online"],
+      ["off", "Offline"],
+      ["mains", "A rete"],
+      ["batt", "A batteria"],
+    ];
+    const match = (x) => {
+      const f = this._filter;
+      if (f === "on" && d.stato(x) !== "on") return false;
+      if (f === "off" && d.stato(x) !== "off") return false;
+      if (f === "mains" && x.b !== -2) return false;
+      if (f === "batt" && x.b === -2) return false;
+      const s = this._search.trim().toLowerCase();
+      return !s || `${x.n} ${x.m} ${x.v || ""}`.toLowerCase().includes(s);
+    };
+    const testo = { on: "Online", off: "Offline", escl: "Escluso" };
+    const items = d.devices.filter(match).map((x) => {
+      const st = d.stato(x);
+      const t = x.on ? zbTacche(x.q) : 0;
+      const col = x.on && x.q >= 0 ? zbLqiColor(x.q) : "#94a3b8";
+      const barre = [1, 2, 3, 4].map((b) => `<i style="height:${2 + b * 3}px;background:${b <= t ? col : "rgba(148,163,184,.3)"}"></i>`).join("");
+      return `<button type="button" class="shc-zb-item ${st}" data-dev="${esc(x.n)}">
+        <span class="shc-zb-foto">${this._img(x.m)}<span class="shc-zb-dot ${st}"></span></span>
+        <span class="shc-zb-txt">
+          <span class="shc-zb-nome">${esc(x.n)}</span>
+          <span class="shc-zb-riga"><span class="shc-zb-st ${st}">${testo[st]}</span><span class="shc-zb-tacche">${barre}</span>${x.on && x.q >= 0 ? `<span style="color:${col}">LQI ${x.q}</span>` : ""}</span>
+          <span class="shc-zb-info">${esc(x.m || "?")} · ${this._battHtml(x)}</span>
+          ${st === "off" && x.da ? `<span class="shc-zb-da">offline da ${esc(zbDurata(x.da))}</span>` : ""}
+        </span>
+      </button>`;
+    });
+    const html = `
+      <div class="shc-zb-filters">${filters
+        .map(([k, l]) => `<button type="button" class="shc-zb-filter${this._filter === k ? " on" : ""}${k === "off" && cnt.off ? " alarm" : ""}" data-filter="${k}">${l} <b>${cnt[k]}</b></button>`)
+        .join("")}</div>
+      <input type="search" class="shc-zb-search" placeholder="Cerca per nome o modello" value="${esc(this._search)}">
+      <div class="shc-zb-grid">${items.join("") || `<div class="shc-zb-empty">Nessun dispositivo</div>`}</div>`;
+    const overlay = this._openDialog(`Dispositivi Zigbee (${d.devices.length})`, html, () => {
+      if (this._root.activeElement?.classList?.contains("shc-zb-search")) return;
+      this._openDevices();
+    });
+    overlay.querySelectorAll("[data-filter]").forEach((b) =>
+      b.addEventListener("click", () => {
+        this._filter = this._filter === b.dataset.filter ? "all" : b.dataset.filter;
+        this._openDevices();
+      }),
+    );
+    const search = overlay.querySelector(".shc-zb-search");
+    search.addEventListener("input", () => {
+      this._search = search.value;
+      const s = search.value.trim().toLowerCase();
+      overlay.querySelectorAll(".shc-zb-item").forEach((el) => {
+        const x = d.devices.find((y) => y.n === el.dataset.dev);
+        el.style.display = !s || `${x.n} ${x.m} ${x.v || ""}`.toLowerCase().includes(s) ? "" : "none";
+      });
+    });
+    overlay.querySelectorAll("[data-dev]").forEach((b) => b.addEventListener("click", () => this._openDevice(b.dataset.dev)));
+  }
+
+  _openDevice(name) {
+    const d = this._data();
+    const x = d.devices.find((y) => y.n === name);
+    if (!x) return this._openDevices();
+    const st = d.stato(x);
+    const col = x.on && x.q >= 0 ? zbLqiColor(x.q) : "#94a3b8";
+    const escluso = d.excluded.includes(x.n);
+    const stTxt = { on: "Online", off: "Offline", escl: x.on ? "Online (escluso)" : "Offline (escluso)" }[st];
+    const html = `
+      <div class="shc-ap-sub-back" data-back="1">${ICON_BACK} Tutti i dispositivi</div>
+      <div class="shc-zb-detail-head">${this._img(x.m)}<div><b>${esc(x.n)}</b><small>${esc([x.v, x.m].filter(Boolean).join(" · "))}</small></div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stato</div>
+        ${this._row("Stato", `<span class="shc-ap-row-val" style="font-weight:800;color:${x.on ? "#16a34a" : "#ef4444"}">${esc(stTxt)}</span>`)}
+        ${!x.on && x.da ? this._row("Offline da", `<span class="shc-ap-row-val">${esc(zbDurata(x.da))}</span>`) : ""}
+        ${this._row("Segnale (LQI)", `<span class="shc-ap-row-val" style="font-weight:800;color:${col}">${x.on && x.q >= 0 ? x.q : "—"}</span>`)}
+        ${this._row("Alimentazione", `<span class="shc-ap-row-val shc-zb-info" style="font-size:14.5px">${this._battHtml(x)}</span>`)}
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Gestione</div>
+        ${this._row("Escludi da conteggio e avvisi", `<button type="button" class="shc-ap-switch${escluso ? " on" : ""}" data-escl="1"></button>`)}
+        <p class="shc-zb-note">Utile per un dispositivo che spegni di proposito (es. una presa stagionale): resta in elenco ma non fa scattare il rosso né gli avvisi.</p>
+        ${x.id ? this._row("Scheda del dispositivo in HA", `<button type="button" class="shc-ap-action-btn" data-device="1">Apri</button>`) : ""}
+      </div>`;
+    const overlay = this._openDialog("Dispositivo", html, () => this._openDevice(name));
+    overlay.querySelector("[data-back]").addEventListener("click", () => this._openDevices());
+    overlay.querySelector("[data-escl]").addEventListener("click", () => {
+      const list = d.excluded.filter((n) => n !== x.n);
+      if (!escluso) list.push(x.n);
+      const value = JSON.stringify(list);
+      if (value.length > 255) {
+        window.alert("Troppi dispositivi esclusi: l'elenco supera i 255 caratteri dell'input_text.");
+        return;
+      }
+      this._call("input_text", "set_value", { entity_id: this._config.excluded_entity, value });
+      setTimeout(() => this._openDevice(name), 3500);
+    });
+    overlay.querySelector("[data-device]")?.addEventListener("click", () => {
+      overlay.hidden = true;
+      this._live = null;
+      this._navigate(`/config/devices/device/${x.id}`);
+    });
+  }
+
+  // 🔋 Segnale e batterie: classifiche dal piu' debole
+  _openSignal() {
+    const d = this._data();
+    const lqi = d.devices.filter((x) => x.on && x.q >= 0).sort((a, b) => a.q - b.q);
+    const batt = d.devices.filter((x) => x.b >= 0).sort((a, b) => a.b - b.b);
+    const noBatt = d.devices.filter((x) => x.b === -1);
+    const rank = (label, valTxt, pct, color) => `<div class="shc-zb-rank">
+        <div class="shc-zb-rank-top"><span>${esc(label)}</span><span style="color:${color}">${valTxt}</span></div>
+        <div class="shc-ap-bar"><i style="width:${pct}%;background:${color}"></i></div>
+      </div>`;
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Segnale (dal più debole)</div>
+        ${lqi.length ? lqi.map((x) => rank(x.n, `LQI ${x.q}`, Math.min(100, Math.round((x.q / 255) * 100)), zbLqiColor(x.q))).join("") : `<div class="shc-zb-empty">Nessun valore LQI: abilita le entità *_linkquality</div>`}
+        <p class="shc-zb-note">Sotto 50 il collegamento è debole: avvicina un dispositivo alimentato a rete (fa da ripetitore) o sposta quello in fondo alla lista.</p>
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Batterie (dalla più scarica)</div>
+        ${batt.length ? batt.map((x) => rank(x.n, `${x.b}%`, x.b, inverseSeverityColor(x.b))).join("") : `<div class="shc-zb-empty">Nessun dispositivo a batteria</div>`}
+        ${noBatt.length ? this._row("Livello non disponibile", `<span class="shc-ap-row-val">${esc(noBatt.map((x) => x.n).join(", "))}</span>`) : ""}
+      </div>`;
+    this._openDialog("Segnale e batterie", html, () => this._openSignal());
+  }
+
+  // 🔔 Notifiche: tutto quello che riguarda gli avvisi
+  _openNotify() {
+    const hass = this._hass;
+    const cfg = this._config;
+    const n = cfg.notify;
+    const d = this._data();
+    const notified = zbJsonList(hass.states[n.notified]);
+    const battNotified = zbJsonList(hass.states[n.battery_notified]);
+    const pending = String(hass.states[n.pending]?.state || "");
+    const tags = (list, attr) =>
+      list.length
+        ? `<div class="shc-zb-tags">${list.map((x) => `<span class="shc-zb-tag">${esc(x)}${attr ? `<button type="button" ${attr}="${esc(x)}" title="Togli">×</button>` : ""}</span>`).join("")}</div>`
+        : `<div class="shc-zb-empty" style="padding:6px">Nessuno</div>`;
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvisi</div>
+        ${this._row("Avvisi offline e nuovi dispositivi", this._switchHtml(n.enabled))}
+        ${this._row("Avviso batteria bassa", this._switchHtml(n.battery_enabled))}
+        ${this._row("Offline da almeno", this._stepperHtml(n.offline_minutes, "min"))}
+        ${this._row("Batteria bassa sotto", this._stepperHtml(n.battery_threshold, "%"))}
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Fascia oraria</div>
+        ${this._row("Dalle", this._timeHtml(n.from))}
+        ${this._row("Fino alle", this._timeHtml(n.to))}
+        <p class="shc-zb-note">Fuori fascia non parte nessuna notifica: quello che succede di notte arriva in un riepilogo all'apertura della fascia.</p>
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Già avvisati</div>
+        ${this._row("Offline", `<span class="shc-ap-row-val">${esc(notified.join(", ") || "nessuno")}</span>`)}
+        ${this._row("Batteria bassa", `<span class="shc-ap-row-val">${esc(battNotified.join(", ") || "nessuno")}</span>`)}
+        ${pending && !["unknown", "unavailable"].includes(pending) ? this._row("Nuovi in attesa della fascia", `<span class="shc-ap-row-val">${esc(pending)}</span>`) : ""}
+        <p class="shc-zb-note">Un dispositivo avvisato non viene ripetuto finché non torna online (o la batteria non risale sopra soglia).</p>
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Esclusi da conteggio e avvisi</div>
+        ${tags(d.excluded, "data-unexcl")}
+        <p class="shc-zb-note">Per escludere un dispositivo: elenco Dispositivi → tocca il dispositivo.</p>
+      </div>
+      ${hass.states[n.test_script] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Prova</div>${this._row("Invia una notifica di prova", `<button type="button" class="shc-ap-action-btn" data-test="1">Invia</button>`)}</div>` : ""}`;
+    const overlay = this._openDialog("Notifiche", html, () => {
+      if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
+      this._openNotify();
+    });
+    this._bindControls(overlay, () => this._openNotify());
+    overlay.querySelectorAll("[data-unexcl]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const value = JSON.stringify(d.excluded.filter((x) => x !== b.dataset.unexcl));
+        this._call("input_text", "set_value", { entity_id: cfg.excluded_entity, value });
+        setTimeout(() => this._openNotify(), 3500);
+      }),
+    );
+    overlay.querySelector("[data-test]")?.addEventListener("click", (e) => {
+      this._call("script", "turn_on", { entity_id: n.test_script });
+      e.target.textContent = "Inviata";
+    });
+  }
+
+  getCardSize() {
+    return 6;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-zigbee-card-editor");
+  }
+
+  static getStubConfig() {
+    return { name: "Rete Zigbee", entity: "sensor.zigbee_dispositivi_offline" };
+  }
+}
+
+class ShcZigbeeCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Rete Zigbee" },
+        { key: "entity", label: "Sensore riepilogo del package (sensor.zigbee_dispositivi_offline)", domain: ["sensor"], required: true },
+        { key: "bridge_entity", label: "Stato del bridge Zigbee2MQTT (connessione)", domain: ["binary_sensor"] },
+      ]},
+      { title: "Zigbee2MQTT", fields: [
+        { key: "permit_join_entity", label: "Permetti abbinamento (permit join)", domain: ["switch"] },
+        { key: "restart_entity", label: "Pulsante riavvio", domain: ["button"] },
+        { key: "version_entity", label: "Versione", domain: ["sensor"] },
+        { key: "log_level_entity", label: "Livello log", domain: ["select"] },
+        { key: "frontend_url", label: "Indirizzo interfaccia Zigbee2MQTT", kind: "text", placeholder: "/hassio/ingress/45df7312_zigbee2mqtt", hint: "Percorso dell'add-on (Ingress) oppure un indirizzo http completo." },
+        { key: "image_path", label: "Cartella foto dispositivi", kind: "text", placeholder: "/local/zigbee_img/", hint: "Se una foto manca la card la prende dal sito di Zigbee2MQTT." },
+      ]},
+      { title: "Notifiche (helper del package)", fields: [
+        { key: "notify.enabled", label: "Avvisi attivi", domain: ["input_boolean"] },
+        { key: "notify.battery_enabled", label: "Avviso batteria bassa", domain: ["input_boolean"] },
+        { key: "notify.offline_minutes", label: "Minuti di offline prima dell'avviso", domain: ["input_number"] },
+        { key: "notify.battery_threshold", label: "Soglia batteria bassa", domain: ["input_number"] },
+        { key: "notify.from", label: "Avvisi dalle", domain: ["input_datetime"] },
+        { key: "notify.to", label: "Avvisi fino alle", domain: ["input_datetime"] },
+        { key: "notify.test_script", label: "Script notifica di prova", domain: ["script"] },
+      ]},
+      { title: "Grafici", fields: [
+        { key: "graph.online", label: "Dispositivi online", domain: ["sensor"] },
+        { key: "graph.lqi_avg", label: "LQI medio", domain: ["sensor"] },
+        { key: "graph.lqi_min", label: "LQI minimo", domain: ["sensor"] },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-zigbee-card-editor", ShcZigbeeCardEditor);
+
+customElements.define("shc-zigbee-card", ShcZigbeeCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-zigbee-card",
+  name: "Rete Zigbee",
+  description: "Card per la rete Zigbee2MQTT: dispositivi online/offline, segnale, batterie, abbinamenti e notifiche",
   author: "Simonz82",
 });
