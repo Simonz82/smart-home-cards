@@ -245,6 +245,66 @@ reset_script: script.reset_contatori_lavatrice
 reset_date_entity: input_text.data_reset_lavatrice
 ```
 
+## 🕹️ Comandi a distanza (opzionale)
+
+Se il tuo elettrodomestico è **domotico** e accetta comandi da Home Assistant, la card può mostrare un riquadro **Comandi** sotto il riepilogo: avvio, stop, programmi, opzioni e avvio ritardato, senza andare davanti alla macchina.
+
+| Riquadro Comandi | Popup Programmi |
+|---|---|
+| ![Comandi lavastoviglie](screenshot/elettrodomestici-lavastoviglie-comandi.png) | ![Programmi lavastoviglie](screenshot/elettrodomestici-lavastoviglie-programmi-dark.png) |
+
+> **Esempio reale**: io lo uso sulla **lavastoviglie Bosch SMV4ECX21E** con l'integrazione ufficiale **Home Connect**. Con Home Connect le entità hanno già i nomi giusti (`select.<nome>_selected_program`, `select.<nome>_active_program`, `button.<nome>_stop_program`…), cambia solo il nome della tua macchina.
+
+Cosa fa:
+
+- **▶ Avvia**: avvia il programma scelto. Se la macchina è spenta la accende prima.
+- **■ Stop**: ferma il ciclo. Serve un **secondo tocco entro 4 secondi**, per non fermarlo per sbaglio.
+- **Programmi**: popup con i programmi della macchina (nomi in italiano per Home Connect: Eco 50°, Auto 45-65°, Intensivo 70°…), le **opzioni** che scegli tu (mezzo carico, VarioSpeed, igiene…) e l'**avvio ritardato** (Subito, 1 h, 2 h, 3 h, 4 h, 6 h, 8 h). A ciclo in corso programma e opzioni si cambiano solo a macchina ferma.
+- **Accendi/Spegni** quando la macchina è ferma.
+- Accanto a "Comandi" compare il programma scelto, ad esempio "Eco 50° · tra 3 h".
+- Se sulla macchina il **controllo remoto non è attivo** (Avvio remoto di Home Connect, Smart Control di SmartThings), i pulsanti restano visibili ma disattivati, con la spiegazione di cosa fare.
+
+C'è anche un secondo modo, per gli elettrodomestici che hanno un solo `select` con le opzioni `run`/`pause`/`stop` (ad esempio alcune asciugatrici e lavatrici SmartThings): con `machine_select` compaiono **Avvia/Riprendi**, **Pausa** e **Stop**.
+
+> ⚠️ Per sicurezza molti elettrodomestici **non si riaccendono da remoto** dopo un blackout o se il controllo remoto è disattivato: va riattivato dal pannello della macchina. La card non può aggirarlo.
+
+```yaml
+controls:
+  program_select: select.lavastoviglie_selected_program
+  start_select: select.lavastoviglie_active_program
+  stop_button: button.lavastoviglie_stop_program
+  power_switch: switch.lavastoviglie_power
+  remote_entity: binary_sensor.lavastoviglie_remote_start
+  delay_entity: number.lavastoviglie_start_in_relative
+  options:
+    - entity: switch.lavastoviglie_vario_speed
+      name: VarioSpeed (più veloce)
+    - entity: switch.lavastoviglie_half_load
+      name: Mezzo carico
+    - entity: switch.lavastoviglie_hygiene
+      name: Igiene
+    - entity: switch.lavastoviglie_eco_dry
+      name: Asciugatura extra
+    - entity: switch.lavastoviglie_silence_on_demand
+      name: Silenzio su richiesta
+```
+
+| Campo | Cosa fa |
+|---|---|
+| `program_select` | Programma scelto (`select`): elenco nel popup Programmi |
+| `start_select` | Programma attivo (`select`): Avvia lo imposta uguale al programma scelto |
+| `stop_button` | Pulsante (`button`) che ferma il ciclo |
+| `machine_select` | In alternativa: `select` con `run`/`pause`/`stop` (Avvia, Pausa, Riprendi, Stop) |
+| `power_switch` | Interruttore di accensione (`switch`) |
+| `remote_entity` | `binary_sensor` acceso quando la macchina accetta comandi a distanza |
+| `remote_hint` | Testo da mostrare quando il controllo remoto è spento |
+| `delay_entity` | Avvio ritardato in secondi (`number`) |
+| `delay_choices` | Ore proposte per l'avvio ritardato, default `[0, 1, 2, 3, 4, 6, 8]` |
+| `options` | Interruttori delle opzioni nel popup (`entity`, `name`) |
+| `program_names` | Nomi tuoi per i programmi, es. `{dishcare_dishwasher_program_eco_50: "Eco"}` |
+
+Senza `controls` la card resta come prima, senza comandi.
+
 ## Esempio completo (lavastoviglie)
 
 ```yaml

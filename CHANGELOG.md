@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-25 (8) — 1.11.0: comandi a distanza per gli elettrodomestici, scale più fitte
+
+- **Elettrodomestici, comandi a distanza** (nuovo campo `controls`, facoltativo): riquadro **Comandi** sotto il riepilogo con Avvia, Stop (doppio tocco per sicurezza), Accendi/Spegni e il popup **Programmi** con programmi, opzioni e avvio ritardato (Subito…8 h). Pensato per Home Connect (esempio reale: lavastoviglie Bosch, nomi dei programmi in italiano); con `machine_select` anche Avvia/Pausa/Riprendi/Stop per gli elettrodomestici SmartThings che li accettano. Se il controllo remoto è spento sulla macchina, i pulsanti si disattivano e la card spiega cosa fare. Guida: [docs/elettrodomestici.md](docs/elettrodomestici.md), sezione "Comandi a distanza".
+- **Climatizzatore, Stufetta, Caldaia**: la scala della temperatura ha un numero **per ogni grado** (nuova opzione `scale_step` per tornare a 2 o più). Il Ventilatore resta com'era.
+- **Caldaia**: la barra della pressione è **staccata** di qualche pixel da quella della temperatura e ha un numero **ogni 0,25 bar** (nuova opzione `pressure_scale_step`).
+- Schermate aggiornate di Climatizzatore, Stufetta e Caldaia.
+
 ## 2026-10-25 (7) — 1.10.0: Stufetta, Ventilatore, Caldaia e caloriferi
 
 - **Nuova card 🔥 Stufetta** (`shc-heater-card`): stufetta animata con onde di calore per livello (H1/H2/H3), gauge dritta con temperatura e umidità della stanza e cursore della soglia, pulsanti per livelli, solo ventilazione e oscillazione, popup gestione automatica, impostazioni e stato. Esempio reale: Dreo 314S (DR-HSH004S), ma va bene qualsiasi stufetta `climate.`. Package [`packages/stufetta.yaml`](packages/stufetta.yaml): ogni accensione parte in H3, alla soglia della stanza scende a H1/H2. Guida: [docs/stufetta.md](docs/stufetta.md).

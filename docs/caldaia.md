@@ -12,8 +12,8 @@ La caldaia a gas in una card sola, nello stesso stile della [card Climatizzatore
 
 - **Caldaia animata**: fiamma accesa e tremolante quando lavora; quando scalda la casa i tubi diventano rosso (mandata) e blu (ritorno) e il calorifero si colora di arancione con il calore che sale; quando fa acqua calda scendono le gocce dal rubinetto. Sul display la temperatura impostata oppure `OFF`.
 - **Gauge dritta**:
-  - sopra la **temperatura di casa** (10°…28°) con la lancetta bianca e il **cursore rosso della temperatura impostata**, visibile anche a caldaia spenta;
-  - sotto la **pressione dell'impianto** (0,5…2,5 bar) con i suoi colori: rosso troppo bassa, arancione al limite, verde giusta, rosso troppo alta. Accanto alla temperatura c'è anche il valore, rosso se fuori range.
+  - sopra la **temperatura di casa** (10°…28°, un numero per ogni grado) con la lancetta bianca e il **cursore rosso della temperatura impostata**, visibile anche a caldaia spenta;
+  - qualche pixel più sotto, staccata, la **pressione dell'impianto** (0,5…2,5 bar, un numero ogni 0,25 bar) con i suoi colori: rosso troppo bassa, arancione al limite, verde giusta, rosso troppo alta. Accanto alla temperatura c'è anche il valore, rosso se fuori range.
 - **Riquadro Caldaia**: casa, esterna, pressione, acqua calda (pronta / in uso), prossimo cambio del programma ("17° 22:30") e gas di oggi.
 - **Comandi**: accendi/spegni, − e + per la temperatura (0,5° alla volta), Spenti (antigelo), Manuale, Programma, i programmi orari P1/P2/P3 e la modalità camino.
 - **− e + anche a caldaia spenta**: molte caldaie (Remeha compresa) da spente ignorano la temperatura. La card allora se la ricorda e, quando premi l'accensione, accende in Manuale a quella temperatura.
@@ -113,6 +113,8 @@ diagnostics:
 | `gas_price` | — | Prezzo del gas in €/m³ per il costo |
 | `step` | 0,5 | Passo di − e + |
 | `min`, `max` | 10, 28 | Scala della temperatura |
+| `scale_step` | 1 | Ogni quanti gradi un numero sulla scala (es. `2`) |
+| `pressure_scale_step` | 0,25 | Ogni quanti bar un numero sotto la barra della pressione (es. `0.5`) |
 | `internet_entity` | — | Interruttore del router per l'accesso a internet della caldaia |
 | `diagnostics` | — | Automazioni/sensori nel popup Stato (`entity`, `name`, `alarm`) |
 | `hide_when_offline` | `false` | Nascondi se scollegata (striscia bassa "Caloriferi offline") |

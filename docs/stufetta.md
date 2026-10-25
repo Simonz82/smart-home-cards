@@ -90,6 +90,7 @@ diagnostics:
 | `switches` | — | Interruttori nel popup Impostazioni (`entity`, `name`) |
 | `diagnostics` | — | Automazioni/sensori nel popup Stato (`entity`, `name`, `alarm`) |
 | `min`, `max` | 15, 30 | Scala della gauge |
+| `scale_step` | 1 | Ogni quanti gradi un numero sulla scala (es. `2`) |
 | `segments`, `humidity_segments` | colori pronti | Colori della scala, come nel [Climatizzatore](clima.md) |
 | `hide_when_offline` | `false` | Nascondi se scollegata, vedi sotto |
 | `layout_entity` | — | Menu layout classico/centrato, vedi [layout.md](layout.md) |

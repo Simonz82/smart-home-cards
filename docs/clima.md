@@ -146,6 +146,7 @@ segments:
 | `hero` | No | `immagine` | `immagine` = split animato + gauge dritta; `gauge` = gauge rotonda (gauge-card-pro) come nella 1.9.0 |
 | `layout` | No | `centrato` | `centrato` o `classico` (split e gauge a sinistra, dati a destra) |
 | `min` / `max` | No | `18` / `32` | Scala della temperatura |
+| `scale_step` | No | `1` | Ogni quanti gradi un numero sulla scala (es. `2`) |
 | `segments` | No | blu → verde → rosso | Colori della scala temperatura: elenco `{from, color}` |
 | `humidity_segments` | No | rosso → azzurro → nero | Colori della barra umidità (0–100): elenco `{from, color}` |
 | `temperature_entity` | No | — | Sensore temperatura stanza: serve per il grafico (senza, la card usa la temperatura del climatizzatore) |

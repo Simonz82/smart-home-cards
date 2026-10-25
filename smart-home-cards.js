@@ -459,6 +459,22 @@ const STYLE = `
 .shc-ap-chart-loading{padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--shc-dim)}
 .shc-ap-warn{display:flex;align-items:center;gap:6px;margin:0 13px 12px;padding:9px 12px;border-radius:13px;background:#fee2e2;color:#b91c1c;font-size:13px;font-weight:800}
 .shc-ap-warn[hidden]{display:none}
+.shc-ap-ctrl{margin:0 13px 12px;padding:11px 12px;border-radius:16px;background:var(--shc-soft);display:flex;flex-direction:column;gap:9px}
+.shc-ap-ctrl[hidden]{display:none}
+.shc-ap-ctrl-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:850;letter-spacing:.3px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-ap-ctrl-prog{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:13px;color:var(--shc-text);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.shc-ap-ctrl-btns{display:flex;flex-wrap:wrap;gap:7px}
+.shc-ap-cbtn{flex:1 1 0;min-width:84px;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 8px;border:1px solid var(--shc-border);border-radius:13px;background:var(--shc-card);color:var(--shc-text);font:inherit;font-size:13.5px;font-weight:850;cursor:pointer}
+.shc-ap-cbtn.go{background:#16a34a;border-color:#16a34a;color:#fff}
+.shc-ap-cbtn.pause{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.shc-ap-cbtn.stop{color:#dc2626;border-color:rgba(220,38,38,.45)}
+.shc-ap-cbtn.stop.armed{background:#dc2626;border-color:#dc2626;color:#fff}
+.shc-ap-cbtn:disabled{opacity:.45;cursor:not-allowed}
+.shc-ap-ctrl-note{font-size:12.5px;font-weight:700;line-height:1.4;color:var(--shc-dim)}
+.shc-ap-ctrl-note.bad{color:#b45309}
+.shc-ap-chips{display:flex;flex-wrap:wrap;gap:6px}
+.shc-ap-pchip{padding:7px 11px;border:1px solid var(--shc-border);border-radius:999px;background:var(--shc-card);color:var(--shc-text);font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.shc-ap-pchip.on{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
 .shc-test-flag{position:absolute;top:10px;right:10px;z-index:2;font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:#0369a1;background:rgba(14,165,233,.14);border-radius:8px;padding:4px 8px}
 
 .shc-ap-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px)}
@@ -1155,6 +1171,37 @@ function shcOpenChartPopup(card, opts) {
   setRange("24h");
 }
 
+// Nomi italiani dei programmi Home Connect piu' comuni (lavastoviglie Bosch/Siemens/Neff).
+// Ogni card puo' aggiungerne o cambiarli con controls.program_names.
+const SHC_PROGRAM_NAMES = {
+  dishcare_dishwasher_program_eco_50: "Eco 50\u00b0",
+  dishcare_dishwasher_program_auto_1: "Auto 35-45\u00b0",
+  dishcare_dishwasher_program_auto_2: "Auto 45-65\u00b0",
+  dishcare_dishwasher_program_auto_3: "Auto 65-75\u00b0",
+  dishcare_dishwasher_program_intensiv_70: "Intensivo 70\u00b0",
+  dishcare_dishwasher_program_quick_45: "Rapido 45\u00b0",
+  dishcare_dishwasher_program_quick_65: "Rapido 65\u00b0",
+  dishcare_dishwasher_program_night_wash: "Notte",
+  dishcare_dishwasher_program_machine_care: "Cura macchina",
+  dishcare_dishwasher_program_pre_rinse: "Prelavaggio",
+  dishcare_dishwasher_program_glas_40: "Delicato 40\u00b0",
+  dishcare_dishwasher_program_kurz_60: "Breve 60\u00b0",
+  dishcare_dishwasher_program_express_sparkle_65: "Express 65\u00b0",
+};
+
+// Etichette della scala dei gradi della gauge dritta: con passo 1 diventano tante,
+// quindi niente simbolo del grado (c'e' gia' "°C" accanto al valore) e tutte
+// centrate sul loro valore (classe "dense").
+function shcDegTicks(el, min, max, step) {
+  const pos = (v) => Math.min(100, Math.max(0, ((v - min) / (max - min)) * 100));
+  const out = [];
+  for (let t = min; t <= max + 1e-9; t += step) {
+    out.push(`<span style="left:${pos(t).toFixed(2)}%">${t}${step >= 2 ? "\u00b0" : ""}</span>`);
+  }
+  el.innerHTML = out.join("");
+  el.classList.toggle("dense", step < 2);
+}
+
 class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
     if (!config.power_entity) throw new Error("power_entity \u00e8 obbligatorio");
@@ -1214,6 +1261,7 @@ class ShcApplianceCloneCard extends HTMLElement {
           </div>
         </div>
         <div class="shc-ap-warn" hidden></div>
+        ${this._config.controls ? `<div class="shc-ap-ctrl" hidden></div>` : ""}
         <div class="shc-ap-panel shc-ap-power-open" role="button" tabindex="0">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter">
@@ -1945,6 +1993,191 @@ class ShcApplianceCloneCard extends HTMLElement {
     } else {
       warnEl.hidden = true;
     }
+    this._renderControls(hass);
+  }
+
+  // -----------------------------------------------------------------------
+  // Comandi a distanza (facoltativi, campo "controls"): per gli elettrodomestici
+  // domotici che accettano comandi. Due modi, anche insieme:
+  //  - machine_select: un select con le opzioni run/pause/stop (SmartThings,
+  //    es. asciugatrice Samsung) -> Avvia/Riprendi, Pausa, Stop;
+  //  - program_select + start_select: programma scelto + programma attivo
+  //    (Home Connect, es. lavastoviglie Bosch/Siemens) -> scegli il programma,
+  //    le opzioni e l'avvio ritardato, poi Avvia; Stop con stop_button.
+  // Se remote_entity e' spento l'elettrodomestico rifiuta i comandi: i pulsanti
+  // restano visibili ma disattivati, con la spiegazione di cosa fare.
+  // -----------------------------------------------------------------------
+  _ctrlOk(hass, entity) {
+    const st = entity ? hass.states[entity] : null;
+    return !!st && !["unavailable", "unknown"].includes(st.state);
+  }
+
+  _remoteAllowed(hass) {
+    const c = this._config.controls || {};
+    if (!c.remote_entity) return true;
+    return hass.states[c.remote_entity]?.state === "on";
+  }
+
+  _programLabel(opt) {
+    const c = this._config.controls || {};
+    if (!opt || ["unknown", "unavailable"].includes(opt)) return "\u2014";
+    if (c.program_names && c.program_names[opt]) return c.program_names[opt];
+    if (SHC_PROGRAM_NAMES[opt]) return SHC_PROGRAM_NAMES[opt];
+    const tail = String(opt).split("_program_").pop().replace(/_/g, " ");
+    return tail.charAt(0).toUpperCase() + tail.slice(1);
+  }
+
+  _ctrlRunning(hass) {
+    const c = this._config.controls || {};
+    const ms = c.machine_select ? hass.states[c.machine_select]?.state : null;
+    if (ms) return ms;
+    const act = c.start_select ? hass.states[c.start_select]?.state : null;
+    const op = this._config.live?.state_entity ? hass.states[this._config.live.state_entity]?.state : null;
+    if (["run", "delayedstart"].includes(op) || (act && !["unknown", "unavailable"].includes(act))) return op === "pause" ? "pause" : "run";
+    if (op === "pause") return "pause";
+    return "stop";
+  }
+
+  _renderControls(hass) {
+    const c = this._config.controls;
+    const box = this._root.querySelector(".shc-ap-ctrl");
+    if (!c || !box) return;
+    const avail = [c.machine_select, c.start_select, c.power_switch].some((e) => this._ctrlOk(hass, e));
+    box.hidden = !avail;
+    if (!avail) return;
+    const remote = this._remoteAllowed(hass);
+    const state = this._ctrlRunning(hass);
+    const dis = remote ? "" : " disabled";
+    const btns = [];
+    if (c.power_switch && this._ctrlOk(hass, c.power_switch) && state === "stop") {
+      const on = hass.states[c.power_switch].state === "on";
+      btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="power"${dis}>${on ? "Spegni" : "Accendi"}</button>`);
+    }
+    if (c.machine_select) {
+      if (state === "run") btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dis}>\u275a\u275a Pausa</button>`);
+      else btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dis}>\u25b6 ${state === "pause" ? "Riprendi" : "Avvia"}</button>`);
+      if (state !== "stop") btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
+    } else if (c.start_select) {
+      if (state === "stop") btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="start"${dis}>\u25b6 Avvia</button>`);
+      else if (c.stop_button) btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
+    }
+    if (c.program_select) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="programs">Programmi</button>`);
+    const prog = c.program_select ? this._programLabel(hass.states[c.program_select]?.state) : "";
+    const delay = c.delay_entity ? Number(hass.states[c.delay_entity]?.state) : 0;
+    const progTxt = prog && state === "stop" ? `${prog}${delay > 0 ? ` \u00b7 tra ${this._fmtDelay(delay)}` : ""}` : "";
+    let note = "";
+    if (!remote) note = `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto (Smart Control / Avvio remoto) dal suo pannello.")}</div>`;
+    else if (state === "pause" && c.machine_select) note = `<div class="shc-ap-ctrl-note">In pausa: premi Riprendi per continuare il ciclo.</div>`;
+    const html = `<div class="shc-ap-ctrl-head"><span>Comandi</span>${progTxt ? `<span class="shc-ap-ctrl-prog" data-cact="programs">${esc(progTxt)}</span>` : ""}</div>
+      <div class="shc-ap-ctrl-btns">${btns.join("")}</div>${note}`;
+    if (html === this._ctrlHtml) return;
+    this._ctrlHtml = html;
+    box.innerHTML = html;
+    box.querySelectorAll("[data-cact]").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._ctrlAction(b.dataset.cact, b);
+      }),
+    );
+  }
+
+  _fmtDelay(sec) {
+    const m = Math.round(sec / 60);
+    const h = Math.floor(m / 60);
+    return h > 0 ? `${h} h${m % 60 ? ` ${m % 60} min` : ""}` : `${m} min`;
+  }
+
+  _ctrlAction(act, btn) {
+    const hass = this._hass;
+    const c = this._config.controls || {};
+    if (!hass) return;
+    if (act === "programs") return this._openPrograms();
+    if (act === "power") return hass.callService("switch", "toggle", { entity_id: c.power_switch });
+    if (act === "stop") {
+      // Fermare un ciclo non si annulla: serve un secondo tocco entro 4 secondi.
+      if (!btn.classList.contains("armed")) {
+        btn.classList.add("armed");
+        btn.textContent = "Tocca ancora";
+        clearTimeout(this._stopTimer);
+        this._stopTimer = setTimeout(() => {
+          this._ctrlHtml = null;
+          this._renderControls(this._hass);
+        }, 4000);
+        return;
+      }
+      clearTimeout(this._stopTimer);
+      if (c.machine_select) hass.callService("select", "select_option", { entity_id: c.machine_select, option: "stop" });
+      else if (c.stop_button) hass.callService("button", "press", { entity_id: c.stop_button });
+      return;
+    }
+    if (act === "run" || act === "pause") {
+      return hass.callService("select", "select_option", { entity_id: c.machine_select, option: act });
+    }
+    if (act === "start") return this._startProgram();
+  }
+
+  async _startProgram() {
+    const hass = this._hass;
+    const c = this._config.controls || {};
+    const prog = hass.states[c.program_select]?.state;
+    if (!prog || ["unknown", "unavailable"].includes(prog)) return this._openPrograms();
+    if (c.power_switch && hass.states[c.power_switch]?.state === "off") {
+      await hass.callService("switch", "turn_on", { entity_id: c.power_switch });
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+    hass.callService("select", "select_option", { entity_id: c.start_select, option: prog });
+  }
+
+  _openPrograms() {
+    const hass = this._hass;
+    const c = this._config.controls || {};
+    const pst = hass.states[c.program_select];
+    const cur = pst?.state;
+    const opts = (pst?.attributes?.options || [])
+      .map((o) => `<button type="button" class="shc-ap-pchip${o === cur ? " on" : ""}" data-prog="${esc(o)}">${esc(this._programLabel(o))}</button>`)
+      .join("");
+    const optRows = (c.options || [])
+      .filter((o) => hass.states[o.entity])
+      .map((o) => this._settingsRowHtml(hass, { entity: o.entity, label: o.name || hass.states[o.entity].attributes?.friendly_name || o.entity }))
+      .join("");
+    const delay = c.delay_entity && hass.states[c.delay_entity] ? Number(hass.states[c.delay_entity].state) || 0 : null;
+    const delayChips = delay === null ? "" : (c.delay_choices || [0, 1, 2, 3, 4, 6, 8])
+      .map((h) => `<button type="button" class="shc-ap-pchip${Math.round(delay / 3600) === h && (h > 0 || delay === 0) ? " on" : ""}" data-delay="${h * 3600}">${h ? `${h} h` : "Subito"}</button>`)
+      .join("");
+    const state = this._ctrlRunning(hass);
+    const remote = this._remoteAllowed(hass);
+    const body = `${opts ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Programma</div><div class="shc-ap-chips">${opts}</div></div>` : ""}
+      ${optRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Opzioni</div>${optRows}</div>` : ""}
+      ${delayChips ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvio ritardato</div><div class="shc-ap-chips">${delayChips}</div></div>` : ""}
+      ${c.start_select && state === "stop" ? `<button type="button" class="shc-ap-reset-btn" data-pstart${remote ? "" : " disabled"}>\u25b6 Avvia ${esc(this._programLabel(cur))}</button>` : ""}
+      ${remote ? "" : `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto dal suo pannello.")}</div>`}
+      ${state !== "stop" ? `<div class="shc-ap-ctrl-note">Ciclo in corso: programma e opzioni si cambiano a macchina ferma.</div>` : ""}`;
+    const overlay = this._openDialog("Programmi", body);
+    const reopen = () => setTimeout(() => this._openPrograms(), 700);
+    overlay.querySelectorAll("[data-prog]").forEach((b) =>
+      b.addEventListener("click", () => {
+        hass.callService("select", "select_option", { entity_id: c.program_select, option: b.dataset.prog });
+        reopen();
+      }),
+    );
+    overlay.querySelectorAll("[data-delay]").forEach((b) =>
+      b.addEventListener("click", () => {
+        hass.callService("number", "set_value", { entity_id: c.delay_entity, value: Number(b.dataset.delay) });
+        reopen();
+      }),
+    );
+    overlay.querySelectorAll("[data-entity]").forEach((b) =>
+      b.addEventListener("click", () => {
+        hass.callService(b.dataset.entity.split(".")[0], "toggle", { entity_id: b.dataset.entity });
+        reopen();
+      }),
+    );
+    const start = overlay.querySelector("[data-pstart]");
+    if (start)
+      start.addEventListener("click", () => {
+        overlay.hidden = true;
+        this._startProgram();
+      });
   }
 
   _graphSeries() {
@@ -8548,6 +8781,11 @@ const CL_STYLE = `
 .shc-cl-scale span:first-child{transform:none}
 .shc-cl-scale span:last-child{transform:translateX(-100%)}
 .shc-cl-scale.h{color:#38bdf8}
+.shc-cl-scale.dense{font-size:9.5px}
+.shc-cl-scale.dense span:first-child,.shc-cl-scale.dense span:last-child{transform:translateX(-50%)}
+.shc-cl-track.sep{height:35px}
+.shc-cl-track.sep .shc-cl-lbar.inner{top:26px}
+.shc-cl-track.sep .shc-cl-ndl.inner{top:24px}
 .shc-cl-line-title small em{font-style:normal;font-weight:850;color:#d96c6c}
 .shc-cl-card .shc-ap-tool ha-icon{--mdc-icon-size:20px}
 /* 5 pulsanti: il nome sta gia' nella gauge, qui lo nascondiamo */
@@ -8803,10 +9041,8 @@ class ShcClimateCard extends HTMLElement {
     const q = (sel) => this._root.querySelector(sel);
     q(".shc-cl-lbar.main").style.background = grad(cfg.segments || CL_LINE_SEGMENTS, min, max);
     q(".shc-cl-lbar.inner").style.background = grad(cfg.humidity_segments || CL_HUM_SEGMENTS, 0, 100);
-    const ticks = [];
     // etichette nel punto esatto del valore, allineate a lancette e cursori
-    for (let t = min; t <= max; t += 2) ticks.push(`<span style="left:${pos(t, min, max).toFixed(2)}%">${t}°</span>`);
-    q(".shc-cl-scale.t").innerHTML = ticks.join("");
+    shcDegTicks(q(".shc-cl-scale.t"), min, max, Number(cfg.scale_step) || 1);
     q(".shc-cl-scale.h").innerHTML = [0, 20, 40, 60, 80, 100].map((h) => `<span style="left:${h}%">${h}%</span>`).join("");
     q(".cl-l-room").textContent = cfg.room_name || cfg.name;
   }
@@ -9641,10 +9877,7 @@ class ShcDeviceCardBase extends HTMLElement {
     const q = (sel) => this._root.querySelector(sel);
     q(".shc-cl-lbar.main").style.background = grad(cfg.segments || segments, min, max);
     q(".shc-cl-lbar.inner").style.background = grad(cfg.humidity_segments || CL_HUM_SEGMENTS, 0, 100);
-    const stepT = max - min > 16 ? 4 : 2;
-    const ticks = [];
-    for (let t = min; t <= max; t += stepT) ticks.push(`<span style="left:${pos(t, min, max).toFixed(2)}%">${t}°</span>`);
-    q(".shc-cl-scale.t").innerHTML = ticks.join("");
+    shcDegTicks(q(".shc-cl-scale.t"), min, max, Number(cfg.scale_step) || (max - min > 16 ? 4 : 2));
     q(".shc-cl-scale.h").innerHTML = [0, 20, 40, 60, 80, 100].map((h) => `<span style="left:${h}%">${h}%</span>`).join("");
     q(".cl-l-room").textContent = cfg.room_name || cfg.name;
   }
@@ -9858,6 +10091,7 @@ class ShcHeaterCard extends ShcDeviceCardBase {
       layout: "centrato",
       min: 15,
       max: 30,
+      scale_step: 1,
       threshold_entity: "input_number.stufetta_soglia_bagno",
       reduced_level_entity: "input_select.stufetta_livello_ridotto",
       auto_entity: "input_boolean.stufetta_gestione_automatica",
@@ -10751,6 +10985,7 @@ class ShcBoilerCard extends ShcDeviceCardBase {
       layout: "centrato",
       min: 10,
       max: 28,
+      scale_step: 1,
       step: 0.5,
       pressure_min: 1,
       pressure_max: 2.5,
@@ -10847,8 +11082,12 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     const q = (sel) => this._root.querySelector(sel);
     q(".shc-cl-lbar.inner").style.background = `linear-gradient(90deg,${segs.map((g) => `${g.color} ${pos(Number(g.from)).toFixed(1)}%`).join(",")})`;
     const ticks = [];
-    for (let v = lo; v <= hi + 1e-9; v += 0.5) ticks.push(`<span style="left:${pos(v).toFixed(2)}%">${clNum(v)}${v + 0.5 > hi + 1e-9 ? " bar" : ""}</span>`);
+    const st = Number(this._config.pressure_scale_step) || 0.25;
+    for (let v = lo; v <= hi + 1e-9; v += st) ticks.push(`<span style="left:${pos(v).toFixed(2)}%">${String(Math.round(v * 100) / 100).replace(".", ",")}${st >= 0.5 && v + st > hi + 1e-9 ? " bar" : ""}</span>`);
     q(".shc-cl-scale.h").innerHTML = ticks.join("");
+    q(".shc-cl-scale.h").classList.toggle("dense", st < 0.5);
+    // barra dei gradi e barra della pressione staccate di qualche pixel
+    q(".shc-cl-track").classList.add("sep");
     q(".shc-cl-lbar.inner").title = "Pressione impianto";
   }
 
