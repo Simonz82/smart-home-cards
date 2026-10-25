@@ -14,7 +14,7 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 |---|---|---|
 | [🧺 Elettrodomestici](docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale (anche senza YAML, vedi guida) | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
 | [⚡ Energia Casa](docs/energia.md) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Un misuratore di potenza generale casa in Watt |
-| [❄️ Climatizzatore](docs/clima.md) | Gauge con temperatura stanza/impostata e umidità, comandi diretti, programmazione accensione/spegnimento, consumi, ventola e alette, diagnostica | Qualsiasi entità `climate.` (+ gauge-card-pro consigliata) |
+| [❄️ Climatizzatore](docs/clima.md) | Split animato che soffia aria (blu freddo, arancio caldo), gauge dritta con temperatura stanza/impostata e umidità, comandi diretti anche da spento, programmazione accensione/spegnimento, consumi, ventola e alette, diagnostica | Qualsiasi entità `climate.` |
 | [📶 FritzBox / Router](docs/fritzbox.md) | Stato connessione, banda impegnata, velocità, test di velocità | Router AVM FritzBox (integrazione ufficiale HA) |
 | [📡 Rete Zigbee](docs/zigbee.md) | Dispositivi online/offline e da quanto, segnale LQI medio e minimo, batterie, elenco con foto, abbinamenti, avvisi in fascia oraria | Zigbee2MQTT con disponibilità attiva |
 | [🖥️ Server Home Assistant](docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |

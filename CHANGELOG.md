@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-25 (6) — 1.9.1: Climatizzatore con split animato e gauge dritta
+
+- **Card ❄️ Climatizzatore**: in alto lo **split che soffia aria**, animato come il cestello di lavatrice e lavastoviglie. Aria blu in raffrescamento, arancio in riscaldamento, azzurra in deumidifica, grigia in ventilazione; tenue quando la stanza è in temperatura, ferma e grigia da spento. Sul display la temperatura impostata.
+- **Gauge dritta** al posto di quella rotonda: scala della temperatura sopra con lancetta della stanza e **lancetta rossa della temperatura impostata** (anche a clima spento), barra dell'umidità 2 px sotto con la sua scala e lancetta. Lancette bianche con contorno nero, leggibili su ogni colore.
+- **− e + funzionano anche a clima spento**: imposti la temperatura prima di accenderlo.
+- Tolta la barra "Umidità stanza" in fondo (è già nella gauge dritta).
+- Nuove opzioni `hero` (`immagine` o `gauge` per la gauge rotonda di prima, ora con lancette a contorno nero), `segments` e `humidity_segments`. Non serve più gauge-card-pro.
+- Guida aggiornata con schermate chiaro/scuro, riscaldamento e spento: [docs/clima.md](docs/clima.md).
+
 ## 2026-10-25 (5) — 1.9.0: nuova card Climatizzatore
 
 - **Nuova card ❄️ Climatizzatore** (`shc-climate-card`), layout centrato di default. Al posto della foto c'è la **gauge** (gauge-card-pro, oppure la gauge standard di HA se non è installata) con temperatura stanza, temperatura impostata e umidità.

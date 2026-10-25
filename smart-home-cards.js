@@ -8484,7 +8484,59 @@ const CL_STYLE = `
 .shc-cl-card .shc-ap-hero{height:auto;min-height:170px;background:none !important;display:block;overflow:visible}
 .shc-cl-card.layout-centrato .shc-ap-hero{height:auto}
 .shc-cl-gauge{width:100%;max-width:330px;margin:0 auto}
-.shc-cl-gauge>*{--ha-card-background:transparent;--card-background-color:transparent;--ha-card-box-shadow:none;--ha-card-border-width:0;--ha-card-border-color:transparent}
+.shc-cl-gauge>*{--ha-card-background:transparent;--card-background-color:transparent;--ha-card-box-shadow:none;--ha-card-border-width:0;--ha-card-border-color:transparent;--main-needle-stroke-width:1px;--main-needle-stroke-color:black;--inner-needle-stroke-width:1px;--inner-needle-stroke-color:black}
+.shc-cl-herocol{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;gap:6px}
+.shc-ap-card.layout-centrato .shc-cl-herocol{flex:0 0 auto}
+.shc-cl-card.cl-img .shc-ap-hero,.shc-cl-card.cl-img.layout-centrato .shc-ap-hero{flex:0 0 auto;height:150px;min-height:0;cursor:pointer}
+.shc-cl-card.cl-img .shc-ap-hero svg{width:100%;height:100%}
+.shc-cl-herocol .shc-cl-line,.shc-cl-herocol .shc-cl-gauge{display:none}
+.shc-cl-card.cl-img .shc-cl-line,.shc-cl-card:not(.cl-img) .shc-cl-gauge{display:block}
+/* aria del clima: si muove solo quando sta lavorando */
+@keyframes shc-cl-flow{to{stroke-dashoffset:-48}}
+@keyframes shc-cl-drift{0%{transform:translateY(-4px);opacity:0}25%{opacity:.95}100%{transform:translateY(54px);opacity:0}}
+.shc-cl-air{color:#38bdf8;opacity:0;transition:opacity .6s}
+.shc-cl-air path{stroke:currentColor;stroke-dasharray:10 14}
+.shc-cl-air circle{fill:currentColor;transform-box:fill-box;transform-origin:center;opacity:0}
+.shc-ap-card.cl-heat .shc-cl-air{color:#fb923c}
+.shc-ap-card.cl-dry .shc-cl-air{color:#22d3ee}
+.shc-ap-card.cl-fan .shc-cl-air{color:#94a3b8}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air{opacity:1}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air path{animation:shc-cl-flow 1.1s linear infinite}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air circle{animation:shc-cl-drift 2.2s ease-in infinite}
+.shc-ap-card.is-run.cl-idle .shc-cl-air{opacity:.25}
+.shc-cl-led{fill:#94a3b8}
+.shc-ap-card.is-run .shc-cl-led{fill:#22c55e}
+.shc-cl-disp{font:800 13px/1 system-ui,sans-serif;fill:#0ea5e9}
+.shc-ap-card.cl-heat .shc-cl-disp{fill:#f97316}
+.shc-ap-card.cl-off .shc-cl-disp,.shc-ap-card.is-unavailable .shc-cl-disp{fill:#94a3b8}
+/* gauge dritta: stessa scala e colori della gauge, temperatura sopra, umidita' sotto */
+.shc-cl-line{padding:8px 12px 7px;border-radius:16px;background:var(--shc-soft);cursor:pointer}
+.shc-cl-line-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-bottom:2px}
+.shc-cl-line-title{display:flex;flex-direction:column;min-width:0}
+.shc-cl-line-title b{font-size:15px;font-weight:850;color:var(--shc-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shc-cl-line-title small{font-size:12px;font-weight:750;color:var(--shc-dim)}
+.shc-cl-line-val{display:flex;align-items:baseline;gap:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.shc-cl-line-val b{font-size:30px;font-weight:900;line-height:1;color:var(--shc-text)}
+.shc-cl-line-val i{font-style:normal;font-size:14px;font-weight:800;color:var(--shc-dim)}
+.shc-cl-line-val span{font-size:15px;font-weight:850;color:#38bdf8}
+.shc-cl-track{position:relative;height:30px}
+.shc-cl-lbar{position:absolute;left:0;right:0;border-radius:999px}
+.shc-cl-lbar.main{top:7px;height:12px}
+.shc-cl-lbar.inner{top:21px;height:5px}
+.shc-cl-ndl{position:absolute;left:0;width:5px;margin-left:-2.5px;border-radius:3px;background:#fff;border:1px solid #000;box-sizing:border-box;box-shadow:0 1px 2px rgba(0,0,0,.35);transition:left .6s}
+.shc-cl-ndl.main{top:3px;height:20px}
+.shc-cl-ndl.inner{top:19px;width:4px;margin-left:-2px;height:9px}
+/* temperatura impostata: lancetta rossa con triangolo sopra la barra */
+.shc-cl-spt{position:absolute;top:0;left:0;width:0;transition:left .6s}
+.shc-cl-spt i{position:absolute;top:0;left:-5px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #d96c6c;filter:drop-shadow(0 0 .6px #000)}
+.shc-cl-spt b{position:absolute;top:5px;left:-2px;width:4px;height:16px;border-radius:2px;background:#d96c6c;border:1px solid #000;box-sizing:border-box}
+.shc-cl-spt[hidden],.shc-cl-ndl[hidden],.shc-cl-lbar[hidden],.shc-cl-scale[hidden]{display:none}
+.shc-cl-scale{position:relative;height:13px;font-size:10.5px;font-weight:800;color:var(--shc-dim);font-variant-numeric:tabular-nums;line-height:13px}
+.shc-cl-scale span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.shc-cl-scale span:first-child{transform:none}
+.shc-cl-scale span:last-child{transform:translateX(-100%)}
+.shc-cl-scale.h{color:#38bdf8}
+.shc-cl-line-title small em{font-style:normal;font-weight:850;color:#d96c6c}
 .shc-cl-card .shc-ap-tool ha-icon{--mdc-icon-size:20px}
 /* 5 pulsanti: il nome sta gia' nella gauge, qui lo nascondiamo */
 .shc-cl-card .shc-ap-headings{display:none}
@@ -8543,6 +8595,59 @@ const CL_DEFAULT_SCHEDULE = {
   off_time: "input_datetime.clima_salone_orario_spegnimento",
 };
 
+// stessi colori della gauge della stanza
+const CL_LINE_SEGMENTS = [
+  { from: 18, color: "#1565c0" },
+  { from: 20, color: "#039be5" },
+  { from: 22, color: "#00c853" },
+  { from: 24, color: "#43a047" },
+  { from: 26, color: "#7cb342" },
+  { from: 28, color: "#fb8c00" },
+  { from: 30, color: "#f4511e" },
+  { from: 32, color: "#d32f2f" },
+];
+const CL_HUM_SEGMENTS = [
+  { from: 0, color: "var(--red-color, #f44336)" },
+  { from: 40, color: "var(--light-blue-color, #03a9f4)" },
+  { from: 60, color: "var(--light-blue-color, #03a9f4)" },
+  { from: 100, color: "var(--black-color, #000)" },
+];
+
+// split a parete che soffia aria (blu freddo, arancio caldo, grigia ventilazione)
+function clHeroSvg(id) {
+  const flows = [
+    "M48 84c-6 14 4 24-4 38s-2 22-10 30",
+    "M84 86c-3 14 5 24-1 38s1 20-3 28",
+    "M120 87c0 14 6 24 0 38s4 20 0 28",
+    "M156 86c3 14-5 24 1 38s-1 20 3 28",
+    "M192 84c6 14-4 24 4 38s2 22 10 30",
+  ];
+  const dots = [
+    [62, 92, 0], [101, 96, 0.7], [138, 94, 1.4], [178, 92, 0.35], [120, 100, 1.05], [80, 104, 1.75], [160, 104, 0.2],
+  ];
+  return `<svg width="100%" height="100%" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shcl-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shcl-body-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e9eef4"/><stop offset="1" stop-color="#c7d1dd"/></linearGradient>
+      <linearGradient id="shcl-fade-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <mask id="shcl-mask-${id}"><rect x="0" y="78" width="240" height="82" fill="url(#shcl-fade-${id})"/></mask>
+    </defs>
+    <ellipse cx="120" cy="80" rx="104" ry="7" fill="#0f172a" opacity=".16" filter="url(#shcl-blur-${id})"/>
+    <g class="shc-cl-air" mask="url(#shcl-mask-${id})">
+      <g fill="none" stroke-width="3.2" stroke-linecap="round">${flows.map((d, i) => `<path d="${d}" style="animation-delay:-${(i * 0.23).toFixed(2)}s"/>`).join("")}</g>
+      ${dots.map(([x, y, d]) => `<circle cx="${x}" cy="${y}" r="2.2" style="animation-delay:${d}s"/>`).join("")}
+    </g>
+    <rect x="18" y="16" width="204" height="62" rx="16" fill="url(#shcl-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <path d="M34 25h172" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+    <g stroke="#b6c2d0" stroke-width="1.2" stroke-linecap="round"><path d="M40 31h96"/><path d="M40 35h96"/></g>
+    <rect x="164" y="34" width="44" height="20" rx="6" fill="#0f172a" opacity=".86"/>
+    <text class="shc-cl-disp" x="186" y="49" text-anchor="middle">--</text>
+    <circle class="shc-cl-led" cx="40" cy="48" r="2.6"/>
+    <rect x="26" y="64" width="188" height="9" rx="4.5" fill="#1f2937" opacity=".85"/>
+    <path d="M30 74c40 7 140 7 180 0" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+}
+
 function clNum(v, dec = 1) {
   const n = Number(v);
   if (!Number.isFinite(n)) return "—";
@@ -8558,6 +8663,7 @@ class ShcClimateCard extends HTMLElement {
       min: 18,
       max: 32,
       max_power: 1500,
+      hero: "immagine",
       ...config,
       schedule: { ...CL_DEFAULT_SCHEDULE, ...(config.schedule || {}) },
       consumption: config.consumption || {},
@@ -8565,6 +8671,7 @@ class ShcClimateCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._gauge = null;
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
     this._root.innerHTML = `<style>${STYLE}${CL_STYLE}</style>
       <article class="shc-ap-card shc-cl-card">
         <div class="shc-ap-top">
@@ -8580,7 +8687,25 @@ class ShcClimateCard extends HTMLElement {
           </span>
         </div>
         <div class="shc-ap-top-row">
-          <div class="shc-ap-hero"><div class="shc-cl-gauge"></div></div>
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${clHeroSvg(this._uid)}</div>
+            <div class="shc-cl-gauge"></div>
+            <div class="shc-cl-line" title="Temperatura stanza, impostata e umidità">
+              <div class="shc-cl-line-head">
+                <span class="shc-cl-line-title"><b class="cl-l-room"></b><small class="cl-l-mode">—</small></span>
+                <span class="shc-cl-line-val"><b class="cl-l-temp">—</b><i>°C</i><span class="cl-l-hum"></span></span>
+              </div>
+              <div class="shc-cl-scale t"></div>
+              <div class="shc-cl-track">
+                <div class="shc-cl-lbar main"></div>
+                <div class="shc-cl-lbar inner"></div>
+                <div class="shc-cl-ndl inner" hidden></div>
+                <div class="shc-cl-spt" hidden title="Temperatura impostata"><i></i><b></b></div>
+                <div class="shc-cl-ndl main" hidden></div>
+              </div>
+              <div class="shc-cl-scale h"></div>
+            </div>
+          </div>
           <div class="shc-ap-cycle-side">
             <span class="shc-ap-cycle-cap">Clima</span>
             <div class="shc-ap-cycle-list">
@@ -8608,10 +8733,6 @@ class ShcClimateCard extends HTMLElement {
               <div class="shc-ap-meter-row"><span>Potenza assorbita</span><strong class="cl-power-val">—</strong></div>
               <div class="shc-ap-bar"><i class="cl-power-bar" style="width:0%"></i></div>
             </div>
-            <div class="shc-ap-meter shc-c-meter-clickable" data-graph="humidity">
-              <div class="shc-ap-meter-row"><span>Umidità stanza</span><strong class="cl-hum-val">—</strong></div>
-              <div class="shc-ap-bar"><i class="cl-hum-bar" style="width:0%"></i></div>
-            </div>
           </div>
         </div>
       </article>`;
@@ -8636,6 +8757,10 @@ class ShcClimateCard extends HTMLElement {
     bind(".shc-cl-info", () => this._openInfo());
     bind(".shc-cl-sched", () => this._openSchedule());
     bind(".shc-ap-hero", () => this._moreInfo(this._config.entity));
+    bind(".shc-cl-line", () => this._moreInfo(this._config.entity));
+    this._useGauge = String(this._config.hero).toLowerCase() === "gauge";
+    this._root.querySelector(".shc-ap-card").classList.toggle("cl-img", !this._useGauge);
+    this._buildLine();
     bind(".shc-cl-btn.power", () => {
       const st = this._st();
       if (!st || st.state === "unavailable") return;
@@ -8651,10 +8776,55 @@ class ShcClimateCard extends HTMLElement {
         this._stepTarget(Number(b.dataset.step));
       }),
     );
-    this._buildGauge();
+    if (this._useGauge) this._buildGauge();
   }
 
   // --- gauge ------------------------------------------------------------------
+
+  // gauge dritta: gradiente fisso, si spostano solo lancette e setpoint
+  _buildLine() {
+    const cfg = this._config;
+    const min = Number(cfg.min);
+    const max = Number(cfg.max);
+    const pos = (v, lo, hi) => Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100));
+    const grad = (segs, lo, hi) => `linear-gradient(90deg,${segs.map((g) => `${g.color} ${pos(Number(g.from), lo, hi).toFixed(1)}%`).join(",")})`;
+    const q = (sel) => this._root.querySelector(sel);
+    q(".shc-cl-lbar.main").style.background = grad(cfg.segments || CL_LINE_SEGMENTS, min, max);
+    q(".shc-cl-lbar.inner").style.background = grad(cfg.humidity_segments || CL_HUM_SEGMENTS, 0, 100);
+    const ticks = [];
+    // etichette nel punto esatto del valore, allineate a lancette e cursori
+    for (let t = min; t <= max; t += 2) ticks.push(`<span style="left:${pos(t, min, max).toFixed(2)}%">${t}°</span>`);
+    q(".shc-cl-scale.t").innerHTML = ticks.join("");
+    q(".shc-cl-scale.h").innerHTML = [0, 20, 40, 60, 80, 100].map((h) => `<span style="left:${h}%">${h}%</span>`).join("");
+    q(".cl-l-room").textContent = cfg.room_name || cfg.name;
+  }
+
+  _updateLine(room, target, hum, mode, unav) {
+    const cfg = this._config;
+    const q = (sel) => this._root.querySelector(sel);
+    const min = Number(cfg.min);
+    const max = Number(cfg.max);
+    const pos = (v, lo, hi) => `${Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100)).toFixed(2)}%`;
+    const hasSet = !unav && Number.isFinite(target);
+    q(".cl-l-mode").innerHTML = `${esc(unav ? "Non raggiungibile" : CL_MODES[mode]?.label || mode)}${hasSet ? ` · impostata <em>${esc(clNum(target))}°</em>` : ""}`;
+    q(".cl-l-temp").textContent = room !== null ? clNum(room) : "—";
+    q(".cl-l-hum").textContent = hum !== null ? `${Math.round(hum)}%` : "";
+    const nm = q(".shc-cl-ndl.main");
+    nm.hidden = room === null;
+    if (room !== null) nm.style.left = pos(room, min, max);
+    const showHum = hum !== null;
+    const humBar = !showHum && !cfg.humidity_entity;
+    q(".shc-cl-lbar.inner").hidden = humBar;
+    q(".shc-cl-scale.h").hidden = humBar;
+    const ni = q(".shc-cl-ndl.inner");
+    ni.hidden = !showHum;
+    if (showHum) ni.style.left = pos(hum, 0, 100);
+    const sp = q(".shc-cl-spt");
+    sp.hidden = !hasSet;
+    if (hasSet) sp.style.left = pos(this._pendingTarget ?? target, min, max);
+    const disp = q(".shc-cl-disp");
+    if (disp) disp.textContent = unav ? "--" : mode === "off" ? "OFF" : hasSet ? `${clNum(target)}°` : "--";
+  }
 
   _defaultGauge() {
     const cfg = this._config;
@@ -8785,7 +8955,7 @@ class ShcClimateCard extends HTMLElement {
 
   _stepTarget(dir) {
     const st = this._st();
-    if (!st || st.state === "unavailable" || st.state === "off") return;
+    if (!st || st.state === "unavailable") return;
     const step = Number(st.attributes.target_temp_step) || 0.5;
     const min = Number(st.attributes.min_temp) || this._config.min;
     const max = Number(st.attributes.max_temp) || this._config.max;
@@ -8794,6 +8964,9 @@ class ShcClimateCard extends HTMLElement {
     const t = Math.min(max, Math.max(min, Math.round((base + dir * step) / step) * step));
     this._pendingTarget = t;
     this._root.querySelector(".cl-set-val").textContent = `${clNum(t)}°`;
+    const sp = this._root.querySelector(".shc-cl-spt");
+    sp.hidden = false;
+    sp.style.left = `${Math.min(100, Math.max(0, ((t - this._config.min) / (this._config.max - this._config.min)) * 100)).toFixed(2)}%`;
     // piu' tocchi veloci = una sola chiamata
     clearTimeout(this._stepTimer);
     clearTimeout(this._pendingReset);
@@ -8819,9 +8992,11 @@ class ShcClimateCard extends HTMLElement {
     const a = st?.attributes || {};
 
     const card = q(".shc-ap-card");
-    card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm", "cl-heat", "cl-cool", "cl-off");
+    card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm", "cl-heat", "cl-cool", "cl-off", "cl-dry", "cl-fan", "cl-idle");
     card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
-    card.classList.add(mode === "heat" ? "cl-heat" : mode === "off" || unav ? "cl-off" : "cl-cool");
+    card.classList.add(mode === "heat" ? "cl-heat" : mode === "off" || unav ? "cl-off" : mode === "dry" ? "cl-dry" : mode === "fan_only" ? "cl-fan" : "cl-cool");
+    // compressore fermo (temperatura raggiunta): aria quasi ferma
+    if (["idle", "off"].includes(a.hvac_action)) card.classList.add("cl-idle");
     const errors = (cfg.diagnostics || []).filter((d) => d.alarm && this._hass.states[d.entity]?.state === "on");
     if (errors.length) card.classList.add("has-alarm");
 
@@ -8842,11 +9017,12 @@ class ShcClimateCard extends HTMLElement {
     const power = this._val(cfg.power_entity);
     const today = this._todayKwh();
     q(".cl-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
-    q(".cl-target").textContent = !unav && mode !== "off" && Number.isFinite(target) ? `${clNum(target)} °C` : "—";
+    q(".cl-target").textContent = !unav && Number.isFinite(target) ? `${clNum(target)} °C` : "—";
     q(".cl-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
     q(".cl-out").textContent = out !== null ? `${clNum(out)} °C` : "—";
     q(".cl-power").textContent = power !== null ? `${Math.round(power)} W` : "—";
     q(".cl-today").textContent = today !== null ? `${clNum(today, 2)} kWh` : "—";
+    this._updateLine(room, target, hum, mode, unav);
     // righe senza sensore configurato: nascoste
     q(".cl-hum").closest(".shc-ap-cycle-row").hidden = !cfg.humidity_entity && a.current_humidity === undefined;
     q(".cl-out").closest(".shc-ap-cycle-row").hidden = !cfg.outdoor_entity;
@@ -8858,7 +9034,7 @@ class ShcClimateCard extends HTMLElement {
     const pw = q(".shc-cl-btn.power");
     pw.classList.toggle("on", !unav && mode !== "off");
     pw.disabled = unav;
-    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = unav || mode === "off"));
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = unav));
     const modes = (cfg.modes || a.hvac_modes || ["off", "cool", "heat"]).filter((m) => m !== "off");
     const swingModes = a.swing_modes || [];
     const swingOn = a.swing_mode && !["stop", "off"].includes(a.swing_mode);
@@ -8909,12 +9085,7 @@ class ShcClimateCard extends HTMLElement {
     const pb = q(".cl-power-bar");
     pb.style.width = `${power !== null ? Math.min(100, (power / maxP) * 100) : 0}%`;
     pb.style.background = power !== null ? meterSeverityColor(Math.min(100, (power / maxP) * 100)) : "";
-    q(".cl-hum-val").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
-    const hb = q(".cl-hum-bar");
-    hb.style.width = `${hum !== null ? Math.min(100, hum) : 0}%`;
-    hb.style.background = hum === null ? "" : hum < 40 || hum > 65 ? "linear-gradient(90deg,#fb923c,#ef4444)" : "linear-gradient(90deg,#38bdf8,#0284c7)";
     q(".cl-power-val").closest(".shc-ap-meter").hidden = !cfg.power_entity;
-    q(".cl-hum-val").closest(".shc-ap-meter").hidden = hum === null && !cfg.humidity_entity;
 
     const warn = q(".shc-ap-warn");
     if (unav) {
@@ -9164,6 +9335,7 @@ class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
         { key: "name", label: "Nome", kind: "text", placeholder: "Climatizzatore" },
         { key: "entity", label: "Climatizzatore", domain: ["climate"], required: true },
         { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Soggiorno" },
+        { key: "hero", label: "In alto: immagine (con barra) oppure gauge", kind: "text", placeholder: "immagine" },
         { key: "temperature_entity", label: "Sensore temperatura stanza (per il grafico)", domain: ["sensor"] },
         { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
         { key: "outdoor_entity", label: "Sensore temperatura esterna", domain: ["sensor"] },

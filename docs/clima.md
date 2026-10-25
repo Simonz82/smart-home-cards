@@ -1,23 +1,31 @@
 # ❄️ Card Climatizzatore (`shc-climate-card`)
 
-Il climatizzatore in una card sola, con la stessa grafica delle altre: al posto della foto c'è la **gauge** con temperatura della stanza, temperatura impostata e umidità; sotto i dati, i comandi diretti e le barre. Parte già nel **layout centrato**.
+Il climatizzatore in una card sola, con la stessa grafica delle altre: in alto lo **split che soffia aria** (animato, come il cestello di lavatrice e lavastoviglie), sotto una **gauge dritta** con temperatura della stanza, temperatura impostata e umidità, poi i dati, i comandi diretti e la potenza. Parte già nel **layout centrato**.
 
 | Chiaro | Scuro |
 |---|---|
 | ![Card Climatizzatore](screenshot/clima.png) | ![Card Climatizzatore scuro](screenshot/clima-dark.png) |
 
+| Riscalda | Spento |
+|---|---|
+| ![Card Climatizzatore in riscaldamento](screenshot/clima-riscalda-dark.png) | ![Card Climatizzatore spento](screenshot/clima-spento-dark.png) |
+
 ## Perché questa card
 
-Prima il mio climatizzatore era una pila di card diverse: una markdown per il titolo, la gauge, sette `button-card` per i comandi, una card entità per la programmazione, tutto incollato con `card_mod`. Funzionava, ma era lunga da copiare e da mantenere. Qui c'è tutto in un unico blocco, con un editor visuale, e la gauge resta la stessa che si vede nelle dashboard (non un disegno nuovo).
+Prima il mio climatizzatore era una pila di card diverse: una markdown per il titolo, la gauge, sette `button-card` per i comandi, una card entità per la programmazione, tutto incollato con `card_mod`. Funzionava, ma era lunga da copiare e da mantenere. Qui c'è tutto in un unico blocco, con un editor visuale. La gauge dritta usa la stessa scala e gli stessi colori della gauge che avevo, ma si legge al volo e non serve nessuna card esterna. Chi preferisce la gauge rotonda la può ancora avere (vedi `hero: gauge` più sotto).
 
 ## Cosa mostra
 
-- **Gauge** (al centro): lancetta sulla temperatura della stanza, pallino rosso con il valore della temperatura impostata, colori da blu (fresco) a rosso (caldo), sotto il nome della stanza e la modalità in italiano. Se indichi un sensore di umidità compare anche la lancetta interna dell'umidità. Toccandola si apre la scheda del climatizzatore di Home Assistant.
+- **Split animato** (in alto): l'aria esce dal climatizzatore quando lavora. Colore per modalità: **blu** raffresca, **arancio** riscalda, **azzurro** deumidifica, **grigio** ventilazione. Quando la stanza ha raggiunto la temperatura (compressore in pausa) l'aria resta tenue; da spento lo split è grigio e fermo. Sul display dello split c'è la temperatura impostata, oppure `OFF`. Toccandolo si apre la scheda del climatizzatore di Home Assistant.
+- **Gauge dritta** (sotto lo split): a sinistra il nome della stanza e la modalità con la temperatura impostata in rosso, a destra la temperatura della stanza in grande e l'umidità.
+  - **Scala della temperatura sopra** (18°…32°, colori da blu a rosso, uguali alla gauge rotonda) con la **lancetta bianca** sulla temperatura della stanza e la **lancetta rossa con triangolino** sulla temperatura impostata (visibile anche a clima spento).
+  - **Barra sottile dell'umidità** 2 px sotto, con la sua **scala sotto** (0%…100%) e la sua lancetta. Rossa se l'aria è troppo secca, azzurra nella fascia 40–60%, scura se troppo umida.
+  - Lancette bianche con bordo nero: si vedono su tutti i colori, in tema chiaro e scuro.
 - **Badge**: RAFFRESCA, RISCALDA, DEUMIDIFICA, VENTILAZIONE, AUTO, IN PAUSA (raggiunta la temperatura), SPENTO oppure OFFLINE.
 - **Riquadro Clima**: temperatura stanza, temperatura impostata, umidità, temperatura esterna, potenza assorbita, consumo di oggi. Le righe senza sensore non compaiono.
-- **Comandi**: accendi/spegni (riaccende nell'ultima modalità usata), − e + con la temperatura impostata in grande (più tocchi veloci mandano un solo comando), un pulsante per ogni modalità supportata dal climatizzatore, e alette oscillanti sì/no.
+- **Comandi**: accendi/spegni (riaccende nell'ultima modalità usata), − e + con la temperatura impostata in grande (più tocchi veloci mandano un solo comando, la lancetta rossa si sposta subito; funzionano **anche a clima spento**, così lo prepari prima di accenderlo), un pulsante per ogni modalità supportata dal climatizzatore, e alette oscillanti sì/no.
 - **Programmazione attiva**: quando l'accensione o lo spegnimento programmato sono attivi compare una pillola sotto i comandi (es. "Accensione 20:15 · Raffresca 26°"), toccandola si apre la programmazione.
-- **Barre**: potenza assorbita e umidità della stanza (arancio/rosso fuori dal 40–65%). Toccandole si apre il grafico.
+- **Barra potenza assorbita** (verde/giallo/rosso rispetto a `max_power`). Toccandola si apre il grafico. L'umidità non ha più una barra a parte: è già nella gauge dritta.
 - **Riga rossa** se il climatizzatore non è raggiungibile o se uno dei sensori di errore che indichi è acceso.
 
 ## I pulsanti in alto
@@ -49,7 +57,7 @@ Stato, cosa sta facendo in questo momento, ultimo cambio, intervallo di temperat
 ## Cosa ti serve prima di iniziare
 
 - Un climatizzatore in Home Assistant (`climate.xxx`), con qualunque integrazione: Daikin Onecta, Midea, Tado, un termostato… La card legge modalità, ventola, alette e preset dall'entità stessa e mostra solo quello che c'è.
-- **Per la gauge**: la card [gauge-card-pro](https://github.com/benjamin-dcs/gauge-card-pro) (HACS → cerca "Gauge Card Pro"). Senza, la card usa la gauge standard di Home Assistant, più semplice ma funzionante.
+- Nient'altro da installare: split animato e gauge dritta sono disegnati dalla card. Solo se vuoi la gauge rotonda (`hero: gauge`) serve [gauge-card-pro](https://github.com/benjamin-dcs/gauge-card-pro) (HACS → cerca "Gauge Card Pro"); senza, la card ripiega sulla gauge standard di Home Assistant.
 - Facoltativi: sensore di umidità della stanza, sensore di temperatura esterna, presa smart con potenza (W) ed energia (kWh) su cui è collegato il climatizzatore.
 
 ## 🚀 Metodo veloce: usa il mio package originale
@@ -104,6 +112,26 @@ diagnostics:
     name: Richieste cloud rimaste oggi
 ```
 
+### Colori della scala
+
+Per una scala diversa (per esempio solo riscaldamento, 15–25 °C):
+
+```yaml
+type: custom:shc-climate-card
+entity: climate.climatizzatore
+min: 15
+max: 25
+segments:
+  - from: 15
+    color: "#1565c0"
+  - from: 19
+    color: "#00c853"
+  - from: 22
+    color: "#fb8c00"
+  - from: 25
+    color: "#d32f2f"
+```
+
 ## 🖊️ Editor visuale (senza YAML)
 
 "Aggiungi card" → cerca **"Climatizzatore"** → scegli il climatizzatore e i sensori che hai. L'elenco `diagnostics` è l'unica parte da scrivere a mano (YAML), perché è un elenco libero.
@@ -114,11 +142,14 @@ diagnostics:
 |---|---|---|---|
 | `entity` | **Sì** | — | Il climatizzatore (`climate.xxx`) |
 | `name` | No | `Climatizzatore` | Nome della card |
-| `room_name` | No | = `name` | Titolo sotto la gauge |
-| `layout` | No | `centrato` | `centrato` o `classico` (gauge a sinistra) |
-| `min` / `max` | No | `18` / `32` | Scala della gauge |
+| `room_name` | No | = `name` | Nome della stanza nella gauge dritta |
+| `hero` | No | `immagine` | `immagine` = split animato + gauge dritta; `gauge` = gauge rotonda (gauge-card-pro) come nella 1.9.0 |
+| `layout` | No | `centrato` | `centrato` o `classico` (split e gauge a sinistra, dati a destra) |
+| `min` / `max` | No | `18` / `32` | Scala della temperatura |
+| `segments` | No | blu → verde → rosso | Colori della scala temperatura: elenco `{from, color}` |
+| `humidity_segments` | No | rosso → azzurro → nero | Colori della barra umidità (0–100): elenco `{from, color}` |
 | `temperature_entity` | No | — | Sensore temperatura stanza: serve per il grafico (senza, la card usa la temperatura del climatizzatore) |
-| `humidity_entity` | No | — | Sensore umidità stanza (lancetta interna della gauge, riga e barra) |
+| `humidity_entity` | No | — | Sensore umidità stanza (barra e lancetta dell'umidità, riga nel riquadro Clima) |
 | `outdoor_entity` | No | — | Sensore temperatura esterna |
 | `power_entity` | No | — | Potenza in W della presa del climatizzatore |
 | `max_power` | No | `1500` | Fondo scala della barra potenza |
@@ -129,16 +160,17 @@ diagnostics:
 | `modes` | No | dal climatizzatore | Elenco delle modalità da mostrare come pulsanti (es. `[cool, heat, dry]`) |
 | `refresh_entity` | No | — | Pulsante (`button.`) per aggiornare i dati dal cloud |
 | `diagnostics` | No | — | Elenco `{entity, name, alarm}`; con `alarm: true` un `binary_sensor` acceso fa scattare l'avviso |
-| `gauge` | No | gauge pronta | Configurazione completa di una gauge-card-pro tua, al posto di quella predefinita |
+| `gauge` | No | gauge pronta | Con `hero: gauge`: configurazione completa di una gauge-card-pro tua, al posto di quella predefinita |
 | `layout_entity` | No | — | Menu layout classico/centrato, vedi [layout.md](layout.md) |
 
-### Usare la propria gauge
+### Gauge rotonda al posto dello split
 
-Se hai già una gauge-card-pro configurata come piace a te, incollala sotto `gauge:` e la card la usa al posto di quella predefinita:
+Se preferisci la gauge rotonda (come nella versione 1.9.0) metti `hero: gauge`. Le lancette hanno il contorno nero, come nelle gauge delle stanze. Se hai già una gauge-card-pro configurata come piace a te, incollala sotto `gauge:` e la card la usa al posto di quella predefinita:
 
 ```yaml
 type: custom:shc-climate-card
 entity: climate.climatizzatore
+hero: gauge
 gauge:
   type: custom:gauge-card-pro
   entity: climate.climatizzatore
@@ -146,3 +178,11 @@ gauge:
   max: 30
   # ...tutto il resto della tua gauge
 ```
+
+## 💡 Idee d'uso
+
+- **Prepararlo prima di accenderlo**: a clima spento imposta la temperatura con − e + (la lancetta rossa si sposta), poi accendi: parte già alla temperatura giusta.
+- **Accorgersi che ha raggiunto la temperatura**: badge IN PAUSA e aria tenue. Se resta in pausa per ore con la stanza lontana dall'impostata, c'è qualcosa che non va (finestra aperta, sonda sbagliata).
+- **Umidità**: d'estate in raffrescamento la lancetta dell'umidità scende; se resta alta nella zona scura prova la modalità Deumidifica.
+- **Accensione al rientro**: con la ⚙️ Programmazione lo accendi alle 18:30 a 26° per trovarlo fresco, una volta sola, senza automazioni fisse.
+- **Consumi**: il pulsante 📊 mostra freddo e caldo separati per giorno, settimana, mese e anno; con `price_entity` vedi anche quanto spendi.
