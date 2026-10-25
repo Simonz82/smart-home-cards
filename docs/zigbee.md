@@ -11,6 +11,8 @@ Tutta la rete **Zigbee2MQTT** in una card: quanti dispositivi sono online, chi �
 - **Riga rossa** con i dispositivi offline e da quanto tempo: toccandola si apre l'elenco già filtrato sugli offline.
 - **Barre**: dispositivi online e segnale medio. Toccandole si apre il grafico storico.
 
+> 🙏 **Ringraziamenti**: grazie a **Michele Bonifacio** per l'idea di questa card e per il codice di base da cui sono partito.
+
 ## Cosa ti serve prima di iniziare
 
 - **Zigbee2MQTT** collegato a Home Assistant via MQTT, con la discovery attiva (è l'impostazione normale).
