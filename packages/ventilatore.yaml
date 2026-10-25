@@ -1,0 +1,271 @@
+# Ventilatore Dreo con nebulizzatore (esempio: Dreo DR-HEC005S) - fan.ventilatore
+# Package reale usato con la card shc-fan-card (Smart Home Cards).
+#
+# Contiene: accensione/spegnimento programmati una tantum, setup automatico
+# giorno/notte all'accensione, avviso serbatoio vuoto, luce spenta in modalita'
+# notte, promemoria pulizia ogni 100 ore di utilizzo.
+#
+# Cosa cambiare: cerca e sostituisci "ventilatore" con il nome delle tue entita'
+# (fan.xxx, switch.xxx_nebulizzatore, ...) e mobile_app_il_tuo_telefono /
+# mobile_app_del_partner con i tuoi servizi notify. Con altre marche controlla
+# i nomi delle modalita' (preset) e delle entita' extra (nebbia, luce, acqua).
+#
+input_boolean:
+  # Flag Timer Una Tantum
+  ventilatore_prog_accensione:
+    name: Attiva timer accensione
+    icon: mdi:timer-play-outline
+  ventilatore_prog_spegnimento:
+    name: Attiva timer spegnimento
+    icon: mdi:timer-stop-outline
+
+  # Nuovo Flag per Setup Mattutino e Notturno
+  ventilatore_auto_giorno:
+    name: Setup Automatico (Giorno/Notte)
+    icon: mdi:sun-clock
+
+input_datetime:
+  # Helper Timer Una Tantum
+  ventilatore_orario_accensione:
+    name: Orario accensione
+    has_date: false
+    has_time: true
+    icon: mdi:clock-start
+  ventilatore_orario_spegnimento:
+    name: Orario spegnimento
+    has_date: false
+    has_time: true
+    icon: mdi:clock-end
+
+input_number:
+  # Tiene traccia dell'ultima soglia (multiplo di 100h) per cui e' gia'
+  # partita la notifica di pulizia, cosi' l'automazione 6 sotto puo' avvisare
+  # di nuovo ogni 100h anche se l'utilizzo continua a salire senza pulizie.
+  ventilatore_ultima_soglia_pulizia:
+    name: Ultima soglia pulizia notificata
+    min: 0
+    max: 100000
+    step: 100
+    icon: mdi:broom
+
+automation:
+  # 1. Timer Accensione
+  - id: ventilatore_auto_accensione
+    alias: "Ventilatore: Accensione Programmata"
+    trigger:
+      - platform: time
+        at: input_datetime.ventilatore_orario_accensione
+    condition:
+      - condition: state
+        entity_id: input_boolean.ventilatore_prog_accensione
+        state: "on"
+    action:
+      - action: fan.turn_on
+        target:
+          entity_id: fan.ventilatore
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ventilatore_prog_accensione
+    mode: single
+
+  # 2. Timer Spegnimento
+  - id: ventilatore_auto_spegnimento
+    alias: "Ventilatore: Spegnimento Programmato"
+    trigger:
+      - platform: time
+        at: input_datetime.ventilatore_orario_spegnimento
+    condition:
+      - condition: state
+        entity_id: input_boolean.ventilatore_prog_spegnimento
+        state: "on"
+    action:
+      - action: fan.turn_off
+        target:
+          entity_id: fan.ventilatore
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ventilatore_prog_spegnimento
+    mode: single
+
+  # 3. Notifica Acqua Vuota (Solo una volta al giorno)
+  - id: ventilatore_notifica_acqua
+    alias: "Ventilatore: Notifica Acqua Vuota"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ventilatore_livello_acqua
+        to: "on" # Sostituisci con 'off' se il tuo sensore lavora al contrario
+    condition:
+      - condition: template
+        value_template: "{{ this.attributes.last_triggered == None or this.attributes.last_triggered < today_at('00:00') }}"
+    action:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "💧 Allarme Ventilatore"
+          message: "Il serbatoio dell'acqua è vuoto. Riempilo!"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "💧 Allarme Ventilatore"
+          message: "Il serbatoio dell'acqua è vuoto. Riempilo!"
+
+  # 4. Spegnimento Luce in Modalità Sonno
+  - id: ventilatore_sonno_luce_off
+    alias: "Ventilatore: Luce Off in Sonno"
+    trigger:
+      - platform: state
+        entity_id: fan.ventilatore
+        attribute: preset_mode
+        to: "sleep" # Controlla che la stringa esatta sia 'sleep' nell'integrazione
+    action:
+      - action: light.turn_off
+        target:
+          entity_id: light.ventilatore_luce_ambientale
+
+  # 5. Setup Automatico all'Accensione (Giorno / Notte)
+  - id: ventilatore_setup_automatico
+    alias: "Ventilatore: Setup Automatico all'accensione"
+    trigger:
+      - platform: state
+        entity_id: fan.ventilatore
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.ventilatore_auto_giorno
+        state: "on"
+    action:
+      - delay:
+          seconds: 2
+      - choose:
+          # --- FASCIA GIORNO (09:00 - 23:30) ---
+          - conditions:
+              - condition: time
+                after: "09:00:00"
+                before: "23:30:00"
+            sequence:
+              - action: fan.set_preset_mode
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  preset_mode: "normal"
+              - delay:
+                  milliseconds: 500
+              - action: fan.set_percentage
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  percentage: 33
+              - delay:
+                  milliseconds: 500
+              - action: switch.turn_on
+                target:
+                  entity_id: switch.ventilatore_nebulizzatore
+              - delay:
+                  milliseconds: 500
+              - action: number.set_value
+                target:
+                  entity_id: number.ventilatore_livello_nebbia
+                data:
+                  value: 3
+              - delay:
+                  milliseconds: 500
+              - action: light.turn_on
+                target:
+                  entity_id: light.ventilatore_luce_ambientale
+                data:
+                  brightness_pct: 50
+              - delay:
+                  milliseconds: 500
+              - action: fan.oscillate
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  oscillating: true
+
+          # --- FASCIA NOTTE (23:30 - 08:00) ---
+          - conditions:
+              - condition: time
+                after: "23:30:00"
+                before: "08:00:00"
+            sequence:
+              - action: fan.set_preset_mode
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  preset_mode: "sleep"
+              - delay:
+                  milliseconds: 500
+              - action: fan.set_percentage
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  percentage: 8
+              - delay:
+                  milliseconds: 500
+              - action: switch.turn_on
+                target:
+                  entity_id: switch.ventilatore_nebulizzatore
+              - delay:
+                  milliseconds: 500
+              - action: number.set_value
+                target:
+                  entity_id: number.ventilatore_livello_nebbia
+                data:
+                  value: 2
+              - delay:
+                  milliseconds: 500
+              - action: light.turn_off
+                target:
+                  entity_id: light.ventilatore_luce_ambientale
+              - delay:
+                  milliseconds: 500
+              - action: fan.oscillate
+                target:
+                  entity_id: fan.ventilatore
+                data:
+                  oscillating: true
+    mode: restart
+
+  # 6. Notifica Pulizia Necessaria (ogni 100h di utilizzo, come l'app originale)
+  - id: ventilatore_notifica_pulizia
+    alias: "Ventilatore: Notifica Pulizia Necessaria"
+    trigger:
+      - platform: state
+        entity_id: sensor.ventilatore_utilizzo_dalla_pulizia
+    condition:
+      - condition: template
+        value_template: >
+          {{ (trigger.to_state.state | float(0)) // 100
+             > (states('input_number.ventilatore_ultima_soglia_pulizia') | float(0)) // 100 }}
+    action:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ventilatore_ultima_soglia_pulizia
+        data:
+          value: "{{ trigger.to_state.state | float(0) }}"
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🧽 Ventilatore da pulire"
+          message: "Sono passate {{ trigger.to_state.state | int(0) }} ore di utilizzo dall'ultima pulizia. E' ora di pulirlo."
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🧽 Ventilatore da pulire"
+          message: "Sono passate {{ trigger.to_state.state | int(0) }} ore di utilizzo dall'ultima pulizia. E' ora di pulirlo."
+
+  # 7. Reset soglia pulizia quando il contatore scende (pulizia effettuata sul dispositivo)
+  - id: ventilatore_reset_soglia_pulizia
+    alias: "Ventilatore: Reset Soglia Pulizia"
+    trigger:
+      - platform: state
+        entity_id: sensor.ventilatore_utilizzo_dalla_pulizia
+    condition:
+      - condition: template
+        value_template: >
+          {{ trigger.from_state is not none and trigger.from_state.state not in ['unknown','unavailable']
+             and trigger.to_state.state not in ['unknown','unavailable']
+             and (trigger.to_state.state | float(0)) < (trigger.from_state.state | float(0)) }}
+    action:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.ventilatore_ultima_soglia_pulizia
+        data:
+          value: 0

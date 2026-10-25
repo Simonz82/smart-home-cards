@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-25 (7) — 1.10.0: Stufetta, Ventilatore, Caldaia e caloriferi
+
+- **Nuova card 🔥 Stufetta** (`shc-heater-card`): stufetta animata con onde di calore per livello (H1/H2/H3), gauge dritta con temperatura e umidità della stanza e cursore della soglia, pulsanti per livelli, solo ventilazione e oscillazione, popup gestione automatica, impostazioni e stato. Esempio reale: Dreo 314S (DR-HSH004S), ma va bene qualsiasi stufetta `climate.`. Package [`packages/stufetta.yaml`](packages/stufetta.yaml): ogni accensione parte in H3, alla soglia della stanza scende a H1/H2. Guida: [docs/stufetta.md](docs/stufetta.md).
+- **Nuova card 🌀 Ventilatore** (`shc-fan-card`): pale animate con velocità reale, testa che oscilla, nebbia e luce colorata; velocità con − e +, modalità, oscillazione, nebbia; popup programmazione (una tantum, giorno/notte, timer), nebbia e luce, stato e manutenzione (serbatoio, ore di pulizia). Esempio reale: Dreo DR-HEC005S con nebulizzatore, ma va bene qualsiasi ventilatore `fan.`. Package [`packages/ventilatore.yaml`](packages/ventilatore.yaml). Guida: [docs/ventilatore.md](docs/ventilatore.md).
+- **Nuova card 🔥 Caldaia e caloriferi** (`shc-boiler-card`): caldaia animata collegata a un calorifero (fiamma, mandata/ritorno, acqua calda), gauge dritta con temperatura di casa e impostata (anche da spenta) e **barra della pressione impianto** con lancetta; − e + anche a caldaia spenta; modalità, programmi P1/P2/P3, camino; **consumi gas** oggi/settimana/mese/anno e storico per giorni, settimane, mesi e anni, divisi riscaldamento e acqua calda, dalle statistiche a lungo termine. Esempio reale: Baxi Luna Classic con Remeha Home, ma va bene qualsiasi caldaia o termostato `climate.`. Package [`packages/caldaia_remeha.yaml`](packages/caldaia_remeha.yaml) (gas stimato, avvisi pressione e caldaia offline; i sensori del gas non tornano a 0 quando la caldaia è offline, così le statistiche non contano doppio). Guida: [docs/caldaia.md](docs/caldaia.md).
+- **Nascondi se scollegata** (stufetta, ventilatore, caldaia): casella nell'editor e interruttore nel popup ℹ️. Quando il dispositivo non risponde la card diventa una striscia bassa "… offline"; toccandola si riapre la card o si toglie l'opzione. La scelta fatta dal popup viene salvata nella dashboard.
+- Editor visuale: nuovo tipo di campo sì/no (casella).
+
 ## 2026-10-25 (6) — 1.9.1: Climatizzatore con split animato e gauge dritta
 
 - **Card ❄️ Climatizzatore**: in alto lo **split che soffia aria**, animato come il cestello di lavatrice e lavastoviglie. Aria blu in raffrescamento, arancio in riscaldamento, azzurra in deumidifica, grigia in ventilazione; tenue quando la stanza è in temperatura, ferma e grigia da spento. Sul display la temperatura impostata.

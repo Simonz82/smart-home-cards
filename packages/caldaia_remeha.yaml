@@ -1,0 +1,268 @@
+# Package reale usato con la card shc-boiler-card (Smart Home Cards).
+# Cosa cambiare: sensor.home_water_pressure e i sensori home_* con quelli della
+# tua caldaia, mobile_app_il_tuo_telefono / mobile_app_del_partner con i tuoi
+# servizi notify. 10.7 kWh/m3 e' il potere calorifico medio del metano.
+#
+####################################################
+#                                                  #
+#   Caldaia Baxi Luna Classic (integrazione        #
+#   Remeha Home) - allarme pressione acqua bassa,  #
+#   stima consumi gas                              #
+#                                                  #
+####################################################
+
+# Sensori derivati per stimare il consumo di gas in m3, non esposto
+# direttamente dall'integrazione Remeha Home (che riporta solo l'energia
+# in kWh). Conversione basata sul potere calorifico standard del gas
+# metano italiano (~10.7 kWh/m3) - stessa logica approssimativa che
+# probabilmente usa anche l'app Baxi per il suo valore "stimato".
+# Storico/statistiche a lungo termine gestiti automaticamente da HA
+# grazie a state_class: total_increasing (stesso meccanismo dei sensori
+# sorgente sensor.home_heating_energy_consumed/hot_water_energy_consumed).
+template:
+  - sensor:
+      - name: Gas Riscaldamento Stimato
+        unique_id: gas_riscaldamento_stimato
+        # se la caldaia va offline il sensore diventa non disponibile invece di 0:
+        # con 0 le statistiche total_increasing vedevano un azzeramento e contavano doppio al rientro
+        availability: "{{ has_value('sensor.home_heating_energy_consumed') }}"
+        unit_of_measurement: "m³"
+        device_class: gas
+        state_class: total_increasing
+        state: >-
+          {{ (states('sensor.home_heating_energy_consumed') | float(0) / 10.7) | round(2) }}
+      - name: Gas Acqua Calda Stimato
+        unique_id: gas_acqua_calda_stimato
+        # se la caldaia va offline il sensore diventa non disponibile invece di 0:
+        # con 0 le statistiche total_increasing vedevano un azzeramento e contavano doppio al rientro
+        availability: "{{ has_value('sensor.home_hot_water_energy_consumed') }}"
+        unit_of_measurement: "m³"
+        device_class: gas
+        state_class: total_increasing
+        state: >-
+          {{ (states('sensor.home_hot_water_energy_consumed') | float(0) / 10.7) | round(2) }}
+
+input_boolean:
+  pressione_caldaia_bassa_notificata:
+    name: Pressione Caldaia Bassa Gia' Notificata
+  pressione_caldaia_alta_notificata:
+    name: Pressione Caldaia Alta Gia' Notificata
+  caldaia_offline_notificata:
+    name: Caldaia Offline Gia' Notificata
+
+automation:
+  - id: '1789400000000'
+    alias: Caldaia - Pressione Acqua Bassa
+    description: >-
+      Avvisa quando la pressione dell'acqua della caldaia scende sotto 1 bar -
+      va ripristinata a circa 1.5 bar aprendo la valvola blu di carico.
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.home_water_pressure
+        below: 1.0
+        for: "00:10:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.pressione_caldaia_bassa_notificata
+        state: "off"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔧 Pressione caldaia bassa"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar.
+            Apri la valvola blu di carico per riportarla a circa 1.5 bar.
+          data:
+            channel: general
+            sticky: "true"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🔧 Pressione caldaia bassa"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar.
+            Apri la valvola blu di carico per riportarla a circa 1.5 bar.
+          data:
+            channel: general
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.pressione_caldaia_bassa_notificata
+    mode: single
+
+  - id: '1789400050000'
+    alias: Caldaia - Pressione Acqua Bassa (Promemoria Giornaliero)
+    description: >-
+      Finche' il problema non e' risolto (pressione ancora sotto 1.0 bar),
+      ripete l'avviso una volta al giorno invece di un unico avviso isolato.
+      Si ferma da sola quando la pressione torna sopra 1.3 bar (vedi
+      l'automazione "Pressione Acqua Ripristinata").
+    triggers:
+      - trigger: time
+        at: "09:00:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.pressione_caldaia_bassa_notificata
+        state: "on"
+      - condition: numeric_state
+        entity_id: sensor.home_water_pressure
+        below: 1.0
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔧 Pressione caldaia ancora bassa"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar.
+            Apri la valvola blu di carico per riportarla a circa 1.5 bar.
+          data:
+            channel: general
+            sticky: "true"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🔧 Pressione caldaia ancora bassa"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar.
+            Apri la valvola blu di carico per riportarla a circa 1.5 bar.
+          data:
+            channel: general
+    mode: single
+
+  - id: '1789400100000'
+    alias: Caldaia - Pressione Acqua Ripristinata
+    description: >-
+      Resetta l'avviso di pressione bassa una volta tornata sopra 1.3 bar,
+      cosi' un futuro nuovo calo notifica di nuovo.
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.home_water_pressure
+        above: 1.3
+        for: "00:05:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.pressione_caldaia_bassa_notificata
+        state: "on"
+    actions:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.pressione_caldaia_bassa_notificata
+    mode: single
+
+  - id: '1789400200000'
+    alias: Caldaia - Pressione Acqua Alta
+    description: >-
+      Avvisa se la pressione supera 2.5 bar per piu' di 10 minuti - possibile
+      sovrappressione dell'impianto (valvola di sfogo, riempimento eccessivo).
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.home_water_pressure
+        above: 2.5
+        for: "00:10:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.pressione_caldaia_alta_notificata
+        state: "off"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "⚠️ Pressione caldaia alta"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar,
+            valore anomalo. Controlla l'impianto (valvola di sfogo, eccesso
+            di carico).
+          data:
+            channel: general
+            sticky: "true"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "⚠️ Pressione caldaia alta"
+          message: >-
+            Pressione acqua: {{ states('sensor.home_water_pressure') }} bar,
+            valore anomalo. Controlla l'impianto (valvola di sfogo, eccesso
+            di carico).
+          data:
+            channel: general
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.pressione_caldaia_alta_notificata
+    mode: single
+
+  - id: '1789400300000'
+    alias: Caldaia - Pressione Acqua Alta Rientrata
+    description: >-
+      Resetta l'avviso di pressione alta una volta tornata sotto 2.3 bar.
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.home_water_pressure
+        below: 2.3
+        for: "00:10:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.pressione_caldaia_alta_notificata
+        state: "on"
+    actions:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.pressione_caldaia_alta_notificata
+    mode: single
+
+  - id: '1789400400000'
+    alias: Caldaia - Offline
+    description: >-
+      Avvisa se l'integrazione Remeha Home smette di ricevere dati dalla
+      caldaia per piu' di 3 ore (soglia alta apposta, per non confondere un
+      riavvio di Home Assistant - che rende tutto "unavailable" per pochi
+      secondi - con un vero problema di connessione della caldaia).
+    triggers:
+      - trigger: state
+        entity_id: sensor.home_water_pressure
+        to: "unavailable"
+        for: "03:00:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.caldaia_offline_notificata
+        state: "off"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "🔌 Caldaia non raggiungibile"
+          message: >-
+            L'integrazione Remeha Home non riceve dati dalla caldaia da
+            almeno 3 ore. Controlla la connessione internet della caldaia
+            o l'app Remeha Home.
+          data:
+            channel: general
+            sticky: "true"
+      - action: notify.mobile_app_del_partner
+        data:
+          title: "🔌 Caldaia non raggiungibile"
+          message: >-
+            L'integrazione Remeha Home non riceve dati dalla caldaia da
+            almeno 3 ore. Controlla la connessione internet della caldaia
+            o l'app Remeha Home.
+          data:
+            channel: general
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.caldaia_offline_notificata
+    mode: single
+
+  - id: '1789400500000'
+    alias: Caldaia - Tornata Online
+    description: >-
+      Resetta l'avviso di offline quando la caldaia ricomincia a mandare dati.
+    triggers:
+      - trigger: state
+        entity_id: sensor.home_water_pressure
+    conditions:
+      - condition: state
+        entity_id: input_boolean.caldaia_offline_notificata
+        state: "on"
+      - condition: template
+        value_template: "{{ trigger.to_state.state not in ['unavailable', 'unknown', 'none'] }}"
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: "✅ Caldaia di nuovo raggiungibile"
+          message: "L'integrazione Remeha Home ha ripreso a ricevere dati dalla caldaia."
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.caldaia_offline_notificata
+    mode: single

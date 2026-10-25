@@ -1,0 +1,107 @@
+# Package reale usato con la card shc-heater-card (Smart Home Cards).
+# Cosa cambiare: climate.stufetta_heater con la tua stufetta e
+# sensor.temp_bagno_temperature con il sensore della stanza. Con altre marche
+# usa i nomi dei tuoi livelli (preset) al posto di H1/H2/H3.
+#
+# Stufetta Dreo bagno (DR-HSH004S) - climate.stufetta_heater
+#
+# Logica richiesta dall'utente (2026-10-24):
+# - ogni accensione (Alexa "accendi stufetta", card, app) parte SEMPRE in H3
+# - quando il bagno raggiunge la soglia impostata dalla card, scende al livello
+#   scelto (H1 o H2)
+# - lo spegnimento e' quello nativo; alla riaccensione si riparte da H3
+#
+# Temperatura di riferimento: sensor.temp_bagno_temperature (sensore Zigbee
+# del bagno), non quella interna della stufetta che legge alta perche' sta
+# vicino alla resistenza.
+
+input_boolean:
+  stufetta_gestione_automatica:
+    name: Gestione automatica H3 / riduzione
+    icon: mdi:radiator
+
+input_number:
+  stufetta_soglia_bagno:
+    name: Soglia temperatura bagno
+    min: 15
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-up
+
+input_select:
+  stufetta_livello_ridotto:
+    name: Livello dopo la soglia
+    options:
+      - H1
+      - H2
+    icon: mdi:fire
+
+automation:
+  # 1. Ogni accensione in riscaldamento parte da H3 (massimo calore)
+  - id: stufetta_accensione_h3
+    alias: "Stufetta: Accensione sempre in H3"
+    trigger:
+      - platform: state
+        entity_id: climate.stufetta_heater
+        from: "off"
+        to: "heat"
+    condition:
+      - condition: state
+        entity_id: input_boolean.stufetta_gestione_automatica
+        state: "on"
+    action:
+      - delay:
+          seconds: 2
+      - action: climate.set_preset_mode
+        target:
+          entity_id: climate.stufetta_heater
+        data:
+          preset_mode: "H3"
+    mode: restart
+
+  # 2. Bagno in temperatura: da H3 scende al livello scelto (H1/H2)
+  - id: stufetta_riduzione_a_soglia
+    alias: "Stufetta: Riduzione al raggiungimento soglia"
+    trigger:
+      - platform: template
+        value_template: >
+          {{ states('sensor.temp_bagno_temperature') | float(-99)
+             >= states('input_number.stufetta_soglia_bagno') | float(99) }}
+      # bagno gia' caldo all'accensione: H3 viene impostato a 2s, qui si ricontrolla a 10s
+      - platform: state
+        entity_id: climate.stufetta_heater
+        from: "off"
+        to: "heat"
+        for:
+          seconds: 10
+      - platform: state
+        entity_id: input_number.stufetta_soglia_bagno
+      # recupero dopo riavvio/reload: il trigger template non scatta se era gia' vero
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: automation_reloaded
+    condition:
+      - condition: state
+        entity_id: input_boolean.stufetta_gestione_automatica
+        state: "on"
+      - condition: state
+        entity_id: climate.stufetta_heater
+        state: "heat"
+      - condition: state
+        entity_id: climate.stufetta_heater
+        attribute: preset_mode
+        state: "H3"
+      - condition: template
+        value_template: >
+          {{ states('sensor.temp_bagno_temperature') | float(-99)
+             >= states('input_number.stufetta_soglia_bagno') | float(99) }}
+    action:
+      - action: climate.set_preset_mode
+        target:
+          entity_id: climate.stufetta_heater
+        data:
+          preset_mode: "{{ states('input_select.stufetta_livello_ridotto') }}"
+    mode: single

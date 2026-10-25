@@ -1994,6 +1994,9 @@ const SHC_APPLIANCE_TYPES = [
 const SHC_EDITOR_STYLE = `
   :host{display:block;padding:4px 0 12px}
   .shc-ed-row{margin-bottom:14px}
+  .shc-ed-check{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+  .shc-ed-check input{width:20px;height:20px;margin:0;flex:0 0 auto;accent-color:var(--primary-color)}
+  .shc-ed-check .shc-ed-label{margin-bottom:2px}
   .shc-ed-label{display:block;font-size:13px;font-weight:700;color:var(--primary-text-color);margin-bottom:6px}
   .shc-ed-hint{font-size:12px;color:var(--secondary-text-color);margin:2px 0 8px;line-height:1.4}
   .shc-ed-types{display:flex;flex-wrap:wrap;gap:8px}
@@ -2204,6 +2207,12 @@ class ShcSimpleCardEditorBase extends HTMLElement {
               ${f.required && !val ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
             </div>`;
           }
+          if (f.kind === "bool") {
+            return `<label class="shc-ed-row shc-ed-check">
+              <input type="checkbox" data-bool="${esc(f.key)}"${val ? " checked" : ""}>
+              <span><span class="shc-ed-label">${esc(f.label)}</span>${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}</span>
+            </label>`;
+          }
           return `<div class="shc-ed-row">
             <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
             ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
@@ -2269,6 +2278,9 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       el.addEventListener("change", () => {
         this._set(el.dataset.key, el.type === "number" ? Number(el.value) : el.value);
       });
+    });
+    body.querySelectorAll("input[data-bool]").forEach((el) => {
+      el.addEventListener("change", () => this._set(el.dataset.bool, el.checked));
     });
   }
 }
@@ -9372,5 +9384,1929 @@ window.customCards.push({
   type: "shc-climate-card",
   name: "Climatizzatore",
   description: "Card climatizzatore con gauge integrata, comandi, programmazione, consumi, ventola/alette e diagnostica",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// shc-heater-card (stufetta) e shc-fan-card (ventilatore): stessa famiglia
+// della card Climatizzatore. In alto il disegno animato dell'apparecchio,
+// sotto la gauge dritta (temperatura sopra, umidita' sotto), comandi diretti
+// e popup. Base comune: ShcDeviceCardBase.
+// -----------------------------------------------------------------------
+
+const DV_STYLE = `
+.shc-dv-txt{font-size:13px;font-weight:900;letter-spacing:.02em}
+.shc-cl-btn.lvl.on{background:linear-gradient(135deg,#fb923c,#ef4444);color:#fff}
+.shc-cl-btn.lvl.eco.on{background:linear-gradient(135deg,#4ade80,#16a34a);color:#fff}
+.shc-cl-btn.fanonly.on,.shc-cl-btn.preset.on{background:rgba(14,165,233,.2);color:#0284c7}
+.shc-cl-btn.mist.on{background:rgba(6,182,212,.2);color:#0891b2}
+.shc-cl-btn.osc.on{background:rgba(139,92,246,.2);color:#7c3aed}
+.shc-dv-htgt{position:absolute;top:19px;left:0;width:4px;height:10px;margin-left:-2px;border-radius:2px;background:#d96c6c;border:1px solid #000;box-sizing:border-box;transition:left .6s}
+.shc-dv-htgt[hidden]{display:none}
+.shc-dv-svg{width:100%;height:100%;display:block}
+@keyframes shc-dv-flow{to{stroke-dashoffset:-36}}
+@keyframes shc-dv-rise{0%{transform:translateY(6px);opacity:0}30%{opacity:.9}100%{transform:translateY(-12px);opacity:0}}
+@keyframes shc-dv-sway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@keyframes shc-dv-osc{0%,100%{transform:scaleX(1)}25%{transform:scaleX(.84)}75%{transform:scaleX(.84)}}
+@keyframes shc-dv-mistl{0%{transform:translate(0,0);opacity:0}25%{opacity:.85}100%{transform:translate(-42px,-10px);opacity:0}}
+@keyframes shc-dv-mistr{0%{transform:translate(0,0);opacity:0}25%{opacity:.85}100%{transform:translate(42px,-10px);opacity:0}}
+/* versione ridotta quando il dispositivo e' scollegato */
+.shc-dv-mini{display:none;align-items:center;gap:12px;cursor:pointer;padding:0 6px}
+.shc-ap-card.dv-compact{padding-top:12px;padding-bottom:12px}
+.shc-ap-card.dv-compact>:not(.shc-dv-mini){display:none!important}
+.shc-ap-card.dv-compact>.shc-dv-mini{display:flex}
+.shc-dv-mini .shc-ap-chip{width:42px!important;min-width:0!important;height:42px!important;border-radius:14px!important;flex:0 0 auto;padding:0!important;display:grid;place-items:center}
+.shc-dv-mini .shc-dv-mini-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.shc-dv-mini b{font-size:15px;font-weight:850;color:var(--shc-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shc-dv-mini small{font-size:12px;font-weight:650;color:var(--shc-dim)}
+.shc-dv-mini .shc-ap-badge{flex:0 0 auto}
+/* stufetta */
+.ht-glow{opacity:0;transition:opacity .6s}
+.shc-ap-card.is-run.ht-heat .ht-glow{opacity:var(--ht-glow,.9)}
+.ht-wave{fill:none;stroke:#fb923c;stroke-width:3;stroke-linecap:round;stroke-dasharray:8 10;opacity:0;transition:opacity .6s}
+.shc-ap-card.ht-fan .ht-wave{stroke:#38bdf8}
+.shc-ap-card.is-run .ht-wave{opacity:1;animation:shc-dv-flow 1.3s linear infinite}
+.shc-ap-card.is-run.lvl-1 .ht-wave.l2,.shc-ap-card.is-run.lvl-1 .ht-wave.l3,.shc-ap-card.is-run.lvl-2 .ht-wave.l3{opacity:0;animation:none}
+.ht-rise{opacity:0;fill:none;stroke:#fdba74;stroke-width:2.6;stroke-linecap:round;transform-box:fill-box}
+.shc-ap-card.is-run.ht-heat .ht-rise{animation:shc-dv-rise 2.2s ease-in infinite}
+.ht-body{transform-box:fill-box;transform-origin:50% 100%}
+.shc-ap-card.is-run.dv-osc .ht-body{animation:shc-dv-sway 5s ease-in-out infinite}
+.ht-disp{font:900 12px/1 system-ui,sans-serif;fill:#fb923c}
+.shc-ap-card.ht-fan .ht-disp{fill:#38bdf8}
+.shc-ap-card.is-off .ht-disp,.shc-ap-card.is-unavailable .ht-disp{fill:#94a3b8}
+.shc-ap-card.ht-heat .shc-cl-chip ha-icon{color:#f97316}
+/* ventilatore */
+.fn-blades{transform-box:view-box;transform-origin:120px 58px}
+.shc-ap-card.is-run .fn-blades{animation:shch-spin var(--fn-dur,1s) linear infinite}
+.fn-head{transform-box:view-box;transform-origin:120px 58px}
+.shc-ap-card.is-run.dv-osc .fn-head{animation:shc-dv-osc 6s ease-in-out infinite}
+.fn-mist circle{fill:#e0f2fe;stroke:#7dd3fc;stroke-width:.8;opacity:0;transform-box:fill-box}
+.shc-ap-card.is-run.fn-mist-on .fn-mist .ml{animation:shc-dv-mistl 2.6s ease-out infinite}
+.shc-ap-card.is-run.fn-mist-on .fn-mist .mr{animation:shc-dv-mistr 2.6s ease-out infinite}
+.fn-light{opacity:0;transition:opacity .6s,fill .6s}
+.shc-ap-card.fn-light-on .fn-light{opacity:.85}
+.fn-air{fill:none;stroke:#7dd3fc;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:6 12;opacity:0}
+.shc-ap-card.is-run .fn-air{opacity:.8;animation:shc-dv-flow var(--fn-dur,1s) linear infinite}
+`;
+
+class ShcDeviceCardBase extends HTMLElement {
+  _st() {
+    return this._hass?.states[this._config.entity];
+  }
+
+  _val(entity) {
+    const st = entity ? this._hass?.states[entity] : null;
+    if (!st || ["unknown", "unavailable", ""].includes(st.state)) return null;
+    const n = Number(st.state);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  _on(entity) {
+    return this._hass?.states[entity]?.state === "on";
+  }
+
+  _has(entity) {
+    return !!(entity && this._hass?.states[entity]);
+  }
+
+  _call(domain, service, data) {
+    return this._hass?.callService(domain, service, data);
+  }
+
+  _moreInfo(entityId) {
+    const e = new Event("hass-more-info", { bubbles: true, composed: true });
+    e.detail = { entityId };
+    this.dispatchEvent(e);
+  }
+
+  _row(label, valueHtml) {
+    return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span>${valueHtml}</div>`;
+  }
+
+  _switchHtml(entity) {
+    const st = entity ? this._hass.states[entity] : null;
+    if (!st) return `<span class="shc-ap-row-val">n/d</span>`;
+    return `<button type="button" class="shc-ap-switch${st.state === "on" ? " on" : ""}" data-toggle="${esc(entity)}"></button>`;
+  }
+
+  _valHtml(text) {
+    return `<span class="shc-ap-row-val">${esc(text)}</span>`;
+  }
+
+  _openDialog(title, bodyHtml, live) {
+    let overlay = this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov)");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.className = "shc-ap-overlay";
+      overlay.hidden = true;
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          overlay.hidden = true;
+          this._live = null;
+        }
+      });
+      this._root.appendChild(overlay);
+    }
+    const keepScroll = overlay.dataset.title === title && !overlay.hidden ? overlay.querySelector(".shc-ap-dialog")?.scrollTop || 0 : 0;
+    overlay.dataset.title = title;
+    overlay.innerHTML = `<div class="shc-ap-dialog">
+      <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body">${bodyHtml}</div>
+    </div>`;
+    if (keepScroll) overlay.querySelector(".shc-ap-dialog").scrollTop = keepScroll;
+    overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
+      overlay.hidden = true;
+      this._live = null;
+    });
+    overlay.hidden = false;
+    this._live = live || null;
+    // interruttori, orari e scelte rapide comuni a tutti i popup
+    overlay.querySelectorAll("[data-toggle]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.toggle;
+        this._call(id.split(".")[0], "toggle", { entity_id: id });
+      }),
+    );
+    overlay.querySelectorAll("[data-time]").forEach((el) =>
+      el.addEventListener("change", () => {
+        if (el.value) this._call("input_datetime", "set_datetime", { entity_id: el.dataset.time, time: `${el.value}:00` });
+      }),
+    );
+    overlay.querySelectorAll("[data-numset]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.numset;
+        this._call(id.split(".")[0], "set_value", { entity_id: id, value: Number(b.dataset.v) });
+      }),
+    );
+    overlay.querySelectorAll("[data-numstep]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.numstep;
+        const s = this._hass.states[id];
+        if (!s) return;
+        const step = Number(b.dataset.step) || Number(s.attributes.step) || 1;
+        const v = Math.min(Number(s.attributes.max), Math.max(Number(s.attributes.min), Number(s.state) + step * Number(b.dataset.dir)));
+        this._call(id.split(".")[0], "set_value", { entity_id: id, value: v });
+      }),
+    );
+    overlay.querySelectorAll("[data-option]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const id = b.dataset.select;
+        this._call(id.split(".")[0], "select_option", { entity_id: id, option: b.dataset.option });
+      }),
+    );
+    overlay.querySelectorAll("[data-more]").forEach((b) => b.addEventListener("click", () => this._moreInfo(b.dataset.more)));
+    overlay.querySelectorAll("[data-hidepref]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const value = !b.classList.contains("on");
+        b.classList.toggle("on", value);
+        b.disabled = true;
+        const saved = await this._saveHideOption(value);
+        b.disabled = false;
+        const note = overlay.querySelector(".shc-dv-hidenote");
+        if (note) note.textContent = saved ? "Salvato nella dashboard." : "Salvato solo su questo dispositivo (per salvarlo nella dashboard serve un utente amministratore).";
+        if (this._hass) this.hass = this._hass;
+      }),
+    );
+    return overlay;
+  }
+
+  // riga "Nascondi se scollegata" per i popup delle card
+  _hidePrefHtml() {
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Visualizzazione</div>
+      ${this._row("Nascondi se scollegata", `<button type="button" class="shc-ap-switch${this._hideWhenOffline() ? " on" : ""}" data-hidepref="1"></button>`)}
+      <p class="shc-cl-note shc-dv-hidenote">Quando è scollegata dalla corrente o dal Wi‑Fi resta solo una striscia bassa con il nome e OFFLINE. Toccandola si riapre questo comando.</p>
+    </div>`;
+  }
+
+  _timeHtml(entity) {
+    return this._has(entity)
+      ? `<input type="time" class="shc-notif-time" data-time="${esc(entity)}" value="${esc(String(this._hass.states[entity].state).slice(0, 5))}">`
+      : this._valHtml("n/d");
+  }
+
+  _stepperHtml(entity, text, step) {
+    if (!this._has(entity)) return this._valHtml("n/d");
+    return `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-numstep="${esc(entity)}" data-dir="-1"${step ? ` data-step="${step}"` : ""}>−</button><span>${esc(text)}</span><button type="button" class="shc-at-pm" data-numstep="${esc(entity)}" data-dir="1"${step ? ` data-step="${step}"` : ""}>+</button></span>`;
+  }
+
+  _chipsHtml(items) {
+    return `<div class="shc-cl-chips">${items
+      .map((i) => `<button type="button" class="shc-cl-chipbtn${i.on ? " on" : ""}" ${i.attrs}>${i.icon ? `<ha-icon icon="${i.icon}"></ha-icon>` : ""}${esc(i.label)}</button>`)
+      .join("")}</div>`;
+  }
+
+  _reopenUnlessTyping(fn) {
+    return () => {
+      if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
+      fn();
+    };
+  }
+
+  _liveRefresh(entities) {
+    const hs = this._hass.states;
+    const key = entities.map((x) => hs[x]?.last_updated || "").join("|");
+    if (key !== this._liveKey) {
+      this._liveKey = key;
+      if (this._live && this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov):not([hidden])")) this._live();
+    }
+  }
+
+  // --- gauge dritta (stessa della card Climatizzatore) ------------------------
+
+  _lineHtml(title) {
+    return `<div class="shc-cl-line" title="${esc(title)}">
+      <div class="shc-cl-line-head">
+        <span class="shc-cl-line-title"><b class="cl-l-room"></b><small class="cl-l-mode">—</small></span>
+        <span class="shc-cl-line-val"><b class="cl-l-temp">—</b><i>°C</i><span class="cl-l-hum"></span></span>
+      </div>
+      <div class="shc-cl-scale t"></div>
+      <div class="shc-cl-track">
+        <div class="shc-cl-lbar main"></div>
+        <div class="shc-cl-lbar inner"></div>
+        <div class="shc-cl-ndl inner" hidden></div>
+        <div class="shc-dv-htgt" hidden title="Umidità obiettivo"></div>
+        <div class="shc-cl-spt" hidden><i></i><b></b></div>
+        <div class="shc-cl-ndl main" hidden></div>
+      </div>
+      <div class="shc-cl-scale h"></div>
+    </div>`;
+  }
+
+  _lineBuild(segments) {
+    const cfg = this._config;
+    const min = Number(cfg.min);
+    const max = Number(cfg.max);
+    const pos = (v, lo, hi) => Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100));
+    const grad = (segs, lo, hi) => `linear-gradient(90deg,${segs.map((g) => `${g.color} ${pos(Number(g.from), lo, hi).toFixed(1)}%`).join(",")})`;
+    const q = (sel) => this._root.querySelector(sel);
+    q(".shc-cl-lbar.main").style.background = grad(cfg.segments || segments, min, max);
+    q(".shc-cl-lbar.inner").style.background = grad(cfg.humidity_segments || CL_HUM_SEGMENTS, 0, 100);
+    const stepT = max - min > 16 ? 4 : 2;
+    const ticks = [];
+    for (let t = min; t <= max; t += stepT) ticks.push(`<span style="left:${pos(t, min, max).toFixed(2)}%">${t}°</span>`);
+    q(".shc-cl-scale.t").innerHTML = ticks.join("");
+    q(".shc-cl-scale.h").innerHTML = [0, 20, 40, 60, 80, 100].map((h) => `<span style="left:${h}%">${h}%</span>`).join("");
+    q(".cl-l-room").textContent = cfg.room_name || cfg.name;
+  }
+
+  // o: { temp, hum, set, humTarget, subHtml }
+  _lineUpdate(o) {
+    const cfg = this._config;
+    const q = (sel) => this._root.querySelector(sel);
+    const min = Number(cfg.min);
+    const max = Number(cfg.max);
+    const pos = (v, lo, hi) => `${Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100)).toFixed(2)}%`;
+    q(".cl-l-mode").innerHTML = o.subHtml;
+    q(".cl-l-temp").textContent = o.temp !== null ? clNum(o.temp) : "—";
+    q(".cl-l-hum").textContent = o.hum !== null ? `${Math.round(o.hum)}%` : "";
+    const nm = q(".shc-cl-ndl.main");
+    nm.hidden = o.temp === null;
+    if (o.temp !== null) nm.style.left = pos(o.temp, min, max);
+    const noHum = o.hum === null && !cfg.humidity_entity;
+    q(".shc-cl-lbar.inner").hidden = noHum;
+    q(".shc-cl-scale.h").hidden = noHum;
+    const ni = q(".shc-cl-ndl.inner");
+    ni.hidden = o.hum === null;
+    if (o.hum !== null) ni.style.left = pos(o.hum, 0, 100);
+    const sp = q(".shc-cl-spt");
+    sp.hidden = o.set === null || o.set === undefined;
+    if (!sp.hidden) sp.style.left = pos(o.set, min, max);
+    const ht = q(".shc-dv-htgt");
+    ht.hidden = o.humTarget === null || o.humTarget === undefined;
+    if (!ht.hidden) ht.style.left = pos(o.humTarget, 0, 100);
+  }
+
+  _commonBind() {
+    shcBindGraph(this);
+    const bind = (sel, fn) =>
+      this._root.querySelectorAll(sel).forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          fn(e, el);
+        }),
+      );
+    bind(".shc-ap-hero", () => this._moreInfo(this._config.entity));
+    bind(".shc-cl-line", () => this._moreInfo(this._config.entity));
+    return bind;
+  }
+
+  _setBadge(cls, label) {
+    const badge = this._root.querySelector(".shc-ap-badge");
+    badge.classList.remove("run", "standby", "off", "unavailable");
+    badge.classList.add(cls);
+    this._root.querySelector(".shc-ap-badge-label").textContent = label;
+  }
+
+  // opzione hide_when_offline: se il dispositivo e' scollegato resta solo una striscia bassa
+  _applyCompact(unav) {
+    const card = this._root.querySelector(".shc-ap-card");
+    const compact = this._hideWhenOffline() && unav && !this._showFull;
+    if (!unav) this._showFull = false;
+    let mini = card.querySelector(".shc-dv-mini");
+    if (compact && !mini) {
+      mini = document.createElement("div");
+      mini.className = "shc-dv-mini";
+      mini.innerHTML = `<span class="shc-ap-chip shc-cl-chip">${card.querySelector(".shc-ap-chip")?.innerHTML || ""}</span>
+        <span class="shc-dv-mini-txt"><b></b><small></small></span>
+        <span class="shc-ap-badge unavailable"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">OFFLINE</span></span>`;
+      mini.addEventListener("click", () => this._openMini());
+      card.prepend(mini);
+    }
+    card.classList.toggle("dv-compact", compact);
+    if (!compact) return;
+    const st = this._st();
+    mini.querySelector("b").textContent = `${this._config.name} offline`;
+    const since = st?.last_changed ? new Date(st.last_changed) : null;
+    mini.querySelector("small").textContent = since && !isNaN(since)
+      ? `Scollegato dal ${since.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+      : "Scollegato dalla corrente o dal Wi‑Fi";
+  }
+
+  // preferenza: config della card, oppure scelta fatta dal popup su questo dispositivo
+  _prefKey() {
+    return `shc-hide-offline:${this.localName}:${this._config.entity}`;
+  }
+
+  _hideWhenOffline() {
+    try {
+      const v = localStorage.getItem(this._prefKey());
+      if (v !== null) return v === "1";
+    } catch (e) {
+      /* storage non disponibile */
+    }
+    return !!this._config.hide_when_offline;
+  }
+
+  // salva la scelta nella dashboard (serve un utente admin); se non si puo', la ricorda solo su questo dispositivo
+  async _saveHideOption(value) {
+    const type = `custom:${this.localName}`;
+    let saved = false;
+    try {
+      const seg = location.pathname.split("/")[1];
+      const urlPath = !seg || seg === "lovelace" ? null : seg;
+      const conf = await this._hass.callWS({ type: "lovelace/config", url_path: urlPath });
+      let found = 0;
+      const walk = (o) => {
+        if (Array.isArray(o)) o.forEach(walk);
+        else if (o && typeof o === "object") {
+          if (o.type === type && o.entity === this._config.entity) {
+            if (value) o.hide_when_offline = true;
+            else delete o.hide_when_offline;
+            found++;
+          }
+          Object.values(o).forEach(walk);
+        }
+      };
+      walk(conf);
+      if (found) {
+        await this._hass.callWS({ type: "lovelace/config/save", url_path: urlPath, config: conf });
+        saved = true;
+      }
+    } catch (e) {
+      saved = false;
+    }
+    try {
+      if (saved) localStorage.removeItem(this._prefKey());
+      else localStorage.setItem(this._prefKey(), value ? "1" : "0");
+    } catch (e) {
+      /* storage non disponibile */
+    }
+    this._config = { ...this._config, hide_when_offline: value };
+    return saved;
+  }
+
+  _openMini() {
+    const st = this._st();
+    const since = st?.last_changed ? new Date(st.last_changed) : null;
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(this._config.name)}</div>
+        ${this._row("Stato", `<span class="shc-ap-row-val" style="color:#ef4444;font-weight:800">Non raggiungibile</span>`)}
+        ${since && !isNaN(since) ? this._row("Dal", this._valHtml(since.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }))) : ""}
+        <p class="shc-cl-note">Spegni l'interruttore qui sotto per vedere sempre la card completa, anche quando il dispositivo è scollegato. Quando torna online la card completa ricompare comunque da sola.</p>
+      </div>
+      ${this._hidePrefHtml()}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Adesso</div>
+        ${this._row("Card completa", `<button type="button" class="shc-ap-action-btn" data-showfull="1">Mostra</button>`)}
+        ${this._row("Scheda dell'entità", `<button type="button" class="shc-ap-action-btn" data-more="${esc(this._config.entity)}">Apri</button>`)}
+      </div>`;
+    const overlay = this._openDialog(this._config.name, html);
+    overlay.querySelector("[data-showfull]").addEventListener("click", () => {
+      overlay.hidden = true;
+      this._showFull = true;
+      if (this._hass) this.hass = this._hass;
+    });
+  }
+
+  _setWarn(text) {
+    const warn = this._root.querySelector(".shc-ap-warn");
+    warn.hidden = !text;
+    warn.textContent = text || "";
+  }
+
+  getCardSize() {
+    return this._root?.querySelector(".dv-compact") ? 1 : 8;
+  }
+}
+
+// --- Stufetta ---------------------------------------------------------------
+
+const HT_SEGMENTS = [
+  { from: 15, color: "#1565c0" },
+  { from: 18, color: "#039be5" },
+  { from: 20, color: "#00c853" },
+  { from: 22, color: "#43a047" },
+  { from: 24, color: "#fb8c00" },
+  { from: 26, color: "#f4511e" },
+  { from: 30, color: "#d32f2f" },
+];
+
+const HT_LEVELS = { eco: "Eco", H1: "H1", H2: "H2", H3: "H3" };
+
+function htHeroSvg(id) {
+  const wave = (side, y, cls) => {
+    const x = side < 0 ? 86 : 154;
+    const d = side < 0 ? `M${x} ${y}c-8-6-16 6-24 0s-16-6-24 0s-16 6-24 0` : `M${x} ${y}c8-6 16 6 24 0s16-6 24 0s16 6 24 0`;
+    return `<path class="ht-wave ${cls}" d="${d}"/>`;
+  };
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shht-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shht-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c7d1dd"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#eef2f6"/><stop offset="1" stop-color="#b9c4d1"/></linearGradient>
+      <radialGradient id="shht-glow-${id}" cx=".5" cy=".5" r=".7"><stop offset="0" stop-color="#fff7ed"/><stop offset=".45" stop-color="#fb923c"/><stop offset="1" stop-color="#c2410c"/></radialGradient>
+    </defs>
+    <ellipse cx="120" cy="151" rx="46" ry="6" fill="#0f172a" opacity=".16" filter="url(#shht-blur-${id})"/>
+    ${wave(-1, 74, "l2")}${wave(-1, 98, "l1")}${wave(-1, 122, "l3")}
+    ${wave(1, 74, "l2")}${wave(1, 98, "l1")}${wave(1, 122, "l3")}
+    <g>${[106, 120, 134].map((x, i) => `<path class="ht-rise" style="animation-delay:${(i * 0.6).toFixed(1)}s" d="M${x} 24c-4-4 4-8 0-12"/>`).join("")}</g>
+    <g class="ht-body">
+      <rect x="90" y="28" width="60" height="120" rx="20" fill="url(#shht-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+      <rect x="100" y="36" width="40" height="16" rx="5" fill="#0f172a" opacity=".88"/>
+      <text class="ht-disp" x="120" y="48.5" text-anchor="middle">--</text>
+      <rect x="99" y="58" width="42" height="80" rx="9" fill="#1f2937"/>
+      <rect class="ht-glow" x="99" y="58" width="42" height="80" rx="9" fill="url(#shht-glow-${id})"/>
+      <g stroke="#475569" stroke-width="2.6" stroke-linecap="round">${[66, 76, 86, 96, 106, 116, 126].map((y) => `<path d="M105 ${y}h30"/>`).join("")}</g>
+      <rect x="104" y="141" width="32" height="5" rx="2.5" fill="#94a3b8" opacity=".7"/>
+    </g>
+  </svg>`;
+}
+
+class ShcHeaterCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    this._config = {
+      name: "Stufetta",
+      layout: "centrato",
+      min: 15,
+      max: 30,
+      threshold_entity: "input_number.stufetta_soglia_bagno",
+      reduced_level_entity: "input_select.stufetta_livello_ridotto",
+      auto_entity: "input_boolean.stufetta_gestione_automatica",
+      start_level: "H3",
+      ...config,
+      switches: Array.isArray(config.switches) ? config.switches : [],
+      diagnostics: Array.isArray(config.diagnostics) ? config.diagnostics : [],
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-ht-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="mdi:radiator"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Gestione automatica">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-opts" title="Impostazioni"><ha-icon icon="mdi:tune-variant"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${htHeroSvg(this._uid)}</div>
+            ${this._lineHtml("Temperatura e umidità della stanza, soglia")}
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Stufetta</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="ht-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="ht-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire" style="--mdc-icon-size:16px"></ha-icon></span><small>Livello</small></span><b class="ht-lvl">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-high" style="--mdc-icon-size:16px"></ha-icon></span><small>Interna</small></span><b class="ht-int">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-chevron-up" style="--mdc-icon-size:16px"></ha-icon></span><small>Soglia</small></span><b class="ht-thr">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire-off" style="--mdc-icon-size:16px"></ha-icon></span><small>Poi</small></span><b class="ht-red">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="shc-cl-ctrl">
+          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="ht-set-cap">soglia</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+        </div>
+        <div class="shc-cl-ctrl shc-ht-levels"></div>
+        <div class="shc-cl-sched" hidden></div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._lineBuild(HT_SEGMENTS);
+    const bind = this._commonBind();
+    bind(".shc-ap-settings", () => this._openAuto());
+    bind(".shc-cl-sched", () => this._openAuto());
+    bind(".shc-dv-opts", () => this._openOptions());
+    bind(".shc-dv-info", () => this._openInfo());
+    bind(".shc-cl-btn.power", () => {
+      const st = this._st();
+      if (!st || st.state === "unavailable") return;
+      if (st.state === "off") this._call("climate", "set_hvac_mode", { entity_id: this._config.entity, hvac_mode: "heat" });
+      else this._call("climate", "turn_off", { entity_id: this._config.entity });
+    });
+    bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSet(Number(b.dataset.step)));
+  }
+
+  // la soglia del bagno se c'e' l'helper, altrimenti la temperatura della stufetta
+  _setEntity() {
+    return this._has(this._config.threshold_entity) ? this._config.threshold_entity : null;
+  }
+
+  _stepSet(dir) {
+    const st = this._st();
+    const thr = this._setEntity();
+    let base, step, lo, hi;
+    if (thr) {
+      const s = this._hass.states[thr];
+      step = Number(s.attributes.step) || 1;
+      lo = Number(s.attributes.min);
+      hi = Number(s.attributes.max);
+      base = this._pending ?? Number(s.state);
+    } else {
+      if (!st || st.state === "unavailable") return;
+      step = Number(st.attributes.target_temp_step) || 1;
+      lo = Number(st.attributes.min_temp) || 5;
+      hi = Number(st.attributes.max_temp) || 35;
+      base = this._pending ?? Number(st.attributes.temperature);
+    }
+    if (!Number.isFinite(base)) return;
+    const t = Math.min(hi, Math.max(lo, Math.round((base + dir * step) / step) * step));
+    this._pending = t;
+    this._root.querySelector(".cl-set-val").textContent = `${clNum(t, step < 1 ? 1 : 0)}°`;
+    const sp = this._root.querySelector(".shc-cl-spt");
+    sp.hidden = false;
+    sp.style.left = `${Math.min(100, Math.max(0, ((t - this._config.min) / (this._config.max - this._config.min)) * 100)).toFixed(2)}%`;
+    clearTimeout(this._stepTimer);
+    clearTimeout(this._pendingReset);
+    this._stepTimer = setTimeout(() => {
+      if (thr) this._call(thr.split(".")[0], "set_value", { entity_id: thr, value: t });
+      else this._call("climate", "set_temperature", { entity_id: this._config.entity, temperature: t });
+      this._pendingReset = setTimeout(() => (this._pending = null), 2500);
+    }, 700);
+  }
+
+  _setLevel(level) {
+    const st = this._st();
+    if (!st || st.state === "unavailable") return;
+    const e = this._config.entity;
+    if (st.state !== "heat") {
+      // accesa in riscaldamento; il package porta a H3 dopo 2 s, il livello scelto arriva dopo
+      this._call("climate", "set_hvac_mode", { entity_id: e, hvac_mode: "heat" });
+      setTimeout(() => this._call("climate", "set_preset_mode", { entity_id: e, preset_mode: level }), 3500);
+    } else this._call("climate", "set_preset_mode", { entity_id: e, preset_mode: level });
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    return s;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const hs = hass.states;
+    const st = this._st();
+    const q = (sel) => this._root.querySelector(sel);
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const mode = unav ? "unavailable" : st.state;
+    const a = st?.attributes || {};
+    const preset = a.preset_mode && a.preset_mode !== "none" ? a.preset_mode : null;
+    const lvlNum = { eco: 1, H1: 1, H2: 2, H3: 3 }[preset] || 3;
+    const oscOn = cfg.oscillation_entity ? this._on(cfg.oscillation_entity) : a.swing_mode === "on";
+
+    this._applyCompact(unav);
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "ht-heat", "ht-fan", "cl-off", "lvl-1", "lvl-2", "lvl-3", "dv-osc");
+    card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
+    if (mode === "heat") card.classList.add("ht-heat", `lvl-${lvlNum}`);
+    else if (mode === "fan_only") card.classList.add("ht-fan", "lvl-2");
+    else card.classList.add("cl-off");
+    if (oscOn) card.classList.add("dv-osc");
+    card.style.setProperty("--ht-glow", { 1: ".5", 2: ".75", 3: "1" }[lvlNum]);
+
+    const room = this._val(cfg.temperature_entity) ?? (Number.isFinite(Number(a.current_temperature)) ? Number(a.current_temperature) : null);
+    const hum = this._val(cfg.humidity_entity);
+    const inner = Number.isFinite(Number(a.current_temperature)) ? Number(a.current_temperature) : null;
+    const thrE = this._setEntity();
+    const thr = thrE ? this._val(thrE) : Number.isFinite(Number(a.temperature)) ? Number(a.temperature) : null;
+    const red = hs[cfg.reduced_level_entity]?.state;
+    const auto = this._has(cfg.auto_entity) ? this._on(cfg.auto_entity) : false;
+
+    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : "run", unav ? "OFFLINE" : mode === "off" ? "SPENTA" : mode === "fan_only" ? "VENTILA" : `RISCALDA ${HT_LEVELS[preset] || ""}`.trim());
+    const disp = q(".ht-disp");
+    disp.textContent = unav ? "--" : mode === "off" ? "OFF" : mode === "fan_only" ? "FAN" : HT_LEVELS[preset] || "ON";
+
+    q(".ht-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
+    q(".ht-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
+    q(".ht-lvl").textContent = unav ? "—" : mode === "off" ? "Spenta" : mode === "fan_only" ? "Ventila" : HT_LEVELS[preset] || "—";
+    q(".ht-int").textContent = inner !== null ? `${clNum(inner, 0)} °C` : "—";
+    q(".ht-thr").textContent = thr !== null ? `${clNum(thr, 0)} °C` : "—";
+    q(".ht-red").textContent = auto && red ? red : auto ? "—" : "Manuale";
+    q(".ht-hum").closest(".shc-ap-cycle-row").hidden = !cfg.humidity_entity;
+    q(".ht-int").closest(".shc-ap-cycle-row").hidden = inner === null || !cfg.temperature_entity;
+    q(".ht-red").closest(".shc-ap-cycle-row").hidden = !this._has(cfg.reduced_level_entity);
+
+    const modeTxt = unav ? "Non raggiungibile" : mode === "off" ? "Spenta" : mode === "fan_only" ? "Ventilazione" : `Riscalda ${HT_LEVELS[preset] || ""}`.trim();
+    const thrTxt = thr !== null ? ` · ${thrE ? "soglia" : "impostata"} <em>${esc(clNum(thr, 0))}°</em>` : "";
+    this._lineUpdate({ temp: room, hum, set: this._pending ?? thr, subHtml: `${esc(modeTxt)}${thrTxt}` });
+
+    // comandi
+    if (this._pending == null) q(".cl-set-val").textContent = thr !== null ? `${clNum(thr, 0)}°` : "—";
+    q(".ht-set-cap").textContent = thrE ? "soglia" : "impostata";
+    const pw = q(".shc-cl-btn.power");
+    pw.classList.toggle("on", !unav && mode !== "off");
+    pw.disabled = unav;
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = !thrE && unav));
+    const presets = (a.preset_modes || ["H1", "H2", "H3", "eco"]).filter((p) => p !== "none");
+    const order = ["H1", "H2", "H3", "eco"];
+    presets.sort((x, y) => (order.indexOf(x) + 99) % 99 - (order.indexOf(y) + 99) % 99);
+    const hasFan = (a.hvac_modes || []).includes("fan_only");
+    const key = `${presets.join()}|${mode}|${preset}|${oscOn}|${unav}`;
+    if (key !== this._lvlKey) {
+      this._lvlKey = key;
+      const box = q(".shc-ht-levels");
+      box.innerHTML =
+        presets
+          .map((p) => `<button type="button" class="shc-cl-btn lvl${p === "eco" ? " eco" : ""}${mode === "heat" && p === preset ? " on" : ""}" data-level="${esc(p)}" title="${esc(p === "eco" ? "Eco" : `Livello ${p}`)}"${unav ? " disabled" : ""}>${p === "eco" ? `<ha-icon icon="mdi:leaf"></ha-icon>` : `<span class="shc-dv-txt">${esc(p)}</span>`}</button>`)
+          .join("") +
+        `<span class="shc-cl-sep"></span>` +
+        (hasFan ? `<button type="button" class="shc-cl-btn fanonly${mode === "fan_only" ? " on" : ""}" data-fanonly="1" title="Solo ventilazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:fan"></ha-icon></button>` : "") +
+        `<button type="button" class="shc-cl-btn osc${oscOn ? " on" : ""}" data-osc="1" title="Oscillazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>`;
+      box.querySelectorAll("[data-level]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._setLevel(b.dataset.level);
+        }),
+      );
+      box.querySelector("[data-fanonly]")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const cur = this._st()?.state;
+        this._call("climate", "set_hvac_mode", { entity_id: cfg.entity, hvac_mode: cur === "fan_only" ? "off" : "fan_only" });
+      });
+      box.querySelector("[data-osc]").addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (cfg.oscillation_entity) this._call("switch", "toggle", { entity_id: cfg.oscillation_entity });
+        else this._call("climate", "set_swing_mode", { entity_id: cfg.entity, swing_mode: this._st().attributes.swing_mode === "on" ? "off" : "on" });
+      });
+    }
+
+    // pillola gestione automatica
+    const sched = q(".shc-cl-sched");
+    sched.hidden = !this._has(cfg.auto_entity);
+    sched.innerHTML = auto
+      ? `<span><ha-icon icon="mdi:radiator"></ha-icon>Automatica: parte in ${esc(cfg.start_level)}${thr !== null ? `, a ${esc(clNum(thr, 0))}° passa a ${esc(red || "—")}` : ""}</span>`
+      : `<span><ha-icon icon="mdi:hand-back-right-outline" style="color:var(--shc-dim)"></ha-icon>Gestione automatica spenta</span>`;
+
+    const errors = cfg.diagnostics.filter((d) => d.alarm && hs[d.entity]?.state === "on");
+    card.classList.toggle("has-alarm", errors.length > 0);
+    this._setWarn(
+      unav
+        ? "⚠ Stufetta non raggiungibile: controlla che sia collegata alla corrente e al Wi‑Fi"
+        : errors.length
+          ? `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`
+          : "",
+    );
+    this._liveRefresh([cfg.entity, cfg.auto_entity, cfg.threshold_entity, cfg.reduced_level_entity, ...cfg.switches.map((s) => s.entity)]);
+  }
+
+  // ⚙️ Gestione automatica: parte in H3, a soglia scende a H1/H2
+  _openAuto() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    if (!this._has(cfg.auto_entity) && !this._has(cfg.threshold_entity)) {
+      this._openDialog("Gestione automatica", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna gestione automatica configurata. Copia il package <b>stufetta.yaml</b> (vedi guida) oppure indica i tuoi helper nelle opzioni <code>auto_entity</code>, <code>threshold_entity</code>, <code>reduced_level_entity</code>.</p></div>`);
+      return;
+    }
+    const thr = hs[cfg.threshold_entity];
+    const sel = hs[cfg.reduced_level_entity];
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Gestione automatica</div>
+        ${this._row("Attiva", this._switchHtml(cfg.auto_entity))}
+        ${thr ? this._row("Soglia della stanza", this._stepperHtml(cfg.threshold_entity, `${clNum(thr.state, 0)} °C`)) : ""}
+        ${sel ? `${this._row("Raggiunta la soglia passa a", "")}${this._chipsHtml((sel.attributes.options || []).map((o) => ({ label: o, on: o === sel.state, attrs: `data-select="${esc(cfg.reduced_level_entity)}" data-option="${esc(o)}"`, icon: "mdi:fire" })))}` : ""}
+      </div>
+      <p class="shc-cl-note">Ogni accensione (dalla card, dall'app o con Alexa) parte in <b>${esc(cfg.start_level)}</b>, il massimo. Quando il sensore della stanza arriva alla soglia la stufetta scende al livello scelto. Per tornare in ${esc(cfg.start_level)} basta spegnerla e riaccenderla, oppure toccare ${esc(cfg.start_level)} sulla card. La temperatura usata è quella del sensore della stanza, non quella interna della stufetta, che vicino alla resistenza legge sempre alta.</p>`;
+    this._openDialog("Gestione automatica", html, this._reopenUnlessTyping(() => this._openAuto()));
+  }
+
+  // 🎛️ Impostazioni: interruttori della stufetta
+  _openOptions() {
+    const cfg = this._config;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const rows = cfg.switches.filter((s) => this._has(s.entity)).map((s) => this._row(s.name || this._hass.states[s.entity].attributes.friendly_name, this._switchHtml(s.entity))).join("");
+    const html = `
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stufetta</div>${rows}</div>` : ""}
+      ${Number.isFinite(Number(a.temperature)) && this._setEntity()
+        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Termostato interno</div>${this._row("Temperatura obiettivo", `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-tt="-1">−</button><span>${esc(clNum(a.temperature, 0))} °C</span><button type="button" class="shc-at-pm" data-tt="1">+</button></span>`)}
+          <p class="shc-cl-note">È il termostato della stufetta stessa (sensore interno, legge alto). La gestione automatica usa invece la soglia della stanza.</p></div>`
+        : ""}
+      ${!rows ? `<p class="shc-cl-note">Nessun interruttore configurato: aggiungili nell'opzione <code>switches</code> (oscillazione, blocco bambini, suono…).</p>` : ""}`;
+    const overlay = this._openDialog("Impostazioni", html, () => this._openOptions());
+    overlay.querySelectorAll("[data-tt]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const s = this._st();
+        const step = Number(s.attributes.target_temp_step) || 1;
+        const v = Math.min(Number(s.attributes.max_temp) || 35, Math.max(Number(s.attributes.min_temp) || 5, Number(s.attributes.temperature) + step * Number(b.dataset.tt)));
+        this._call("climate", "set_temperature", { entity_id: cfg.entity, temperature: v });
+      }),
+    );
+  }
+
+  // ℹ️ Stato
+  _openInfo() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
+    const diag = cfg.diagnostics
+      .map((d) => {
+        const s = hs[d.entity];
+        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? `ultima volta ${fmtTime(s.attributes.last_triggered)}` : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
+        const bad = d.alarm && s?.state === "on";
+        return `<div class="shc-ap-row" data-more="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(d.name || s?.attributes?.friendly_name || d.entity)}</span><span class="shc-ap-row-val" style="${bad ? "color:#ef4444;font-weight:800" : ""}">${esc(val)}</span></div>`;
+      })
+      .join("");
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stufetta</div>
+        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : st.state === "off" ? "Spenta" : st.state === "fan_only" ? "Ventilazione" : "Riscalda"))}
+        ${a.preset_mode && a.preset_mode !== "none" ? this._row("Livello", this._valHtml(HT_LEVELS[a.preset_mode] || a.preset_mode)) : ""}
+        ${a.current_temperature !== undefined ? this._row("Temperatura interna", this._valHtml(`${clNum(a.current_temperature, 0)} °C`)) : ""}
+        ${a.model ? this._row("Modello", this._valHtml(a.model)) : ""}
+        ${st ? this._row("Ultimo cambio", this._valHtml(fmtTime(st.last_changed))) : ""}
+        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      </div>
+      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Automazioni e diagnostica</div>${diag}</div>` : ""}
+      ${this._hidePrefHtml()}`;
+    this._openDialog("Stato", html, () => this._openInfo());
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-heater-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.stufetta";
+    return { name: "Stufetta", entity: e };
+  }
+}
+
+class ShcHeaterCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Stufetta" },
+        { key: "entity", label: "Stufetta", domain: ["climate"], required: true },
+        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Bagno" },
+        { key: "temperature_entity", label: "Sensore temperatura stanza", domain: ["sensor"] },
+        { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
+        { key: "oscillation_entity", label: "Interruttore oscillazione (se separato)", domain: ["switch"] },
+        { key: "power_entity", label: "Potenza (W) della presa", domain: ["sensor"] },
+      ]},
+      { title: "Gestione automatica (helper del package stufetta.yaml)", fields: [
+        { key: "auto_entity", label: "Gestione automatica attiva", domain: ["input_boolean"] },
+        { key: "threshold_entity", label: "Soglia temperatura stanza", domain: ["input_number"] },
+        { key: "reduced_level_entity", label: "Livello dopo la soglia", domain: ["input_select"] },
+        { key: "start_level", label: "Livello di partenza", kind: "text", placeholder: "H3" },
+      ]},
+      { title: "Altro", fields: [
+        { key: "switches", label: "Interruttori (popup Impostazioni)", kind: "list", itemFields: [
+          { key: "entity", label: "Interruttore", kind: "entity", domain: ["switch"] },
+          { key: "name", label: "Nome", kind: "text" },
+        ]},
+        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-heater-card-editor", ShcHeaterCardEditor);
+customElements.define("shc-heater-card", ShcHeaterCard);
+window.customCards.push({
+  type: "shc-heater-card",
+  name: "Stufetta",
+  description: "Stufetta animata con gauge dritta, livelli H1/H2/H3/Eco, soglia della stanza e gestione automatica",
+  author: "Simonz82",
+});
+
+// --- Ventilatore ---------------------------------------------------------------
+
+const FN_SEGMENTS = [
+  { from: 15, color: "#1565c0" },
+  { from: 20, color: "#039be5" },
+  { from: 23, color: "#00c853" },
+  { from: 26, color: "#7cb342" },
+  { from: 29, color: "#fb8c00" },
+  { from: 32, color: "#f4511e" },
+  { from: 35, color: "#d32f2f" },
+];
+
+const FN_PRESETS = {
+  normal: { label: "Normale", icon: "mdi:fan" },
+  natural: { label: "Naturale", icon: "mdi:leaf" },
+  sleep: { label: "Notte", icon: "mdi:power-sleep" },
+  auto: { label: "Auto", icon: "mdi:fan-auto" },
+  turbo: { label: "Turbo", icon: "mdi:fan-plus" },
+  eco: { label: "Eco", icon: "mdi:leaf-circle-outline" },
+};
+
+const FN_DEFAULT_SCHEDULE = {
+  on_enabled: "input_boolean.ventilatore_prog_accensione",
+  on_time: "input_datetime.ventilatore_orario_accensione",
+  off_enabled: "input_boolean.ventilatore_prog_spegnimento",
+  off_time: "input_datetime.ventilatore_orario_spegnimento",
+  auto_day: "input_boolean.ventilatore_auto_giorno",
+};
+
+function fnHeroSvg(id) {
+  const blade = (r) => `<path transform="rotate(${r} 120 58)" d="M120 58C112 44 110 26 120 14C132 22 132 42 120 58Z"/>`;
+  const mist = [
+    [96, 62, "ml", 0], [92, 74, "ml", 0.9], [100, 50, "ml", 1.7], [144, 62, "mr", 0.4], [148, 74, "mr", 1.3], [140, 50, "mr", 2.1],
+  ];
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shfn-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shfn-body-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e9eef4"/><stop offset="1" stop-color="#c7d1dd"/></linearGradient>
+      <radialGradient id="shfn-grill-${id}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e2e8f0" stop-opacity=".2"/><stop offset="1" stop-color="#94a3b8" stop-opacity=".35"/></radialGradient>
+    </defs>
+    <ellipse class="fn-light" cx="120" cy="150" rx="52" ry="9" fill="#38bdf8" filter="url(#shfn-blur-${id})"/>
+    <ellipse cx="120" cy="152" rx="40" ry="5" fill="#0f172a" opacity=".16" filter="url(#shfn-blur-${id})"/>
+    <g>${[[58, 40, "M58 40c-10-4-20 4-30 0"], [60, 76, "M60 76c-10-4-20 4-30 0"], [182, 40, "M182 40c10-4 20 4 30 0"], [180, 76, "M180 76c10-4 20 4 30 0"]].map(([, , d]) => `<path class="fn-air" d="${d}"/>`).join("")}</g>
+    <rect x="115" y="104" width="10" height="40" rx="4" fill="url(#shfn-body-${id})" stroke="#8fa0b3" stroke-opacity=".6"/>
+    <ellipse cx="120" cy="146" rx="32" ry="7" fill="url(#shfn-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.2"/>
+    <rect x="104" y="138" width="32" height="6" rx="3" fill="#0f172a" opacity=".82"/>
+    <circle class="fn-led" cx="120" cy="141" r="1.6" fill="#22c55e"/>
+    <g class="fn-head">
+      <circle cx="120" cy="58" r="50" fill="url(#shfn-grill-${id})" stroke="url(#shfn-body-${id})" stroke-width="6"/>
+      <circle cx="120" cy="58" r="50" fill="none" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1"/>
+      <g class="fn-blades" fill="#94a3b8" fill-opacity=".85" stroke="#64748b" stroke-width=".8">${blade(0)}${blade(120)}${blade(240)}</g>
+      <g fill="none" stroke="#cbd5e1" stroke-opacity=".7" stroke-width="1"><circle cx="120" cy="58" r="36"/><circle cx="120" cy="58" r="22"/></g>
+      <g stroke="#cbd5e1" stroke-opacity=".55" stroke-width="1">${[0, 30, 60, 90, 120, 150].map((r) => `<path transform="rotate(${r} 120 58)" d="M120 9v98"/>`).join("")}</g>
+      <circle cx="120" cy="58" r="9" fill="url(#shfn-body-${id})" stroke="#8fa0b3" stroke-opacity=".7"/>
+      <g class="fn-mist">${mist.map(([x, y, c, d]) => `<circle class="${c}" cx="${x}" cy="${y}" r="3.2" style="animation-delay:${d}s"/>`).join("")}</g>
+    </g>
+  </svg>`;
+}
+
+class ShcFanCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || !String(config.entity).startsWith("fan.")) throw new Error("entity è obbligatorio (fan.xxx)");
+    this._config = {
+      name: "Ventilatore",
+      layout: "centrato",
+      min: 15,
+      max: 35,
+      cleaning_hours: 100,
+      ...config,
+      schedule: { ...FN_DEFAULT_SCHEDULE, ...(config.schedule || {}) },
+      switches: Array.isArray(config.switches) ? config.switches : [],
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-fn-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="mdi:fan"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programmazione">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-mist" title="Nebbia e luce"><ha-icon icon="mdi:weather-fog"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato e manutenzione">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${fnHeroSvg(this._uid)}</div>
+            ${this._lineHtml("Temperatura e umidità della stanza, umidità obiettivo")}
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Ventilatore</span>
+            <div class="shc-ap-cycle-list">
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="fn-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="fn-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:speedometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Velocità</small></span><b class="fn-speed">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fan" style="--mdc-icon-size:16px"></ha-icon></span><small>Modalità</small></span><b class="fn-preset">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:weather-fog" style="--mdc-icon-size:16px"></ha-icon></span><small>Nebbia</small></span><b class="fn-mistv">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:broom" style="--mdc-icon-size:16px"></ha-icon></span><small>Pulizia</small></span><b class="fn-clean">—</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="shc-cl-ctrl">
+          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="Più lento"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small>velocità</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="Più veloce"><ha-icon icon="mdi:plus"></ha-icon></button>
+        </div>
+        <div class="shc-cl-ctrl shc-fn-presets"></div>
+        <div class="shc-cl-sched" hidden></div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._lineBuild(FN_SEGMENTS);
+    const bind = this._commonBind();
+    bind(".shc-ap-settings", () => this._openSchedule());
+    bind(".shc-cl-sched", () => this._openSchedule());
+    bind(".shc-dv-mist", () => this._openMist());
+    bind(".shc-dv-info", () => this._openInfo());
+    bind(".shc-cl-btn.power", () => {
+      const st = this._st();
+      if (!st || st.state === "unavailable") return;
+      this._call("fan", st.state === "on" ? "turn_off" : "turn_on", { entity_id: this._config.entity });
+    });
+    bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSpeed(Number(b.dataset.step)));
+  }
+
+  _speedStep() {
+    const s = Number(this._st()?.attributes?.percentage_step);
+    return Number.isFinite(s) && s > 0 ? s : 100 / 12;
+  }
+
+  _speedText(pct) {
+    if (pct === null || pct === undefined || !Number.isFinite(Number(pct))) return "—";
+    const step = this._speedStep();
+    const levels = Math.round(100 / step);
+    return levels <= 12 && this._config.show_levels !== false ? `${Math.max(1, Math.round(pct / step))}/${levels}` : `${Math.round(pct)}%`;
+  }
+
+  _stepSpeed(dir) {
+    const st = this._st();
+    if (!st || st.state === "unavailable") return;
+    const step = this._speedStep();
+    const base = this._pending ?? (st.state === "on" ? Number(st.attributes.percentage) || 0 : 0);
+    const t = Math.min(100, Math.max(step, Math.round((base + dir * step) / step) * step));
+    this._pending = t;
+    this._root.querySelector(".cl-set-val").textContent = this._speedText(t);
+    clearTimeout(this._stepTimer);
+    clearTimeout(this._pendingReset);
+    this._stepTimer = setTimeout(() => {
+      // set_percentage accende anche il ventilatore se era spento
+      this._call("fan", "set_percentage", { entity_id: this._config.entity, percentage: Math.round(t) });
+      this._pendingReset = setTimeout(() => (this._pending = null), 2500);
+    }, 700);
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    return s;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const hs = hass.states;
+    const st = this._st();
+    const q = (sel) => this._root.querySelector(sel);
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const on = !unav && st.state === "on";
+    const a = st?.attributes || {};
+    const pct = on && Number.isFinite(Number(a.percentage)) ? Number(a.percentage) : null;
+    const mistOn = this._on(cfg.mist_entity);
+    const lightSt = hs[cfg.light_entity];
+    const humidify = cfg.humidify_entity ? this._on(cfg.humidify_entity) : mistOn;
+    const waterEmpty = this._on(cfg.water_entity);
+    const cleanH = this._val(cfg.cleaning_entity);
+    const needClean = cleanH !== null && cleanH >= Number(cfg.cleaning_hours);
+
+    this._applyCompact(unav);
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "cl-off", "dv-osc", "fn-mist-on", "fn-light-on", "has-alarm");
+    card.classList.add(unav ? "is-unavailable" : on ? "is-run" : "is-off");
+    if (!on) card.classList.add("cl-off");
+    if (on && a.oscillating) card.classList.add("dv-osc");
+    if (on && mistOn) card.classList.add("fn-mist-on");
+    if (lightSt?.state === "on") {
+      card.classList.add("fn-light-on");
+      const rgb = lightSt.attributes.rgb_color;
+      q(".fn-light").style.fill = Array.isArray(rgb) ? `rgb(${rgb.join(",")})` : "#38bdf8";
+    }
+    if (waterEmpty || needClean) card.classList.add("has-alarm");
+    // pale: da 2,4 s a giro (minimo) a 0,35 s (massimo)
+    card.style.setProperty("--fn-dur", `${(2.4 - ((pct ?? 30) / 100) * 2.05).toFixed(2)}s`);
+
+    const preset = a.preset_mode;
+    const pLabel = FN_PRESETS[preset]?.label || preset || "—";
+    this._setBadge(unav ? "unavailable" : on ? "run" : "off", unav ? "OFFLINE" : on ? `${pLabel} ${this._speedText(pct)}`.toUpperCase() : "SPENTO");
+
+    const room = this._val(cfg.temperature_entity);
+    const hum = this._val(cfg.humidity_entity);
+    const hTarget = humidify ? this._val(cfg.humidity_target_entity) : null;
+    const mistLvl = this._val(cfg.mist_level_entity);
+    q(".fn-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
+    q(".fn-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
+    q(".fn-speed").textContent = on ? this._speedText(pct) : "—";
+    q(".fn-preset").textContent = on ? pLabel : "—";
+    q(".fn-mistv").textContent = unav || !this._has(cfg.mist_entity) ? "—" : mistOn ? `Livello ${mistLvl ?? "—"}` : "Spenta";
+    q(".fn-clean").textContent = cleanH !== null ? `${Math.round(cleanH)} h` : "—";
+    q(".fn-clean").style.color = needClean ? "#ef4444" : "";
+    q(".fn-mistv").closest(".shc-ap-cycle-row").hidden = !cfg.mist_entity;
+    q(".fn-clean").closest(".shc-ap-cycle-row").hidden = !cfg.cleaning_entity;
+
+    const sub = unav ? "Non raggiungibile" : on ? `${pLabel}${a.oscillating ? " · oscilla" : ""}` : "Spento";
+    this._lineUpdate({ temp: room, hum, humTarget: hTarget, subHtml: `${esc(sub)}${hTarget !== null ? ` · obiettivo <em>${Math.round(hTarget)}%</em>` : ""}` });
+
+    if (this._pending == null) q(".cl-set-val").textContent = on ? this._speedText(pct) : unav ? "—" : "OFF";
+    const pw = q(".shc-cl-btn.power");
+    pw.classList.toggle("on", on);
+    pw.disabled = unav;
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = unav));
+
+    const presets = a.preset_modes || [];
+    const key = `${presets.join()}|${on}|${preset}|${a.oscillating}|${mistOn}|${unav}`;
+    if (key !== this._presetKey) {
+      this._presetKey = key;
+      const box = q(".shc-fn-presets");
+      box.innerHTML =
+        presets
+          .map((p) => `<button type="button" class="shc-cl-btn preset${on && p === preset ? " on" : ""}" data-preset="${esc(p)}" title="${esc(FN_PRESETS[p]?.label || p)}"${unav ? " disabled" : ""}><ha-icon icon="${FN_PRESETS[p]?.icon || "mdi:fan"}"></ha-icon></button>`)
+          .join("") +
+        `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn osc${on && a.oscillating ? " on" : ""}" data-osc="1" title="Oscillazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>` +
+        (cfg.mist_entity ? `<button type="button" class="shc-cl-btn mist${mistOn ? " on" : ""}" data-mist="1" title="Nebulizzatore"${unav ? " disabled" : ""}><ha-icon icon="mdi:weather-fog"></ha-icon></button>` : "");
+      box.querySelectorAll("[data-preset]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._call("fan", "set_preset_mode", { entity_id: cfg.entity, preset_mode: b.dataset.preset });
+        }),
+      );
+      box.querySelector("[data-osc]").addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._call("fan", "oscillate", { entity_id: cfg.entity, oscillating: !this._st().attributes.oscillating });
+      });
+      box.querySelector("[data-mist]")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._call("switch", "toggle", { entity_id: cfg.mist_entity });
+      });
+    }
+
+    // programmazione attiva
+    const sc = cfg.schedule;
+    const chips = [];
+    if (this._on(sc.on_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>Accensione ${esc(String(hs[sc.on_time]?.state || "").slice(0, 5))}</span>`);
+    if (this._on(sc.off_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>Spegnimento ${esc(String(hs[sc.off_time]?.state || "").slice(0, 5))}</span>`);
+    if (this._on(sc.auto_day)) chips.push(`<span><ha-icon icon="mdi:sun-clock"></ha-icon>Giorno/notte automatico</span>`);
+    const tOff = this._val(cfg.timer_off_entity);
+    if (on && tOff) chips.push(`<span><ha-icon icon="mdi:timer-off-outline"></ha-icon>Si spegne tra ${tOff >= 60 ? `${Math.floor(tOff / 60)} h ${tOff % 60} min` : `${tOff} min`}</span>`);
+    const sched = q(".shc-cl-sched");
+    sched.hidden = !chips.length;
+    sched.innerHTML = chips.join("");
+
+    this._setWarn(
+      unav
+        ? "⚠ Ventilatore non raggiungibile: controlla che sia collegato alla corrente e al Wi‑Fi"
+        : waterEmpty
+          ? "💧 Serbatoio dell'acqua vuoto: riempilo per la nebbia"
+          : needClean
+            ? `🧽 ${Math.round(cleanH)} ore dall'ultima pulizia: è ora di pulirlo`
+            : "",
+    );
+    this._liveRefresh([cfg.entity, cfg.mist_entity, cfg.mist_level_entity, cfg.humidify_entity, cfg.humidity_target_entity, cfg.light_entity, cfg.light_mode_entity, cfg.timer_off_entity, ...Object.values(sc), ...cfg.switches.map((s) => s.entity)].filter(Boolean));
+  }
+
+  // ⚙️ Programmazione
+  _openSchedule() {
+    const cfg = this._config;
+    const sc = cfg.schedule;
+    const hs = this._hass.states;
+    const any = [sc.on_enabled, sc.off_enabled, sc.auto_day, cfg.timer_off_entity].some((e) => this._has(e));
+    if (!any) {
+      this._openDialog("Programmazione", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna programmazione configurata. Copia il package <b>ventilatore.yaml</b> (vedi guida) oppure indica i tuoi helper nell'opzione <code>schedule</code> della card.</p></div>`);
+      return;
+    }
+    const tOff = hs[cfg.timer_off_entity];
+    const html = `
+      ${this._has(sc.on_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Accensione programmata</div>${this._row("Attiva", this._switchHtml(sc.on_enabled))}${this._row("Alle", this._timeHtml(sc.on_time))}</div>` : ""}
+      ${this._has(sc.off_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Spegnimento programmato</div>${this._row("Attivo", this._switchHtml(sc.off_enabled))}${this._row("Alle", this._timeHtml(sc.off_time))}</div>` : ""}
+      ${this._has(sc.auto_day) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Setup automatico all'accensione</div>${this._row("Giorno / notte", this._switchHtml(sc.auto_day))}<p class="shc-cl-note">Quando lo accendi sceglie da solo: di giorno modalità Normale, velocità media, nebbia e luce; di notte modalità Notte, velocità minima, nebbia bassa e luce spenta.</p></div>` : ""}
+      ${tOff ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Timer del ventilatore</div>${this._row("Si spegne tra", this._valHtml(Number(tOff.state) ? `${tOff.state} min` : "timer spento"))}${this._chipsHtml([0, 30, 60, 120, 240, 480].map((m) => ({ label: m ? (m >= 60 ? `${m / 60} h` : `${m} min`) : "Spento", on: Number(tOff.state) === m, attrs: `data-numset="${esc(cfg.timer_off_entity)}" data-v="${m}"` })))}</div>` : ""}
+      <p class="shc-cl-note">Accensione e spegnimento programmati sono <b>una tantum</b>: scattano una volta e si disattivano da soli. Quando sono attivi compaiono sotto i comandi della card.</p>`;
+    this._openDialog("Programmazione", html, this._reopenUnlessTyping(() => this._openSchedule()));
+  }
+
+  // 💧 Nebbia e luce
+  _openMist() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const lvl = hs[cfg.mist_level_entity];
+    const tgt = hs[cfg.humidity_target_entity];
+    const light = hs[cfg.light_entity];
+    const lmode = hs[cfg.light_mode_entity];
+    const LM = { humidity: "Segue l'umidità", color: "Colore fisso" };
+    const lvls = [];
+    if (lvl) for (let i = Number(lvl.attributes.min) || 1; i <= (Number(lvl.attributes.max) || 4); i++) lvls.push(i);
+    const html = `
+      ${cfg.mist_entity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Nebulizzatore</div>
+        ${this._row("Nebbia", this._switchHtml(cfg.mist_entity))}
+        ${lvl ? `${this._row("Intensità", "")}${this._chipsHtml(lvls.map((i) => ({ label: String(i), on: Number(lvl.state) === i, attrs: `data-numset="${esc(cfg.mist_level_entity)}" data-v="${i}"`, icon: "mdi:weather-fog" })))}` : ""}
+        ${cfg.humidify_entity ? this._row("Umidificazione automatica", this._switchHtml(cfg.humidify_entity)) : ""}
+        ${tgt ? this._row("Umidità obiettivo", this._stepperHtml(cfg.humidity_target_entity, `${Math.round(Number(tgt.state)) || "—"} %`, 5)) : ""}
+        <p class="shc-cl-note">Con l'umidificazione automatica la nebbia si ferma quando la stanza arriva all'umidità obiettivo (trattino rosso sotto la barra dell'umidità).</p></div>` : ""}
+      ${light ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Luce ambientale</div>
+        ${this._row("Accesa", this._switchHtml(cfg.light_entity))}
+        ${this._chipsHtml([25, 50, 75, 100].map((b) => ({ label: `${b}%`, on: light.state === "on" && Math.round(((light.attributes.brightness || 0) / 255) * 100) === b, attrs: `data-bri="${b}"` })))}
+        ${lmode ? `${this._row("Colore", "")}${this._chipsHtml((lmode.attributes.options || []).map((o) => ({ label: LM[o] || o, on: o === lmode.state, attrs: `data-select="${esc(cfg.light_mode_entity)}" data-option="${esc(o)}"` })))}` : ""}
+      </div>` : ""}
+      ${!cfg.mist_entity && !light ? `<p class="shc-cl-note">Nebulizzatore e luce non configurati (opzioni <code>mist_entity</code>, <code>light_entity</code>).</p>` : ""}`;
+    const overlay = this._openDialog("Nebbia e luce", html, () => this._openMist());
+    overlay.querySelectorAll("[data-bri]").forEach((b) =>
+      b.addEventListener("click", () => this._call("light", "turn_on", { entity_id: cfg.light_entity, brightness_pct: Number(b.dataset.bri) })),
+    );
+  }
+
+  // ℹ️ Stato e manutenzione
+  _openInfo() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const cleanH = this._val(cfg.cleaning_entity);
+    const rows = cfg.switches.filter((s) => this._has(s.entity)).map((s) => this._row(s.name || hs[s.entity].attributes.friendly_name, this._switchHtml(s.entity))).join("");
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventilatore</div>
+        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : st.state === "on" ? "Acceso" : "Spento"))}
+        ${st?.state === "on" ? this._row("Modalità e velocità", this._valHtml(`${FN_PRESETS[a.preset_mode]?.label || a.preset_mode || "—"} · ${this._speedText(a.percentage)}`)) : ""}
+        ${cfg.water_entity ? this._row("Serbatoio acqua", `<span class="shc-ap-row-val" style="${this._on(cfg.water_entity) ? "color:#ef4444;font-weight:800" : ""}">${this._on(cfg.water_entity) ? "Vuoto" : hs[cfg.water_entity]?.state === "off" ? "OK" : "n/d"}</span>`) : ""}
+        ${cfg.cleaning_entity ? this._row("Ore dall'ultima pulizia", `<span class="shc-ap-row-val" style="${cleanH !== null && cleanH >= cfg.cleaning_hours ? "color:#ef4444;font-weight:800" : ""}">${cleanH !== null ? `${Math.round(cleanH)} h su ${cfg.cleaning_hours}` : "n/d"}</span>`) : ""}
+        ${st ? this._row("Ultimo cambio", this._valHtml(new Date(st.last_changed).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))) : ""}
+        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      </div>
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Impostazioni</div>${rows}</div>` : ""}
+      ${cfg.cleaning_entity ? `<p class="shc-cl-note">Il contatore della pulizia si azzera dal ventilatore (o dall'app) dopo averlo pulito. Il package avvisa ogni ${esc(cfg.cleaning_hours)} ore di utilizzo.</p>` : ""}
+      ${this._hidePrefHtml()}`;
+    this._openDialog("Stato e manutenzione", html, () => this._openInfo());
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-fan-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("fan.")) || "fan.ventilatore";
+    return { name: "Ventilatore", entity: e };
+  }
+}
+
+class ShcFanCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Ventilatore" },
+        { key: "entity", label: "Ventilatore", domain: ["fan"], required: true },
+        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Camera" },
+        { key: "temperature_entity", label: "Sensore temperatura", domain: ["sensor"] },
+        { key: "humidity_entity", label: "Sensore umidità", domain: ["sensor"] },
+        { key: "power_entity", label: "Potenza (W) della presa", domain: ["sensor"] },
+      ]},
+      { title: "Nebbia e luce", fields: [
+        { key: "mist_entity", label: "Nebulizzatore", domain: ["switch"] },
+        { key: "mist_level_entity", label: "Livello nebbia", domain: ["number"] },
+        { key: "humidify_entity", label: "Umidificazione automatica", domain: ["switch"] },
+        { key: "humidity_target_entity", label: "Umidità obiettivo", domain: ["number"] },
+        { key: "light_entity", label: "Luce ambientale", domain: ["light"] },
+        { key: "light_mode_entity", label: "Modalità luce", domain: ["select"] },
+      ]},
+      { title: "Manutenzione e timer", fields: [
+        { key: "water_entity", label: "Serbatoio acqua vuoto (binary_sensor)", domain: ["binary_sensor"] },
+        { key: "cleaning_entity", label: "Ore dall'ultima pulizia", domain: ["sensor"] },
+        { key: "cleaning_hours", label: "Avviso pulizia ogni (ore)", kind: "number", placeholder: "100" },
+        { key: "timer_off_entity", label: "Timer spegnimento del ventilatore (min)", domain: ["number"] },
+      ]},
+      { title: "Programmazione (helper del package ventilatore.yaml)", fields: [
+        { key: "schedule.on_enabled", label: "Accensione programmata attiva", domain: ["input_boolean"] },
+        { key: "schedule.on_time", label: "Orario accensione", domain: ["input_datetime"] },
+        { key: "schedule.off_enabled", label: "Spegnimento programmato attivo", domain: ["input_boolean"] },
+        { key: "schedule.off_time", label: "Orario spegnimento", domain: ["input_datetime"] },
+        { key: "schedule.auto_day", label: "Setup automatico giorno/notte", domain: ["input_boolean"] },
+      ]},
+      { title: "Altro", fields: [
+        { key: "switches", label: "Interruttori (popup Stato)", kind: "list", itemFields: [
+          { key: "entity", label: "Interruttore", kind: "entity", domain: ["switch"] },
+          { key: "name", label: "Nome", kind: "text" },
+        ]},
+        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-fan-card-editor", ShcFanCardEditor);
+customElements.define("shc-fan-card", ShcFanCard);
+window.customCards.push({
+  type: "shc-fan-card",
+  name: "Ventilatore",
+  description: "Ventilatore animato (pale, oscillazione, nebbia, luce) con gauge dritta, velocità, modalità, programmazione e manutenzione",
+  author: "Simonz82",
+});
+
+// --- Caldaia e caloriferi ---------------------------------------------------------
+
+const BL_STYLE = `
+@keyframes shc-bl-flick{0%,100%{transform:scale(1,1)}30%{transform:scale(.92,1.08)}60%{transform:scale(1.06,.94)}}
+@keyframes shc-bl-drop{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(16px);opacity:0}}
+.bl-flame{opacity:0;transform-box:fill-box;transform-origin:50% 100%;transition:opacity .5s}
+.shc-ap-card.bl-burn .bl-flame{opacity:1;animation:shc-bl-flick .5s ease-in-out infinite}
+.bl-flame.small{opacity:0}
+.shc-ap-card.is-run:not(.bl-burn) .bl-flame.small{opacity:.9;animation:shc-bl-flick 1.4s ease-in-out infinite}
+.bl-rad-glow{opacity:0;transition:opacity .8s}
+.shc-ap-card.bl-heat .bl-rad-glow{opacity:.85}
+.shc-ap-card.is-run:not(.bl-heat) .bl-rad-glow{opacity:.18}
+.bl-pipe-hot{stroke:#94a3b8;transition:stroke .6s}
+.shc-ap-card.bl-heat .bl-pipe-hot{stroke:#ef4444}
+.shc-ap-card.bl-heat .bl-pipe-cold{stroke:#3b82f6}
+.bl-flow{fill:none;stroke:#fecaca;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:4 8;opacity:0}
+.shc-ap-card.bl-heat .bl-flow{opacity:.95;animation:shc-dv-flow 1.2s linear infinite}
+.bl-drop{fill:#38bdf8;opacity:0;transform-box:fill-box}
+.shc-ap-card.bl-dhw .bl-drop{animation:shc-bl-drop 1s ease-in infinite}
+.bl-disp{font:900 13px/1 system-ui,sans-serif;fill:#fb923c}
+.shc-ap-card.is-off .bl-disp,.shc-ap-card.is-unavailable .bl-disp{fill:#94a3b8}
+.shc-ap-card.bl-heat .shc-cl-chip ha-icon{color:#f97316}
+.shc-ap-card.bl-heat .ht-rise{animation:shc-dv-rise 2.2s ease-in infinite}
+.shc-cl-btn.mode.on{background:rgba(249,115,22,.18);color:#ea580c}
+.shc-cl-btn.mode.auto.on{background:rgba(14,165,233,.2);color:#0284c7}
+.shc-cl-btn.mode.off.on{background:rgba(100,116,139,.2);color:#475569}
+.shc-cl-btn.prog.on{background:rgba(14,165,233,.2);color:#0284c7}
+.shc-cl-btn.fire.on{background:linear-gradient(135deg,#fb923c,#ef4444);color:#fff}
+.shc-bl-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.shc-bl-sumbox{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:14px;background:var(--shc-soft,rgba(148,163,184,.12))}
+.shc-bl-sumbox small{font-size:11px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--shc-dim)}
+.shc-bl-sumbox b{font-size:19px;font-weight:900;color:var(--shc-text)}
+.shc-bl-sumbox i{font-style:normal;font-size:12px;font-weight:800;color:#16a34a}
+.shc-bl-sumbox span{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--shc-dim)}
+.shc-bl-sumbox span em:last-of-type{margin-left:6px}
+.shc-bl-sum em,.shc-bl-legend em{display:inline-block;width:9px;height:9px;border-radius:3px}
+em.h{background:#f97316}
+em.w{background:#0ea5e9}
+.shc-bl-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;font-weight:700;color:var(--shc-dim);margin:0 2px 6px}
+.shc-bl-legend span{display:flex;align-items:center;gap:5px}
+.shc-bl-tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;color:var(--shc-text)}
+.shc-bl-tbl th{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.04em;color:var(--shc-dim);text-align:right;padding:4px 4px 6px}
+.shc-bl-tbl th:first-child,.shc-bl-tbl td:first-child{text-align:left}
+.shc-bl-tbl th.h{color:#ea580c}
+.shc-bl-tbl th.w{color:#0284c7}
+.shc-bl-tbl td{text-align:right;padding:6px 4px 1px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.shc-bl-tbl td small{display:block;font-size:11px;color:#16a34a;font-weight:800}
+.shc-bl-tbl tr.bar td{padding:0 4px 6px;border-bottom:1px solid var(--shc-border)}
+.shc-bl-tbl tr.bar span{display:inline-block;height:5px;vertical-align:top}
+.shc-bl-tbl tr.bar span.h{background:#f97316;border-radius:3px 0 0 3px}
+.shc-bl-tbl tr.bar span.w{background:#0ea5e9;border-radius:0 3px 3px 0}
+.shc-bl-tbl tfoot td{padding-top:8px;font-weight:900}
+`;
+
+const BL_SEGMENTS = [
+  { from: 10, color: "#1565c0" },
+  { from: 15, color: "#039be5" },
+  { from: 18, color: "#00c853" },
+  { from: 21, color: "#43a047" },
+  { from: 23, color: "#7cb342" },
+  { from: 25, color: "#fb8c00" },
+  { from: 26, color: "#f4511e" },
+  { from: 27, color: "#d32f2f" },
+];
+
+// stessi range della vecchia gauge "Pressione Impianto"
+const BL_PRESS_SEGMENTS = [
+  { from: 0, color: "var(--red-color, #f44336)" },
+  { from: 0.9, color: "var(--red-color, #f44336)" },
+  { from: 1, color: "var(--orange-color, #ff9800)" },
+  { from: 1.07, color: "var(--orange-color, #ff9800)" },
+  { from: 1.1, color: "var(--light-green-color, #8bc34a)" },
+  { from: 1.5, color: "var(--light-green-color, #8bc34a)" },
+  { from: 1.53, color: "var(--orange-color, #ff9800)" },
+  { from: 1.97, color: "var(--orange-color, #ff9800)" },
+  { from: 2, color: "var(--red-color, #f44336)" },
+];
+
+const BL_PROGRAMS = { clock_program_1: "P1", clock_program_2: "P2", clock_program_3: "P3" };
+
+function blHeroSvg(id) {
+  const flame = (cls, s) =>
+    `<g transform="translate(82 96) scale(${s}) translate(-82 -96)"><path class="bl-flame ${cls}" d="M82 72c6 8 12 13 12 21a12 12 0 0 1-24 0c0-5 3-8 5-11 1 4 3 6 5 6-2-6-1-11 2-16Z" fill="url(#shbl-fire-${id})"/></g>`;
+  const cols = [0, 1, 2, 3, 4, 5].map((i) => 152 + i * 12);
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shbl-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shbl-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d5dde7"/><stop offset=".3" stop-color="#ffffff"/><stop offset=".75" stop-color="#eef2f6"/><stop offset="1" stop-color="#c3cdd9"/></linearGradient>
+      <linearGradient id="shbl-fire-${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2563eb"/><stop offset=".35" stop-color="#f97316"/><stop offset="1" stop-color="#fde047"/></linearGradient>
+      <linearGradient id="shbl-rad-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset="1" stop-color="#ef4444"/></linearGradient>
+    </defs>
+    <ellipse cx="190" cy="150" rx="46" ry="5" fill="#0f172a" opacity=".14" filter="url(#shbl-blur-${id})"/>
+    <g fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path class="bl-pipe-hot" d="M96 132v10h50v-8"/>
+      <path class="bl-pipe-cold" stroke="#94a3b8" d="M108 132v4h112v-2"/>
+    </g>
+    <path class="bl-flow" d="M96 134v8h50v-8"/>
+    <g>
+      ${cols.map((x) => `<rect x="${x}" y="70" width="10" height="66" rx="4" fill="url(#shbl-body-${id})" stroke="#8fa0b3" stroke-opacity=".7"/>`).join("")}
+      ${cols.map((x) => `<rect class="bl-rad-glow" x="${x + 1}" y="71" width="8" height="64" rx="3.5" fill="url(#shbl-rad-${id})"/>`).join("")}
+      <rect x="150" y="76" width="74" height="4" rx="2" fill="#cbd5e1"/><rect x="150" y="126" width="74" height="4" rx="2" fill="#cbd5e1"/>
+    </g>
+    <g>${[160, 187, 214].map((x, i) => `<path class="ht-rise" style="animation-delay:${(i * 0.7).toFixed(1)}s" d="M${x} 62c-4-4 4-8 0-12"/>`).join("")}</g>
+    <rect x="40" y="12" width="84" height="120" rx="11" fill="url(#shbl-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="52" y="22" width="60" height="20" rx="5" fill="#0f172a" opacity=".88"/>
+    <text class="bl-disp" x="82" y="36.5" text-anchor="middle">--</text>
+    <circle cx="82" cy="88" r="22" fill="#1f2937"/>
+    <circle cx="82" cy="88" r="22" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    ${flame("small", 0.45)}${flame("", 1)}
+    <g fill="#94a3b8">${[60, 72, 92, 104].map((x) => `<circle cx="${x}" cy="122" r="2.6"/>`).join("")}</g>
+    <path d="M60 132v8h-6" fill="none" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+    <g>${[0, 0.33, 0.66].map((d) => `<ellipse class="bl-drop" style="animation-delay:${d}s" cx="52" cy="144" rx="1.8" ry="2.6"/>`).join("")}</g>
+  </svg>`;
+}
+
+class ShcBoilerCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    this._config = {
+      name: "Caloriferi",
+      layout: "centrato",
+      min: 10,
+      max: 28,
+      step: 0.5,
+      pressure_min: 1,
+      pressure_max: 2.5,
+      ...config,
+      diagnostics: Array.isArray(config.diagnostics) ? config.diagnostics : [],
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    const row = (cls, icon, label) =>
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small>${label}</small></span><b class="${cls}">—</b></div>`;
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${BL_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-bl-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="mdi:radiator"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programma">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-cons" title="Consumi">${ICON_EURO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato caldaia">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${blHeroSvg(this._uid)}</div>
+            ${this._lineHtml("Temperatura della casa e impostata, sotto la pressione dell'impianto")}
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap">Caldaia</span>
+            <div class="shc-ap-cycle-list">
+              ${row("bl-room", "mdi:home-thermometer", "Casa")}
+              ${row("bl-out", "mdi:thermometer", "Esterna")}
+              ${row("bl-press", "mdi:gauge", "Pressione")}
+              ${row("bl-dhw", "mdi:water-boiler", "Acqua")}
+              ${row("bl-next", "mdi:clock-outline", "Poi")}
+              ${row("bl-gas", "mdi:fire", "Gas oggi")}
+            </div>
+          </div>
+        </div>
+        <div class="shc-cl-ctrl">
+          <button type="button" class="shc-cl-btn power" title="Accendi (programma) / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="bl-set-cap">impostata</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+        </div>
+        <div class="shc-cl-ctrl shc-bl-modes"></div>
+        <div class="shc-cl-sched" hidden></div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._lineBuild(BL_SEGMENTS);
+    this._pressBuild();
+    const bind = this._commonBind();
+    bind(".shc-ap-settings", () => this._openProgram());
+    bind(".shc-cl-sched", () => this._openProgram());
+    bind(".shc-dv-cons", () => this._openConsumption());
+    bind(".shc-dv-info", () => this._openInfo());
+    bind(".shc-cl-btn.power", () => {
+      const st = this._st();
+      if (!st || st.state === "unavailable") return;
+      if (st.state !== "off") {
+        this._call("climate", "set_hvac_mode", { entity_id: this._config.entity, hvac_mode: "off" });
+        return;
+      }
+      const pre = this._preset();
+      if (pre === null) {
+        this._call("climate", "set_hvac_mode", { entity_id: this._config.entity, hvac_mode: "auto" });
+        return;
+      }
+      // scelta fatta a caldaia spenta: accende in manuale e poi imposta la temperatura
+      this._call("climate", "set_hvac_mode", { entity_id: this._config.entity, hvac_mode: "heat" });
+      setTimeout(() => this._call("climate", "set_temperature", { entity_id: this._config.entity, temperature: pre }), 3000);
+      this._setPreset(null);
+    });
+    bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSet(Number(b.dataset.step)));
+  }
+
+  // la seconda barra (quella dell'umidita' nelle altre card) mostra la pressione dell'impianto
+  _usePressBar() {
+    return !!this._config.pressure_entity && !this._config.humidity_entity;
+  }
+
+  _pressRange() {
+    const cfg = this._config;
+    return [Number(cfg.pressure_scale_min ?? 0.5), Number(cfg.pressure_scale_max ?? 2.5)];
+  }
+
+  _pressBuild() {
+    if (!this._usePressBar()) return;
+    const [lo, hi] = this._pressRange();
+    const pos = (v) => Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100));
+    const segs = this._config.pressure_segments || BL_PRESS_SEGMENTS;
+    const q = (sel) => this._root.querySelector(sel);
+    q(".shc-cl-lbar.inner").style.background = `linear-gradient(90deg,${segs.map((g) => `${g.color} ${pos(Number(g.from)).toFixed(1)}%`).join(",")})`;
+    const ticks = [];
+    for (let v = lo; v <= hi + 1e-9; v += 0.5) ticks.push(`<span style="left:${pos(v).toFixed(2)}%">${clNum(v)}${v + 0.5 > hi + 1e-9 ? " bar" : ""}</span>`);
+    q(".shc-cl-scale.h").innerHTML = ticks.join("");
+    q(".shc-cl-lbar.inner").title = "Pressione impianto";
+  }
+
+  _pressUpdate(press, bad) {
+    if (!this._usePressBar()) return;
+    const [lo, hi] = this._pressRange();
+    const q = (sel) => this._root.querySelector(sel);
+    q(".shc-cl-lbar.inner").hidden = false;
+    q(".shc-cl-scale.h").hidden = false;
+    const ni = q(".shc-cl-ndl.inner");
+    ni.hidden = press === null;
+    if (press !== null) ni.style.left = `${Math.min(100, Math.max(0, ((press - lo) / (hi - lo)) * 100)).toFixed(2)}%`;
+    const lbl = q(".cl-l-hum");
+    lbl.textContent = press !== null ? `${clNum(press)} bar` : "";
+    lbl.style.color = bad ? "#ef4444" : "";
+  }
+
+  // temperatura scelta a caldaia spenta (la Remeha da spenta ignora set_temperature):
+  // si usa alla riaccensione dal pulsante della card
+  _presetKey() {
+    return `shc-boiler-preset:${this._config.entity}`;
+  }
+
+  _preset() {
+    try {
+      const v = localStorage.getItem(this._presetKey());
+      return v === null ? null : Number(v);
+    } catch (e) {
+      return this._presetMem ?? null;
+    }
+  }
+
+  _setPreset(v) {
+    this._presetMem = v;
+    try {
+      if (v === null) localStorage.removeItem(this._presetKey());
+      else localStorage.setItem(this._presetKey(), String(v));
+    } catch (e) {
+      /* storage non disponibile */
+    }
+  }
+
+  // temperatura impostata: quella attiva; da spenta quella scelta per la riaccensione,
+  // altrimenti l'ultima usata o quella del programma
+  _target() {
+    const st = this._st();
+    const a = st?.attributes || {};
+    if (a.temperature !== null && a.temperature !== undefined && Number.isFinite(Number(a.temperature))) {
+      this._lastTarget = Number(a.temperature);
+      return this._lastTarget;
+    }
+    if (st?.state === "off") {
+      const pre = this._preset();
+      if (pre !== null && Number.isFinite(pre)) return pre;
+    }
+    return this._val(this._config.schedule_setpoint_entity) ?? this._lastTarget ?? null;
+  }
+
+  _stepSet(dir) {
+    const st = this._st();
+    if (!st || st.state === "unavailable") return;
+    const step = Number(this._config.step) || 0.5;
+    const base = this._pending ?? this._target();
+    if (!Number.isFinite(base)) return;
+    const lo = Number(st.attributes.min_temp) || 5;
+    const hi = Number(st.attributes.max_temp) || 30;
+    const t = Math.min(hi, Math.max(lo, Math.round((base + dir * step) / step) * step));
+    this._pending = t;
+    this._root.querySelector(".cl-set-val").textContent = `${clNum(t)}°`;
+    const sp = this._root.querySelector(".shc-cl-spt");
+    sp.hidden = false;
+    sp.style.left = `${Math.min(100, Math.max(0, ((t - this._config.min) / (this._config.max - this._config.min)) * 100)).toFixed(2)}%`;
+    clearTimeout(this._stepTimer);
+    clearTimeout(this._pendingReset);
+    this._stepTimer = setTimeout(() => {
+      if (this._st()?.state === "off") {
+        this._setPreset(t);
+        this._pending = null;
+        if (this._hass) this.hass = this._hass;
+        return;
+      }
+      this._call("climate", "set_temperature", { entity_id: this._config.entity, temperature: t });
+      this._pendingReset = setTimeout(() => (this._pending = null), 4000);
+    }, 800);
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura casa", color: "#f97316" });
+    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: "Esterna", color: "#0ea5e9" });
+    if (cfg.pressure_entity) s.push({ key: "press", entity: cfg.pressure_entity, label: "Pressione", color: "#8b5cf6" });
+    return s;
+  }
+
+  _gasToday() {
+    const cfg = this._config;
+    const a = this._val(cfg.gas_heating_entity);
+    const b = this._val(cfg.gas_hot_water_entity);
+    if (a === null && b === null) return null;
+    return (a || 0) + (b || 0);
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const hs = hass.states;
+    const st = this._st();
+    const q = (sel) => this._root.querySelector(sel);
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const mode = unav ? "unavailable" : st.state;
+    const a = st?.attributes || {};
+    const heating = !unav && (a.hvac_action === "heating" || (cfg.heating_status_entity && this._on(cfg.heating_status_entity)));
+    const dhw = !unav && cfg.hot_water_status_entity ? this._on(cfg.hot_water_status_entity) : false;
+    const prog = BL_PROGRAMS[a.preset_mode] || null;
+    const fire = this._on(cfg.fireplace_entity);
+
+    this._applyCompact(unav);
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "bl-heat", "bl-dhw", "bl-burn", "cl-off", "has-alarm");
+    card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
+    if (mode === "off" || unav) card.classList.add("cl-off");
+    if (heating) card.classList.add("bl-heat");
+    if (dhw) card.classList.add("bl-dhw");
+    if (heating || dhw) card.classList.add("bl-burn");
+
+    const room = Number.isFinite(Number(a.current_temperature)) && a.current_temperature !== null ? Number(a.current_temperature) : this._val(cfg.temperature_entity);
+    const target = this._target();
+    const out = this._val(cfg.outdoor_entity);
+    const press = this._val(cfg.pressure_entity);
+    const pLow = press !== null && press < Number(cfg.pressure_min);
+    const pHigh = press !== null && press > Number(cfg.pressure_max);
+    const modeTxt = unav ? "Non raggiungibile" : mode === "off" ? "Spenti (antigelo)" : mode === "heat" ? "Manuale" : `Programma ${prog || ""}`.trim();
+    const actTxt = heating ? "scalda i caloriferi" : dhw ? "fa acqua calda" : mode === "off" ? "" : "in attesa";
+
+    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : heating || dhw ? "run" : "standby", unav ? "OFFLINE" : mode === "off" ? "SPENTI" : heating ? "SCALDA" : dhw ? "ACQUA CALDA" : mode === "heat" ? "MANUALE" : `PROGRAMMA ${prog || ""}`.trim());
+    q(".bl-disp").textContent = unav ? "--" : mode === "off" ? "OFF" : this._target() !== null ? `${clNum(this._target())}°` : "ON";
+
+    q(".bl-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
+    q(".bl-out").textContent = out !== null ? `${clNum(out)} °C` : "—";
+    q(".bl-press").textContent = press !== null ? `${clNum(press)} bar` : "—";
+    q(".bl-press").style.color = pLow || pHigh ? "#ef4444" : "";
+    const dhwT = this._val(cfg.hot_water_temperature_entity);
+    q(".bl-dhw").textContent = !cfg.hot_water_status_entity ? "—" : dhw ? (dhwT !== null ? `In uso ${clNum(dhwT, 0)}°` : "In uso") : "Pronta";
+    const nsp = this._val(cfg.next_setpoint_entity);
+    const nst = hs[cfg.next_setpoint_time_entity]?.state;
+    const nDate = nst && !["unknown", "unavailable"].includes(nst) ? new Date(nst) : null;
+    const nTime = nDate && !isNaN(nDate) ? nDate.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : null;
+    q(".bl-next").textContent = mode === "auto" && nsp !== null && nTime ? `${clNum(nsp, 0)}° ${nTime}` : "—";
+    const gas = this._gasToday();
+    q(".bl-gas").textContent = gas !== null ? `${clNum(gas, 2)} m³` : "—";
+    q(".bl-out").closest(".shc-ap-cycle-row").hidden = !cfg.outdoor_entity;
+    q(".bl-press").closest(".shc-ap-cycle-row").hidden = !cfg.pressure_entity;
+    q(".bl-dhw").closest(".shc-ap-cycle-row").hidden = !cfg.hot_water_status_entity;
+    q(".bl-next").closest(".shc-ap-cycle-row").hidden = !cfg.next_setpoint_entity;
+    q(".bl-gas").closest(".shc-ap-cycle-row").hidden = gas === null;
+
+    const setTxt = target !== null && !unav ? ` · ${mode === "off" ? "all'accensione" : "impostata"} <em>${esc(clNum(target))}°</em>` : "";
+    this._lineUpdate({ temp: room, hum: this._val(cfg.humidity_entity), set: unav ? null : this._pending ?? target, subHtml: `${esc(modeTxt)}${actTxt ? ` · ${esc(actTxt)}` : ""}${setTxt}` });
+    this._pressUpdate(press, pLow || pHigh);
+
+    if (this._pending == null) q(".cl-set-val").textContent = unav ? "—" : target !== null ? `${clNum(target)}°` : "—";
+    q(".bl-set-cap").textContent = mode === "auto" ? "programma" : mode === "off" ? "all'accensione" : "impostata";
+    const pw = q(".shc-cl-btn.power");
+    pw.classList.toggle("on", !unav && mode !== "off");
+    pw.disabled = unav;
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = unav));
+
+    const key = `${mode}|${a.preset_mode}|${fire}|${unav}|${(a.preset_modes || []).join()}`;
+    if (key !== this._modeKey) {
+      this._modeKey = key;
+      const dis = unav ? " disabled" : "";
+      const box = q(".shc-bl-modes");
+      box.innerHTML =
+        `<button type="button" class="shc-cl-btn mode off${mode === "off" ? " on" : ""}" data-mode="off" title="Spenti (antigelo)"${dis}><ha-icon icon="mdi:snowflake-thermometer"></ha-icon></button>` +
+        `<button type="button" class="shc-cl-btn mode${mode === "heat" ? " on" : ""}" data-mode="heat" title="Manuale"${dis}><ha-icon icon="mdi:hand-back-right-outline"></ha-icon></button>` +
+        `<button type="button" class="shc-cl-btn mode auto${mode === "auto" ? " on" : ""}" data-mode="auto" title="Programma"${dis}><ha-icon icon="mdi:calendar-clock"></ha-icon></button>` +
+        `<span class="shc-cl-sep"></span>` +
+        (a.preset_modes || [])
+          .filter((p) => BL_PROGRAMS[p])
+          .map((p) => `<button type="button" class="shc-cl-btn prog${mode === "auto" && p === a.preset_mode ? " on" : ""}" data-prog="${esc(p)}" title="Programma orario ${esc(BL_PROGRAMS[p])}"${dis}><span class="shc-dv-txt">${esc(BL_PROGRAMS[p])}</span></button>`)
+          .join("") +
+        (this._has(cfg.fireplace_entity) ? `<button type="button" class="shc-cl-btn fire${fire ? " on" : ""}" data-fire="1" title="Modalità camino"${dis}><ha-icon icon="mdi:fireplace"></ha-icon></button>` : "");
+      box.querySelectorAll("[data-mode]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._call("climate", "set_hvac_mode", { entity_id: cfg.entity, hvac_mode: b.dataset.mode });
+        }),
+      );
+      box.querySelectorAll("[data-prog]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._call("climate", "set_preset_mode", { entity_id: cfg.entity, preset_mode: b.dataset.prog });
+        }),
+      );
+      box.querySelector("[data-fire]")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._call("switch", "toggle", { entity_id: cfg.fireplace_entity });
+      });
+    }
+
+    const chips = [];
+    if (!unav && mode === "auto" && nsp !== null && nTime) chips.push(`<span><ha-icon icon="mdi:calendar-clock"></ha-icon>Programma ${esc(prog || "")}: alle ${esc(nTime)} passa a ${esc(clNum(nsp))}°</span>`);
+    if (!unav && mode === "heat") chips.push(`<span><ha-icon icon="mdi:hand-back-right-outline"></ha-icon>Manuale: tiene ${target !== null ? `${esc(clNum(target))}°` : "la temperatura"} finché non cambi</span>`);
+    if (!unav && mode === "off" && this._preset() !== null) chips.push(`<span><ha-icon icon="mdi:power"></ha-icon>Con il pulsante accensione parte in manuale a ${esc(clNum(this._preset()))}°</span>`);
+    if (fire) chips.push(`<span><ha-icon icon="mdi:fireplace" style="color:#f97316"></ha-icon>Modalità camino attiva</span>`);
+    const sched = q(".shc-cl-sched");
+    sched.hidden = !chips.length;
+    sched.innerHTML = chips.join("");
+
+    const errors = cfg.diagnostics.filter((d) => d.alarm && hs[d.entity]?.state === "on");
+    if (pLow || pHigh || errors.length) card.classList.add("has-alarm");
+    this._setWarn(
+      unav
+        ? "⚠ Caldaia non raggiungibile: controlla la corrente e il modulo internet della caldaia"
+        : pLow
+          ? `🔧 Pressione bassa (${clNum(press)} bar): apri la valvola blu di carico fino a circa 1,5 bar`
+          : pHigh
+            ? `🔧 Pressione alta (${clNum(press)} bar): sfiata un calorifero o chiama il tecnico`
+            : errors.length
+              ? `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`
+              : "",
+    );
+    this._liveRefresh([cfg.entity, cfg.fireplace_entity, cfg.pressure_entity, cfg.hot_water_status_entity, cfg.gas_heating_entity, cfg.gas_hot_water_entity].filter(Boolean));
+  }
+
+  // ⚙️ Programma
+  _openProgram() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const mode = st?.state;
+    const MODES = { off: "Spenti (antigelo)", heat: "Manuale", auto: "Programma" };
+    const nsp = this._val(cfg.next_setpoint_entity);
+    const nst = hs[cfg.next_setpoint_time_entity]?.state;
+    const nDate = nst ? new Date(nst) : null;
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità</div>
+        ${this._chipsHtml(Object.entries(MODES).map(([m, l]) => ({ label: l, on: mode === m, attrs: `data-hvac="${m}"`, icon: { off: "mdi:snowflake-thermometer", heat: "mdi:hand-back-right-outline", auto: "mdi:calendar-clock" }[m] })))}
+      </div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Programma orario</div>
+        ${this._chipsHtml((a.preset_modes || []).filter((p) => BL_PROGRAMS[p]).map((p) => ({ label: `Programma ${BL_PROGRAMS[p].slice(1)}`, on: mode === "auto" && a.preset_mode === p, attrs: `data-prog="${esc(p)}"`, icon: "mdi:calendar-clock" })))}
+        ${this._val(cfg.schedule_setpoint_entity) !== null ? this._row("Temperatura del programma adesso", this._valHtml(`${clNum(this._val(cfg.schedule_setpoint_entity))} °C`)) : ""}
+        ${nsp !== null && nDate && !isNaN(nDate) ? this._row("Prossimo cambio", this._valHtml(`${nDate.toLocaleString("it-IT", { weekday: "short", hour: "2-digit", minute: "2-digit" })} → ${clNum(nsp)} °C`)) : ""}
+      </div>
+      ${this._has(cfg.fireplace_entity) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità camino</div>${this._row("Attiva", this._switchHtml(cfg.fireplace_entity))}<p class="shc-cl-note">Con il camino (o una stufa) acceso nella stanza del termostato, la caldaia continua a scaldare le altre stanze anche se lì fa già caldo.</p></div>` : ""}
+      <p class="shc-cl-note">In <b>Programma</b> i tasti − e + cambiano la temperatura solo fino al prossimo cambio orario, poi torna quella del programma. In <b>Manuale</b> la temperatura resta fissa. <b>Spenti</b> lascia attivo l'antigelo e l'acqua calda. Gli orari dei programmi si cambiano dall'app Baxi.</p>`;
+    const overlay = this._openDialog("Programma", html, () => this._openProgram());
+    overlay.querySelectorAll("[data-hvac]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_hvac_mode", { entity_id: cfg.entity, hvac_mode: b.dataset.hvac })));
+    overlay.querySelectorAll("[data-prog]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_preset_mode", { entity_id: cfg.entity, preset_mode: b.dataset.prog })));
+  }
+
+  // € Consumi: oggi/settimana/mese/anno e tabelle per giorni, settimane, mesi, anni
+  // dalle statistiche a lungo termine di HA (sensori gas total_increasing), diviso riscaldamento / acqua calda
+  _consRanges() {
+    const now = new Date();
+    const day0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const week0 = new Date(day0);
+    week0.setDate(day0.getDate() - ((day0.getDay() + 6) % 7));
+    const month0 = new Date(now.getFullYear(), now.getMonth(), 1);
+    const year0 = new Date(now.getFullYear(), 0, 1);
+    return { now, day0, week0, month0, year0 };
+  }
+
+  async _consFetch(start, period) {
+    const cfg = this._config;
+    const ids = [cfg.gas_heating_entity, cfg.gas_hot_water_entity].filter(Boolean);
+    const res = await this._hass.callWS({
+      type: "recorder/statistics_during_period",
+      start_time: start.toISOString(),
+      end_time: new Date().toISOString(),
+      statistic_ids: ids,
+      period,
+      types: ["change"],
+    });
+    // righe per inizio periodo: { start, heat, water }
+    const rows = new Map();
+    const add = (id, key) =>
+      (res[id] || []).forEach((r) => {
+        const t = typeof r.start === "number" ? r.start : Date.parse(r.start);
+        const row = rows.get(t) || { start: t, heat: 0, water: 0 };
+        row[key] += Math.max(0, Number(r.change) || 0);
+        rows.set(t, row);
+      });
+    add(cfg.gas_heating_entity, "heat");
+    add(cfg.gas_hot_water_entity, "water");
+    return [...rows.values()].sort((a, b) => a.start - b.start);
+  }
+
+  async _openConsumption() {
+    const cfg = this._config;
+    if (!cfg.gas_heating_entity && !cfg.gas_hot_water_entity) {
+      this._openDialog("Consumi", `<p class="shc-cl-note">Indica i sensori del gas (opzioni <code>gas_heating_entity</code> e <code>gas_hot_water_entity</code>).</p>`);
+      return;
+    }
+    const tab = this._consTab || "day";
+    const TABS = { day: "Giorni", week: "Settimane", month: "Mesi", year: "Anni" };
+    this._openDialog("Consumi gas", `<div class="shc-ap-sec"><p class="shc-cl-note">Carico i consumi…</p></div>`);
+    const R = this._consRanges();
+    const back = new Date(R.day0);
+    if (tab === "day") back.setDate(back.getDate() - 13);
+    if (tab === "week") back.setTime(R.week0.getTime() - 11 * 7 * 864e5);
+    if (tab === "month") back.setFullYear(R.month0.getFullYear(), R.month0.getMonth() - 11, 1);
+    if (tab === "year") back.setFullYear(R.year0.getFullYear() - 4, 0, 1);
+    let sums, rows;
+    try {
+      const sumOf = async (start, period) => (await this._consFetch(start, period)).reduce((t, r) => ({ heat: t.heat + r.heat, water: t.water + r.water }), { heat: 0, water: 0 });
+      [sums, rows] = await Promise.all([
+        Promise.all([sumOf(R.day0, "day"), sumOf(R.week0, "week"), sumOf(R.month0, "month"), sumOf(R.year0, "month")]),
+        this._consFetch(back, tab),
+      ]);
+    } catch (e) {
+      this._openDialog("Consumi gas", `<div class="shc-ap-sec"><p class="shc-cl-note">Non riesco a leggere le statistiche: ${esc(e?.message || e)}</p></div>`);
+      return;
+    }
+    const price = Number(cfg.gas_price) || 0;
+    const m3 = (v) => `${clNum(v, 2)} m³`;
+    const eur = (v) => (price ? `<i>${clNum(v * price, 2)} €</i>` : "");
+    const box = (label, s) => `<div class="shc-bl-sumbox"><small>${label}</small><b>${m3(s.heat + s.water)}</b>${eur(s.heat + s.water)}
+      <span><em class="h"></em>${clNum(s.heat, 2)}<em class="w"></em>${clNum(s.water, 2)}</span></div>`;
+    const fmt = (t) => {
+      const d = new Date(t);
+      if (tab === "day") return d.toLocaleDateString("it-IT", { weekday: "short", day: "2-digit", month: "2-digit" });
+      if (tab === "week") return `dal ${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })}`;
+      if (tab === "month") return d.toLocaleDateString("it-IT", { month: "short", year: "numeric" });
+      return String(d.getFullYear());
+    };
+    const max = Math.max(0.0001, ...rows.map((r) => r.heat + r.water));
+    const tot = rows.reduce((t, r) => ({ heat: t.heat + r.heat, water: t.water + r.water }), { heat: 0, water: 0 });
+    const list = [...rows].reverse();
+    const table = list.length
+      ? `<table class="shc-bl-tbl">
+          <thead><tr><th>${{ day: "Giorno", week: "Settimana", month: "Mese", year: "Anno" }[tab]}</th><th class="h">Riscald.</th><th class="w">Acqua</th><th>Totale</th></tr></thead>
+          <tbody>${list
+            .map(
+              (r) => `<tr><td>${esc(fmt(r.start))}</td><td>${clNum(r.heat, 2)}</td><td>${clNum(r.water, 2)}</td><td><b>${clNum(r.heat + r.water, 2)}</b>${price ? `<small>${clNum((r.heat + r.water) * price, 2)} €</small>` : ""}</td></tr>
+              <tr class="bar"><td colspan="4"><span class="h" style="width:${((r.heat / max) * 100).toFixed(1)}%"></span><span class="w" style="width:${((r.water / max) * 100).toFixed(1)}%"></span></td></tr>`,
+            )
+            .join("")}</tbody>
+          <tfoot><tr><td>Totale</td><td>${clNum(tot.heat, 2)}</td><td>${clNum(tot.water, 2)}</td><td><b>${clNum(tot.heat + tot.water, 2)}</b>${price ? `<small>${clNum((tot.heat + tot.water) * price, 2)} €</small>` : ""}</td></tr></tfoot>
+        </table>`
+      : `<p class="shc-cl-note">Nessun dato in questo periodo.</p>`;
+    const kwh = (e) => (this._val(e) !== null ? `${clNum(this._val(e), 1)} kWh` : "n/d");
+    const today = [
+      [cfg.heating_energy_entity, "Riscaldamento: energia consumata"],
+      [cfg.heating_delivered_entity, "Riscaldamento: calore prodotto"],
+      [cfg.hot_water_energy_entity, "Acqua calda: energia consumata"],
+      [cfg.hot_water_delivered_entity, "Acqua calda: calore prodotto"],
+    ].filter(([e]) => e);
+    const html = `
+      <div class="shc-bl-sum">${box("Oggi", sums[0])}${box("Settimana", sums[1])}${box("Mese", sums[2])}${box("Anno", sums[3])}</div>
+      <div class="shc-bl-legend"><span><em class="h"></em>Riscaldamento</span><span><em class="w"></em>Acqua calda</span><span>m³ di gas stimati</span></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Storico</div>
+        ${this._chipsHtml(Object.entries(TABS).map(([k, l]) => ({ label: l, on: k === tab, attrs: `data-ctab="${k}"` })))}
+        ${table}
+      </div>
+      ${today.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Oggi dalla caldaia (kWh)</div>${today.map(([e, l]) => `<div class="shc-ap-row" data-more="${esc(e)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(l)}</span>${this._valHtml(kwh(e))}</div>`).join("")}</div>` : ""}
+      <p class="shc-cl-note">Il gas è stimato dai kWh che comunica la caldaia (circa 10,7 kWh per m³ di metano). Lo storico parte da quando esistono i sensori in Home Assistant.${price ? ` Costo calcolato a ${clNum(price, 2)} €/m³.` : " Per vedere anche il costo aggiungi l'opzione <code>gas_price</code> (€/m³)."}</p>`;
+    const overlay = this._openDialog("Consumi gas", html);
+    overlay.querySelectorAll("[data-ctab]").forEach((b) =>
+      b.addEventListener("click", () => {
+        this._consTab = b.dataset.ctab;
+        this._openConsumption();
+      }),
+    );
+  }
+
+  // ℹ️ Stato caldaia
+  _openInfo() {
+    const cfg = this._config;
+    const hs = this._hass.states;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const press = this._val(cfg.pressure_entity);
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
+    const diag = cfg.diagnostics
+      .map((d) => {
+        const s = hs[d.entity];
+        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? `ultima volta ${fmtTime(s.attributes.last_triggered)}` : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
+        return `<div class="shc-ap-row" data-more="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(d.name || s?.attributes?.friendly_name || d.entity)}</span>${this._valHtml(val)}</div>`;
+      })
+      .join("");
+    const pBad = press !== null && (press < cfg.pressure_min || press > cfg.pressure_max);
+    const ACT = { heating: "Scalda", idle: "In attesa", off: "Spenta" };
+    const html = `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Caldaia</div>
+        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : ACT[a.hvac_action] || a.hvac_action || "—"))}
+        ${cfg.pressure_entity ? `<div class="shc-ap-row" data-more="${esc(cfg.pressure_entity)}" style="cursor:pointer"><span class="shc-ap-row-label">Pressione acqua</span><span class="shc-ap-row-val" style="${pBad ? "color:#ef4444;font-weight:800" : ""}">${press !== null ? `${clNum(press)} bar` : "n/d"}</span></div>` : ""}
+        ${cfg.hot_water_status_entity ? this._row("Acqua calda", this._valHtml(this._on(cfg.hot_water_status_entity) ? "In uso" : "Pronta")) : ""}
+        ${cfg.internet_entity ? this._row("Accesso a internet (router)", this._switchHtml(cfg.internet_entity)) : ""}
+        ${st ? this._row("Ultimo cambio", this._valHtml(fmtTime(st.last_changed))) : ""}
+        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      </div>
+      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvisi automatici</div>${diag}</div>` : ""}
+      <p class="shc-cl-note">Pressione giusta a impianto freddo: tra ${clNum(cfg.pressure_min)} e ${clNum(cfg.pressure_max)} bar (ideale circa 1,5). Se scende, apri piano la valvola blu di carico sotto la caldaia e chiudila a 1,5 bar.</p>
+      ${this._hidePrefHtml()}`;
+    this._openDialog("Stato caldaia", html, () => this._openInfo());
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-boiler-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.caldaia";
+    return { name: "Caloriferi", entity: e };
+  }
+}
+
+class ShcBoilerCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Caloriferi" },
+        { key: "entity", label: "Termostato / zona caldaia", domain: ["climate"], required: true },
+        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Casa" },
+        { key: "outdoor_entity", label: "Temperatura esterna", domain: ["sensor"] },
+        { key: "humidity_entity", label: "Umidità della casa (facoltativa)", domain: ["sensor"] },
+        { key: "pressure_entity", label: "Pressione acqua impianto (bar)", domain: ["sensor"] },
+        { key: "fireplace_entity", label: "Modalità camino", domain: ["switch"] },
+      ]},
+      { title: "Stato e programma", fields: [
+        { key: "heating_status_entity", label: "Caldaia in riscaldamento", domain: ["binary_sensor"] },
+        { key: "hot_water_status_entity", label: "Acqua calda in uso", domain: ["binary_sensor"] },
+        { key: "hot_water_temperature_entity", label: "Temperatura acqua calda", domain: ["sensor"] },
+        { key: "schedule_setpoint_entity", label: "Temperatura del programma adesso", domain: ["sensor"] },
+        { key: "next_setpoint_entity", label: "Prossima temperatura", domain: ["sensor"] },
+        { key: "next_setpoint_time_entity", label: "Ora del prossimo cambio", domain: ["sensor"] },
+      ]},
+      { title: "Consumi", fields: [
+        { key: "gas_heating_entity", label: "Gas riscaldamento (m³)", domain: ["sensor"] },
+        { key: "gas_hot_water_entity", label: "Gas acqua calda (m³)", domain: ["sensor"] },
+        { key: "heating_energy_entity", label: "Energia riscaldamento consumata (kWh)", domain: ["sensor"] },
+        { key: "heating_delivered_entity", label: "Calore riscaldamento prodotto (kWh)", domain: ["sensor"] },
+        { key: "hot_water_energy_entity", label: "Energia acqua calda consumata (kWh)", domain: ["sensor"] },
+        { key: "hot_water_delivered_entity", label: "Calore acqua calda prodotto (kWh)", domain: ["sensor"] },
+        { key: "gas_price", label: "Prezzo gas €/m³ (facoltativo)", kind: "number" },
+      ]},
+      { title: "Altro", fields: [
+        { key: "internet_entity", label: "Accesso internet della caldaia (router)", domain: ["switch"] },
+        { key: "diagnostics", label: "Automazioni / sensori (popup Stato)", kind: "list", itemFields: [
+          { key: "entity", label: "Entità", kind: "entity" },
+          { key: "name", label: "Nome", kind: "text" },
+        ]},
+        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
+        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-boiler-card-editor", ShcBoilerCardEditor);
+customElements.define("shc-boiler-card", ShcBoilerCard);
+window.customCards.push({
+  type: "shc-boiler-card",
+  name: "Caldaia e caloriferi",
+  description: "Caldaia animata (fiamma, caloriferi, acqua calda) con gauge dritta, modalità, programmi orari, pressione e consumi gas",
   author: "Simonz82",
 });
