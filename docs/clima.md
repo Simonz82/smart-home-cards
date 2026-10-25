@@ -14,6 +14,8 @@ Il climatizzatore in una card sola, con la stessa grafica delle altre: in alto l
 
 Prima il mio climatizzatore era una pila di card diverse: una markdown per il titolo, la gauge, sette `button-card` per i comandi, una card entità per la programmazione, tutto incollato con `card_mod`. Funzionava, ma era lunga da copiare e da mantenere. Qui c'è tutto in un unico blocco, con un editor visuale. La gauge dritta usa la stessa scala e gli stessi colori della gauge che avevo, ma si legge al volo e non serve nessuna card esterna. Chi preferisce la gauge rotonda la può ancora avere (vedi `hero: gauge` più sotto).
 
+> 🎞️ **Le immagini sono animate**, come una GIF: si muovono e cambiano colore in base a temperatura, modalità e livello. Le schermate qui sotto sono foto ferme di un istante.
+
 ## Cosa mostra
 
 - **Split animato** (in alto): l'aria esce dal climatizzatore quando lavora. Colore per modalità: **blu** raffresca, **arancio** riscalda, **azzurro** deumidifica, **grigio** ventilazione. Quando la stanza ha raggiunto la temperatura (compressore in pausa) l'aria resta tenue; da spento lo split è grigio e fermo. Sul display dello split c'è la temperatura impostata, oppure `OFF`. Toccandolo si apre la scheda del climatizzatore di Home Assistant.
@@ -147,6 +149,8 @@ segments:
 | `layout` | No | `centrato` | `centrato` o `classico` (split e gauge a sinistra, dati a destra) |
 | `min` / `max` | No | `18` / `32` | Scala della temperatura |
 | `scale_step` | No | `1` | Ogni quanti gradi un numero sulla scala (es. `2`) |
+| `bar_gap` | No | `true` | Barra dell'umidità staccata da quella della temperatura; `false` per attaccarle |
+| `idle_power` | No | `60` | Se il clima non dice se il compressore è fermo (es. Daikin Onecta), sotto questi W la card mostra "In pausa"; più la potenza è bassa, più l'aria animata rallenta |
 | `segments` | No | blu → verde → rosso | Colori della scala temperatura: elenco `{from, color}` |
 | `humidity_segments` | No | rosso → azzurro → nero | Colori della barra umidità (0–100): elenco `{from, color}` |
 | `temperature_entity` | No | — | Sensore temperatura stanza: serve per il grafico (senza, la card usa la temperatura del climatizzatore) |

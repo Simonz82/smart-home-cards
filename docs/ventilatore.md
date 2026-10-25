@@ -8,6 +8,8 @@ Il ventilatore in una card sola, nello stesso stile della [card Climatizzatore](
 
 > **Esempio reale**: io la uso con un **Dreo DR-HEC005S**, ventilatore con nebulizzatore, luce ambientale e sensori di temperatura e umidità, integrato con l'integrazione [Dreo](https://github.com/jeffsteinbok/hass-dreo) di HACS. La card però funziona con **qualsiasi ventilatore** che in Home Assistant sia un'entità `fan.`: velocità, modalità (preset) e oscillazione le legge dall'entità stessa. Nebbia, luce, serbatoio e pulizia sono facoltativi: se il tuo ventilatore non li ha, quelle righe e quei pulsanti non compaiono.
 
+> 🎞️ **Le immagini sono animate**, come una GIF: si muovono e cambiano colore in base a temperatura, modalità e livello. Le schermate qui sotto sono foto ferme di un istante.
+
 ## Cosa mostra
 
 - **Ventilatore animato**: pale ferme da spento, sempre più veloci con la velocità; testa che oscilla se l'oscillazione è attiva; particelle di nebbia se il nebulizzatore è acceso; luce colorata alla base.

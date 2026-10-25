@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-25 (9) — 1.11.1: barre staccate anche su Climatizzatore e Stufetta
+
+- **Climatizzatore e Stufetta**: la barra dell'umidità è staccata di qualche pixel da quella della temperatura, come nella Caldaia: si legge meglio (opzione `bar_gap: false` per attaccarle).
+- **Climatizzatore**: l'aria animata segue la **potenza** della presa: rallenta e sbiadisce quando l'inverter modula, e sotto `idle_power` (60 W) la card mostra "In pausa". Utile con le integrazioni che non dicono se il compressore è fermo (es. Daikin Onecta).
+- Guide: specificato che le immagini dei dispositivi sono animate (si muovono come una GIF e cambiano colore in base a temperatura, stato e livello).
+
 ## 2026-10-25 (8) — 1.11.0: comandi a distanza per gli elettrodomestici, scale più fitte
 
 - **Elettrodomestici, comandi a distanza** (nuovo campo `controls`, facoltativo): riquadro **Comandi** sotto il riepilogo con Avvia, Stop (doppio tocco per sicurezza), Accendi/Spegni e il popup **Programmi** con programmi, opzioni e avvio ritardato (Subito…8 h). Pensato per Home Connect (esempio reale: lavastoviglie Bosch, nomi dei programmi in italiano); con `machine_select` anche Avvia/Pausa/Riprendi/Stop per gli elettrodomestici SmartThings che li accettano. Se il controllo remoto è spento sulla macchina, i pulsanti si disattivano e la card spiega cosa fare. Guida: [docs/elettrodomestici.md](docs/elettrodomestici.md), sezione "Comandi a distanza".

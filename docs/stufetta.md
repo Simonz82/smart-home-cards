@@ -8,6 +8,8 @@ La stufetta elettrica in una card sola, nello stesso stile della [card Climatizz
 
 > **Esempio reale**: io la uso con una **Dreo 314S (DR-HSH004S)** in bagno, integrata con l'integrazione [Dreo](https://github.com/jeffsteinbok/hass-dreo) di HACS. La card però funziona con **qualsiasi stufetta o termoventilatore** che in Home Assistant sia un'entità `climate.`: legge da sola le modalità (riscalda, solo ventilazione, spento) e i livelli (preset) che espone. Con altre marche cambiano solo i nomi dei livelli.
 
+> 🎞️ **Le immagini sono animate**, come una GIF: si muovono e cambiano colore in base a temperatura, modalità e livello. Le schermate qui sotto sono foto ferme di un istante.
+
 ## Cosa mostra
 
 - **Stufetta animata**: griglia arancione e onde di calore quando scalda (1 fila in H1/Eco, 2 in H2, 3 in H3), onde azzurre in sola ventilazione, grigia da spenta. Se l'oscillazione è attiva, la stufetta ondeggia. Sul display c'è il livello (H1, H2, H3, Eco), `FAN` oppure `OFF`.
@@ -91,6 +93,7 @@ diagnostics:
 | `diagnostics` | — | Automazioni/sensori nel popup Stato (`entity`, `name`, `alarm`) |
 | `min`, `max` | 15, 30 | Scala della gauge |
 | `scale_step` | 1 | Ogni quanti gradi un numero sulla scala (es. `2`) |
+| `bar_gap` | `true` | Barra dell'umidità staccata da quella della temperatura; `false` per attaccarle |
 | `segments`, `humidity_segments` | colori pronti | Colori della scala, come nel [Climatizzatore](clima.md) |
 | `hide_when_offline` | `false` | Nascondi se scollegata, vedi sotto |
 | `layout_entity` | — | Menu layout classico/centrato, vedi [layout.md](layout.md) |

@@ -8745,9 +8745,9 @@ const CL_STYLE = `
 .shc-ap-card.cl-heat .shc-cl-air{color:#fb923c}
 .shc-ap-card.cl-dry .shc-cl-air{color:#22d3ee}
 .shc-ap-card.cl-fan .shc-cl-air{color:#94a3b8}
-.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air{opacity:1}
-.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air path{animation:shc-cl-flow 1.1s linear infinite}
-.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air circle{animation:shc-cl-drift 2.2s ease-in infinite}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air{opacity:var(--cl-air-op,1)}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air path{animation:shc-cl-flow var(--cl-air-dur,1.1s) linear infinite}
+.shc-ap-card.is-run:not(.cl-idle) .shc-cl-air circle{animation:shc-cl-drift calc(var(--cl-air-dur,1.1s) * 2) ease-in infinite}
 .shc-ap-card.is-run.cl-idle .shc-cl-air{opacity:.25}
 .shc-cl-led{fill:#94a3b8}
 .shc-ap-card.is-run .shc-cl-led{fill:#22c55e}
@@ -9043,6 +9043,8 @@ class ShcClimateCard extends HTMLElement {
     q(".shc-cl-lbar.inner").style.background = grad(cfg.humidity_segments || CL_HUM_SEGMENTS, 0, 100);
     // etichette nel punto esatto del valore, allineate a lancette e cursori
     shcDegTicks(q(".shc-cl-scale.t"), min, max, Number(cfg.scale_step) || 1);
+    // barra dell'umidita' staccata da quella della temperatura (bar_gap: false per attaccarle)
+    q(".shc-cl-track").classList.toggle("sep", cfg.bar_gap !== false);
     q(".shc-cl-scale.h").innerHTML = [0, 20, 40, 60, 80, 100].map((h) => `<span style="left:${h}%">${h}%</span>`).join("");
     q(".cl-l-room").textContent = cfg.room_name || cfg.name;
   }
@@ -9243,8 +9245,16 @@ class ShcClimateCard extends HTMLElement {
     card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm", "cl-heat", "cl-cool", "cl-off", "cl-dry", "cl-fan", "cl-idle");
     card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
     card.classList.add(mode === "heat" ? "cl-heat" : mode === "off" || unav ? "cl-off" : mode === "dry" ? "cl-dry" : mode === "fan_only" ? "cl-fan" : "cl-cool");
-    // compressore fermo (temperatura raggiunta): aria quasi ferma
-    if (["idle", "off"].includes(a.hvac_action)) card.classList.add("cl-idle");
+    // compressore fermo (temperatura raggiunta): aria quasi ferma. Molte
+    // integrazioni (es. Daikin Onecta) non danno hvac_action: allora decide la
+    // potenza della presa, e l'aria rallenta e sbiadisce quando l'inverter modula.
+    const airW = this._val(cfg.power_entity);
+    const pwIdle = !a.hvac_action && airW !== null && airW < (Number(cfg.idle_power) || 60);
+    const idle = ["idle", "off"].includes(a.hvac_action) || pwIdle;
+    if (idle) card.classList.add("cl-idle");
+    const ratio = airW !== null && airW > 0 ? Math.min(1, Math.max(0.15, airW / (Number(cfg.max_power) || 1500))) : null;
+    card.style.setProperty("--cl-air-dur", ratio !== null ? `${(0.9 + 1.6 * (1 - ratio)).toFixed(2)}s` : "1.1s");
+    card.style.setProperty("--cl-air-op", ratio !== null ? (0.45 + 0.55 * ratio).toFixed(2) : "1");
     const errors = (cfg.diagnostics || []).filter((d) => d.alarm && this._hass.states[d.entity]?.state === "on");
     if (errors.length) card.classList.add("has-alarm");
 
@@ -9256,7 +9266,7 @@ class ShcClimateCard extends HTMLElement {
       ? "OFFLINE"
       : mode === "off"
         ? "SPENTO"
-        : (action === "idle" ? "IN PAUSA" : (CL_MODES[mode]?.label || mode).toUpperCase());
+        : (action === "idle" || pwIdle ? "IN PAUSA" : (CL_MODES[mode]?.label || mode).toUpperCase());
 
     const room = cfg.temperature_entity ? this._val(cfg.temperature_entity) : Number.isFinite(Number(a.current_temperature)) ? Number(a.current_temperature) : null;
     const target = Number(a.temperature);
@@ -10144,6 +10154,7 @@ class ShcHeaterCard extends ShcDeviceCardBase {
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
     this._lineBuild(HT_SEGMENTS);
+    this._root.querySelector(".shc-cl-track").classList.toggle("sep", this._config.bar_gap !== false);
     const bind = this._commonBind();
     bind(".shc-ap-settings", () => this._openAuto());
     bind(".shc-cl-sched", () => this._openAuto());

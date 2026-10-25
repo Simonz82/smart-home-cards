@@ -8,6 +8,8 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 
 > Autore: [Simonz82](https://github.com/Simonz82) — usate liberamente, adattate, migliorate. Se personalizzate qualcosa e vi sembra utile agli altri, una Pull Request è benvenuta.
 
+> 🎞️ Le immagini dei dispositivi (elettrodomestici, climatizzatore, stufetta, ventilatore, caldaia) sono **animate**, come una GIF: si muovono e cambiano colore in base a temperatura, stato e livello. Le schermate nelle guide sono foto ferme di un istante.
+
 ## Indice
 
 | Card | Cosa mostra | Serve per |

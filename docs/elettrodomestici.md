@@ -10,6 +10,9 @@ Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, 
 | **Forno** | ![Forno](screenshot/elettrodomestici-forno.png) | ![Forno scuro](screenshot/elettrodomestici-forno-dark.png) |
 | **TV** | ![TV](screenshot/elettrodomestici-tv.png) | ![TV scuro](screenshot/elettrodomestici-tv-dark.png) |
 
+
+> 🎞️ **Le immagini degli elettrodomestici sono animate**, come una GIF: il cestello gira, l'acqua si muove e i colori cambiano in base allo stato (in funzione, in pausa, finito). Le schermate sono foto ferme di un istante.
+
 ## Cosa ti serve prima di iniziare
 
 Un modo per misurare quanti **Watt** sta assorbendo l'elettrodomestico in questo momento — cioè una presa intelligente con misurazione di potenza (Shelly Plug S, Sonoff S31/POWR3, TP-Link Kasa KP115, ecc.) collegata via qualsiasi integrazione HA, oppure un misuratore di potenza per elettrodomestici già cablati (es. un contatore su una linea dedicata). Da lì in poi Home Assistant deve esporre un `sensor` in Watt: quello è il `power_entity`, l'unico campo obbligatorio.

@@ -8,6 +8,8 @@ La caldaia a gas in una card sola, nello stesso stile della [card Climatizzatore
 
 > **Esempio reale**: io la uso con una caldaia **Baxi Luna Classic** con termostato smart Baxi (piattaforma Remeha, modello RU2), integrata con [Remeha Home](https://github.com/msvisser/remeha_home) da HACS. La card però funziona con **qualsiasi caldaia o termostato** che in Home Assistant sia un'entità `climate.` (Netatmo, tado°, Honeywell, Viessmann…). Pressione, acqua calda, programmi orari, modalità camino e consumi sono facoltativi: se non li hai, quelle parti non compaiono.
 
+> 🎞️ **Le immagini sono animate**, come una GIF: si muovono e cambiano colore in base a temperatura, modalità e livello. Le schermate qui sotto sono foto ferme di un istante.
+
 ## Cosa mostra
 
 - **Caldaia animata**: fiamma accesa e tremolante quando lavora; quando scalda la casa i tubi diventano rosso (mandata) e blu (ritorno) e il calorifero si colora di arancione con il calore che sale; quando fa acqua calda scendono le gocce dal rubinetto. Sul display la temperatura impostata oppure `OFF`.
