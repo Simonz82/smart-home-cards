@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-26 (2) — 1.11.2: galleria animata nel README, due fix
+
+- **README**: nuova sezione "Tutte le card a colpo d'occhio" con tutte le 17 card; elettrodomestici, climatizzatore, stufetta, ventilatore, caldaia e rete Zigbee sono GIF animate, accese e in funzione.
+- **Fix Caldaia**: quando l'acqua calda era in uso, la card scriveva "In uso" sopra tutta la card e la svuotava (la classe di stato aveva lo stesso nome della riga Acqua).
+- **Fix Stufetta, Ventilatore, Caldaia** con "Nascondi se scollegata": quando il dispositivo tornava online, il badge di stato in alto restava vuoto fino al ricaricamento della pagina.
+
 ## 2026-10-26 — Alexa: scegli su quali dispositivi annunciare, card per card
 
 - **Energia, Elettrodomestici, FritzBox**: nell'ingranaggio ci sono 4 nuovi interruttori **↳ Alexa Salone, Bagno, Cameretta, Camera**. Ogni card annuncia solo sulle Alexa accese, anche più di una (es. Energia su salone e bagno, Lavatrice solo in salone). Niente più elenco di dispositivi da scrivere nel package.

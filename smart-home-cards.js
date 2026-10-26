@@ -9946,6 +9946,12 @@ class ShcDeviceCardBase extends HTMLElement {
     const compact = this._hideWhenOffline() && unav && !this._showFull;
     if (!unav) this._showFull = false;
     let mini = card.querySelector(".shc-dv-mini");
+    // tornato online: via la striscia, altrimenti il suo badge resta il primo .shc-ap-badge
+    // e _setBadge aggiornerebbe quello (nascosto) invece del badge della card
+    if (!compact && mini) {
+      mini.remove();
+      mini = null;
+    }
     if (compact && !mini) {
       mini = document.createElement("div");
       mini.className = "shc-dv-mini";
@@ -10891,7 +10897,7 @@ const BL_STYLE = `
 .bl-flow{fill:none;stroke:#fecaca;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:4 8;opacity:0}
 .shc-ap-card.bl-heat .bl-flow{opacity:.95;animation:shc-dv-flow 1.2s linear infinite}
 .bl-drop{fill:#38bdf8;opacity:0;transform-box:fill-box}
-.shc-ap-card.bl-dhw .bl-drop{animation:shc-bl-drop 1s ease-in infinite}
+.shc-ap-card.bl-dhw-on .bl-drop{animation:shc-bl-drop 1s ease-in infinite}
 .bl-disp{font:900 13px/1 system-ui,sans-serif;fill:#fb923c}
 .shc-ap-card.is-off .bl-disp,.shc-ap-card.is-unavailable .bl-disp{fill:#94a3b8}
 .shc-ap-card.bl-heat .shc-cl-chip ha-icon{color:#f97316}
@@ -11220,11 +11226,11 @@ class ShcBoilerCard extends ShcDeviceCardBase {
 
     this._applyCompact(unav);
     const card = q(".shc-ap-card");
-    card.classList.remove("is-run", "is-off", "is-unavailable", "bl-heat", "bl-dhw", "bl-burn", "cl-off", "has-alarm");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "bl-heat", "bl-dhw-on", "bl-burn", "cl-off", "has-alarm");
     card.classList.add(unav ? "is-unavailable" : mode === "off" ? "is-off" : "is-run");
     if (mode === "off" || unav) card.classList.add("cl-off");
     if (heating) card.classList.add("bl-heat");
-    if (dhw) card.classList.add("bl-dhw");
+    if (dhw) card.classList.add("bl-dhw-on");
     if (heating || dhw) card.classList.add("bl-burn");
 
     const room = Number.isFinite(Number(a.current_temperature)) && a.current_temperature !== null ? Number(a.current_temperature) : this._val(cfg.temperature_entity);

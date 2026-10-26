@@ -8,7 +8,49 @@ Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e com
 
 > Autore: [Simonz82](https://github.com/Simonz82) — usate liberamente, adattate, migliorate. Se personalizzate qualcosa e vi sembra utile agli altri, una Pull Request è benvenuta.
 
-> 🎞️ Le immagini dei dispositivi (elettrodomestici, climatizzatore, stufetta, ventilatore, caldaia) sono **animate**, come una GIF: si muovono e cambiano colore in base a temperatura, stato e livello. Le schermate nelle guide sono foto ferme di un istante.
+> 🎞️ Le immagini dei dispositivi (elettrodomestici, climatizzatore, stufetta, ventilatore, caldaia) sono **animate**: si muovono e cambiano colore in base a temperatura, stato e livello. Le vedi in movimento nella galleria qui sotto; le schermate nelle guide sono foto ferme di un istante.
+
+## 👀 Tutte le card a colpo d'occhio
+
+Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del climatizzatore, onde di calore della stufetta, pale e nebbia del ventilatore, fiamma della caldaia. Tocca una card per aprire la sua guida.
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/lavatrice.gif" width="260" alt="🧺 Lavatrice"></a><br><b><a href="docs/elettrodomestici.md">🧺 Lavatrice</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/asciugatrice.gif" width="260" alt="🧺 Asciugatrice"></a><br><b><a href="docs/elettrodomestici.md">🧺 Asciugatrice</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/lavastoviglie.gif" width="260" alt="🍽️ Lavastoviglie"></a><br><b><a href="docs/elettrodomestici.md">🍽️ Lavastoviglie</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/forno.gif" width="260" alt="🍗 Forno"></a><br><b><a href="docs/elettrodomestici.md">🍗 Forno</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/tv.gif" width="260" alt="📺 TV"></a><br><b><a href="docs/elettrodomestici.md">📺 TV</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/energia.md"><img src="docs/screenshot/layout/energia-centrato-dark.png" width="260" alt="⚡ Energia Casa"></a><br><b><a href="docs/energia.md">⚡ Energia Casa</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/clima.md"><img src="docs/screenshot/galleria/clima.gif" width="260" alt="❄️ Climatizzatore"></a><br><b><a href="docs/clima.md">❄️ Climatizzatore</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/stufetta.md"><img src="docs/screenshot/galleria/stufetta.gif" width="260" alt="🔥 Stufetta"></a><br><b><a href="docs/stufetta.md">🔥 Stufetta</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/ventilatore.md"><img src="docs/screenshot/galleria/ventilatore.gif" width="260" alt="🌀 Ventilatore"></a><br><b><a href="docs/ventilatore.md">🌀 Ventilatore</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/caldaia.md"><img src="docs/screenshot/galleria/caldaia.gif" width="260" alt="🔥 Caldaia e caloriferi"></a><br><b><a href="docs/caldaia.md">🔥 Caldaia e caloriferi</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/fritzbox.md"><img src="docs/screenshot/layout/fritz-centrato-dark.png" width="260" alt="📶 FritzBox"></a><br><b><a href="docs/fritzbox.md">📶 FritzBox</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/zigbee.md"><img src="docs/screenshot/galleria/zigbee.gif" width="260" alt="📡 Rete Zigbee"></a><br><b><a href="docs/zigbee.md">📡 Rete Zigbee</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/homeassistant-server.md"><img src="docs/screenshot/layout/server-centrato-dark.png" width="260" alt="🖥️ Server Home Assistant"></a><br><b><a href="docs/homeassistant-server.md">🖥️ Server Home Assistant</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/nas-synology.md"><img src="docs/screenshot/layout/nas-centrato-dark.png" width="260" alt="💾 NAS Synology"></a><br><b><a href="docs/nas-synology.md">💾 NAS Synology</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/proxmox.md"><img src="docs/screenshot/layout/proxmox-centrato-dark.png" width="260" alt="🖧 Proxmox"></a><br><b><a href="docs/proxmox.md">🖧 Proxmox</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/ups.md"><img src="docs/screenshot/layout/ups-centrato-dark.png" width="260" alt="🔋 UPS"></a><br><b><a href="docs/ups.md">🔋 UPS</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/differenziata.md"><img src="docs/screenshot/layout/garbage-centrato-dark.png" width="260" alt="♻️ Raccolta Differenziata"></a><br><b><a href="docs/differenziata.md">♻️ Raccolta Differenziata</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/centro-notifiche.md"><img src="docs/screenshot/centro-notifiche.png" width="260" alt="🔔 Centro Notifiche"></a><br><b><a href="docs/centro-notifiche.md">🔔 Centro Notifiche</a></b></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-text.png" width="260" alt="🔊 Alexa Annuncio Testo"></a><br><b><a href="docs/alexa.md">🔊 Alexa Annuncio Testo</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-memo.png" width="260" alt="🔊 Alexa Memo"></a><br><b><a href="docs/alexa.md">🔊 Alexa Memo</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-webradio.png" width="260" alt="📻 Alexa WebRadio"></a><br><b><a href="docs/alexa.md">📻 Alexa WebRadio</a></b></td>
+  </tr>
+</table>
 
 ## Indice
 
