@@ -13,8 +13,8 @@ homeassistant:
         Sensore Consumo Elettrodomestici: &sensore_consumo_elettrodomestici_2 "{{ states('sensor.forno_power')}}"
         Switch Power Elettrodomestici: &switch_elettrodomestici_2 "switch.elettrodomestico"
 
-        Lista mediaplayer alexa: &alexa
-          - media_player.alexa_salone
+        # Alexa: i dispositivi si scelgono dagli interruttori Alexa Salone/Bagno/
+        # Cameretta/Camera nell'ingranaggio della card (vedi docs/centro-notifiche.md).
 
         Device per notifica push: &push
           - service: xxx
@@ -467,6 +467,21 @@ input_boolean:
   notify_alexa_elettrodomestici_2:
     name: Notifica Alexa
 
+  # Su quali Alexa annunciare (interruttori nell'ingranaggio della card).
+  # Nessun initial: la scelta resta dopo un riavvio.
+  notify_alexa_elettrodomestici_2_salone:
+    name: Alexa Salone
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_2_bagno:
+    name: Alexa Bagno
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_2_cameretta:
+    name: Alexa Cameretta
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_2_camera:
+    name: Alexa Camera
+    icon: mdi:speaker
+
   ####################################################
 
   aggiornamento_pkg_elettrodomestici_2:
@@ -820,6 +835,7 @@ automation:
                 sequence:
                   - service: script.notifica_vocale_alexa
                     data:
+                      flag_dispositivi: notify_alexa_elettrodomestici_2
                       messaggio: "{{states('input_text.messaggio_elettrodomestico_2')}} in {{state_attr('sensor.time_on_elettrodomestici_2','tempo_ciclo_elettrodomestici_2')}}"
           - choose:
               - conditions:

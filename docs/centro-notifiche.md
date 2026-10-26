@@ -23,6 +23,14 @@ Copia [`packages/centro_notifiche_alexa.yaml`](../packages/centro_notifiche_alex
 
 Riavvia Home Assistant, poi aggiungi la card con la configurazione più sotto — punta semplicemente ai 5 helper appena creati.
 
+### Scegliere su quali Alexa annunciare
+
+Ogni card con notifiche Alexa (Energia, Elettrodomestici, FritzBox) ha 4 interruttori nell'ingranaggio: **↳ Alexa Salone, Bagno, Cameretta, Camera**. Puoi accenderne più di uno: per esempio Energia su salone e bagno, Lavatrice solo in salone. Se li spegni tutti, quella card non annuncia nulla. La scelta resta dopo un riavvio.
+
+Come funziona: ogni package crea gli `input_boolean` `<prefisso>_salone`, `_bagno`, `_cameretta`, `_camera` (es. `input_boolean.notify_alexa_elettrodomestici_1_salone`) e chiama lo script con `flag_dispositivi: <prefisso>`. Lo script annuncia su `media_player.alexa_<stanza>` per ogni interruttore acceso.
+
+**Cosa cambiare per casa tua:** i tuoi Echo devono chiamarsi `media_player.alexa_salone`, `media_player.alexa_bagno`, `media_player.alexa_cameretta`, `media_player.alexa_camera` (rinominali da Impostazioni → Entità), oppure cambia l'elenco delle stanze `['salone', 'bagno', 'cameretta', 'camera']` nello script `notifica_vocale_alexa` e i 4 `input_boolean` nei package. Senza `flag_dispositivi` lo script usa il campo `target` come prima.
+
 ## 🖊️ Editor visuale (senza YAML)
 
 Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Centro Notifiche"** → compila i 5 campi, ogni entità si cerca per nome con anteprima. Lo stesso editor si apre anche per modificare una card già aggiunta (pulsante "⋮" sulla card in modalità modifica → "Edit").

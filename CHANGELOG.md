@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-26 — Alexa: scegli su quali dispositivi annunciare, card per card
+
+- **Energia, Elettrodomestici, FritzBox**: nell'ingranaggio ci sono 4 nuovi interruttori **↳ Alexa Salone, Bagno, Cameretta, Camera**. Ogni card annuncia solo sulle Alexa accese, anche più di una (es. Energia su salone e bagno, Lavatrice solo in salone). Niente più elenco di dispositivi da scrivere nel package.
+- Script condiviso `notifica_vocale_alexa`: nuovo campo facoltativo `flag_dispositivi`. Guida: [docs/centro-notifiche.md](docs/centro-notifiche.md#scegliere-su-quali-alexa-annunciare).
+- **Energia, avviso soglia**: Alexa lo dice **una volta sola** (volume 0,5) e poi aspetta almeno 5 minuti, invece di ripeterlo ogni 10 secondi finché il consumo resta alto.
+- Nessuna modifica al file JS delle card: aggiornare i package e le `settings_sections`.
+
 ## 2026-10-25 (9) — 1.11.1: barre staccate anche su Climatizzatore e Stufetta
 
 - **Climatizzatore e Stufetta**: la barra dell'umidità è staccata di qualche pixel da quella della temperatura, come nella Caldaia: si legge meglio (opzione `bar_gap: false` per attaccarle).

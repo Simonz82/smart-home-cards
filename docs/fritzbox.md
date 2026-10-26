@@ -18,7 +18,7 @@ Il package completo — notifiche online/offline/cambio IP, pulsanti riconnetti/
 
 1. Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi).
 2. **Importante**: l'integrazione FRITZ!Box Tools include il modello del router nei nomi entità (es. `sensor.fritz_box_7690_ip_esterno`). Il mio è un 7690 — cerca `7690` nel file (Ctrl+F, "sostituisci tutto") e mettici il modello del TUO FritzBox. Controlla i nomi esatti in Impostazioni → Entità dopo aver configurato l'integrazione.
-3. In cima al file, nel blocco **`IMPOSTAZIONI PACKAGE`**: `Lista mediaplayer alexa` → i tuoi dispositivi Alexa; `Device per notifica push` → il tuo `notify.mobile_app_xxx`.
+3. In cima al file, nel blocco **`IMPOSTAZIONI PACKAGE`**: Alexa: i dispositivi Alexa non si scrivono più nel file: si scelgono dagli interruttori **Alexa Salone / Bagno / Cameretta / Camera** nell'ingranaggio della card (vedi [centro-notifiche.md](centro-notifiche.md#scegliere-su-quali-alexa-annunciare)); `Device per notifica push` → il tuo `notify.mobile_app_xxx`.
 4. Se non usi Telegram, cerca `telegram_bot.send_message` e cancella quei blocchi.
 5. Riavvia Home Assistant, poi aggiungi la card con la configurazione più sotto in questa guida.
 
@@ -108,6 +108,14 @@ settings_sections:
         label: Notifica Online
       - entity: input_boolean.notify_alexa_fritz
         label: Notifica Alexa
+      - entity: input_boolean.notify_alexa_fritz_salone
+        label: "↳ Alexa Salone"
+      - entity: input_boolean.notify_alexa_fritz_bagno
+        label: "↳ Alexa Bagno"
+      - entity: input_boolean.notify_alexa_fritz_cameretta
+        label: "↳ Alexa Cameretta"
+      - entity: input_boolean.notify_alexa_fritz_camera
+        label: "↳ Alexa Camera"
       - entity: input_boolean.notify_ip_push
         label: Notifica Cambio IP
       - entity: input_datetime.orario_inizio_notifiche_fritz

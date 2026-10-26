@@ -13,8 +13,8 @@
         Sensore Consumo Elettrodomestici: &sensore_consumo_elettrodomestici_1 "{{ states('sensor.lavatrice_power')}}"
         Switch Power Elettrodomestici: &switch_elettrodomestici_1 "switch.elettrodomestico"
 
-        Lista mediaplayer alexa: &alexa
-          - media_player.alexa_salone
+        # Alexa: i dispositivi si scelgono dagli interruttori Alexa Salone/Bagno/
+        # Cameretta/Camera nell'ingranaggio della card (vedi docs/centro-notifiche.md).
 
         Device per notifica push: &push
           - service: mobile_app_il_tuo_telefono
@@ -474,6 +474,21 @@ input_boolean:
   notify_alexa_elettrodomestici_1:
     name: Notifica Alexa
 
+  # Su quali Alexa annunciare (interruttori nell'ingranaggio della card).
+  # Nessun initial: la scelta resta dopo un riavvio.
+  notify_alexa_elettrodomestici_1_salone:
+    name: Alexa Salone
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_1_bagno:
+    name: Alexa Bagno
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_1_cameretta:
+    name: Alexa Cameretta
+    icon: mdi:speaker
+  notify_alexa_elettrodomestici_1_camera:
+    name: Alexa Camera
+    icon: mdi:speaker
+
 ####################################################
 #                                                  #
 #                     GROUP                        #
@@ -874,6 +889,7 @@ automation:
                 sequence:
                   - service: script.notifica_vocale_alexa
                     data:
+                      flag_dispositivi: notify_alexa_elettrodomestici_1
                       messaggio: "{{states('input_text.messaggio_elettrodomestico_1')}} in {{state_attr('sensor.time_on_elettrodomestici_1','tempo_ciclo_elettrodomestici_1')}}"
 
           - choose:

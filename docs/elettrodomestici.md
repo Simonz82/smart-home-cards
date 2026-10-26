@@ -37,7 +37,7 @@ Invece di costruire tutto da zero seguendo il resto della guida, puoi partire di
 2. Apri il file: in cima trovi il blocco **`IMPOSTAZIONI PACKAGE`** (poche righe). È l'unica parte da modificare:
    - `Sensore Consumo Elettrodomestici` → il TUO sensore di potenza in Watt (es. `sensor.la_tua_lavatrice_power`)
    - `Switch Power Elettrodomestici` → uno switch reale solo se vuoi poter togliere corrente da remoto, altrimenti lascialo com'è
-   - `Lista mediaplayer alexa` → i TUOI dispositivi Alexa (elimina la riga se non li usi)
+   - Alexa: i dispositivi Alexa non si scrivono più nel file: si scelgono dagli interruttori **Alexa Salone / Bagno / Cameretta / Camera** nell'ingranaggio della card (vedi [centro-notifiche.md](centro-notifiche.md#scegliere-su-quali-alexa-annunciare))
    - `Device per notifica push` → i TUOI `notify.mobile_app_xxx` (uno o più)
 3. Cerca `xxx` nel file (Ctrl+F): se qualche riga non è già stata compilata, è lì che manca un tuo valore.
 4. Riavvia Home Assistant (i package si caricano solo al riavvio).
@@ -336,6 +336,14 @@ settings_sections:
         label: Notifica Push
       - entity: input_boolean.notify_alexa_lavastoviglie
         label: Notifica Alexa
+      - entity: input_boolean.notify_alexa_lavastoviglie_salone
+        label: "↳ Alexa Salone"
+      - entity: input_boolean.notify_alexa_lavastoviglie_bagno
+        label: "↳ Alexa Bagno"
+      - entity: input_boolean.notify_alexa_lavastoviglie_cameretta
+        label: "↳ Alexa Cameretta"
+      - entity: input_boolean.notify_alexa_lavastoviglie_camera
+        label: "↳ Alexa Camera"
   - title: Costi
     rows:
       - entity: input_number.costo_energia

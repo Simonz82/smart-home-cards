@@ -36,8 +36,8 @@ homeassistant:
 
         ####################################################
 
-        Media Player Alexa 1: &alexa1 media_player.il_tuo_echo_1
-        Media Player Alexa 2: &alexa2 media_player.il_tuo_echo_2
+        # Alexa: i dispositivi si scelgono dagli interruttori Alexa Salone/Bagno/
+        # Cameretta/Camera nell'ingranaggio della card (vedi docs/centro-notifiche.md).
 
 ####################################################
 #                                                  #
@@ -234,6 +234,21 @@ input_boolean:
 
   notify_alexa_soglia:
     name: Notifica Alexa Soglia
+
+  # Su quali Alexa annunciare (interruttori nell'ingranaggio della card).
+  # Nessun initial: la scelta resta dopo un riavvio.
+  notify_alexa_soglia_salone:
+    name: Alexa Salone
+    icon: mdi:speaker
+  notify_alexa_soglia_bagno:
+    name: Alexa Bagno
+    icon: mdi:speaker
+  notify_alexa_soglia_cameretta:
+    name: Alexa Cameretta
+    icon: mdi:speaker
+  notify_alexa_soglia_camera:
+    name: Alexa Camera
+    icon: mdi:speaker
 
   ####################################################
 
@@ -453,6 +468,15 @@ input_datetime:
     has_date: false
     has_time: true
 
+  ####################################################
+
+  # Ultimo annuncio Alexa di superamento soglia: serve per la pausa di 5 min
+  # tra un annuncio e l'altro (persiste ai riavvii, niente initial).
+  ultimo_annuncio_alexa_soglia_elettrica:
+    name: Ultimo Annuncio Alexa Soglia Elettrica
+    has_date: true
+    has_time: true
+
 ####################################################
 #                                                  #
 #        BARRE DELLA CARD: ENTITA' SCELTA          #
@@ -575,24 +599,22 @@ automation:
                   - condition: state
                     entity_id: input_boolean.notify_alexa_soglia
                     state: "on"
+                  # Un solo annuncio, poi almeno 5 minuti di pausa
+                  - condition: template
+                    value_template: >-
+                      {{ as_timestamp(now()) - as_timestamp(states('input_datetime.ultimo_annuncio_alexa_soglia_elettrica'), 0) >= 300 }}
                 sequence:
-                  - repeat:
-                      count: "50"
-                      sequence:
-                        - condition: template
-                          value_template: "{{ states('sensor.sensore_potenza_casa_w') | int(0) > states('input_number.soglia_lavoro_casa_w') | int(0) }}"
-                        - service: notify.alexa_media
-                          continue_on_error: true
-                          data:
-                            target:
-                              - *alexa1
-                              - *alexa2
-                            data:
-                              type: announce
-                              method: spoken
-                            message: "ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }} watt!"
-                        - delay:
-                            seconds: 10
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.ultimo_annuncio_alexa_soglia_elettrica
+                    data:
+                      timestamp: "{{ as_timestamp(now()) }}"
+                  - service: script.notifica_vocale_alexa
+                    continue_on_error: true
+                    data:
+                      flag_dispositivi: notify_alexa_soglia
+                      volume_notifica: 0.5
+                      messaggio: "ATTENZIONE. Superati i {{ states('input_number.soglia_lavoro_casa_w') }} watt!"
 
           # Notifica superamento soglia (Push & Telegram)
           - choose:

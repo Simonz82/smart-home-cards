@@ -108,6 +108,18 @@ script:
             min: 0
             max: 1
             step: 0.01
+      flag_dispositivi:
+        name: Prefisso Flag Dispositivi (opzionale)
+        description: >-
+          Prefisso degli input_boolean che scelgono le Alexa, es.
+          notify_alexa_elettrodomestici_1: lo script annuncia su
+          media_player.alexa_<stanza> per ogni
+          input_boolean.<prefisso>_<stanza> acceso (salone, bagno,
+          cameretta, camera). Se nessuno e' acceso non annuncia nulla.
+          Se omesso usa target.
+        required: false
+        selector:
+          text:
       ritardo:
         name: Ritardo Prima del Ripristino in secondi (opzionale)
         description: Se omesso usa input_number.ritardo_dopo_notifica_alexa_elettrodomestici
@@ -119,7 +131,20 @@ script:
             step: 1
     sequence:
       - variables:
-          target_effettivo: "{{ target | default(['media_player.alexa_salone'], true) }}"
+          target_effettivo: >-
+            {% if flag_dispositivi is defined and flag_dispositivi %}
+              {% set ns = namespace(l=[]) %}
+              {% for r in ['salone', 'bagno', 'cameretta', 'camera'] %}
+                {% if is_state('input_boolean.' ~ flag_dispositivi ~ '_' ~ r, 'on') %}
+                  {% set ns.l = ns.l + ['media_player.alexa_' ~ r] %}
+                {% endif %}
+              {% endfor %}
+              {{ ns.l }}
+            {% else %}
+              {{ target | default(['media_player.alexa_salone'], true) }}
+            {% endif %}
+      - condition: template
+        value_template: "{{ target_effettivo | count > 0 }}"
       - service: media_player.volume_set
         target:
           entity_id: "{{ target_effettivo }}"

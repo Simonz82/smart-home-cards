@@ -36,8 +36,8 @@ homeassistant:
 
         ############################# MEDIA PLAYER ALEXA ################################
 
-        Lista mediaplayer alexa: &alexa
-          - media_player.xxx
+        # Alexa: i dispositivi si scelgono dagli interruttori Alexa Salone/Bagno/
+        # Cameretta/Camera nell'ingranaggio della card (vedi docs/centro-notifiche.md).
 
         ################################# NOTIFY PUSH ###################################
 
@@ -236,6 +236,21 @@ input_boolean:
   notify_alexa_fritz:
     name: Notifica Alexa
 
+  # Su quali Alexa annunciare (interruttori nell'ingranaggio della card).
+  # Nessun initial: la scelta resta dopo un riavvio.
+  notify_alexa_fritz_salone:
+    name: Alexa Salone
+    icon: mdi:speaker
+  notify_alexa_fritz_bagno:
+    name: Alexa Bagno
+    icon: mdi:speaker
+  notify_alexa_fritz_cameretta:
+    name: Alexa Cameretta
+    icon: mdi:speaker
+  notify_alexa_fritz_camera:
+    name: Alexa Camera
+    icon: mdi:speaker
+
   ####################################################
 
   notify_ip_push:
@@ -353,10 +368,23 @@ automation:
                   - condition: state
                     entity_id: input_boolean.notify_alexa_fritz
                     state: "on"
+                  # Almeno una Alexa scelta nell'ingranaggio della card
+                  - condition: template
+                    value_template: >-
+                      {{ ['salone', 'bagno', 'cameretta', 'camera']
+                         | map('regex_replace', '^', 'input_boolean.notify_alexa_fritz_')
+                         | select('is_state', 'on') | list | count > 0 }}
                 sequence:
                   - service: notify.alexa_media
                     data:
-                      target: *alexa
+                      target: >-
+                        {% set ns = namespace(l=[]) %}
+                        {% for r in ['salone', 'bagno', 'cameretta', 'camera'] %}
+                          {% if is_state('input_boolean.notify_alexa_fritz_' ~ r, 'on') %}
+                            {% set ns.l = ns.l + ['media_player.alexa_' ~ r] %}
+                          {% endif %}
+                        {% endfor %}
+                        {{ ns.l }}
                       data:
                         type: announce
                         method: spoken

@@ -19,7 +19,7 @@ Il package completo che uso io — soglie, notifiche push/Alexa/Telegram, costi,
 1. Copialo dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi in `configuration.yaml`: `homeassistant: packages: !include_dir_named packages`).
 2. In cima al file trovi il blocco **`IMPOSTAZIONI PACKAGE`**:
    - `Sensore Consumo Generale W` → il TUO sensore di potenza generale casa
-   - `Media Player Alexa 1` / `2` → i TUOI dispositivi Alexa (elimina le righe se non li usi)
+   - Alexa: i dispositivi Alexa non si scrivono più nel file: si scelgono dagli interruttori **Alexa Salone / Bagno / Cameretta / Camera** nell'ingranaggio della card (vedi [centro-notifiche.md](centro-notifiche.md#scegliere-su-quali-alexa-annunciare))
 3. Cerca `mobile_app_il_tuo_telefono` più giù nel file e sostituiscilo con il TUO `notify.mobile_app_xxx`.
 4. Se non usi Telegram, cerca `telegram_bot.send_message` e cancella quei blocchi (oppure configura l'[integrazione Telegram](https://www.home-assistant.io/integrations/telegram/) e metti il tuo `chat_id` al posto del segnaposto).
 5. Riavvia Home Assistant.
@@ -126,6 +126,14 @@ settings_sections:
         label: Push
       - entity: input_boolean.notify_alexa_soglia
         label: Alexa
+      - entity: input_boolean.notify_alexa_soglia_salone
+        label: "↳ Alexa Salone"
+      - entity: input_boolean.notify_alexa_soglia_bagno
+        label: "↳ Alexa Bagno"
+      - entity: input_boolean.notify_alexa_soglia_cameretta
+        label: "↳ Alexa Cameretta"
+      - entity: input_boolean.notify_alexa_soglia_camera
+        label: "↳ Alexa Camera"
       - entity: input_number.soglia_casa_w
         label: Soglia W
       - entity: input_number.ritardo_soglia_secondi
