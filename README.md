@@ -16,39 +16,39 @@ Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del cl
 
 <table>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/lavatrice.gif" width="260" alt="🧺 Lavatrice"></a><br><b><a href="docs/elettrodomestici.md">🧺 Lavatrice</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/asciugatrice.gif" width="260" alt="🧺 Asciugatrice"></a><br><b><a href="docs/elettrodomestici.md">🧺 Asciugatrice</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/lavastoviglie.gif" width="260" alt="🍽️ Lavastoviglie"></a><br><b><a href="docs/elettrodomestici.md">🍽️ Lavastoviglie</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/lavatrice.gif" width="260" alt="🧺 Lavatrice"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md">🧺 Lavatrice</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/asciugatrice.gif" width="260" alt="🧺 Asciugatrice"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md">🧺 Asciugatrice</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/lavastoviglie.gif" width="260" alt="🍽️ Lavastoviglie"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md">🍽️ Lavastoviglie</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/forno.gif" width="260" alt="🍗 Forno"></a><br><b><a href="docs/elettrodomestici.md">🍗 Forno</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/elettrodomestici.md"><img src="docs/screenshot/galleria/tv.gif" width="260" alt="📺 TV"></a><br><b><a href="docs/elettrodomestici.md">📺 TV</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/energia.md"><img src="docs/screenshot/layout/energia-centrato-dark.png" width="260" alt="⚡ Energia Casa"></a><br><b><a href="docs/energia.md">⚡ Energia Casa</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/forno.gif" width="260" alt="🍗 Forno"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md">🍗 Forno</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/tv.gif" width="260" alt="📺 TV"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md">📺 TV</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/energia.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/energia-centrato-dark.png" width="260" alt="⚡ Energia Casa"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/energia.md">⚡ Energia Casa</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/clima.md"><img src="docs/screenshot/galleria/clima.gif" width="260" alt="❄️ Climatizzatore"></a><br><b><a href="docs/clima.md">❄️ Climatizzatore</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/stufetta.md"><img src="docs/screenshot/galleria/stufetta.gif" width="260" alt="🔥 Stufetta"></a><br><b><a href="docs/stufetta.md">🔥 Stufetta</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/ventilatore.md"><img src="docs/screenshot/galleria/ventilatore.gif" width="260" alt="🌀 Ventilatore"></a><br><b><a href="docs/ventilatore.md">🌀 Ventilatore</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/clima.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/clima.gif" width="260" alt="❄️ Climatizzatore"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/clima.md">❄️ Climatizzatore</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stufetta.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/stufetta.gif" width="260" alt="🔥 Stufetta"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stufetta.md">🔥 Stufetta</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/ventilatore.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/ventilatore.gif" width="260" alt="🌀 Ventilatore"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/ventilatore.md">🌀 Ventilatore</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/caldaia.md"><img src="docs/screenshot/galleria/caldaia.gif" width="260" alt="🔥 Caldaia e caloriferi"></a><br><b><a href="docs/caldaia.md">🔥 Caldaia e caloriferi</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/fritzbox.md"><img src="docs/screenshot/layout/fritz-centrato-dark.png" width="260" alt="📶 FritzBox"></a><br><b><a href="docs/fritzbox.md">📶 FritzBox</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/zigbee.md"><img src="docs/screenshot/galleria/zigbee.gif" width="260" alt="📡 Rete Zigbee"></a><br><b><a href="docs/zigbee.md">📡 Rete Zigbee</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/caldaia.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/caldaia.gif" width="260" alt="🔥 Caldaia e caloriferi"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/caldaia.md">🔥 Caldaia e caloriferi</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/fritzbox.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/fritz-centrato-dark.png" width="260" alt="📶 FritzBox"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/fritzbox.md">📶 FritzBox</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/zigbee.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/zigbee.gif" width="260" alt="📡 Rete Zigbee"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/zigbee.md">📡 Rete Zigbee</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/homeassistant-server.md"><img src="docs/screenshot/layout/server-centrato-dark.png" width="260" alt="🖥️ Server Home Assistant"></a><br><b><a href="docs/homeassistant-server.md">🖥️ Server Home Assistant</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/nas-synology.md"><img src="docs/screenshot/layout/nas-centrato-dark.png" width="260" alt="💾 NAS Synology"></a><br><b><a href="docs/nas-synology.md">💾 NAS Synology</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/proxmox.md"><img src="docs/screenshot/layout/proxmox-centrato-dark.png" width="260" alt="🖧 Proxmox"></a><br><b><a href="docs/proxmox.md">🖧 Proxmox</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/homeassistant-server.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/server-centrato-dark.png" width="260" alt="🖥️ Server Home Assistant"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/homeassistant-server.md">🖥️ Server Home Assistant</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/nas-synology.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/nas-centrato-dark.png" width="260" alt="💾 NAS Synology"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/nas-synology.md">💾 NAS Synology</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/proxmox.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/proxmox-centrato-dark.png" width="260" alt="🖧 Proxmox"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/proxmox.md">🖧 Proxmox</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/ups.md"><img src="docs/screenshot/layout/ups-centrato-dark.png" width="260" alt="🔋 UPS"></a><br><b><a href="docs/ups.md">🔋 UPS</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/differenziata.md"><img src="docs/screenshot/layout/garbage-centrato-dark.png" width="260" alt="♻️ Raccolta Differenziata"></a><br><b><a href="docs/differenziata.md">♻️ Raccolta Differenziata</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/centro-notifiche.md"><img src="docs/screenshot/centro-notifiche.png" width="260" alt="🔔 Centro Notifiche"></a><br><b><a href="docs/centro-notifiche.md">🔔 Centro Notifiche</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/ups.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/ups-centrato-dark.png" width="260" alt="🔋 UPS"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/ups.md">🔋 UPS</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/differenziata.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/garbage-centrato-dark.png" width="260" alt="♻️ Raccolta Differenziata"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/differenziata.md">♻️ Raccolta Differenziata</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/centro-notifiche.png" width="260" alt="🔔 Centro Notifiche"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md">🔔 Centro Notifiche</a></b></td>
   </tr>
   <tr>
-    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-text.png" width="260" alt="🔊 Alexa Annuncio Testo"></a><br><b><a href="docs/alexa.md">🔊 Alexa Annuncio Testo</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-memo.png" width="260" alt="🔊 Alexa Memo"></a><br><b><a href="docs/alexa.md">🔊 Alexa Memo</a></b></td>
-    <td align="center" valign="top" width="33%"><a href="docs/alexa.md"><img src="docs/screenshot/alexa-webradio.png" width="260" alt="📻 Alexa WebRadio"></a><br><b><a href="docs/alexa.md">📻 Alexa WebRadio</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-text.png" width="260" alt="🔊 Alexa Annuncio Testo"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">🔊 Alexa Annuncio Testo</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-memo.png" width="260" alt="🔊 Alexa Memo"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">🔊 Alexa Memo</a></b></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-webradio.png" width="260" alt="📻 Alexa WebRadio"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">📻 Alexa WebRadio</a></b></td>
   </tr>
 </table>
 
@@ -56,59 +56,59 @@ Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del cl
 
 | Card | Cosa mostra | Serve per |
 |---|---|---|
-| [🧺 Elettrodomestici](docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale (anche senza YAML, vedi guida), comandi a distanza per chi li ha (es. lavastoviglie Home Connect) | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
-| [⚡ Energia Casa](docs/energia.md) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Un misuratore di potenza generale casa in Watt |
-| [❄️ Climatizzatore](docs/clima.md) | Split animato che soffia aria (blu freddo, arancio caldo), gauge dritta con temperatura stanza/impostata e umidità, comandi diretti anche da spento, programmazione accensione/spegnimento, consumi, ventola e alette, diagnostica | Qualsiasi entità `climate.` |
-| [🔥 Stufetta](docs/stufetta.md) | Stufetta animata (onde di calore per livello), gauge dritta con stanza e soglia, livelli H1/H2/H3/Eco, gestione automatica "parte al massimo, alla soglia scende" | Qualsiasi stufetta `climate.` (esempio: Dreo 314S DR-HSH004S) |
-| [🌀 Ventilatore](docs/ventilatore.md) | Ventilatore animato (pale, oscillazione, nebbia, luce), velocità, modalità, programmazione, nebbia e luce, serbatoio e pulizia | Qualsiasi ventilatore `fan.` (esempio: Dreo DR-HEC005S con nebulizzatore) |
-| [🔥 Caldaia e caloriferi](docs/caldaia.md) | Caldaia animata con calorifero, gauge dritta con casa/impostata e barra della pressione impianto, programmi orari, consumi gas per giorni/settimane/mesi/anni divisi riscaldamento e acqua calda | Qualsiasi caldaia o termostato `climate.` (esempio: Baxi Luna Classic con Remeha Home) |
-| [📶 FritzBox / Router](docs/fritzbox.md) | Stato connessione, banda impegnata, velocità, test di velocità | Router AVM FritzBox (integrazione ufficiale HA) |
-| [📡 Rete Zigbee](docs/zigbee.md) | Dispositivi online/offline e da quanto, segnale LQI medio e minimo, batterie, elenco con foto, abbinamenti, avvisi in fascia oraria | Zigbee2MQTT con disponibilità attiva |
-| [🖥️ Server Home Assistant](docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |
-| [💾 NAS Synology](docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
-| [🖧 Proxmox](docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
-| [🔋 UPS](docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
-| [♻️ Raccolta Differenziata](docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Nessun hardware, solo un `input_text` |
-| [🔔 Centro Notifiche](docs/centro-notifiche.md) | Volumi e finestra oraria degli annunci Alexa condivisi da tutte le altre card, in un'unica card di impostazioni | Il package `centro_notifiche_alexa.yaml` + integrazione Alexa Media Player |
-| [🔊 Alexa Annuncio Testo / Memo / WebRadio](docs/alexa.md) | Annuncio vocale al volo con selettore multiroom e volume; fino a 4 promemoria vocali programmati con riprova al rientro in casa; oppure radio/playlist su Alexa multiroom con sveglia programmata e volume ridotto automatico | Integrazione Alexa Media Player |
-| [📈 Grafici 24 h / 7 gg / 30 gg / da … a](docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
-| [🎛️ Layout classico / centrato](docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
+| [🧺 Elettrodomestici](https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md) | Lavatrice, lavastoviglie, asciugatrice, forno, TV: stato, ciclo in corso, consumi, storico settimanale (anche senza YAML, vedi guida), comandi a distanza per chi li ha (es. lavastoviglie Home Connect) | Qualsiasi elettrodomestico collegato a una presa/misuratore di potenza |
+| [⚡ Energia Casa](https://github.com/Simonz82/smart-home-cards/blob/main/docs/energia.md) | Consumo istantaneo, circuiti singoli, costi, confronto con periodo precedente | Un misuratore di potenza generale casa in Watt |
+| [❄️ Climatizzatore](https://github.com/Simonz82/smart-home-cards/blob/main/docs/clima.md) | Split animato che soffia aria (blu freddo, arancio caldo), gauge dritta con temperatura stanza/impostata e umidità, comandi diretti anche da spento, programmazione accensione/spegnimento, consumi, ventola e alette, diagnostica | Qualsiasi entità `climate.` |
+| [🔥 Stufetta](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stufetta.md) | Stufetta animata (onde di calore per livello), gauge dritta con stanza e soglia, livelli H1/H2/H3/Eco, gestione automatica "parte al massimo, alla soglia scende" | Qualsiasi stufetta `climate.` (esempio: Dreo 314S DR-HSH004S) |
+| [🌀 Ventilatore](https://github.com/Simonz82/smart-home-cards/blob/main/docs/ventilatore.md) | Ventilatore animato (pale, oscillazione, nebbia, luce), velocità, modalità, programmazione, nebbia e luce, serbatoio e pulizia | Qualsiasi ventilatore `fan.` (esempio: Dreo DR-HEC005S con nebulizzatore) |
+| [🔥 Caldaia e caloriferi](https://github.com/Simonz82/smart-home-cards/blob/main/docs/caldaia.md) | Caldaia animata con calorifero, gauge dritta con casa/impostata e barra della pressione impianto, programmi orari, consumi gas per giorni/settimane/mesi/anni divisi riscaldamento e acqua calda | Qualsiasi caldaia o termostato `climate.` (esempio: Baxi Luna Classic con Remeha Home) |
+| [📶 FritzBox / Router](https://github.com/Simonz82/smart-home-cards/blob/main/docs/fritzbox.md) | Stato connessione, banda impegnata, velocità, test di velocità | Router AVM FritzBox (integrazione ufficiale HA) |
+| [📡 Rete Zigbee](https://github.com/Simonz82/smart-home-cards/blob/main/docs/zigbee.md) | Dispositivi online/offline e da quanto, segnale LQI medio e minimo, batterie, elenco con foto, abbinamenti, avvisi in fascia oraria | Zigbee2MQTT con disponibilità attiva |
+| [🖥️ Server Home Assistant](https://github.com/Simonz82/smart-home-cards/blob/main/docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |
+| [💾 NAS Synology](https://github.com/Simonz82/smart-home-cards/blob/main/docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
+| [🖧 Proxmox](https://github.com/Simonz82/smart-home-cards/blob/main/docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
+| [🔋 UPS](https://github.com/Simonz82/smart-home-cards/blob/main/docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
+| [♻️ Raccolta Differenziata](https://github.com/Simonz82/smart-home-cards/blob/main/docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Nessun hardware, solo un `input_text` |
+| [🔔 Centro Notifiche](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md) | Volumi e finestra oraria degli annunci Alexa condivisi da tutte le altre card, in un'unica card di impostazioni | Il package `centro_notifiche_alexa.yaml` + integrazione Alexa Media Player |
+| [🔊 Alexa Annuncio Testo / Memo / WebRadio](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md) | Annuncio vocale al volo con selettore multiroom e volume; fino a 4 promemoria vocali programmati con riprova al rientro in casa; oppure radio/playlist su Alexa multiroom con sveglia programmata e volume ridotto automatico | Integrazione Alexa Media Player |
+| [📈 Grafici 24 h / 7 gg / 30 gg / da … a](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md) | Su ogni card un pulsante apre il grafico storico del dispositivo, adattato a PC e smartphone, con i picchi reali | Tutte le card |
+| [🎛️ Layout classico / centrato](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md) | Ogni card in due layout (foto a sinistra oppure foto centrale in alto), scelto da un menu nelle Impostazioni | Tutte le card |
 
-Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](docs/settings-sections.md).
+Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push + Alexa) — vedi [docs/notifiche-personalizzate.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md) — e lo stesso mini-linguaggio per il popup Impostazioni — vedi [docs/settings-sections.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/settings-sections.md).
 
 ## 📦 Installazione con HACS
 
 Apri **HACS**, cerca **Smart Home Cards** e installala: aggiornamenti automatici, nessun file da ricopiare a mano.
 
-Se la ricerca non la trova (la tua versione di HACS non ha ancora la raccolta nell'elenco predefinito), aggiungila come **repository personalizzato**: tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**. Dettagli: [docs/installazione.md](docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
+Se la ricerca non la trova (la tua versione di HACS non ha ancora la raccolta nell'elenco predefinito), aggiungila come **repository personalizzato**: tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**. Dettagli: [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
 
 ## Installazione rapida
 
-Guida completa passo-passo: [docs/installazione.md](docs/installazione.md). In breve:
+Guida completa passo-passo: [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md). In breve:
 
-1. Scarica [`smart-home-cards.js`](smart-home-cards.js) e copialo in `/config/www/` sul tuo Home Assistant.
+1. Scarica [`smart-home-cards.js`](https://github.com/Simonz82/smart-home-cards/blob/main/smart-home-cards.js) e copialo in `/config/www/` sul tuo Home Assistant.
 2. Impostazioni → Dashboard → (⋮ in alto a destra) → Risorse → Aggiungi risorsa → `/local/smart-home-cards.js` (tipo: Modulo JavaScript).
 3. Ricarica la pagina (svuota la cache se serve).
 4. Aggiungi una card, modalità YAML, incolla uno degli esempi nelle guide sopra, sostituisci le entità con le tue.
-5. (Facoltativo) Per scegliere il layout dalle Impostazioni copia anche [`packages/layout_schede.yaml`](packages/layout_schede.yaml) (vedi [docs/layout.md](docs/layout.md)).
-6. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
+5. (Facoltativo) Per scegliere il layout dalle Impostazioni copia anche [`packages/layout_schede.yaml`](https://github.com/Simonz82/smart-home-cards/blob/main/packages/layout_schede.yaml) (vedi [docs/layout.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md)).
+6. (Facoltativo, ma consigliato) Installa anche il mio package originale per quella card, in [`packages/`](https://github.com/Simonz82/smart-home-cards/tree/main/packages/) — vedi il paragrafo "🚀 Metodo veloce" in cima a ogni guida. Sono i file **reali** che uso io, con solo poche righe da cambiare in cima (o da cercare e sostituire): niente da scrivere da zero.
 
 Un solo file JS contiene tutte e 17 le card — installi una volta sola, poi usi quelle che ti servono.
 
 ## 🎛️ Due layout per ogni card
 
-Ogni card si può mostrare in **classico** (foto a sinistra) o **centrato** (foto centrale in alto, informazioni su due colonne, poi le barre). La scelta è la **prima riga delle Impostazioni** della card: un menu a tendina, e la card cambia subito. Guida completa: **[docs/layout.md](docs/layout.md)**.
+Ogni card si può mostrare in **classico** (foto a sinistra) o **centrato** (foto centrale in alto, informazioni su due colonne, poi le barre). La scelta è la **prima riga delle Impostazioni** della card: un menu a tendina, e la card cambia subito. Guida completa: **[docs/layout.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md)**.
 
 | Classico | Centrato |
 |---|---|
-| ![Energia classico](docs/screenshot/layout/energia-classico-light.png) | ![Energia centrato](docs/screenshot/layout/energia-centrato-light.png) |
-| ![Lavatrice classico](docs/screenshot/layout/lavatrice-classico-dark.png) | ![Lavatrice centrato](docs/screenshot/layout/lavatrice-centrato-dark.png) |
+| ![Energia classico](https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/energia-classico-light.png) | ![Energia centrato](https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/energia-centrato-light.png) |
+| ![Lavatrice classico](https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/lavatrice-classico-dark.png) | ![Lavatrice centrato](https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/layout/lavatrice-centrato-dark.png) |
 
 ## Cosa include, cosa devi adattare tu
 
-- **Le immagini prodotto** (foto del router/NAS/UPS/logo Proxmox/HA mostrate nelle card) sono incluse in [`foto-pkg/`](foto-pkg/) — copiale insieme al file della card, vedi [docs/installazione.md](docs/installazione.md).
-- **Le immagini dei rifiuti** (per la card Raccolta Differenziata) sono in [`rifiuti/`](rifiuti/) — vedi [docs/differenziata.md](docs/differenziata.md).
-- **I package reali** (sensori, helper, automazioni di notifica/report/riavvio) sono in [`packages/`](packages/) — sono letteralmente quelli che uso io in produzione, con i dati personali tolti. Ogni guida spiega, nel paragrafo "🚀 Metodo veloce", esattamente quali righe cambiare per il tuo impianto.
+- **Le immagini prodotto** (foto del router/NAS/UPS/logo Proxmox/HA mostrate nelle card) sono incluse in [`foto-pkg/`](https://github.com/Simonz82/smart-home-cards/tree/main/foto-pkg/) — copiale insieme al file della card, vedi [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md).
+- **Le immagini dei rifiuti** (per la card Raccolta Differenziata) sono in [`rifiuti/`](https://github.com/Simonz82/smart-home-cards/tree/main/rifiuti/) — vedi [docs/differenziata.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/differenziata.md).
+- **I package reali** (sensori, helper, automazioni di notifica/report/riavvio) sono in [`packages/`](https://github.com/Simonz82/smart-home-cards/tree/main/packages/) — sono letteralmente quelli che uso io in produzione, con i dati personali tolti. Ogni guida spiega, nel paragrafo "🚀 Metodo veloce", esattamente quali righe cambiare per il tuo impianto.
 - **Le entità** che ogni card e ogni package si aspettano dipendono comunque dal tuo impianto/integrazioni — ogni guida elenca esattamente quali servono e a cosa servono, sia per chi usa i miei package sia per chi preferisce costruire i propri da zero.
 
 ## Licenza
