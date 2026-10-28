@@ -54,6 +54,21 @@ Alla fine il file deve trovarsi esattamente in `/config/www/smart-home-cards.js`
 
 Le card FritzBox, Server, NAS, Proxmox e UPS mostrano anche una piccola foto/logo del dispositivo. Se vuoi vederle, copia anche l'intera cartella [`foto-pkg/`](../foto-pkg/) dentro `/config/www/foto-pkg/` (stesso procedimento del passo precedente, ma su una cartella invece che un file singolo). Senza quella cartella le card funzionano lo stesso, semplicemente quel riquadro resta vuoto.
 
+**Dove va la cartella, anche se installi da HACS:** `foto-pkg` va sempre in **`/config/www/foto-pkg/`**, **non** accanto a `smart-home-cards.js` in `www/community/smart-home-cards/`. La card cerca le foto all'indirizzo `/local/foto-pkg/...` (scritto nel codice) e `/local/` corrisponde a `/config/www/`; la cartella `www/community/` di HACS, invece, viene servita come `/hacsfiles/`, quindi lì la card non le troverebbe.
+
+Struttura finale:
+
+```
+/config/www/
+├── community/smart-home-cards/smart-home-cards.js   <- installato da HACS
+└── foto-pkg/
+    ├── synology-ds925.png
+    ├── proxmox-logo.svg
+    └── ...
+```
+
+Per verificare, apri nel browser `http://<IP-di-HA>:8123/local/foto-pkg/synology-ds925.png`: se vedi la foto e' tutto a posto. Poi ricarica la dashboard con `Ctrl+F5`. Se la cartella `www` l'hai appena creata per la prima volta, serve un riavvio di Home Assistant.
+
 Per la card Raccolta Differenziata, allo stesso modo, copia la cartella [`rifiuti/`](../rifiuti/) dentro `/config/www/rifiuti/` — vedi [docs/differenziata.md](differenziata.md).
 
 ## 4. Registra il file come risorsa della dashboard
