@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-28 — 1.11.3: card Proxmox, logo giusto e campi mancanti nell'editor
+
+- **Fix Proxmox**: senza `artwork` la card mostrava il logo di Home Assistant al posto di quello di Proxmox; ora il predefinito è `proxmox` (anche quando la card viene aggiunta dal selettore). Segnalato nella issue #2.
+- **Editor Proxmox**: aggiunti i campi che mancavano nella sezione Sistema: stato del nodo, contenitori attivi, VM attive, ultimo avvio, RAM usata, RAM libera e disco local-lvm. Prima si potevano impostare solo da YAML.
+- Guida [docs/proxmox.md](docs/proxmox.md) aggiornata.
+
 ## 2026-10-26 (2) — 1.11.2: galleria animata nel README, due fix
 
 - **README**: nuova sezione "Tutte le card a colpo d'occhio" con tutte le 17 card; elettrodomestici, climatizzatore, stufetta, ventilatore, caldaia e rete Zigbee sono GIF animate, accese e in funzione.

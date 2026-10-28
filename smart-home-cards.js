@@ -2604,6 +2604,13 @@ class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
         { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
         { key: "sensors.cpu_temp", label: "Temperatura CPU", domain: ["sensor"] },
         { key: "sensors.gpu_pct", label: "GPU (%)", domain: ["sensor"] },
+        { key: "sensors.status", label: "Stato del nodo (online/offline)", domain: ["binary_sensor", "sensor"] },
+        { key: "sensors.containers", label: "Contenitori (LXC) attivi", domain: ["sensor"] },
+        { key: "sensors.vms", label: "Macchine virtuali attive", domain: ["sensor"] },
+        { key: "sensors.last_boot", label: "Ultimo avvio del nodo", domain: ["sensor"] },
+        { key: "sensors.ram_used", label: "RAM usata", domain: ["sensor"] },
+        { key: "sensors.ram_free", label: "RAM libera", domain: ["sensor"] },
+        { key: "sensors.disk_lvm_pct", label: "Disco local-lvm (%)", domain: ["sensor"] },
       ]},
       { title: "Consumi (pulsante fulmine)", fields: [
         { key: "power.power", label: "Consumo attuale (W)", domain: ["sensor"] },
@@ -6159,7 +6166,7 @@ class ShcProxmoxCard extends HTMLElement {
   setConfig(config) {
     this._config = {
       name: "Proxmox",
-      artwork: "server",
+      artwork: "proxmox",
       sensors: {},
       power: {},
       disk_health: {},
@@ -6169,7 +6176,7 @@ class ShcProxmoxCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "px" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId);
+    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.proxmox)(this._heroId);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.server;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -6784,7 +6791,7 @@ class ShcProxmoxCard extends HTMLElement {
   static getStubConfig(hass) {
     return {
       name: "Proxmox",
-      artwork: "server",
+      artwork: "proxmox",
     };
   }
 }

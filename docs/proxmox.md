@@ -27,6 +27,8 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Proxmox"*
 
 ![Editor Proxmox](screenshot/editor-proxmox.png)
 
+Nella sezione **Sistema** dell'editor trovi tutti i sensori della card: stato del nodo, CPU, RAM (%, usata, libera), disco, contenitori e VM attive, ultimo avvio, temperatura CPU e GPU. Il disegno mostrato è quello di Proxmox (`artwork: proxmox`, già il valore predefinito).
+
 ⚠️ **Non scrive `settings_sections` / `actions`**: sono elenchi troppo complessi per un editor a campi. Senza quelli, l'icona ⚙️ sulla card si apre ma mostra solo "Nessuna impostazione configurata" — non è un errore, è normale finché non li aggiungi a mano dal blocco YAML qui sotto (o dal paragrafo "🚀 Metodo veloce" in cima alla guida).
 
 ## Campo per campo
@@ -34,6 +36,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Proxmox"*
 ```yaml
 type: custom:shc-proxmox-card
 name: Proxmox
+artwork: proxmox                                # disegno in alto; predefinito, puoi non scriverlo
 sensors:
   status: binary_sensor.proxmox_stato          # online/offline
   cpu: sensor.proxmox_cpu_usata                # %
