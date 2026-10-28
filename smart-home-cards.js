@@ -9012,7 +9012,7 @@ class ShcClimateCard extends HTMLElement {
     bind(".shc-ap-stats", () => this._openConsumption());
     bind(".shc-cl-fan", () => this._openFan());
     bind(".shc-cl-info", () => this._openInfo());
-    bind(".shc-cl-sched", () => this._openSchedule());
+    bind(".shc-cl-sched", (e) => (e.target.closest("[data-fanauto]") ? this._openFan() : this._openSchedule()));
     bind(".shc-ap-hero", () => this._moreInfo(this._config.entity));
     bind(".shc-cl-line", () => this._moreInfo(this._config.entity));
     this._useGauge = String(this._config.hero).toLowerCase() === "gauge";
@@ -9334,6 +9334,13 @@ class ShcClimateCard extends HTMLElement {
     const sc = cfg.schedule;
     const hs = this._hass.states;
     const chips = [];
+    // ventola automatica (fan_auto_entity): pillola sempre visibile, apre il popup Ventola
+    const fa = cfg.fan_auto_entity ? hs[cfg.fan_auto_entity] : null;
+    if (fa) {
+      const fm = a.fan_mode;
+      const fmTxt = fm ? CL_FAN[fm] || (/^\d+$/.test(fm) ? `velocità ${fm}` : fm) : "";
+      chips.push(`<span data-fanauto="1"><ha-icon icon="${fa.state === "on" ? "mdi:fan-auto" : "mdi:fan"}"></ha-icon>${fa.state === "on" ? "Ventola automatica" : "Ventola manuale"}${fmTxt && !unav && mode !== "off" ? ` · ${esc(fmTxt)}` : ""}</span>`);
+    }
     if (hs[sc.on_enabled]?.state === "on") {
       const m = hs[sc.on_mode]?.state;
       const t = hs[sc.on_temperature]?.state;
@@ -9362,7 +9369,7 @@ class ShcClimateCard extends HTMLElement {
     } else warn.hidden = true;
 
     // popup aperto: si aggiorna quando cambia il clima
-    const key = [cfg.entity, ...Object.values(sc)].map((x) => hs[x]?.last_updated || "").join("|");
+    const key = [cfg.entity, cfg.fan_auto_entity, ...Object.values(sc)].map((x) => hs[x]?.last_updated || "").join("|");
     if (key !== this._liveKey) {
       this._liveKey = key;
       if (this._live && this._root.querySelector(".shc-ap-overlay:not(.shc-gc-ov):not([hidden])")) this._live();
@@ -9527,16 +9534,27 @@ class ShcClimateCard extends HTMLElement {
       `<div class="shc-cl-chips">${list
         .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || (/^\d+$/.test(m) ? `Velocità ${m}` : m))}</button>`)
         .join("")}</div>`;
+    const fae = this._config.fan_auto_entity;
+    const faOn = fae && this._hass.states[fae]?.state === "on";
     const html = `
       ${unav ? `<p class="shc-cl-note">Il climatizzatore non è raggiungibile: i comandi tornano attivi appena si ricollega.</p>` : ""}
-      ${(a.fan_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola</div>${chips(a.fan_modes, a.fan_mode, "data-fan", CL_FAN)}</div>` : ""}
+      ${fae && this._hass.states[fae] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola automatica</div>${this._row("Regola la ventola da sola", this._switchHtml(fae))}
+        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità qui sotto, la ventola automatica si spegne.")}</p></div>` : ""}
+      ${(a.fan_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola${faOn ? " (scelta dall'automatica)" : ""}</div>${chips(a.fan_modes, a.fan_mode, "data-fan", CL_FAN)}</div>` : ""}
       ${(a.swing_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Alette</div>${chips(a.swing_modes, a.swing_mode, "data-swing", CL_SWING)}</div>` : ""}
       ${(a.preset_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità speciali</div>${chips(a.preset_modes, a.preset_mode, "data-preset", CL_PRESET)}
         <p class="shc-cl-note">Boost: massima potenza per circa 20 minuti. Fuori casa: mantiene una temperatura di sicurezza.</p></div>` : ""}
       ${!(a.fan_modes || a.swing_modes || a.preset_modes) ? `<p class="shc-cl-note">Il climatizzatore non espone velocità della ventola, alette o preset.</p>` : ""}`;
     const overlay = this._openDialog("Ventola e alette", html, () => this._openFan());
     const e = this._config.entity;
-    overlay.querySelectorAll("[data-fan]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_fan_mode", { entity_id: e, fan_mode: b.dataset.fan })));
+    overlay.querySelectorAll("[data-fan]").forEach((b) =>
+      b.addEventListener("click", () => {
+        // scelta a mano: spegne la ventola automatica, altrimenti la rimetterebbe com'era
+        if (faOn) this._call(fae.split(".")[0], "turn_off", { entity_id: fae });
+        this._call("climate", "set_fan_mode", { entity_id: e, fan_mode: b.dataset.fan });
+      }),
+    );
+    overlay.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => this._call(b.dataset.toggle.split(".")[0], "toggle", { entity_id: b.dataset.toggle })));
     overlay.querySelectorAll("[data-swing]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_swing_mode", { entity_id: e, swing_mode: b.dataset.swing })));
     overlay.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_preset_mode", { entity_id: e, preset_mode: b.dataset.preset })));
   }
@@ -9604,6 +9622,7 @@ class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
         { key: "temperature_entity", label: "Sensore temperatura stanza (per il grafico)", domain: ["sensor"] },
         { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
         { key: "outdoor_entity", label: "Sensore temperatura esterna", domain: ["sensor"] },
+        { key: "fan_auto_entity", label: "Interruttore ventola automatica (pulsante sulla card)", domain: ["input_boolean", "switch"] },
       ]},
       { title: "Consumi", fields: [
         { key: "power_entity", label: "Potenza (W) della presa del clima", domain: ["sensor"] },

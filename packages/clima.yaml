@@ -12,6 +12,13 @@
 # ---------------------------------------------------------------------------------
 
 input_boolean:
+  # Ventola regolata da sola in base a quanto manca alla temperatura impostata.
+  # E' l'interruttore del pulsante "Ventola automatica" della card (fan_auto_entity).
+  # Niente "initial": dopo un riavvio resta com'era.
+  clima_salone_ventola_automatica:
+    name: Ventola Automatica Clima Salone
+    icon: mdi:fan-auto
+
   # Abilita la programmazione di accensione una tantum
   clima_salone_programmazione_attiva:
     name: Abilita Programmazione Clima Salone
@@ -143,3 +150,56 @@ automation:
           entity_id: input_boolean.clima_salone_programmazione_spegnimento_attiva
 
     mode: single
+
+  # -------------------------------------------------------------------------------
+  # VENTOLA IN BASE ALLA TEMPERATURA
+  # La Daikin in "auto" tiene la ventola alta anche a temperatura raggiunta.
+  # Qui la ventola segue quanto manca alla temperatura impostata:
+  #   manca 1 grado o più  -> auto (spinge)
+  #   manca meno di 1 grado -> velocità 3
+  #   raggiunta o superata  -> velocità 2 (quiet non scalda abbastanza)
+  # Stanza = sensore di temperatura del salone (DA CAMBIARE: sensor.temperatura_salone);
+  #   se non risponde, il sensore del climatizzatore.
+  # Cambia la ventola solo quando serve (le chiamate al cloud Daikin sono limitate).
+  # -------------------------------------------------------------------------------
+  - alias: "Climatizzatore Salone - Ventola in base alla temperatura"
+    id: "climatizzatore_salone_ventola_temperatura"
+    mode: queued
+    max: 3
+    triggers:
+      - trigger: state
+        entity_id: sensor.temperatura_salone
+      - trigger: state
+        entity_id: climate.daikin_salone_temperature
+      - trigger: state
+        entity_id: climate.daikin_salone_temperature
+        attribute: temperature
+      - trigger: state
+        entity_id: input_boolean.clima_salone_ventola_automatica
+        to: "on"
+      - trigger: time_pattern
+        minutes: "/5"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.clima_salone_ventola_automatica
+        state: "on"
+      - condition: state
+        entity_id: climate.daikin_salone_temperature
+        state: ["heat", "cool"]
+    actions:
+      - variables:
+          clima: climate.daikin_salone_temperature
+          modo: "{{ states(clima) }}"
+          target: "{{ state_attr(clima, 'temperature') | float(0) }}"
+          stanza: >-
+            {% set z = states('sensor.temperatura_salone') %}
+            {{ z | float if is_number(z) else state_attr(clima, 'current_temperature') | float(0) }}
+          manca: "{{ (target - stanza) if modo == 'heat' else (stanza - target) }}"
+          ventola: "{{ 'auto' if manca >= 1 else ('3' if manca > 0 else '2') }}"
+      - condition: template
+        value_template: "{{ target > 0 and stanza > 0 and state_attr(clima, 'fan_mode') != ventola }}"
+      - action: climate.set_fan_mode
+        target:
+          entity_id: "{{ clima }}"
+        data:
+          fan_mode: "{{ ventola }}"

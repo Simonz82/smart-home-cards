@@ -48,6 +48,15 @@ Temperatura stanza, temperatura esterna, umidità, potenza (24 h / 7 gg / 30 gg 
 
 Velocità della ventola, posizione delle alette e modalità speciali (Boost, Fuori casa…), solo quelle che il tuo climatizzatore espone.
 
+### 🌀 Ventola automatica (pulsante sulla card)
+
+Con `fan_auto_entity` la card mostra un pulsante sempre visibile, nella riga sotto la temperatura: **"Ventola automatica · velocità N"** quando l'automazione è accesa, **"Ventola manuale"** quando è spenta. Un tocco apre il popup **Ventola e alette**, dove in cima c'è l'interruttore **Regola la ventola da sola**: lì decidi se usarla oppure no.
+
+- L'interruttore comanda l'entità che hai scelto in `fan_auto_entity` (un `input_boolean` o uno `switch`); è quella che la tua automazione deve controllare.
+- Se tocchi a mano una velocità della ventola, l'automatica **si spegne da sola**, così non ti rimette la velocità di prima.
+- Il package [`packages/clima.yaml`](../packages/clima.yaml) contiene già `input_boolean.clima_salone_ventola_automatica` e l'automazione che segue la temperatura: manca 1 grado o più, ventola `auto`; manca meno di 1 grado, velocità `3`; temperatura raggiunta, velocità `2`. Cambia la ventola solo quando serve, perché le chiamate al cloud Daikin sono limitate. Senza `initial`, dopo un riavvio di Home Assistant l'interruttore resta com'era.
+- Nel package cambia `sensor.temperatura_salone` con il sensore di temperatura della tua stanza (se non risponde si usa quello del climatizzatore).
+
 ### ℹ️ Stato e diagnostica
 
 Stato, cosa sta facendo in questo momento, ultimo cambio, intervallo di temperatura, scheda completa, pulsante per aggiornare i dati dal cloud e l'elenco dei sensori di diagnostica che scegli (errori, codici errore, rete Wi‑Fi, richieste cloud rimaste…).
@@ -64,7 +73,7 @@ Stato, cosa sta facendo in questo momento, ultimo cambio, intervallo di temperat
 
 ## 🚀 Metodo veloce: usa il mio package originale
 
-Il package [`packages/clima.yaml`](../packages/clima.yaml) crea gli helper e le due automazioni della programmazione. I nomi degli helper sono già quelli predefiniti della card: non serve configurare niente.
+Il package [`packages/clima.yaml`](../packages/clima.yaml) crea gli helper, le due automazioni della programmazione e l'automazione della ventola automatica. I nomi degli helper sono già quelli predefiniti della card: non serve configurare niente.
 
 1. Copialo in `/config/packages/`.
 2. Cerca `climate.daikin_salone_temperature` (3 punti) e mettici il tuo climatizzatore.
@@ -156,6 +165,8 @@ segments:
 | `temperature_entity` | No | — | Sensore temperatura stanza: serve per il grafico (senza, la card usa la temperatura del climatizzatore) |
 | `humidity_entity` | No | — | Sensore umidità stanza (barra e lancetta dell'umidità, riga nel riquadro Clima) |
 | `outdoor_entity` | No | — | Sensore temperatura esterna |
+| `fan_auto_entity` | No | — | Interruttore (`input_boolean.` o `switch.`) dell'automazione che regola la ventola: aggiunge il pulsante "Ventola automatica" sulla card e l'interruttore nel popup Ventola |
+| `fan_auto_hint` | No | testo pronto | Testo di spiegazione sotto l'interruttore nel popup |
 | `power_entity` | No | — | Potenza in W della presa del climatizzatore |
 | `max_power` | No | `1500` | Fondo scala della barra potenza |
 | `energy_entity` | No | — | Energia totale in kWh |

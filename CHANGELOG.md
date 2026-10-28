@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-28 — 1.12.0: Climatizzatore, pulsante "Ventola automatica"
+
+- **Climatizzatore**: nuovo campo `fan_auto_entity` (anche nell'editor visuale). Sulla card compare il pulsante **Ventola automatica / Ventola manuale** che apre il popup Ventola, dove un interruttore accende o spegne l'automazione. Scegliere a mano una velocità spegne l'automatica da sola. Nuovo campo facoltativo `fan_auto_hint` per il testo di spiegazione.
+- **Package `clima.yaml`**: aggiunti `input_boolean.clima_salone_ventola_automatica` e l'automazione che porta la ventola su auto, 3 o 2 a seconda di quanto manca alla temperatura impostata (cambia la ventola solo quando serve).
+- Guida [docs/clima.md](docs/clima.md) aggiornata.
+
 ## 2026-10-28 — 1.11.3: card Proxmox, logo giusto e campi mancanti nell'editor
 
 - **Fix Proxmox**: senza `artwork` la card mostrava il logo di Home Assistant al posto di quello di Proxmox; ora il predefinito è `proxmox` (anche quando la card viene aggiunta dal selettore). Segnalato nella issue #2.
