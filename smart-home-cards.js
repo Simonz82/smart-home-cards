@@ -461,6 +461,7 @@ const STYLE = `
 .shc-ap-warn[hidden]{display:none}
 .shc-ap-ctrl{margin:0 13px 12px;padding:11px 12px;border-radius:16px;background:var(--shc-soft);display:flex;flex-direction:column;gap:9px}
 .shc-ap-ctrl[hidden]{display:none}
+.shc-ap-cycle-row[hidden],.shc-ap-panel[hidden],.shc-ap-meter[hidden]{display:none}
 .shc-ap-ctrl-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:850;letter-spacing:.3px;text-transform:uppercase;color:var(--shc-dim)}
 .shc-ap-ctrl-prog{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:13px;color:var(--shc-text);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
 .shc-ap-ctrl-btns{display:flex;flex-wrap:wrap;gap:7px}
@@ -1204,7 +1205,7 @@ function shcDegTicks(el, min, max, step) {
 
 class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
-    if (!config.power_entity) throw new Error("power_entity \u00e8 obbligatorio");
+    if (!config.power_entity && !config.live?.state_entity) throw new Error("serve power_entity (sensore Watt) oppure live.state_entity (stato dell'elettrodomestico)");
     this._config = {
       name: "Elettrodomestico",
       artwork: "dishwasher",
@@ -1264,7 +1265,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         ${this._config.controls ? `<div class="shc-ap-ctrl" hidden></div>` : ""}
         <div class="shc-ap-panel shc-ap-power-open" role="button" tabindex="0">
           <div class="shc-ap-meters">
-            <div class="shc-ap-meter">
+            <div class="shc-ap-meter shc-ap-power-meter">
               <div class="shc-ap-meter-row"><span>${esc(this._config.power_label || "Potenza attuale")}</span><strong class="shc-ap-power-val">0 W</strong></div>
               <div class="shc-ap-bar"><i style="width:0%"></i></div>
             </div>
@@ -1908,9 +1909,14 @@ class ShcApplianceCloneCard extends HTMLElement {
     const statsBtn = this._root.querySelector(".shc-ap-stats");
     if (statsBtn) statsBtn.hidden = !hasLive;
 
-    const powerState = hass.states[cfg.power_entity];
+    const powerState = cfg.power_entity ? hass.states[cfg.power_entity] : null;
     const watts = powerState ? Number(powerState.state) : null;
     const powerUnavailable = !powerState || ["unavailable", "unknown"].includes(powerState.state);
+    // Banda della potenza: sparisce se manca il sensore Watt (power_entity vuoto o entita'
+    // inesistente) oppure con hide_power: true. Senza banda e senza avanzamento sparisce il pannello.
+    const showPower = !!powerState && !cfg.hide_power;
+    this._root.querySelector(".shc-ap-power-meter").hidden = !showPower;
+    this._root.querySelector(".shc-ap-power-open").hidden = !showPower && !cfg.live?.progress_entity;
 
     let mode = "off";
     let label = "SPENTO";
@@ -1920,6 +1926,12 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (mapped) {
       mode = mapped.mode;
       label = mapped.label;
+    } else if (!cfg.power_entity) {
+      // Senza sensore Watt lo stato viene solo da live.state_entity (valori fuori da state_map = spento).
+      if (!rawState || ["unavailable", "unknown"].includes(rawState)) {
+        mode = "unavailable";
+        label = "N/D";
+      }
     } else if (powerUnavailable) {
       mode = "unavailable";
       label = "N/D";
@@ -2182,7 +2194,8 @@ class ShcApplianceCloneCard extends HTMLElement {
 
   _graphSeries() {
     const c = this._config;
-    return [{ entity: c.power_history_entity || c.power_entity, label: "Potenza", color: "#0ea5e9" }];
+    const e = c.power_history_entity || c.power_entity;
+    return e ? [{ entity: e, label: "Potenza", color: "#0ea5e9" }] : [];
   }
 
   getCardSize() {
@@ -2966,9 +2979,16 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
 
       <div class="shc-ed-sec">Potenza</div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Sensore della potenza (Watt) — obbligatorio</span>
+        <span class="shc-ed-label">Sensore della potenza (Watt)${isDomotico ? " — facoltativo se c'e' l'entita' dello stato" : " — obbligatorio"}</span>
         <ha-entity-picker class="shc-ed-power" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.power_entity ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+        ${!cfg.power_entity && !cfg.live?.state_entity ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+        <p class="shc-ed-hint">Senza sensore Watt la banda "Potenza attuale" non compare.</p>
+      </div>
+      <div class="shc-ed-row">
+        <label class="shc-ed-checkrow">
+          <input type="checkbox" class="shc-ed-hide-power" ${cfg.hide_power ? "checked" : ""}>
+          <span>Nascondi la banda della potenza</span>
+        </label>
       </div>
 
       ${
@@ -3068,6 +3088,8 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     // Storici automatici: picker + pulsanti "crea" (v. _storiciHtml/_runStorici).
     wirePicker(".shc-ed-energy-stat", cfg.energy_stat_entity, null, "energy_stat_entity");
     wirePicker(".shc-ed-cost", cfg.cost_entity, null, "cost_entity");
+    const hidePowerBox = body.querySelector(".shc-ed-hide-power");
+    if (hidePowerBox) hidePowerBox.addEventListener("change", () => this._set("hide_power", hidePowerBox.checked));
     const autoStatsBox = body.querySelector(".shc-ed-auto-stats");
     if (autoStatsBox) autoStatsBox.addEventListener("change", () => this._set("auto_stats", autoStatsBox.checked));
     const createEnergyBtn = body.querySelector(".shc-ed-create-energy");
@@ -9291,7 +9313,8 @@ class ShcClimateCard extends HTMLElement {
     // righe senza sensore configurato: nascoste
     q(".cl-hum").closest(".shc-ap-cycle-row").hidden = !cfg.humidity_entity && a.current_humidity === undefined;
     q(".cl-out").closest(".shc-ap-cycle-row").hidden = !cfg.outdoor_entity;
-    q(".cl-power").closest(".shc-ap-cycle-row").hidden = !cfg.power_entity;
+    const clPower = !!cfg.power_entity && !!this._hass.states[cfg.power_entity] && !cfg.hide_power;
+    q(".cl-power").closest(".shc-ap-cycle-row").hidden = !clPower;
     q(".cl-today").closest(".shc-ap-cycle-row").hidden = !cfg.consumption?.cooling_day && !cfg.consumption?.heating_day;
 
     // comandi
@@ -9357,7 +9380,10 @@ class ShcClimateCard extends HTMLElement {
     const pb = q(".cl-power-bar");
     pb.style.width = `${power !== null ? Math.min(100, (power / maxP) * 100) : 0}%`;
     pb.style.background = power !== null ? meterSeverityColor(Math.min(100, (power / maxP) * 100)) : "";
-    q(".cl-power-val").closest(".shc-ap-meter").hidden = !cfg.power_entity;
+    // Senza sensore Watt (o con hide_power) spariscono banda e pannello, che contiene solo lei.
+    const clMeter = q(".cl-power-val").closest(".shc-ap-meter");
+    clMeter.hidden = !clPower;
+    clMeter.closest(".shc-ap-panel").hidden = !clPower;
 
     const warn = q(".shc-ap-warn");
     if (unav) {
@@ -9628,6 +9654,7 @@ class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
         { key: "power_entity", label: "Potenza (W) della presa del clima", domain: ["sensor"] },
         { key: "energy_entity", label: "Energia totale (kWh)", domain: ["sensor"] },
         { key: "max_power", label: "Fondo scala potenza (W)", kind: "text", placeholder: "1500" },
+        { key: "hide_power", label: "Nascondi la banda della potenza", kind: "bool", hint: "Senza sensore Watt la banda non compare comunque." },
         { key: "consumption.cooling_day", label: "Freddo oggi (kWh)", domain: ["sensor"] },
         { key: "consumption.heating_day", label: "Caldo oggi (kWh)", domain: ["sensor"] },
         { key: "consumption.cooling_month", label: "Freddo mese (kWh)", domain: ["sensor"] },

@@ -169,6 +169,7 @@ segments:
 | `fan_auto_hint` | No | testo pronto | Testo di spiegazione sotto l'interruttore nel popup |
 | `power_entity` | No | — | Potenza in W della presa del climatizzatore |
 | `max_power` | No | `1500` | Fondo scala della barra potenza |
+| `hide_power` | No | `false` | `true` nasconde riga Potenza e barra anche se il sensore c'è. Senza `power_entity` (o con un'entità che non esiste) non compaiono comunque |
 | `energy_entity` | No | — | Energia totale in kWh |
 | `price_entity` | No | — | Prezzo €/kWh: mostra il costo stimato nei Consumi |
 | `consumption` | No | — | `cooling_day/week/month/year`, `heating_day/week/month/year` (kWh) |

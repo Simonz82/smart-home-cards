@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-28 (2) — 1.12.1: banda della potenza solo se c'è il sensore
+
+- **Elettrodomestici**: la banda "Potenza attuale" non compare più se manca il sensore in Watt (`power_entity` vuoto o entità che non esiste): niente più barra ferma a 0 W. Nuova opzione `hide_power: true` (anche nell'editor) per toglierla comunque. `power_entity` non è più obbligatorio se c'è `live.state_entity`: chi ha un elettrodomestico smart senza presa con misura usa solo lo stato.
+- **Climatizzatore**: stessa logica, opzione `hide_power` anche nell'editor (sezione Consumi).
+- **Fix Climatizzatore, Stufetta, Ventilatore, Caldaia**: le righe senza sensore configurato (umidità, esterna, pressione...) restavano visibili con "—" invece di sparire.
+- **README**: immagini e link con indirizzi completi, così anche la pagina della card dentro HACS mostra la galleria come su GitHub.
+
 ## 2026-10-28 — 1.12.0: Climatizzatore, pulsante "Ventola automatica"
 
 - **Climatizzatore**: nuovo campo `fan_auto_entity` (anche nell'editor visuale). Sulla card compare il pulsante **Ventola automatica / Ventola manuale** che apre il popup Ventola, dove un interruttore accende o spegne l'automazione. Scegliere a mano una velocità spegne l'automatica da sola. Nuovo campo facoltativo `fan_auto_hint` per il testo di spiegazione.
