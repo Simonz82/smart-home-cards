@@ -311,6 +311,81 @@ controls:
 
 Senza `controls` la card resta come prima, senza comandi.
 
+## 🧺 Samsung con LocalThings (asciugatrice, lavatrice...)
+
+Con l'integrazione **LocalThings** (comunicazione locale con gli elettrodomestici Samsung, senza cloud) le entità sono quasi tutte `sensor`, `select`, `switch`, `binary_sensor` e `button`. La card le mostra così:
+
+- barra di avanzamento in %, fine stimata e tempo rimanente, fase del ciclo;
+- programma (con i tuoi nomi in italiano), livello e tempo di asciugatura, antipiega, avviso umidità, blocco bambini, avvio ritardato, firmware e connessione;
+- allarmi **solo se presenti** (nessuna riga quando il codice è `none`/`0`);
+- **Avvia / Pausa / Stop** e popup **Programmi** solo se il controllo remoto (`smart_control`) è acceso; se è spento i comandi spariscono e restano le righe di sola lettura.
+
+Nessuna entità è scritta nel codice: scegli tu le tue nell'esempio qui sotto (i nomi sono di fantasia, sostituiscili con quelli della tua macchina).
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Asciugatrice
+power_entity: sensor.asciugatrice_power           # facoltativo
+live:
+  state_entity: sensor.asciugatrice_operation_state
+  progress_entity: sensor.asciugatrice_progress
+  remaining_entity: sensor.asciugatrice_remaining_time
+  extra:
+    - entity: sensor.asciugatrice_phase
+      label: Fase
+      value_map: { drying: Asciugatura, cooling: Raffreddamento }
+      fallback_label: In corso
+    - entity: select.asciugatrice_dry_level
+      label: Livello
+    - entity: sensor.asciugatrice_dry_time
+      label: Tempo di asciugatura
+      format: minutes            # numero di minuti -> "1 h 30 min"
+      hide_values: ["0"]         # nasconde la riga con questi valori
+    - entity: sensor.asciugatrice_remaining_hms
+      label: Rimanente
+      format: hms                # "01:30:00" -> "1 h 30 min"
+      zero_label: Terminato
+warn_entities:
+  - entity: sensor.asciugatrice_alarm
+    not_states: ["none", "0", "no_alarm"]   # avviso se il valore NON è fra questi
+    label: "Allarme {state}"                 # {state} = valore dell'entità
+controls:
+  start_button: button.asciugatrice_start
+  pause_button: button.asciugatrice_pause
+  stop_button: button.asciugatrice_stop
+  running_entity: binary_sensor.asciugatrice_running
+  remote_entity: binary_sensor.asciugatrice_smart_control
+  hide_when_remote_off: true        # senza smart_control niente comandi
+  edit_while_running: true          # programma/opzioni modificabili anche a ciclo avviato
+  program_select: select.asciugatrice_program
+  program_names: { course_1: Cotone, course_2: Delicati }
+  delay_entity: number.asciugatrice_delay
+  delay_unit: h                     # il number è in ore (default: secondi)
+  selects:                          # select aggiuntivi nel popup Programmi
+    - entity: select.asciugatrice_dry_level
+      label: Livello di asciugatura
+    - entity: select.asciugatrice_dry_time
+      label: Tempo di asciugatura
+      names: { "30": 30 min, "60": 1 h }
+  options:
+    - entity: switch.asciugatrice_wrinkle_prevent
+      name: Antipiega
+```
+
+Novità dei campi usati:
+
+| Campo | Cosa fa |
+|---|---|
+| `live.extra[].format: minutes` / `hms` | Mostra minuti o `hh:mm:ss` come "1 h 30 min"; `zero_label` per il valore 0 |
+| `live.extra[].hide_values` | Elenco di valori per cui la riga non compare |
+| `warn_entities[].not_states` | Avviso quando lo stato è valido ma non fra questi valori (codici allarme); `label` accetta `{state}` |
+| `controls.start_button` / `pause_button` / `stop_button` | Tre pulsanti Avvia / Pausa / Stop (`button.press`) |
+| `controls.running_entity` | `binary_sensor` acceso con ciclo in corso (con `start_button`) |
+| `controls.hide_when_remote_off` | Nasconde del tutto i comandi se `remote_entity` è spento |
+| `controls.edit_while_running` | Toglie l'avviso "si cambia a macchina ferma" nel popup Programmi |
+| `controls.delay_unit` | `h` se `delay_entity` è in ore (default secondi) |
+| `controls.selects` | `select` extra nel popup Programmi (`entity`, `label`, `names`) |
+
 ## Esempio completo (lavastoviglie)
 
 ```yaml

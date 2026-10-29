@@ -1,5 +1,11 @@
 # Changelog
 
+## Non rilasciato — Elettrodomestici: Samsung con LocalThings
+
+- **Elettrodomestici**: supporto agli elettrodomestici Samsung dell'integrazione LocalThings (asciugatrice e simili): pulsanti Avvia/Pausa/Stop (`controls.start_button`, `pause_button`, `running_entity`), comandi nascosti se il controllo remoto è spento (`hide_when_remote_off`), `select` extra nel popup Programmi (`controls.selects`), `delay_unit`, `edit_while_running`.
+- Righe `live.extra` con `format: minutes|hms`, `zero_label`, `hide_values`; avvisi `warn_entities` con `not_states` e `{state}` nell'etichetta (allarmi solo se presenti).
+- Guida [docs/elettrodomestici.md](docs/elettrodomestici.md): nuova sezione "Samsung con LocalThings".
+
 ## 2026-10-28 (2) — 1.12.1: banda della potenza solo se c'è il sensore
 
 - **Elettrodomestici**: la banda "Potenza attuale" non compare più se manca il sensore in Watt (`power_entity` vuoto o entità che non esiste): niente più barra ferma a 0 W. Nuova opzione `hide_power: true` (anche nell'editor) per toglierla comunque. `power_entity` non è più obbligatorio se c'è `live.state_entity`: chi ha un elettrodomestico smart senza presa con misura usa solo lo stato.

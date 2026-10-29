@@ -1514,8 +1514,17 @@ class ShcApplianceCloneCard extends HTMLElement {
       const st = hass.states[row.entity];
       if (!st) return;
       const raw = row.attribute ? st.attributes?.[row.attribute] : st.state;
+      if (row.hide_values && row.hide_values.includes(String(raw))) return;
       let val;
-      if (raw === undefined || raw === null || raw === "") {
+      if (row.format === "minutes" || row.format === "hms") {
+        let min = NaN;
+        if (row.format === "minutes") min = Number(raw);
+        else {
+          const m = String(raw).match(/^(\d+):(\d+)/);
+          if (m) min = Number(m[1]) * 60 + Number(m[2]);
+        }
+        val = !Number.isFinite(min) ? "n/d" : min === 0 && row.zero_label ? row.zero_label : min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ""}` : `${min} min`;
+      } else if (raw === undefined || raw === null || raw === "") {
         val = "n/d";
       } else if (row.value_map) {
         val = row.value_map[raw] ?? row.fallback_label ?? raw;
@@ -1996,8 +2005,13 @@ class ShcApplianceCloneCard extends HTMLElement {
 
     const warnEl = this._root.querySelector(".shc-ap-warn");
     const activeWarnings = (cfg.warn_entities || [])
-      .filter((w) => hass.states[w.entity]?.state === w.on_state)
-      .map((w) => w.label);
+      .filter((w) => {
+        const ws = hass.states[w.entity]?.state;
+        // not_states: avviso quando lo stato e' valido ma NON fra i valori normali (es. codice allarme)
+        if (w.not_states) return ws !== undefined && !["unavailable", "unknown", ...w.not_states].includes(ws);
+        return ws === w.on_state;
+      })
+      .map((w) => String(w.label).replace("{state}", hass.states[w.entity]?.state ?? ""));
     if (activeWarnings.length) {
       warnEl.hidden = false;
       warnEl.textContent = "\u26a0 " + activeWarnings.join(" \u00b7 ");
@@ -2041,6 +2055,13 @@ class ShcApplianceCloneCard extends HTMLElement {
 
   _ctrlRunning(hass) {
     const c = this._config.controls || {};
+    // Modalita' a pulsanti (Avvio/Pausa/Arresto, es. asciugatrice Samsung locale):
+    // in esecuzione da running_entity, pausa dallo stato nativo.
+    if (c.start_button) {
+      const opS = this._config.live?.state_entity ? hass.states[this._config.live.state_entity]?.state : null;
+      if (opS === "pause") return "pause";
+      return c.running_entity && hass.states[c.running_entity]?.state === "on" ? "run" : "stop";
+    }
     const ms = c.machine_select ? hass.states[c.machine_select]?.state : null;
     if (ms) return ms;
     const act = c.start_select ? hass.states[c.start_select]?.state : null;
@@ -2054,9 +2075,16 @@ class ShcApplianceCloneCard extends HTMLElement {
     const c = this._config.controls;
     const box = this._root.querySelector(".shc-ap-ctrl");
     if (!c || !box) return;
-    const avail = [c.machine_select, c.start_select, c.power_switch].some((e) => this._ctrlOk(hass, e));
+    const avail = [c.machine_select, c.start_select, c.power_switch, c.start_button].some((e) => this._ctrlOk(hass, e));
     box.hidden = !avail;
     if (!avail) return;
+    // hide_when_remote_off: con il controllo remoto spento i comandi spariscono del tutto
+    // (card solo di monitoraggio); i valori restano leggibili nelle righe "live.extra".
+    if (c.hide_when_remote_off && !this._remoteAllowed(hass)) {
+      box.hidden = true;
+      this._ctrlHtml = null;
+      return;
+    }
     const remote = this._remoteAllowed(hass);
     const state = this._ctrlRunning(hass);
     const dis = remote ? "" : " disabled";
@@ -2065,7 +2093,16 @@ class ShcApplianceCloneCard extends HTMLElement {
       const on = hass.states[c.power_switch].state === "on";
       btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="power"${dis}>${on ? "Spegni" : "Accendi"}</button>`);
     }
-    if (c.machine_select) {
+    if (c.start_button) {
+      // Tre pulsanti sempre visibili; attivi solo con il controllo remoto acceso
+      // e quando hanno senso per lo stato corrente.
+      const dStart = !remote || state === "run" ? " disabled" : "";
+      const dPause = !remote || state !== "run" || !c.pause_button ? " disabled" : "";
+      const dStop = !remote || state === "stop" ? " disabled" : "";
+      btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dStart}>\u25b6 ${state === "pause" ? "Riprendi" : "Avvia"}</button>`);
+      if (c.pause_button) btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dPause}>\u275a\u275a Pausa</button>`);
+      if (c.stop_button) btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dStop}>\u25a0 Stop</button>`);
+    } else if (c.machine_select) {
       if (state === "run") btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dis}>\u275a\u275a Pausa</button>`);
       else btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dis}>\u25b6 ${state === "pause" ? "Riprendi" : "Avvia"}</button>`);
       if (state !== "stop") btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
@@ -2075,8 +2112,8 @@ class ShcApplianceCloneCard extends HTMLElement {
     }
     if (c.program_select) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="programs">Programmi</button>`);
     const prog = c.program_select ? this._programLabel(hass.states[c.program_select]?.state) : "";
-    const delay = c.delay_entity ? Number(hass.states[c.delay_entity]?.state) : 0;
-    const progTxt = prog && state === "stop" ? `${prog}${delay > 0 ? ` \u00b7 tra ${this._fmtDelay(delay)}` : ""}` : "";
+    const delay = (c.delay_entity ? Number(hass.states[c.delay_entity]?.state) : 0) * (c.delay_unit === "h" ? 3600 : 1);
+    const progTxt = prog && (state === "stop" || c.start_button) ? `${prog}${delay > 0 ? ` \u00b7 tra ${this._fmtDelay(delay)}` : ""}` : "";
     let note = "";
     if (!remote) note = `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto (Smart Control / Avvio remoto) dal suo pannello.")}</div>`;
     else if (state === "pause" && c.machine_select) note = `<div class="shc-ap-ctrl-note">In pausa: premi Riprendi per continuare il ciclo.</div>`;
@@ -2122,6 +2159,10 @@ class ShcApplianceCloneCard extends HTMLElement {
       else if (c.stop_button) hass.callService("button", "press", { entity_id: c.stop_button });
       return;
     }
+    if ((act === "run" || act === "pause") && c.start_button) {
+      const b = act === "pause" ? c.pause_button : c.start_button;
+      return hass.callService("button", "press", { entity_id: b });
+    }
     if (act === "run" || act === "pause") {
       return hass.callService("select", "select_option", { entity_id: c.machine_select, option: act });
     }
@@ -2152,23 +2193,42 @@ class ShcApplianceCloneCard extends HTMLElement {
       .filter((o) => hass.states[o.entity])
       .map((o) => this._settingsRowHtml(hass, { entity: o.entity, label: o.name || hass.states[o.entity].attributes?.friendly_name || o.entity }))
       .join("");
-    const delay = c.delay_entity && hass.states[c.delay_entity] ? Number(hass.states[c.delay_entity].state) || 0 : null;
+    const dUnit = c.delay_unit === "h" ? 1 : 3600;
+    const delay = c.delay_entity && hass.states[c.delay_entity] ? (Number(hass.states[c.delay_entity].state) || 0) * dUnit : null;
     const delayChips = delay === null ? "" : (c.delay_choices || [0, 1, 2, 3, 4, 6, 8])
-      .map((h) => `<button type="button" class="shc-ap-pchip${Math.round(delay / 3600) === h && (h > 0 || delay === 0) ? " on" : ""}" data-delay="${h * 3600}">${h ? `${h} h` : "Subito"}</button>`)
+      .map((h) => `<button type="button" class="shc-ap-pchip${Math.round(delay / 3600) === h && (h > 0 || delay === 0) ? " on" : ""}" data-delay="${h * dUnit}">${h ? `${h} h` : "Subito"}</button>`)
+      .join("");
+    // Select aggiuntivi (es. livello e tempo di asciugatura): una riga di chip ciascuno.
+    const selHtml = (c.selects || [])
+      .filter((x) => hass.states[x.entity] && !["unknown", "unavailable"].includes(hass.states[x.entity].state))
+      .map((x) => {
+        const st = hass.states[x.entity];
+        const chips = (st.attributes?.options || [])
+          .map((o) => `<button type="button" class="shc-ap-pchip${o === st.state ? " on" : ""}" data-sel="${esc(x.entity)}" data-opt="${esc(o)}">${esc((x.names && x.names[o]) || o)}</button>`)
+          .join("");
+        return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(x.label || st.attributes?.friendly_name || x.entity)}</div><div class="shc-ap-chips">${chips}</div></div>`;
+      })
       .join("");
     const state = this._ctrlRunning(hass);
     const remote = this._remoteAllowed(hass);
     const body = `${opts ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Programma</div><div class="shc-ap-chips">${opts}</div></div>` : ""}
+      ${selHtml}
       ${optRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Opzioni</div>${optRows}</div>` : ""}
       ${delayChips ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvio ritardato</div><div class="shc-ap-chips">${delayChips}</div></div>` : ""}
       ${c.start_select && state === "stop" ? `<button type="button" class="shc-ap-reset-btn" data-pstart${remote ? "" : " disabled"}>\u25b6 Avvia ${esc(this._programLabel(cur))}</button>` : ""}
       ${remote ? "" : `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto dal suo pannello.")}</div>`}
-      ${state !== "stop" ? `<div class="shc-ap-ctrl-note">Ciclo in corso: programma e opzioni si cambiano a macchina ferma.</div>` : ""}`;
+      ${state !== "stop" && !c.edit_while_running ? `<div class="shc-ap-ctrl-note">Ciclo in corso: programma e opzioni si cambiano a macchina ferma.</div>` : ""}`;
     const overlay = this._openDialog("Programmi", body);
     const reopen = () => setTimeout(() => this._openPrograms(), 700);
     overlay.querySelectorAll("[data-prog]").forEach((b) =>
       b.addEventListener("click", () => {
         hass.callService("select", "select_option", { entity_id: c.program_select, option: b.dataset.prog });
+        reopen();
+      }),
+    );
+    overlay.querySelectorAll("[data-sel]").forEach((b) =>
+      b.addEventListener("click", () => {
+        hass.callService("select", "select_option", { entity_id: b.dataset.sel, option: b.dataset.opt });
         reopen();
       }),
     );
