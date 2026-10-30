@@ -9208,7 +9208,7 @@ const CL_MODES = {
   fan_only: { label: "Ventilazione", icon: "mdi:fan" },
 };
 
-const CL_FAN = { auto: "Auto", quiet: "Silenzioso", low: "Bassa", medium: "Media", high: "Alta" };
+const CL_FAN = { auto: "Auto", quiet: "Silenzioso", silence: "Silenzioso", low: "Bassa", medium: "Media", high: "Alta" };
 const CL_SWING = { stop: "Ferme", swing: "Oscillanti", windnice: "Comfort", off: "Ferme", on: "Oscillanti", vertical: "Verticale", horizontal: "Orizzontale", both: "Entrambe" };
 const CL_PRESET = { none: "Normale", away: "Fuori casa", boost: "Boost", eco: "Eco", comfort: "Comfort", sleep: "Notte" };
 
@@ -9706,9 +9706,9 @@ class ShcClimateCard extends HTMLElement {
     const chips = [];
     // ventola automatica (fan_auto_entity): pillola sempre visibile, apre il popup Ventola
     const fa = cfg.fan_auto_entity ? hs[cfg.fan_auto_entity] : null;
-    if (fa) {
+    if (fa && !cfg.fan_auto_in_schedule) {
       const fm = a.fan_mode;
-      const fmTxt = fm ? CL_FAN[fm] || (/^\d+$/.test(fm) ? `velocità ${fm}` : fm) : "";
+      const fmTxt = fm ? CL_FAN[String(fm).toLowerCase()] || (/^\d+$/.test(fm) ? `velocità ${fm}` : fm) : "";
       chips.push(`<span data-fanauto="1"><ha-icon icon="${fa.state === "on" ? "mdi:fan-auto" : "mdi:fan"}"></ha-icon>${fa.state === "on" ? "Ventola automatica" : "Ventola manuale"}${fmTxt && !unav && mode !== "off" ? ` · ${esc(fmTxt)}` : ""}</span>`);
     }
     if (hs[sc.on_enabled]?.state === "on") {
@@ -9717,6 +9717,11 @@ class ShcClimateCard extends HTMLElement {
       chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>Accensione ${esc(String(hs[sc.on_time]?.state || "").slice(0, 5))}${m && m !== "off" ? ` · ${esc(CL_MODES[m]?.label || m)}${t ? ` ${esc(clNum(t))}°` : ""}` : ""}</span>`);
     }
     if (hs[sc.off_enabled]?.state === "on") chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>Spegnimento ${esc(String(hs[sc.off_time]?.state || "").slice(0, 5))}</span>`);
+    // pulsanti Consumi / Programmazione: solo se c'e' qualcosa da mostrare (hide_* forza la scelta)
+    const hasConsumi = !cfg.hide_consumi && !!(cfg.power_entity || cfg.energy_entity || Object.values(cfg.consumption || {}).some(Boolean));
+    const hasSchedule = !cfg.hide_schedule && ((!!hs[sc.on_enabled] || !!hs[sc.off_enabled]) || (!!cfg.fan_auto_in_schedule && !!fa));
+    q(".shc-ap-stats").hidden = !hasConsumi;
+    q(".shc-ap-settings").hidden = !hasSchedule;
     const schedBox = q(".shc-cl-sched");
     schedBox.hidden = !chips.length;
     schedBox.innerHTML = chips.join("");
@@ -9806,7 +9811,14 @@ class ShcClimateCard extends HTMLElement {
     const hs = this._hass.states;
     const sc = this._config.schedule;
     const has = (e) => e && hs[e];
-    if (!has(sc.on_enabled) && !has(sc.off_enabled)) {
+    const hasSched = !!(has(sc.on_enabled) || has(sc.off_enabled));
+    // fan_auto_in_schedule: la riga "Ventola automatica" sta qui invece che in card
+    const fae = this._config.fan_auto_in_schedule ? this._config.fan_auto_entity : null;
+    const fanHtml = has(fae)
+      ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola automatica</div>${this._row("Regola la ventola da sola", this._switchHtml(fae))}
+        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità nel popup Ventola, la ventola automatica si spegne.")}</p></div>`
+      : "";
+    if (!hasSched && !fanHtml) {
       this._openDialog("Programmazione", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna programmazione configurata. Copia il package <b>clima.yaml</b> (vedi guida) oppure indica i tuoi helper nell'opzione <code>schedule</code> della card.</p></div>`);
       return;
     }
@@ -9820,7 +9832,7 @@ class ShcClimateCard extends HTMLElement {
     const tempHtml = tSt
       ? `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-num="-1">−</button><span>${esc(clNum(tSt.state))} °C</span><button type="button" class="shc-at-pm" data-num="1">+</button></span>`
       : `<span class="shc-ap-row-val">n/d</span>`;
-    const html = `
+    const schedHtml = `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Accensione programmata</div>
         ${this._row("Attiva", this._switchHtml(sc.on_enabled))}
         ${this._row("Alle", timeHtml(sc.on_time))}
@@ -9832,6 +9844,7 @@ class ShcClimateCard extends HTMLElement {
         ${this._row("Alle", timeHtml(sc.off_time))}
       </div>
       <p class="shc-cl-note">Programmazioni <b>una tantum</b>: scattano una volta sola all'orario scelto, poi si disattivano da sole. Riaccendile per la volta successiva. Quando sono attive compaiono sotto i comandi della card.</p>`;
+    const html = fanHtml + (hasSched ? schedHtml : "");
     const reopen = () => {
       if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
       this._openSchedule();
@@ -9839,7 +9852,7 @@ class ShcClimateCard extends HTMLElement {
     const overlay = this._openDialog("Programmazione", html, reopen);
     overlay.querySelectorAll("[data-toggle]").forEach((b) =>
       b.addEventListener("click", () => {
-        this._call("input_boolean", "toggle", { entity_id: b.dataset.toggle });
+        this._call(b.dataset.toggle.split(".")[0], "toggle", { entity_id: b.dataset.toggle });
       }),
     );
     overlay.querySelectorAll("[data-time]").forEach((el) =>
@@ -9905,7 +9918,7 @@ class ShcClimateCard extends HTMLElement {
     const unav = !st || st.state === "unavailable";
     const chips = (list, cur, attr, names) =>
       `<div class="shc-cl-chips">${list
-        .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || (/^\d+$/.test(m) ? `Velocità ${m}` : m))}</button>`)
+        .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || names[String(m).toLowerCase()] || (/^\d+$/.test(m) ? `Velocità ${m}` : m))}</button>`)
         .join("")}</div>`;
     const fae = this._config.fan_auto_entity;
     const faOn = fae && this._hass.states[fae]?.state === "on";
@@ -9996,8 +10009,10 @@ class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
         { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
         { key: "outdoor_entity", label: "Sensore temperatura esterna", domain: ["sensor"] },
         { key: "fan_auto_entity", label: "Interruttore ventola automatica (pulsante sulla card)", domain: ["input_boolean", "switch"] },
+        { key: "fan_auto_in_schedule", label: "Ventola automatica solo dentro Programmazione", kind: "bool", hint: "Toglie la pillola dalla card e mette l'interruttore nel popup Programmazione." },
       ]},
       { title: "Consumi", fields: [
+        { key: "hide_consumi", label: "Nascondi il pulsante Consumi", kind: "bool", hint: "Senza sensori di potenza, energia o consumi il pulsante non compare comunque." },
         { key: "power_entity", label: "Potenza (W) della presa del clima", domain: ["sensor"] },
         { key: "energy_entity", label: "Energia totale (kWh)", domain: ["sensor"] },
         { key: "max_power", label: "Fondo scala potenza (W)", kind: "text", placeholder: "1500" },
@@ -10008,6 +10023,7 @@ class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
         { key: "consumption.heating_month", label: "Caldo mese (kWh)", domain: ["sensor"] },
       ]},
       { title: "Programmazione (helper del package clima.yaml)", fields: [
+        { key: "hide_schedule", label: "Nascondi il pulsante Programmazione", kind: "bool", hint: "Senza gli helper di programmazione il pulsante non compare comunque." },
         { key: "schedule.on_enabled", label: "Accensione programmata attiva", domain: ["input_boolean"] },
         { key: "schedule.on_time", label: "Orario accensione", domain: ["input_datetime"] },
         { key: "schedule.on_mode", label: "Modalità accensione", domain: ["input_select"] },

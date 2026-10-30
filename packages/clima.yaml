@@ -195,7 +195,12 @@ automation:
             {% set z = states('sensor.temperatura_salone') %}
             {{ z | float if is_number(z) else state_attr(clima, 'current_temperature') | float(0) }}
           manca: "{{ (target - stanza) if modo == 'heat' else (stanza - target) }}"
-          ventola: "{{ 'auto' if manca >= 1 else ('3' if manca > 0 else '2') }}"
+          # fan_modes cambia tra integrazioni ('auto' su Onecta, 'Auto' sulla Daikin AC core): si usa il valore reale
+          ventola: >-
+            {% set wanted = 'auto' if manca >= 1 else ('3' if manca > 0 else '2') %}
+            {{ state_attr(clima, 'fan_modes') | default([], true)
+               | select('search', '^' ~ wanted ~ '$', true)
+               | first | default(wanted) }}
       - condition: template
         value_template: "{{ target > 0 and stanza > 0 and state_attr(clima, 'fan_mode') != ventola }}"
       - action: climate.set_fan_mode

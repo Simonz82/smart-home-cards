@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-31 — 1.14.1: climatizzatore, ventola e pulsanti (#4, #5, #6)
+
+- **Fix (#4)**: i nomi delle velocità della ventola sono riconosciuti senza distinguere maiuscole e minuscole (`Auto`, `auto`, `Silence`...); aggiunto `silence` → "Silenzioso". Il click invia sempre il valore reale di `fan_modes`.
+- **Fix (#4)**: l'automazione della ventola nel package `clima.yaml` usa il valore reale di `fan_modes`, quindi funziona sia con Daikin Onecta (`auto`) sia con la Daikin AC core (`Auto`).
+- **Nuovo (#6)**: il pulsante **Consumi** compare solo se c'è almeno uno tra `power_entity`, `energy_entity` o `consumption.*`; il pulsante **Programmazione** solo se gli helper di `schedule` esistono in Home Assistant.
+- **Nuovo (#6)**: opzioni `hide_consumi` e `hide_schedule` per nascondere i pulsanti a mano.
+- **Nuovo (#5)**: opzione `fan_auto_in_schedule`: toglie la pillola "Ventola automatica" dalla card e mette l'interruttore nel popup Programmazione (che si apre anche senza helper di programmazione).
+- Editor visuale: aggiunte le tre opzioni. Tutte sono spente di default.
+- Nota aggiornamento: se usavi la card senza sensori di consumo o senza helper di programmazione, i due pulsanti ora non compaiono più (prima aprivano un popup vuoto).
+
 ## 2026-10-30 (2) — 1.14.0: Tablet a muro e "Togli corrente" facoltativo
 
 - **Elettrodomestici, nuovo disegno `tablet`**: tablet a muro con lo schermo che si illumina quando lo stato è "running"; nell'editor visuale compare come "Tablet a muro".
