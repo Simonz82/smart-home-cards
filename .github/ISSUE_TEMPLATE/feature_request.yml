@@ -1,0 +1,45 @@
+name: Feature request
+description: Suggest an idea or an improvement
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: card
+    attributes:
+      label: Which card?
+      options:
+        - shc-alexa-memo-card
+        - shc-alexa-text-card
+        - shc-alexa-webradio-card
+        - shc-appliance-clone-card
+        - shc-boiler-card
+        - shc-climate-card
+        - shc-energy-card
+        - shc-fan-card
+        - shc-fritz-card
+        - shc-garbage-card
+        - shc-heater-card
+        - shc-nas-card
+        - shc-notif-center-card
+        - shc-proxmox-card
+        - shc-server-card
+        - shc-ups-card
+        - shc-zigbee-card
+        - New card
+        - Other / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you need?
+      description: Describe the use case, not only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+  - type: textarea
+    id: extra
+    attributes:
+      label: Mockups, screenshots, example YAML
