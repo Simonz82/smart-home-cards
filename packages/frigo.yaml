@@ -1,0 +1,39 @@
+# Frigorifero NON smart: serve solo una presa intelligente con misura dei Watt.
+# Il compressore "acceso" si deduce dalla potenza; la card (artwork: fridge) mostra
+# stato, tempo acceso oggi, numero di avvii e consumo.
+#
+# IMPOSTAZIONI: cambia solo sensor.frigo_power (i tuoi Watt) e, se vuoi un'altra soglia,
+# il numero 20 (Watt sopra i quali il compressore e' acceso: di solito 60-150 W
+# a compressore acceso, 0-5 W a riposo).
+#
+# Nessun comando: la presa del frigo NON va mai spenta dalla card (cibo dentro).
+
+template:
+  - binary_sensor:
+      - name: Frigo compressore
+        unique_id: frigo_compressore_acceso
+        device_class: running
+        delay_on: "00:00:10"      # ignora i picchi brevi
+        delay_off: "00:02:00"     # ignora le pause brevi durante il ciclo
+        icon: mdi:fridge
+        state: "{{ states('sensor.frigo_power') | float(0) > 20 }}"
+        availability: "{{ states('sensor.frigo_power') not in ['unavailable', 'unknown'] }}"
+
+# Contatori di oggi. In alternativa li crei da Impostazioni -> Dispositivi e servizi
+# -> Helper -> "Statistiche storico" (stessi valori: entita' binary_sensor.frigo_compressore,
+# stato "on", inizio {{ today_at() }}, fine {{ now() }}).
+sensor:
+  - platform: history_stats
+    name: Frigo compressore tempo oggi
+    entity_id: binary_sensor.frigo_compressore
+    state: "on"
+    type: time
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Frigo avvii compressore oggi
+    entity_id: binary_sensor.frigo_compressore
+    state: "on"
+    type: count
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"

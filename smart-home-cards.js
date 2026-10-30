@@ -44,6 +44,24 @@ const HERO_BUILDERS = {
     <rect x="46" y="196" width="148" height="16" rx="7" fill="#9fadbc"/>
     <rect x="100" y="199" width="40" height="7" rx="3.5" fill="#78899b"/>
   </svg>`,
+  fridge: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="222" rx="62" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="62" y="14" width="116" height="204" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <rect x="62" y="84" width="116" height="4" fill="#8fa0b3" opacity=".6"/>
+    <rect x="70" y="24" width="100" height="54" rx="8" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".45" stroke-width="1.2"/>
+    <rect x="70" y="94" width="100" height="116" rx="8" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".45" stroke-width="1.2"/>
+    <rect x="76" y="40" width="5" height="26" rx="2.5" fill="#78899b"/>
+    <rect x="76" y="110" width="5" height="48" rx="2.5" fill="#78899b"/>
+    <circle cx="156" cy="36" r="2.6" fill="#22c55e"/>
+    <g class="shch-fridge-snow" fill="none" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round" opacity=".85">
+      <path d="M122 140v36M110 146l24 24M134 146l-24 24M104 158h36"/>
+    </g>
+    <rect x="62" y="206" width="116" height="12" rx="6" fill="#9fadbc"/>
+  </svg>`,
   dryer: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -250,6 +268,8 @@ const HERO_BUILDERS = {
 const CHIP_SVGS = {
   dishwasher:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#0ea5e9"/><rect x="20" y="36" width="56" height="41" rx="6" fill="#f8fafc"/><path fill="none" stroke="#0f2942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M27 49h42M30 64h36M33 49v15M44 49v15M55 49v15M66 49v15"/><path fill="#8be2ff" d="M23 67c9-6 16 5 25-2 8-6 14 4 25-1v10H23Z"/></svg>',
+  fridge:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="22" y="8" width="52" height="80" rx="9" fill="#0f2942"/><rect x="27" y="13" width="42" height="22" rx="4" fill="#f8fafc"/><rect x="27" y="39" width="42" height="43" rx="4" fill="#f8fafc"/><rect x="31" y="19" width="3" height="10" rx="1.5" fill="#0f2942"/><rect x="31" y="46" width="3" height="18" rx="1.5" fill="#0f2942"/></svg>',
   dryer:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#f97316"/><circle cx="48" cy="56" r="24" fill="#f8fafc"/><circle cx="48" cy="56" r="19" fill="#fed7aa"/><circle cx="48" cy="56" r="19" fill="none" stroke="#0f2942" stroke-width="3"/><path fill="none" stroke="#0f2942" stroke-width="2.6" stroke-linecap="round" d="M37 56a11 11 0 0 1 20-6.5"/></svg>',
   washer:
@@ -1281,6 +1301,18 @@ class ShcApplianceCloneCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    // side: rilabel del riquadro "Ultimo ciclo" per dispositivi senza cicli (es. frigo: compressore)
+    if (this._config.side) {
+      const sd = this._config.side;
+      this._root.querySelector(".shc-ap-cycle-cap").textContent = sd.title || "Stato";
+      const lbl = this._root.querySelectorAll(".shc-ap-cycle-row .shc-ap-cycle-label");
+      const icons = { bolt: ICON_BOLT, flag: ICON_FLAG, timer: ICON_TIMER, euro: ICON_EURO };
+      (sd.rows || []).forEach((r, i) => {
+        if (!lbl[i]) return;
+        lbl[i].querySelector("small").textContent = r.label || "";
+        if (r.icon && icons[r.icon]) lbl[i].querySelector(".shc-ap-cycle-ic").innerHTML = icons[r.icon];
+      });
+    }
     shcBindGraph(this);
     if (this._config.room) {
       const room = this._root.querySelector(".shc-ap-room");
@@ -1998,10 +2030,38 @@ class ShcApplianceCloneCard extends HTMLElement {
     const duration = this._cycleAttr(hass, "duration");
     const energy = this._cycleAttr(hass, "energy");
     const cost = this._cycleAttr(hass, "cost");
+    if (cfg.side) {
+      const fmtSide = (r) => {
+        const st = r && r.entity ? hass.states[r.entity] : null;
+        if (!st || ["unavailable", "unknown"].includes(st.state)) return "\u2014";
+        const n = Number(st.state);
+        switch (r.format) {
+          case "percent": return Number.isFinite(n) ? `${n.toFixed(0)} %` : "\u2014";
+          case "count": return Number.isFinite(n) ? n.toFixed(0) : "\u2014";
+          case "kwh": return Number.isFinite(n) ? `${n.toFixed(2)} kWh` : "\u2014";
+          case "hours": return Number.isFinite(n) ? `${Math.floor(n)} h ${Math.round((n - Math.floor(n)) * 60)} min` : "\u2014";
+          case "since": {
+            const d = new Date(st.last_changed);
+            const hm = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+            return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })} ${hm}`;
+          }
+          case "onoff": return st.state === "on" ? (r.on_label || "Acceso") : (r.off_label || "Spento");
+          default: return st.state + (st.attributes?.unit_of_measurement ? ` ${st.attributes.unit_of_measurement}` : "");
+        }
+      };
+      const cells = [".shc-c-end", ".shc-c-duration", ".shc-c-energy", ".shc-c-cost"];
+      cells.forEach((c, i) => {
+        const el = this._root.querySelector(c);
+        const r = (cfg.side.rows || [])[i];
+        el.textContent = r ? fmtSide(r) : "\u2014";
+        if (el.parentElement) el.parentElement.hidden = !r;
+      });
+    } else {
     this._root.querySelector(".shc-c-end").textContent = end ?? "\u2014";
     this._root.querySelector(".shc-c-duration").textContent = duration ?? "\u2014";
     this._root.querySelector(".shc-c-energy").textContent = energy ?? "\u2014";
     this._root.querySelector(".shc-c-cost").textContent = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
+    }
 
     const warnEl = this._root.querySelector(".shc-ap-warn");
     const activeWarnings = (cfg.warn_entities || [])
@@ -2293,6 +2353,7 @@ const SHC_APPLIANCE_TYPES = [
   { value: "washer", label: "Lavatrice", domotico: false },
   { value: "dryer", label: "Asciugatrice", domotico: true },
   { value: "dishwasher", label: "Lavastoviglie", domotico: true },
+  { value: "fridge", label: "Frigorifero", domotico: false },
   { value: "oven", label: "Forno", domotico: false },
   { value: "tv", label: "TV", domotico: true },
 ];

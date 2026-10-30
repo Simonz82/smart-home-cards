@@ -1,10 +1,13 @@
 # Changelog
 
-## Non rilasciato — Elettrodomestici: Samsung con LocalThings
+## 2026-10-30 — 1.13.0: Frigorifero e Samsung con LocalThings
 
-- **Elettrodomestici**: supporto agli elettrodomestici Samsung dell'integrazione LocalThings (asciugatrice e simili): pulsanti Avvia/Pausa/Stop (`controls.start_button`, `pause_button`, `running_entity`), comandi nascosti se il controllo remoto è spento (`hide_when_remote_off`), `select` extra nel popup Programmi (`controls.selects`), `delay_unit`, `edit_while_running`.
-- Righe `live.extra` con `format: minutes|hms`, `zero_label`, `hide_values`; avvisi `warn_entities` con `not_states` e `{state}` nell'etichetta (allarmi solo se presenti).
-- Guida [docs/elettrodomestici.md](docs/elettrodomestici.md): nuova sezione "Samsung con LocalThings".
+- **Elettrodomestici, nuovo disegno `fridge`**: frigorifero (anche come icona piccola). Per un frigo non smart basta la presa con misura dei Watt.
+- **Elettrodomestici, nuova opzione `side`**: al posto del riquadro "Ultimo ciclo" un pannello tuo con fino a 4 righe (`label`, `icon`, `entity`, `format`: `onoff`, `hours`, `count`, `percent`, `kwh`, `since`). Vale per qualunque disegno. Nell'editor visuale c'è anche "Frigorifero" tra i tipi.
+- **Niente interruttore on/off sul frigo, di proposito**: così un tocco sbagliato non può togliere corrente al cibo. Spiegato nella guida.
+- **Package `frigo.yaml`**: compressore acceso dedotto dai Watt (con attese anti-picco) e contatori di oggi (tempo acceso, avvii).
+- **Elettrodomestici Samsung con LocalThings** (asciugatrice e simili): pulsanti Avvia/Pausa/Stop (`controls.start_button`, `pause_button`, `running_entity`...), `select` extra, formati `minutes`/`hms`, `zero_label`, `hide_values`, avvisi `warn_entities` con `not_states` e `{state}` nell'etichetta.
+- Guida [docs/elettrodomestici.md](docs/elettrodomestici.md): nuove sezioni "Frigorifero non smart" e "Samsung con LocalThings".
 
 ## 2026-10-28 (2) — 1.12.1: banda della potenza solo se c'è il sensore
 

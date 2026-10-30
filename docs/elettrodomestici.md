@@ -1,6 +1,6 @@
 # 🧺 Card Elettrodomestici (`shc-appliance-clone-card`)
 
-Una card, sei "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
+Una card, sette "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno, frigorifero. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
 
 | | Chiaro | Scuro |
 |---|---|---|
@@ -32,6 +32,7 @@ Invece di costruire tutto da zero seguendo il resto della guida, puoi partire di
 | Asciugatrice | [`packages/centro_controllo_asciugatrice.yaml`](../packages/centro_controllo_asciugatrice.yaml) |
 | Forno | [`packages/centro_controllo_forno.yaml`](../packages/centro_controllo_forno.yaml) |
 | TV | [`packages/centro_controllo_tv.yaml`](../packages/centro_controllo_tv.yaml) |
+| Frigorifero | [`packages/frigo.yaml`](../packages/frigo.yaml) (vedi [Frigorifero](#-frigorifero-non-smart-solo-presa)) |
 
 **Istruzioni:**
 
@@ -54,7 +55,7 @@ Il resto di questa guida spiega **come funziona** ogni campo, utile se vuoi capi
 ```yaml
 type: custom:shc-appliance-clone-card
 name: Lavatrice
-artwork: washer          # dishwasher | washer | dryer | oven | tv | boiler | fritzbox | server | proxmox | nas | energy | ups
+artwork: washer          # dishwasher | washer | dryer | oven | tv | fridge | boiler | fritzbox | server | proxmox | nas | energy | ups
 power_entity: sensor.mia_lavatrice_power
 threshold_run: 5         # sopra questi Watt = "in funzione"
 threshold_standby: 1     # sopra questi Watt (ma sotto threshold_run) = "in standby", sotto = "spenta"
@@ -81,7 +82,7 @@ Per un tipo **domotico** (es. TV) compaiono anche i campi di stato/programma nat
 |---|---|---|---|
 | `power_entity` | **Sì**, se manca `live.state_entity` | — | `sensor` in Watt che misura l'assorbimento attuale. Se è vuoto o l'entità non esiste, la banda della potenza non compare e lo stato viene solo da `live.state_entity` |
 | `name` | No | `"Elettrodomestico"` | Nome mostrato in alto |
-| `artwork` | No | `"dishwasher"` | Disegno: `dishwasher`, `washer`, `dryer`, `oven`, `tv`, `boiler` (anche `fritzbox`/`server`/`proxmox`/`nas`/`energy`/`ups`, condivisi con le altre card) |
+| `artwork` | No | `"dishwasher"` | Disegno: `dishwasher`, `washer`, `dryer`, `oven`, `tv`, `fridge`, `boiler` (anche `fritzbox`/`server`/`proxmox`/`nas`/`energy`/`ups`, condivisi con le altre card) |
 | `threshold_run` | No | `5` | Soglia in Watt sopra cui è "in funzione" |
 | `threshold_standby` | No | `1` | Soglia in Watt sopra cui è "in standby" (sotto è "spenta") |
 | `max_power` | No | `2200` | Fondo scala della barra di potenza |
@@ -385,6 +386,63 @@ Novità dei campi usati:
 | `controls.edit_while_running` | Toglie l'avviso "si cambia a macchina ferma" nel popup Programmi |
 | `controls.delay_unit` | `h` se `delay_entity` è in ore (default secondi) |
 | `controls.selects` | `select` extra nel popup Programmi (`entity`, `label`, `names`) |
+
+## 🧊 Frigorifero non smart (solo presa)
+
+Per un frigo "normale" basta una presa intelligente con misura dei Watt. Il disegno `artwork: fridge` mostra il frigo; al posto del riquadro "Ultimo ciclo" la nuova opzione `side` mette un pannello tutto tuo con fino a 4 righe (nome, icona, entità, formato). Funziona con qualunque artwork, non solo con il frigo.
+
+![Frigo](screenshot/elettrodomestici-frigo-dark.png)
+
+**Il compressore si deduce dai Watt**: il file [`packages/frigo.yaml`](../packages/frigo.yaml) crea `binary_sensor.frigo_compressore` (acceso sopra 20 W, con 10 secondi di attesa all'accensione e 2 minuti allo spegnimento per non contare i picchi) e due contatori di oggi: tempo acceso e numero di avvii. Cambia solo `sensor.frigo_power` con il tuo sensore dei Watt.
+
+> 🔒 **Niente interruttore on/off, di proposito.** Sulla card del frigo non c'è nessun pulsante per spegnere la presa: se ci fosse, un tocco sbagliato (o una scena, o un assistente vocale) toglierebbe corrente al frigo e il cibo si rovinerebbe senza che te ne accorgi. Per questo la card legge soltanto, e anche tu non devi esporre la presa a pulsanti, scene o Alexa.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Frigo
+artwork: fridge
+power_entity: sensor.frigo_power
+threshold_run: 20           # Watt sopra i quali il compressore e' acceso
+threshold_standby: 1
+max_power: 150
+side:
+  title: Compressore        # titolo del pannello
+  rows:                     # da 1 a 4 righe
+    - label: Compressore
+      icon: flag            # bolt | flag | timer | euro
+      entity: binary_sensor.frigo_compressore
+      format: onoff
+      on_label: Acceso
+      off_label: Spento
+    - label: Acceso oggi
+      icon: timer
+      entity: sensor.frigo_compressore_tempo_oggi
+      format: hours
+    - label: Avvii oggi
+      icon: bolt
+      entity: sensor.frigo_avvii_compressore_oggi
+      format: count
+    - label: Consumo oggi
+      icon: euro
+      entity: sensor.frigo_energia      # kWh di oggi della tua presa (il nome cambia con la presa)
+      format: kwh
+auto_stats: true
+energy_stat_entity: sensor.frigo_energia
+settings_sections: []
+```
+
+### `side` — campi
+
+| Campo | Descrizione |
+|---|---|
+| `side.title` | Titolo del pannello (predefinito `Stato`) |
+| `side.rows[].label` | Nome della riga |
+| `side.rows[].icon` | `bolt`, `flag`, `timer` o `euro` |
+| `side.rows[].entity` | Entità da mostrare |
+| `side.rows[].format` | `onoff`, `hours` (ore decimali in "h min"), `count` (intero), `percent`, `kwh` (2 decimali), `since` (ora dell'ultimo cambio); senza `format` mostra stato e unità |
+| `side.rows[].on_label` / `off_label` | Testi per `format: onoff` (predefiniti Acceso / Spento) |
+
+Il pannello è nascosto per le righe che non configuri (massimo 4). Se un'entità non è disponibile la riga mostra "—".
 
 ## Esempio completo (lavastoviglie)
 
