@@ -431,6 +431,21 @@ energy_stat_entity: sensor.frigo_energia
 settings_sections: []
 ```
 
+## 🔌 Togli corrente (facoltativo, spento di default)
+
+Opzione per chi ne ha bisogno: dal popup impostazioni si può togliere la corrente alla presa dell'elettrodomestico. Non è attiva in nessun esempio e non serve a nessuna delle altre funzioni.
+
+```yaml
+power_cut_entity: switch.lavatrice_presa   # la presa da spegnere
+allow_power_cut: true                       # predefinito false
+```
+
+- Nell'editor visuale: sezione "Togli corrente (facoltativo)"; la spunta si attiva solo dopo la conferma "Sei sicuro?".
+- Ogni volta che premi "Togli corrente" viene chiesta una nuova conferma.
+- Mai disponibile per `artwork: fridge` né per entità frigo/freezer.
+
+![Conferma spegnimento](screenshot/elettrodomestici-togli-corrente.png)
+
 ### `side` — campi
 
 | Campo | Descrizione |

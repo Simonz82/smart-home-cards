@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-30 (2) — 1.14.0: Tablet a muro e "Togli corrente" facoltativo
+
+- **Elettrodomestici, nuovo disegno `tablet`**: tablet a muro con lo schermo che si illumina quando lo stato è "running"; nell'editor visuale compare come "Tablet a muro".
+- **`side.rows`**: nuove icone `sun`, `user`, `home` e nuovo formato `ratio` (con `max`, es. 60 su 255).
+- **Nuove opzioni**: `hide_consumi: true` (nasconde il pulsante Consumi per dispositivi senza energia) e `bar_color` (colore fisso della barra principale, es. batteria verde).
+- **Opzione "Togli corrente" (solo per chi la vuole)**: `power_cut_entity` (uno `switch.*`) e `allow_power_cut` (predefinito `false`). Nell'editor c'è la sezione "Togli corrente (facoltativo)"; la spunta resta attiva solo dopo una conferma "Sei sicuro?" e ogni spegnimento chiede di nuovo conferma. Non viene mai offerta per il disegno `fridge` né per entità frigo/freezer. Non è attiva in nessun esempio.
+- Le modifiche sono solo aggiuntive: le altre card non cambiano.
+- README: nuove sezioni Frigo e Tablet a muro con immagine ed esempio YAML.
+
 ## 2026-10-30 — 1.13.0: Frigorifero e Samsung con LocalThings
 
 - **Elettrodomestici, nuovo disegno `fridge`**: frigorifero (anche come icona piccola). Per un frigo non smart basta la presa con misura dei Watt.

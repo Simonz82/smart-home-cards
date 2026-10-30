@@ -62,6 +62,28 @@ const HERO_BUILDERS = {
     </g>
     <rect x="62" y="206" width="116" height="12" rx="6" fill="#9fadbc"/>
   </svg>`,
+  tablet: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-scr-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset=".55" stop-color="#38bdf8"/><stop offset="1" stop-color="#0369a1"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="226" rx="52" ry="8" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="58" y="12" width="124" height="204" rx="14" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+    <rect x="66" y="24" width="108" height="180" rx="6" fill="#0b1526"/>
+    <g class="shch-tab-lit">
+      <rect x="66" y="24" width="108" height="180" rx="6" fill="url(#shch-scr-${id})" class="shch-glow"/>
+      <rect x="78" y="40" width="52" height="9" rx="4.5" fill="#f8fafc" opacity=".9"/>
+      <rect x="78" y="56" width="34" height="5" rx="2.5" fill="#f8fafc" opacity=".55"/>
+      <rect x="78" y="82" width="38" height="38" rx="9" fill="#f8fafc" opacity=".35"/>
+      <rect x="124" y="82" width="38" height="38" rx="9" fill="#f8fafc" opacity=".35"/>
+      <rect x="78" y="128" width="38" height="38" rx="9" fill="#f8fafc" opacity=".35"/>
+      <rect x="124" y="128" width="38" height="38" rx="9" fill="#f8fafc" opacity=".35"/>
+      <rect x="78" y="176" width="84" height="10" rx="5" fill="#f8fafc" opacity=".5"/>
+    </g>
+    <circle cx="120" cy="18" r="2.6" fill="#64748b"/>
+    <rect x="96" y="216" width="48" height="8" rx="4" fill="#9fadbc"/>
+    <rect x="104" y="219" width="32" height="3" rx="1.5" fill="#22c55e" opacity=".9"/>
+  </svg>`,
   dryer: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -270,6 +292,8 @@ const CHIP_SVGS = {
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#0ea5e9"/><rect x="20" y="36" width="56" height="41" rx="6" fill="#f8fafc"/><path fill="none" stroke="#0f2942" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M27 49h42M30 64h36M33 49v15M44 49v15M55 49v15M66 49v15"/><path fill="#8be2ff" d="M23 67c9-6 16 5 25-2 8-6 14 4 25-1v10H23Z"/></svg>',
   fridge:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="22" y="8" width="52" height="80" rx="9" fill="#0f2942"/><rect x="27" y="13" width="42" height="22" rx="4" fill="#f8fafc"/><rect x="27" y="39" width="42" height="43" rx="4" fill="#f8fafc"/><rect x="31" y="19" width="3" height="10" rx="1.5" fill="#0f2942"/><rect x="31" y="46" width="3" height="18" rx="1.5" fill="#0f2942"/></svg>',
+  tablet:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="20" y="8" width="56" height="80" rx="9" fill="#0f2942"/><rect x="26" y="16" width="44" height="62" rx="3" fill="#8be2ff"/><circle cx="48" cy="12" r="1.6" fill="#8be2ff"/><rect x="40" y="82" width="16" height="3" rx="1.5" fill="#8be2ff"/></svg>',
   dryer:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#f97316"/><circle cx="48" cy="56" r="24" fill="#f8fafc"/><circle cx="48" cy="56" r="19" fill="#fed7aa"/><circle cx="48" cy="56" r="19" fill="none" stroke="#0f2942" stroke-width="3"/><path fill="none" stroke="#0f2942" stroke-width="2.6" stroke-linecap="round" d="M37 56a11 11 0 0 1 20-6.5"/></svg>',
   washer:
@@ -304,6 +328,7 @@ const ICON_TYPES =
   '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="8" y1="18" x2="14" y2="18"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/><path d="M17 20l4-4 1 1-4 4h-1z"/></svg>';
 const ICON_CLOSE =
   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>';
+const ICON_POWER_CUT = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg>`;
 const ICON_RESTART =
   '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>';
 const ICON_BELL =
@@ -320,6 +345,12 @@ const ICON_FLAG =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 4h11l-2 4 2 4H4"/></svg>';
 const ICON_TIMER =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2"/><path d="M9 2h6"/></svg>';
+const ICON_SUN =
+  '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const ICON_USER =
+  '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>';
+const ICON_HOME =
+  '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/></svg>';
 const ICON_EURO =
   '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6.5a6.5 6.5 0 1 0 0 11"/><path d="M5.5 10h9"/><path d="M5.5 14h8"/></svg>';
 const ICON_GLOBE =
@@ -441,6 +472,8 @@ const STYLE = `
 .shc-ap-card.layout-centrato.shc-e-card .shc-ap-cycle-list{grid-template-columns:2fr 3fr}
 .shc-ap-card.layout-centrato .shc-ap-cycle-list>.shc-ap-cycle-row:last-child:nth-child(odd){grid-column:1/-1}
 .shc-ap-select{max-width:62%;padding:7px 10px;border-radius:10px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font-size:14px;font-weight:600;font-family:inherit}
+.shch-tab-lit{opacity:0;transition:opacity .4s}
+.shc-ap-card.is-run .shch-tab-lit{opacity:1}
 .shc-ap-card.is-run .shch-spin-drum{animation:shch-spin 2.6s linear infinite}
 .shc-ap-card.is-run .shch-spin-spray{animation:shch-spin 1.3s linear infinite}
 .shc-ap-card.is-run .shch-spin-spit{animation:shch-spin 3.4s linear infinite}
@@ -545,6 +578,13 @@ const STYLE = `
 .shc-ap-hero{cursor:pointer}
 .shc-ap-reset-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:0;border-radius:13px;background:var(--shc-blue);color:#fff;font-size:14px;font-weight:850;cursor:pointer}
 .shc-ap-reset-note{font-size:12px;color:var(--shc-dim);text-align:center;margin-top:4px}
+.shc-ap-reset-btn.danger{background:#c62828}
+.shc-ap-reset-btn.ghost{background:transparent;color:var(--shc-text,inherit);border:1px solid var(--shc-line,rgba(128,128,128,.4))}
+.shc-ap-btnrow{display:flex;gap:8px;margin-top:10px}
+.shc-ap-btnrow .shc-ap-reset-btn{flex:1}
+.shc-ap-cut-warn{font-size:13px;line-height:1.45;color:var(--shc-text,inherit)}
+.shc-ap-cut-check{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13.5px;font-weight:700;margin-bottom:8px}
+.shc-ap-cut-check input{width:20px;height:20px;margin:0;flex:0 0 auto}
 
 .shc-gc-dialog{width:min(780px,100%);max-height:94vh;overflow:auto;padding:20px 22px 22px;background:var(--shc-card);color:var(--shc-text);border:1px solid var(--shc-border);border-top:3px solid var(--shc-blue);border-radius:26px;box-shadow:0 32px 64px -28px rgba(2,6,23,.55),0 6px 18px -12px rgba(2,6,23,.3)}
 .shc-gc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--shc-border)}
@@ -1223,6 +1263,16 @@ function shcDegTicks(el, min, max, step) {
   el.classList.toggle("dense", step < 2);
 }
 
+// Togli corrente (opt-in): mai per frigorifero / relè cucina (cibo dentro, contatori a valle).
+function shcPowerCutBlocked(artwork, entity) {
+  if (artwork === "fridge") return true;
+  return /frigo|fridge|freezer|congelator|rel[eè]?[_ ]?cucina|relay[_ ]?cucina|elettrodomestici_cucina/i.test(entity || "");
+}
+function shcL(hass, it, en) {
+  const l = String(hass?.locale?.language || hass?.language || "it").toLowerCase();
+  return l.startsWith("it") ? it : en;
+}
+
 class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
     if (!config.power_entity && !config.live?.state_entity) throw new Error("serve power_entity (sensore Watt) oppure live.state_entity (stato dell'elettrodomestico)");
@@ -1306,13 +1356,14 @@ class ShcApplianceCloneCard extends HTMLElement {
       const sd = this._config.side;
       this._root.querySelector(".shc-ap-cycle-cap").textContent = sd.title || "Stato";
       const lbl = this._root.querySelectorAll(".shc-ap-cycle-row .shc-ap-cycle-label");
-      const icons = { bolt: ICON_BOLT, flag: ICON_FLAG, timer: ICON_TIMER, euro: ICON_EURO };
+      const icons = { bolt: ICON_BOLT, flag: ICON_FLAG, timer: ICON_TIMER, euro: ICON_EURO, sun: ICON_SUN, user: ICON_USER, home: ICON_HOME, battery: ICON_BATTERY };
       (sd.rows || []).forEach((r, i) => {
         if (!lbl[i]) return;
         lbl[i].querySelector("small").textContent = r.label || "";
         if (r.icon && icons[r.icon]) lbl[i].querySelector(".shc-ap-cycle-ic").innerHTML = icons[r.icon];
       });
     }
+    if (this._config.hide_consumi) this._root.querySelector(".shc-ap-consumi").hidden = true;
     shcBindGraph(this);
     if (this._config.room) {
       const room = this._root.querySelector(".shc-ap-room");
@@ -1422,6 +1473,84 @@ class ShcApplianceCloneCard extends HTMLElement {
     </div>`;
   }
 
+  _powerCutKey() {
+    return "shc_power_cut_" + (this._config.power_cut_entity || "");
+  }
+
+  _powerCutAvailable() {
+    const c = this._config;
+    return !!c.power_cut_entity && /^switch\./.test(c.power_cut_entity) && !shcPowerCutBlocked(c.artwork, c.power_cut_entity);
+  }
+
+  _powerCutEnabled() {
+    if (!this._powerCutAvailable()) return false;
+    let v = null;
+    try {
+      v = localStorage.getItem(this._powerCutKey());
+    } catch (e) {}
+    if (v === "1") return true;
+    if (v === "0") return false;
+    return this._config.allow_power_cut === true;
+  }
+
+  _powerCutHtml() {
+    if (!this._powerCutAvailable()) return "";
+    const hass = this._hass;
+    const L = (it, en) => shcL(hass, it, en);
+    const en = this._powerCutEnabled();
+    const st = hass.states[this._config.power_cut_entity];
+    const on = st && st.state === "on";
+    let btn = "";
+    if (en) {
+      if (!st || st.state === "unavailable") btn = `<div class="shc-ap-reset-note">${esc(L("Presa non disponibile", "Socket unavailable"))}</div>`;
+      else if (on) btn = `<button type="button" class="shc-ap-reset-btn danger" data-cut="off">${ICON_POWER_CUT} ${esc(L("Togli corrente", "Cut power"))}</button>`;
+      else btn = `<button type="button" class="shc-ap-reset-btn" data-cut="on">${ICON_POWER_CUT} ${esc(L("Ridai corrente", "Restore power"))}</button>`;
+    }
+    return `<div class="shc-ap-sec">
+      <div class="shc-ap-sec-cap">${esc(L("Alimentazione", "Power"))}</div>
+      <label class="shc-ap-cut-check"><input type="checkbox" data-cut-enable ${en ? "checked" : ""}><span>${esc(L("Consenti di togliere corrente con la presa", "Allow cutting power with the socket"))}</span></label>
+      ${btn}
+    </div>`;
+  }
+
+  _powerCutConfirm(kind) {
+    const hass = this._hass;
+    const L = (it, en) => shcL(hass, it, en);
+    const name = this._config.name || "";
+    const texts = {
+      enable: [
+        L("Abilitare 'Togli corrente'?", "Enable 'Cut power'?"),
+        L(
+          `Sei sicuro? Togliere corrente a ${name} durante un ciclo puo' interromperlo, perdere il programma e danneggiare l'elettrodomestico (pompe, resistenze, scarico). Usalo solo a ciclo fermo o in emergenza.`,
+          `Are you sure? Cutting power to ${name} during a cycle can interrupt it, lose the program and damage the appliance (pumps, heaters, drain). Use it only when idle or in an emergency.`,
+        ),
+        L("Si, abilita", "Yes, enable"),
+      ],
+      off: [
+        L("Togliere corrente?", "Cut power?"),
+        L(
+          `Spegnere la presa di ${name}? Se e' in corso un ciclo verra' interrotto subito.`,
+          `Turn off the ${name} socket? Any running cycle will be stopped immediately.`,
+        ),
+        L("Si, togli corrente", "Yes, cut power"),
+      ],
+    };
+    const t = texts[kind];
+    const overlay = this._openDialog(t[0], `<div class="shc-ap-cut-warn">${esc(t[1])}</div>
+      <div class="shc-ap-btnrow"><button type="button" class="shc-ap-reset-btn ghost" data-cut-no>${esc(L("Annulla", "Cancel"))}</button><button type="button" class="shc-ap-reset-btn danger" data-cut-yes>${esc(t[2])}</button></div>`);
+    overlay.querySelector("[data-cut-no]").addEventListener("click", () => this._openSettings());
+    overlay.querySelector("[data-cut-yes]").addEventListener("click", () => {
+      if (kind === "enable") {
+        try {
+          localStorage.setItem(this._powerCutKey(), "1");
+        } catch (e) {}
+      } else if (this._powerCutAvailable() && this._powerCutEnabled()) {
+        this._hass.callService("switch", "turn_off", { entity_id: this._config.power_cut_entity });
+      }
+      setTimeout(() => this._openSettings(), kind === "off" ? 700 : 0);
+    });
+  }
+
   _openSettings() {
     const hass = this._hass;
     const sections = (this._config.settings_sections || [])
@@ -1441,8 +1570,32 @@ class ShcApplianceCloneCard extends HTMLElement {
          </div>`
       : "";
 
-    const shcSettingsBody = `${sections}${resetBtn}`;
+    const shcSettingsBody = `${sections}${resetBtn}${this._powerCutHtml()}`;
     const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+
+    const cutChk = overlay.querySelector("[data-cut-enable]");
+    if (cutChk) {
+      cutChk.addEventListener("change", () => {
+        if (cutChk.checked) {
+          cutChk.checked = false; // resta spenta finche' non confermi
+          this._powerCutConfirm("enable");
+        } else {
+          try {
+            localStorage.setItem(this._powerCutKey(), "0");
+          } catch (e) {}
+          this._openSettings();
+        }
+      });
+    }
+    overlay.querySelectorAll("[data-cut]").forEach((b) => {
+      b.addEventListener("click", () => {
+        if (b.dataset.cut === "off") this._powerCutConfirm("off");
+        else {
+          this._hass.callService("switch", "turn_on", { entity_id: this._config.power_cut_entity });
+          setTimeout(() => this._openSettings(), 700);
+        }
+      });
+    });
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -2004,6 +2157,8 @@ class ShcApplianceCloneCard extends HTMLElement {
     }
     this._root.querySelector(".shc-ap-bar i").style.width =
       `${Math.min(100, Math.round((powerVal / cfg.max_power) * 100))}%`;
+    // bar_color: colore fisso della barra principale (es. batteria: verde invece del gradiente carico)
+    if (cfg.bar_color) this._root.querySelector(".shc-ap-bar i").style.background = cfg.bar_color;
 
     const progressEntity = cfg.live?.progress_entity;
     const progressBar = this._root.querySelector(".shc-ap-progress-bar");
@@ -2045,6 +2200,7 @@ class ShcApplianceCloneCard extends HTMLElement {
             const hm = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
             return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })} ${hm}`;
           }
+          case "ratio": return Number.isFinite(n) ? `${n.toFixed(0)} / ${r.max ?? 100}` : "\u2014";
           case "onoff": return st.state === "on" ? (r.on_label || "Acceso") : (r.off_label || "Spento");
           default: return st.state + (st.attributes?.unit_of_measurement ? ` ${st.attributes.unit_of_measurement}` : "");
         }
@@ -2354,6 +2510,7 @@ const SHC_APPLIANCE_TYPES = [
   { value: "dryer", label: "Asciugatrice", domotico: true },
   { value: "dishwasher", label: "Lavastoviglie", domotico: true },
   { value: "fridge", label: "Frigorifero", domotico: false },
+  { value: "tablet", label: "Tablet a muro", domotico: true },
   { value: "oven", label: "Forno", domotico: false },
   { value: "tv", label: "TV", domotico: true },
 ];
@@ -3071,6 +3228,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     }
     const body = this._root.querySelector(".shc-ed-body");
     const cfg = this._config;
+    const L = (it, en) => shcL(this._hass, it, en);
     const currentType = SHC_APPLIANCE_TYPES.find((t) => t.value === cfg.artwork);
     const isDomotico = this._domoticoOverride ?? (cfg.live?.state_entity ? true : currentType ? currentType.domotico : false);
 
@@ -3111,6 +3269,32 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
           <span>Nascondi la banda della potenza</span>
         </label>
       </div>
+
+      ${
+        cfg.artwork === "fridge"
+          ? ""
+          : `<div class="shc-ed-sec">${esc(L("Togli corrente (facoltativo)", "Cut power (optional)"))}</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Presa / interruttore dell'elettrodomestico", "Appliance socket / switch"))}</span>
+        <ha-entity-picker class="shc-ed-cut-entity" include-domains='["switch"]' allow-custom-entity></ha-entity-picker>
+        <p class="shc-ed-hint">${esc(L("Se presente, nelle impostazioni (ingranaggio) della card compare il pulsante per togliere corrente. Mai per frigorifero o relè cucina.", "If set, the card settings (gear) show a button to cut power. Never for fridge or kitchen relay."))}</p>
+        <div class="shc-ed-cut-err shc-ed-missing" hidden>${esc(L("Questa presa non puo' essere spenta dalla card (frigorifero / relè cucina).", "This socket cannot be turned off from the card (fridge / kitchen relay)."))}</div>
+      </div>
+      <div class="shc-ed-row">
+        <label class="shc-ed-checkrow">
+          <input type="checkbox" class="shc-ed-cut-allow" ${cfg.allow_power_cut === true ? "checked" : ""} ${cfg.power_cut_entity ? "" : "disabled"}>
+          <span>${esc(L("Autorizzo il pulsante 'Togli corrente'", "Allow the 'Cut power' button"))}</span>
+        </label>
+        <div class="shc-ed-cut-confirm shc-ed-list-item" hidden>
+          <span class="shc-ed-label">${esc(L("Sei sicuro?", "Are you sure?"))}</span>
+          <span class="shc-ed-hint">${esc(L("Togliere corrente durante un ciclo puo' interromperlo, perdere il programma e danneggiare l'elettrodomestico. Il pulsante chiedera' comunque conferma ogni volta.", "Cutting power during a cycle can interrupt it, lose the program and damage the appliance. The button will still ask for confirmation every time."))}</span>
+          <div class="shc-ed-choice">
+            <button type="button" class="shc-ed-choice-btn shc-ed-cut-no">${esc(L("Annulla", "Cancel"))}</button>
+            <button type="button" class="shc-ed-choice-btn on shc-ed-cut-yes">${esc(L("Si, autorizza", "Yes, allow"))}</button>
+          </div>
+        </div>
+      </div>`
+      }
 
       ${
         isDomotico
@@ -3198,6 +3382,48 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-live-progress", cfg.live?.progress_entity, null, "live.progress_entity");
     wirePicker(".shc-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
     wirePicker(".shc-ed-layout", cfg.layout_entity, null, "layout_entity");
+    // Togli corrente: nessun suggerimento automatico (opt-in esplicito), blocco frigo/relè cucina.
+    const cutPick = body.querySelector(".shc-ed-cut-entity");
+    if (cutPick) {
+      cutPick.hass = this._hass;
+      cutPick.value = cfg.power_cut_entity || "";
+      const cutErr = body.querySelector(".shc-ed-cut-err");
+      const cutAllow = body.querySelector(".shc-ed-cut-allow");
+      const cutBox = body.querySelector(".shc-ed-cut-confirm");
+      cutPick.addEventListener("value-changed", (e) => {
+        e.stopPropagation();
+        const v = e.detail.value || "";
+        if (v && shcPowerCutBlocked(cfg.artwork, v)) {
+          cutErr.hidden = false;
+          cutPick.value = cfg.power_cut_entity || "";
+          return;
+        }
+        cutErr.hidden = true;
+        if (!v) {
+          this._config = { ...this._config };
+          delete this._config.allow_power_cut;
+          delete this._config.power_cut_entity;
+          this._emit();
+          this._render();
+          return;
+        }
+        this._set("power_cut_entity", v);
+        this._render();
+      });
+      cutAllow.addEventListener("change", () => {
+        if (cutAllow.checked) {
+          cutAllow.checked = false;
+          cutBox.hidden = false;
+        } else this._set("allow_power_cut", undefined);
+      });
+      body.querySelector(".shc-ed-cut-no").addEventListener("click", () => {
+        cutBox.hidden = true;
+      });
+      body.querySelector(".shc-ed-cut-yes").addEventListener("click", () => {
+        this._set("allow_power_cut", true);
+        this._render();
+      });
+    }
     ["thr-run:threshold_run", "thr-standby:threshold_standby", "max-power:max_power"].forEach((pair) => {
       const [cls, key] = pair.split(":");
       const el = body.querySelector(".shc-ed-" + cls);
