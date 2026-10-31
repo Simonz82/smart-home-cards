@@ -444,6 +444,17 @@ allow_power_cut: true                       # predefinito false
 - Ogni volta che premi "Togli corrente" viene chiesta una nuova conferma.
 - Mai disponibile per `artwork: fridge` né per entità frigo/freezer.
 
+### Stato della presa sulla card (facoltativo, spento di default)
+
+Se vuoi vedere a colpo d'occhio se la presa è accesa o spenta (ad esempio quando spegni l'apparecchio col telecomando ma la presa resta accesa), attiva `show_socket_state`. Nella testata della card, accanto allo stato, compare un indicatore: verde "Presa ON", grigio "Presa OFF", "Presa non disponibile" se la presa è offline. Toccandolo si apre la scheda dell'interruttore. Funziona anche con `allow_power_cut` spento; serve solo `power_cut_entity`.
+
+```yaml
+power_cut_entity: switch.lavatrice_presa
+show_socket_state: true                     # predefinito false
+```
+
+Nell'editor visuale: spunta "Mostra sulla card lo stato della presa", attiva dopo aver scelto la presa. Senza l'opzione la card resta identica.
+
 ![Conferma spegnimento](screenshot/elettrodomestici-togli-corrente.png)
 
 ### `side` — campi

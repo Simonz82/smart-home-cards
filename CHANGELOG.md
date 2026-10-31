@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-31 — 1.14.2: stato della presa sulla card (#3)
+
+- **Nuovo (#3)**: opzione `show_socket_state: true` (predefinita `false`) sulla card elettrodomestici: nella testata compare l'indicatore della presa `power_cut_entity` (verde "Presa ON", grigio "Presa OFF", "Presa non disponibile"); un tocco apre la scheda dell'interruttore. Funziona anche con `allow_power_cut` spento.
+- Editor visuale: spunta "Mostra sulla card lo stato della presa", vicino a quella di "Togli corrente".
+- Senza l'opzione la card resta identica a prima.
+
 ## 2026-10-31 — 1.14.1: climatizzatore, ventola e pulsanti (#4, #5, #6)
 
 - **Fix (#4)**: i nomi delle velocità della ventola sono riconosciuti senza distinguere maiuscole e minuscole (`Auto`, `auto`, `Silence`...); aggiunto `silence` → "Silenzioso". Il click invia sempre il valore reale di `fan_modes`.

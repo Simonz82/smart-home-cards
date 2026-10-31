@@ -427,6 +427,10 @@ const STYLE = `
 .shc-ap-headings{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
 .shc-ap-name{font-size:14.5px;font-weight:900;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--shc-text)}
 .shc-ap-room{font-size:11px;font-weight:750;color:var(--shc-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-ap-sock{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 7px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;cursor:pointer;line-height:1}
+.shc-ap-sock-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block}
+.shc-ap-sock.on{background:#dcfce7;border-color:#86efac;color:#15803d}
+.shc-ap-sock.on .shc-ap-sock-dot{background:#22c55e}
 .shc-ap-badge{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
 .shc-ap-badge.run{background:#dcfce7;color:#15803d}
 .shc-ap-badge.standby{background:#dbeafe;color:#2563eb}
@@ -1310,7 +1314,7 @@ class ShcApplianceCloneCard extends HTMLElement {
             <span class="shc-ap-name"></span>
             <span class="shc-ap-room" hidden></span>
           </span>
-          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="Presa"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
           <span class="shc-ap-tools">
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
@@ -1364,6 +1368,12 @@ class ShcApplianceCloneCard extends HTMLElement {
       });
     }
     if (this._config.hide_consumi) this._root.querySelector(".shc-ap-consumi").hidden = true;
+    const sockBtn = this._root.querySelector(".shc-ap-sock");
+    if (sockBtn)
+      sockBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._fireMoreInfo(this._config.power_cut_entity);
+      });
     shcBindGraph(this);
     if (this._config.room) {
       const room = this._root.querySelector(".shc-ap-room");
@@ -1471,6 +1481,22 @@ class ShcApplianceCloneCard extends HTMLElement {
       <span class="shc-ap-row-label">${esc(row.label)}</span>
       <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
+  }
+
+  // Indicatore stato presa sulla testata: solo con show_socket_state: true (default spento) e power_cut_entity switch.
+  _socketStateOn() {
+    const c = this._config;
+    return c.show_socket_state === true && !!c.power_cut_entity && /^switch\./.test(c.power_cut_entity);
+  }
+
+  _updateSocketState() {
+    const btn = this._root.querySelector(".shc-ap-sock");
+    if (!btn) return;
+    const st = this._hass && this._hass.states[this._config.power_cut_entity];
+    const s = !st || st.state === "unavailable" || st.state === "unknown" ? "unavailable" : st.state === "on" ? "on" : "off";
+    btn.classList.remove("on", "off", "unavailable");
+    btn.classList.add(s);
+    btn.querySelector(".shc-ap-sock-label").textContent = s === "on" ? shcL(this._hass, "Presa ON", "Socket ON") : s === "off" ? shcL(this._hass, "Presa OFF", "Socket OFF") : shcL(this._hass, "Presa non disponibile", "Socket unavailable");
   }
 
   _powerCutKey() {
@@ -2145,6 +2171,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     badge.classList.remove("run", "standby", "off", "unavailable");
     badge.classList.add(mode === "running" ? "run" : mode);
     this._root.querySelector(".shc-ap-badge-label").textContent = label;
+    this._updateSocketState();
 
     const powerVal = Number.isFinite(watts) ? Math.max(0, watts) : 0;
     const powerUnit = cfg.power_unit || "W";
@@ -3282,6 +3309,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       </div>
       <div class="shc-ed-row">
         <label class="shc-ed-checkrow">
+          <input type="checkbox" class="shc-ed-sock-show" ${cfg.show_socket_state === true ? "checked" : ""} ${cfg.power_cut_entity ? "" : "disabled"}>
+          <span>${esc(L("Mostra sulla card lo stato della presa (acceso/spento)", "Show the socket state (on/off) on the card"))}</span>
+        </label>
+      </div>
+      <div class="shc-ed-row">
+        <label class="shc-ed-checkrow">
           <input type="checkbox" class="shc-ed-cut-allow" ${cfg.allow_power_cut === true ? "checked" : ""} ${cfg.power_cut_entity ? "" : "disabled"}>
           <span>${esc(L("Autorizzo il pulsante 'Togli corrente'", "Allow the 'Cut power' button"))}</span>
         </label>
@@ -3402,6 +3435,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         if (!v) {
           this._config = { ...this._config };
           delete this._config.allow_power_cut;
+          delete this._config.show_socket_state;
           delete this._config.power_cut_entity;
           this._emit();
           this._render();
@@ -3410,6 +3444,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         this._set("power_cut_entity", v);
         this._render();
       });
+      const sockShow = body.querySelector(".shc-ed-sock-show");
+      if (sockShow)
+        sockShow.addEventListener("change", () => {
+          this._set("show_socket_state", sockShow.checked ? true : undefined);
+          this._render();
+        });
       cutAllow.addEventListener("change", () => {
         if (cutAllow.checked) {
           cutAllow.checked = false;
