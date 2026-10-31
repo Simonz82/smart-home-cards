@@ -52,6 +52,23 @@ Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del cl
   </tr>
 </table>
 
+## 🍳 Friggitrice, microonde, piastra e piano a induzione (novità 1.15.0)
+
+Quattro nuovi disegni della card **Elettrodomestici** (`custom:shc-appliance-clone-card`), con animazione "in funzione": `artwork: airfryer`, `microwave`, `griddle`, `induction`. In più, per **tutti** gli elettrodomestici, il pulsante di accensione con script (`power_script`), utile per apparecchi IR/RF come quelli con Broadlink. Esempi YAML: [docs/elettrodomestici.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md#-friggitrice-microonde-piastra-e-piano-a-induzione).
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="50%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-friggitrice.png" width="300" alt="Friggitrice ad aria"><br><sub>Friggitrice ad aria</sub></td>
+    <td align="center" valign="top" width="50%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-microonde.png" width="300" alt="Microonde"><br><sub>Microonde</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="50%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-piastra.png" width="300" alt="Piastra / bistecchiera"><br><sub>Piastra / bistecchiera</sub></td>
+    <td align="center" valign="top" width="50%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-induzione.png" width="300" alt="Piano a induzione"><br><sub>Piano a induzione</sub></td>
+  </tr>
+</table>
+
+<sub>Immagini con dati di esempio.</sub>
+
 ## 🧊 Frigo e 📱 Tablet a muro (novità)
 
 Due nuovi disegni della card **Elettrodomestici** (`custom:shc-appliance-clone-card`). Guida completa: [docs/elettrodomestici.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md).

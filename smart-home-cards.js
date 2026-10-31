@@ -167,6 +167,105 @@ const HERO_BUILDERS = {
     <rect x="46" y="196" width="148" height="16" rx="7" fill="#9fadbc"/>
     <rect x="100" y="199" width="40" height="7" rx="3.5" fill="#78899b"/>
   </svg>`,
+  airfryer: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-body-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b5563"/><stop offset=".55" stop-color="#1f2937"/><stop offset="1" stop-color="#0b1220"/></linearGradient>
+      <radialGradient id="shch-hot-${id}" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#fff1e6"/><stop offset=".5" stop-color="#fdba74"/><stop offset="1" stop-color="#9a3412"/></radialGradient>
+    </defs>
+    <ellipse cx="120" cy="218" rx="68" ry="10" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <path d="M52 40c0-9 7-16 16-16h104c9 0 16 7 16 16v158c0 9-7 16-16 16H68c-9 0-16-7-16-16z" fill="url(#shch-body-${id})" stroke="#0b1220" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="64" y="34" width="112" height="26" rx="8" fill="#0b1220"/>
+    <rect x="70" y="40" width="46" height="14" rx="4" fill="#111827"/>
+    <rect x="75" y="45" width="22" height="4" rx="2" fill="#fb923c"/><rect x="100" y="45" width="10" height="4" rx="2" fill="#fb923c" opacity=".6"/>
+    <circle cx="138" cy="47" r="7" fill="#374151" stroke="#9ca3af" stroke-width="1.4"/><line x1="138" y1="47" x2="138" y2="42" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="160" cy="47" r="7" fill="#374151" stroke="#9ca3af" stroke-width="1.4"/><line x1="160" y1="47" x2="164" y2="44" stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="62" y="68" width="116" height="118" rx="12" fill="#030712"/>
+    <rect x="66" y="72" width="108" height="110" rx="9" fill="url(#shch-hot-${id})" opacity=".9" class="shch-glow"/>
+    <rect x="66" y="72" width="108" height="110" rx="9" fill="#2a0e04" opacity=".4"/>
+    <g stroke="#fed7aa" stroke-width="2.4" opacity=".7" fill="none"><path d="M72 84h96"/><path d="M72 90c10 5 14 5 24 0s14-5 24 0 14 5 24 0 14-5 24 0" opacity=".6"/></g>
+    <g fill="#fbbf24" stroke="#b45309" stroke-width="1" opacity=".95">
+      <rect x="86" y="146" width="7" height="28" rx="3" transform="rotate(-18 90 160)"/><rect x="100" y="150" width="7" height="28" rx="3" transform="rotate(8 104 164)"/>
+      <rect x="116" y="148" width="7" height="30" rx="3" transform="rotate(-6 120 163)"/><rect x="132" y="150" width="7" height="28" rx="3" transform="rotate(20 136 164)"/><rect x="146" y="146" width="7" height="28" rx="3" transform="rotate(-10 150 160)"/>
+    </g>
+    <g class="shch-spin-spit">
+      <ellipse cx="120" cy="130" rx="30" ry="6" fill="#e5e7eb" opacity=".85"/><ellipse cx="120" cy="130" rx="6" ry="30" fill="#e5e7eb" opacity=".85"/>
+      <ellipse cx="120" cy="130" rx="21" ry="21" fill="none" stroke="#e5e7eb" stroke-width="1.4" opacity=".45" transform="rotate(45 120 130)"/>
+      <circle cx="120" cy="130" r="5" fill="#9ca3af"/>
+    </g>
+    <rect x="94" y="192" width="52" height="9" rx="4.5" fill="#111827" stroke="#6b7280" stroke-width="1.2"/>
+    <circle cx="66" cy="204" r="3" fill="#22c55e" class="shch-glow"/>
+  </svg>`,
+  microwave: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-steel-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f8fb"/><stop offset=".5" stop-color="#dde4ec"/><stop offset="1" stop-color="#aab6c5"/></linearGradient>
+      <radialGradient id="shch-lamp-${id}" cx=".5" cy=".45" r=".75"><stop offset="0" stop-color="#fffbe6"/><stop offset=".55" stop-color="#fde68a"/><stop offset="1" stop-color="#7c5a05"/></radialGradient>
+    </defs>
+    <ellipse cx="120" cy="206" rx="86" ry="10" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="22" y="62" width="196" height="132" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <rect x="32" y="72" width="116" height="112" rx="9" fill="#0c1930"/>
+    <rect x="36" y="76" width="108" height="104" rx="7" fill="url(#shch-lamp-${id})" opacity=".85" class="shch-glow"/>
+    <rect x="36" y="76" width="108" height="104" rx="7" fill="#1b1303" opacity=".45"/>
+    <ellipse cx="90" cy="168" rx="44" ry="7" fill="#e5e7eb" opacity=".35"/>
+    <g class="shch-spin-plate">
+      <circle cx="90" cy="130" r="30" fill="#f3f4f6" opacity=".9"/>
+      <circle cx="90" cy="130" r="24" fill="none" stroke="#9ca3af" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <ellipse cx="78" cy="124" rx="9" ry="7" fill="#b45309"/><ellipse cx="100" cy="138" rx="8" ry="6" fill="#65a30d"/><circle cx="96" cy="118" r="4" fill="#dc2626"/>
+    </g>
+    <g class="shch-flicker" stroke="#fef3c7" stroke-width="2.2" stroke-linecap="round" fill="none" opacity=".7">
+      <path d="M44 88c5-4 5 4 10 0s5 4 10 0 5 4 10 0 5 4 10 0 5 4 10 0"/>
+    </g>
+    <rect x="156" y="72" width="52" height="112" rx="8" fill="#eef2f7" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <rect x="162" y="80" width="40" height="20" rx="4" fill="#0b1526"/>
+    <rect x="167" y="86" width="30" height="8" rx="2" fill="#fb923c" opacity=".9" class="shch-glow"/>
+    <g fill="#cbd5e1" stroke="#8fa0b3" stroke-width="1"><rect x="162" y="108" width="17" height="10" rx="3"/><rect x="185" y="108" width="17" height="10" rx="3"/><rect x="162" y="123" width="17" height="10" rx="3"/><rect x="185" y="123" width="17" height="10" rx="3"/><rect x="162" y="138" width="17" height="10" rx="3"/><rect x="185" y="138" width="17" height="10" rx="3"/></g>
+    <rect x="162" y="156" width="40" height="20" rx="5" fill="#dc2626" opacity=".9"/>
+    <circle cx="174" cy="166" r="3.4" fill="#fff"/>
+    <rect x="22" y="188" width="196" height="12" rx="6" fill="#9fadbc"/>
+  </svg>`,
+  griddle: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-plate-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b5563"/><stop offset="1" stop-color="#111827"/></linearGradient>
+      <linearGradient id="shch-base-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5e7eb"/><stop offset="1" stop-color="#9aa6b5"/></linearGradient>
+    </defs>
+    <ellipse cx="116" cy="204" rx="92" ry="11" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="22" y="148" width="180" height="46" rx="14" fill="url(#shch-base-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
+    <rect x="200" y="164" width="30" height="12" rx="6" fill="#374151"/>
+    <circle cx="48" cy="171" r="9" fill="#374151" stroke="#9ca3af" stroke-width="1.4"/><line x1="48" y1="171" x2="48" y2="165" stroke="#e5e7eb" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="78" cy="171" r="3.4" fill="#22c55e" class="shch-glow"/>
+    <rect x="28" y="136" width="168" height="18" rx="9" fill="#dc2626" opacity=".55" class="shch-glow"/>
+    <path d="M38 96h148c8 0 14 6 14 14v28c0 8-6 14-14 14H38c-8 0-14-6-14-14v-28c0-8 6-14 14-14z" fill="url(#shch-plate-${id})" stroke="#030712" stroke-width="1.5"/>
+    <g stroke="#030712" stroke-width="3" stroke-linecap="round" opacity=".75">
+      <line x1="34" y1="106" x2="190" y2="106"/><line x1="34" y1="116" x2="190" y2="116"/><line x1="34" y1="126" x2="190" y2="126"/><line x1="34" y1="136" x2="190" y2="136"/>
+    </g>
+    <g class="shch-glow" stroke="#fb923c" stroke-width="2" stroke-linecap="round" opacity=".7"><line x1="34" y1="111" x2="190" y2="111"/><line x1="34" y1="121" x2="190" y2="121"/><line x1="34" y1="131" x2="190" y2="131"/></g>
+    <ellipse cx="108" cy="116" rx="40" ry="14" fill="#9a3412"/>
+    <ellipse cx="108" cy="115" rx="36" ry="11" fill="#b45309"/>
+    <g stroke="#3b1707" stroke-width="3" stroke-linecap="round" opacity=".7"><line x1="84" y1="108" x2="98" y2="122"/><line x1="98" y1="106" x2="112" y2="123"/><line x1="112" y1="106" x2="126" y2="122"/><line x1="126" y1="108" x2="134" y2="118"/></g>
+    <g class="shch-flicker" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7">
+      <path d="M84 84c-6-8 6-12 0-22"/><path d="M110 82c-6-8 6-12 0-22"/><path d="M136 84c-6-8 6-12 0-22"/>
+    </g>
+  </svg>`,
+  induction: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-glass-${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f2937"/><stop offset="1" stop-color="#030712"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="210" rx="92" ry="10" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="22" y="40" width="196" height="164" rx="16" fill="url(#shch-glass-${id})" stroke="#475569" stroke-opacity=".7" stroke-width="2"/>
+    <rect x="30" y="48" width="180" height="148" rx="11" fill="none" stroke="#e2e8f0" stroke-opacity=".12"/>
+    <g fill="none" stroke-linecap="round">
+      <g class="shch-zone shch-glow" data-z="1" stroke="#fb7185"><circle cx="78" cy="94" r="29" stroke-width="3"/><circle cx="78" cy="94" r="19" stroke-width="2.4" opacity=".75"/><circle cx="78" cy="94" r="9" stroke-width="2" opacity=".5"/></g>
+      <g class="shch-zone shch-glow" data-z="2" stroke="#fb7185"><circle cx="162" cy="94" r="29" stroke-width="3"/><circle cx="162" cy="94" r="19" stroke-width="2.4" opacity=".75"/><circle cx="162" cy="94" r="9" stroke-width="2" opacity=".5"/></g>
+      <g class="shch-zone shch-glow" data-z="3" stroke="#fb7185"><circle cx="78" cy="152" r="22" stroke-width="3"/><circle cx="78" cy="152" r="13" stroke-width="2.4" opacity=".75"/></g>
+      <g class="shch-zone shch-glow" data-z="4" stroke="#fb7185"><circle cx="162" cy="152" r="22" stroke-width="3"/><circle cx="162" cy="152" r="13" stroke-width="2.4" opacity=".75"/></g>
+    </g>
+    <g fill="#fb7185" opacity=".18"><circle cx="78" cy="94" r="28"/><circle cx="162" cy="94" r="28"/></g>
+    <rect x="88" y="184" width="64" height="9" rx="4.5" fill="#0b1220" stroke="#64748b" stroke-width="1"/>
+    <g fill="#e2e8f0"><circle cx="97" cy="188.5" r="1.8"/><circle cx="108" cy="188.5" r="1.8" opacity=".5"/><circle cx="120" cy="188.5" r="1.8" opacity=".5"/><circle cx="132" cy="188.5" r="1.8" opacity=".5"/><circle cx="143" cy="188.5" r="1.8" opacity=".5"/></g>
+  </svg>`,
   tv: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
       <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -300,6 +399,14 @@ const CHIP_SVGS = {
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#0ea5e9"/><circle cx="48" cy="56" r="24" fill="#f8fafc"/><circle cx="48" cy="56" r="19" fill="#bae6fd"/><circle cx="48" cy="56" r="19" fill="none" stroke="#0f2942" stroke-width="3"/><path fill="none" stroke="#0f2942" stroke-width="2.6" stroke-linecap="round" d="M39 58c4 6 14 6 18 0"/></svg>',
   oven:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><rect x="20" y="16" width="56" height="14" rx="5" fill="#f8fafc"/><circle cx="28" cy="23" r="3" fill="#ef4444"/><rect x="20" y="36" width="56" height="41" rx="6" fill="#f8fafc"/><path fill="none" stroke="#0f2942" stroke-width="3" stroke-linecap="round" d="M28 51h40M28 63h40"/></svg>',
+  airfryer:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="16" y="8" width="64" height="80" rx="14" fill="#0f2942"/><rect x="24" y="14" width="48" height="12" rx="4" fill="#f8fafc"/><rect x="24" y="32" width="48" height="42" rx="8" fill="#fb923c"/><path d="M36 54h24M40 46l16 16M56 46 40 62" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/><rect x="36" y="78" width="24" height="5" rx="2.5" fill="#8be2ff"/></svg>',
+  microwave:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="6" y="20" width="84" height="56" rx="9" fill="#0f2942"/><rect x="12" y="26" width="50" height="44" rx="5" fill="#fde68a"/><circle cx="37" cy="48" r="12" fill="#f8fafc"/><rect x="68" y="26" width="16" height="10" rx="3" fill="#f8fafc"/><rect x="68" y="42" width="16" height="6" rx="3" fill="#8be2ff"/><rect x="68" y="54" width="16" height="6" rx="3" fill="#8be2ff"/></svg>',
+  griddle:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="8" y="52" width="72" height="26" rx="9" fill="#0f2942"/><rect x="80" y="60" width="10" height="7" rx="3.5" fill="#0f2942"/><path d="M14 36h60a6 6 0 0 1 6 6v10H8V42a6 6 0 0 1 6-6z" fill="#475569"/><ellipse cx="42" cy="42" rx="16" ry="6" fill="#fb923c"/><path d="M32 30c-3-5 3-6 0-12M46 30c-3-5 3-6 0-12M60 30c-3-5 3-6 0-12" stroke="#8be2ff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+  induction:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="8" y="14" width="80" height="68" rx="10" fill="#0f2942"/><g fill="none" stroke="#fb7185" stroke-width="4"><circle cx="30" cy="38" r="11"/><circle cx="66" cy="38" r="11"/><circle cx="30" cy="64" r="8"/><circle cx="66" cy="64" r="8"/></g></svg>',
   boiler:
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="76" rx="9" fill="#0f2942"/><circle cx="48" cy="38" r="17" fill="#f8fafc"/><path d="M48 26c-5 7-9 10-9 16a9 9 0 0 0 18 0c0-3-1-6-3-8 0 3-2 5-4 4-2-1-2-5-1-7-3 1-4 3-4 3z" fill="#fb923c"/><rect x="28" y="62" width="40" height="10" rx="4" fill="#38bdf8"/></svg>',
   tv:
@@ -467,6 +574,10 @@ const STYLE = `
 @keyframes shch-glow{0%,100%{opacity:.55}50%{opacity:1}}
 @keyframes shch-flicker{0%,100%{opacity:.85}30%{opacity:.5}55%{opacity:1}80%{opacity:.6}}
 .shch-spin-drum,.shch-spin-spray,.shch-spin-spit{transform-box:view-box;transform-origin:120px 130px}
+.shch-spin-plate{transform-box:view-box;transform-origin:90px 130px}
+.shc-ap-card.is-run .shch-spin-plate{animation:shch-spin 5s linear infinite}
+.shc-ap-card[data-zones] .shch-zone:not(.on){opacity:.2!important;animation:none!important}
+.shc-ap-pscript.sent{background:#dcfce7;border-color:#86efac;color:#15803d}
 /* Layout "centrato" della card energia: foto al centro in alto, sotto il blocco OGGI su 2 colonne */
 .shc-ap-card.layout-centrato .shc-ap-top-row{flex-direction:column;align-items:stretch;gap:10px}
 .shc-ap-card.layout-centrato .shc-ap-hero{flex:0 0 auto;width:100%;height:200px}
@@ -1315,7 +1426,7 @@ class ShcApplianceCloneCard extends HTMLElement {
             <span class="shc-ap-room" hidden></span>
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="Presa"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
-          <span class="shc-ap-tools">
+          <span class="shc-ap-tools">${this._powerScriptOn() ? `<button type="button" class="shc-ap-tool shc-ap-pscript" title="${esc(shcL(this._hass, "Accendi / spegni", "Turn on / off"))}">${ICON_POWER_CUT}</button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche" hidden>${ICON_CHART}</button>
@@ -1368,6 +1479,14 @@ class ShcApplianceCloneCard extends HTMLElement {
       });
     }
     if (this._config.hide_consumi) this._root.querySelector(".shc-ap-consumi").hidden = true;
+    const psBtn = this._root.querySelector(".shc-ap-pscript");
+    if (psBtn)
+      psBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._runPowerScript();
+        psBtn.classList.add("sent");
+        setTimeout(() => psBtn.classList.remove("sent"), 1500);
+      });
     const sockBtn = this._root.querySelector(".shc-ap-sock");
     if (sockBtn)
       sockBtn.addEventListener("click", (e) => {
@@ -1481,6 +1600,53 @@ class ShcApplianceCloneCard extends HTMLElement {
       <span class="shc-ap-row-label">${esc(row.label)}</span>
       <span class="shc-ap-row-val">${esc(st.state)}${unit ? " " + esc(unit) : ""}</span>
     </div>`;
+  }
+
+  // Accensione con script / servizio (IR, RF, Broadlink...): solo con power_script (default spento).
+  // Valori ammessi: entita' script./scene./button./input_button./automation./switch./input_boolean.
+  // oppure un'azione completa {action: "remote.send_command", target: {...}, data: {...}}.
+  _powerScriptOn() {
+    const v = this._config.power_script;
+    return !!v && (typeof v === "string" || (typeof v === "object" && !!(v.action || v.service)));
+  }
+
+  _callScriptTarget(t) {
+    const hass = this._hass;
+    if (!hass || !t) return;
+    if (typeof t === "object") {
+      const act = String(t.action || t.service || "");
+      const i = act.indexOf(".");
+      if (i < 1) return;
+      const data = { ...(t.data || {}) };
+      if (t.target) Object.assign(data, t.target);
+      if (t.entity_id && !data.entity_id) data.entity_id = t.entity_id;
+      hass.callService(act.slice(0, i), act.slice(i + 1), data);
+      return;
+    }
+    const dom = String(t).split(".")[0];
+    const svc = { script: "turn_on", scene: "turn_on", button: "press", input_button: "press", automation: "trigger", switch: "toggle", input_boolean: "toggle" }[dom];
+    if (svc) hass.callService(dom, svc, { entity_id: t });
+  }
+
+  _runPowerScript() {
+    const c = this._config;
+    const card = this._root.querySelector(".shc-ap-card");
+    const active = !!card && (card.classList.contains("is-run") || card.classList.contains("is-standby"));
+    this._callScriptTarget(c.power_script_off && active ? c.power_script_off : c.power_script);
+  }
+
+  // Zone attive del piano a induzione: zones_entity = numero (le prime N) oppure elenco "1,3".
+  _updateZones() {
+    const c = this._config;
+    if (!c.zones_entity || c.artwork !== "induction") return;
+    const card = this._root.querySelector(".shc-ap-card");
+    const st = this._hass && this._hass.states[c.zones_entity];
+    card.setAttribute("data-zones", "1");
+    let on = [];
+    const raw = st ? String(st.state) : "";
+    if (/^\d+$/.test(raw) && Number(raw) <= 4) on = [1, 2, 3, 4].slice(0, Number(raw));
+    else on = (raw.match(/[1-4]/g) || []).map(Number);
+    this._root.querySelectorAll(".shch-zone").forEach((z) => z.classList.toggle("on", on.includes(Number(z.getAttribute("data-z")))));
   }
 
   // Indicatore stato presa sulla testata: solo con show_socket_state: true (default spento) e power_cut_entity switch.
@@ -2172,6 +2338,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     badge.classList.add(mode === "running" ? "run" : mode);
     this._root.querySelector(".shc-ap-badge-label").textContent = label;
     this._updateSocketState();
+    this._updateZones();
 
     const powerVal = Number.isFinite(watts) ? Math.max(0, watts) : 0;
     const powerUnit = cfg.power_unit || "W";
@@ -2540,6 +2707,10 @@ const SHC_APPLIANCE_TYPES = [
   { value: "tablet", label: "Tablet a muro", domotico: true },
   { value: "oven", label: "Forno", domotico: false },
   { value: "tv", label: "TV", domotico: true },
+  { value: "airfryer", label: "Friggitrice ad aria", labelEn: "Air fryer", domotico: false },
+  { value: "microwave", label: "Microonde", labelEn: "Microwave", domotico: false },
+  { value: "griddle", label: "Piastra / bistecchiera", labelEn: "Griddle / grill", domotico: false },
+  { value: "induction", label: "Piano a induzione", labelEn: "Induction hob", domotico: false },
 ];
 
 const SHC_EDITOR_STYLE = `
@@ -3264,7 +3435,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         <span class="shc-ed-label">Che elettrodomestico e'?</span>
         <div class="shc-ed-types">
           ${SHC_APPLIANCE_TYPES.map(
-            (t) => `<button type="button" class="shc-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.label)}</button>`,
+            (t) => `<button type="button" class="shc-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.labelEn ? L(t.label, t.labelEn) : t.label)}</button>`,
           ).join("")}
         </div>
       </div>
@@ -3296,6 +3467,26 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
           <span>Nascondi la banda della potenza</span>
         </label>
       </div>
+
+      <div class="shc-ed-sec">${esc(L("Accensione con script (facoltativo)", "Turn on with a script (optional)"))}</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Script / scena / pulsante di accensione", "Power-on script / scene / button"))}</span>
+        <ha-entity-picker class="shc-ed-pscript" include-domains='["script","scene","button","input_button","automation","switch","input_boolean"]' allow-custom-entity></ha-entity-picker>
+      </div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Script di spegnimento (facoltativo)", "Power-off script (optional)"))}</span>
+        <ha-entity-picker class="shc-ed-pscript-off" include-domains='["script","scene","button","input_button","automation","switch","input_boolean"]' allow-custom-entity></ha-entity-picker>
+        <p class="shc-ed-hint">${esc(L("Se impostato, nella testata compare un pulsante di accensione che avvia lo script (utile per apparecchi IR/RF, es. Broadlink). Senza script di spegnimento il pulsante lancia sempre quello di accensione. Per inviare direttamente un comando (remote.send_command) usa la vista YAML.", "If set, a power button in the card header runs the script (handy for IR/RF appliances, e.g. Broadlink). Without a power-off script the button always runs the power-on one. To send a command directly (remote.send_command) use the YAML view."))}</p>
+      </div>
+      ${
+        cfg.artwork === "induction"
+          ? `<div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Zone attive del piano (facoltativo)", "Active hob zones (optional)"))}</span>
+        <ha-entity-picker class="shc-ed-zones" include-domains='["sensor","input_number","number","input_text"]' allow-custom-entity></ha-entity-picker>
+        <p class="shc-ed-hint">${esc(L("Numero di zone accese (le prime N) oppure un elenco tipo 1,3. Senza, tutte le zone si accendono insieme quando il piano e' in funzione.", "Number of zones on (the first N) or a list like 1,3. Without it, all zones light up together when the hob is running."))}</p>
+      </div>`
+          : ""
+      }
 
       ${
         cfg.artwork === "fridge"
@@ -3415,6 +3606,9 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-live-progress", cfg.live?.progress_entity, null, "live.progress_entity");
     wirePicker(".shc-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
     wirePicker(".shc-ed-layout", cfg.layout_entity, null, "layout_entity");
+    wirePicker(".shc-ed-pscript", typeof cfg.power_script === "string" ? cfg.power_script : "", null, "power_script");
+    wirePicker(".shc-ed-pscript-off", typeof cfg.power_script_off === "string" ? cfg.power_script_off : "", null, "power_script_off");
+    wirePicker(".shc-ed-zones", cfg.zones_entity, null, "zones_entity");
     // Togli corrente: nessun suggerimento automatico (opt-in esplicito), blocco frigo/relè cucina.
     const cutPick = body.querySelector(".shc-ed-cut-entity");
     if (cutPick) {

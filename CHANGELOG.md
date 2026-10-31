@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-31 — 1.15.0: quattro nuovi elettrodomestici e accensione con script (#3)
+
+- **Nuovi disegni** nella card elettrodomestici: `airfryer` (friggitrice ad aria), `microwave` (microonde), `griddle` (piastra / bistecchiera), `induction` (piano a induzione), con animazione "in funzione" e icona nell'intestazione. Presenti nella lista dei tipi dell'editor.
+- **Piano a induzione**: opzione `zones_entity` (numero di zone accese, oppure elenco come `1,3`): le zone non attive restano spente. Senza, si accendono tutte insieme.
+- **Accensione con script** per tutti gli elettrodomestici: `power_script` (script, scena, pulsante... oppure azione diretta come `remote.send_command`) e `power_script_off` facoltativo. Pensata per apparecchi IR/RF (Broadlink). Pulsante nella testata, solo se impostato; campi anche nell'editor.
+- Tutto è facoltativo e spento di default: le card esistenti restano identiche (verificato confrontando il markup prima e dopo su Lavatrice, Asciugatrice, Lavastoviglie, Frigo, Tablet, Forno e TV).
+- Documentazione ed esempi YAML in `docs/elettrodomestici.md`; galleria nel README.
+
 ## 2026-10-31 — 1.14.2: stato della presa sulla card (#3)
 
 - **Nuovo (#3)**: opzione `show_socket_state: true` (predefinita `false`) sulla card elettrodomestici: nella testata compare l'indicatore della presa `power_cut_entity` (verde "Presa ON", grigio "Presa OFF", "Presa non disponibile"); un tocco apre la scheda dell'interruttore. Funziona anche con `allow_power_cut` spento.

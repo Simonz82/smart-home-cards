@@ -1,6 +1,6 @@
 # 🧺 Card Elettrodomestici (`shc-appliance-clone-card`)
 
-Una card, sette "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno, frigorifero. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
+Una card, undici "disegni" diversi: lavastoviglie, lavatrice, asciugatrice, forno, TV, scaldabagno, frigorifero, friggitrice ad aria, microonde, piastra e piano a induzione. Cambia solo il campo `artwork` — tutto il resto del comportamento è identico.
 
 | | Chiaro | Scuro |
 |---|---|---|
@@ -430,6 +430,129 @@ auto_stats: true
 energy_stat_entity: sensor.frigo_energia
 settings_sections: []
 ```
+
+## 🍟 Friggitrice, microonde, piastra e piano a induzione
+
+Quattro disegni in più, con la stessa logica degli altri: `artwork` + `power_entity` (la presa con misura dei Watt) e, se vuoi, il riquadro `side` per temperatura, tempo residuo o livello. Se l'apparecchio non è smart, bastano i Watt: sopra `threshold_run` la card passa a "IN FUNZIONE" e il disegno si anima.
+
+| Friggitrice ad aria | Microonde |
+|---|---|
+| ![Friggitrice](screenshot/elettrodomestici-friggitrice.png) | ![Microonde](screenshot/elettrodomestici-microonde.png) |
+| **Piastra / bistecchiera** | **Piano a induzione** |
+| ![Piastra](screenshot/elettrodomestici-piastra.png) | ![Induzione](screenshot/elettrodomestici-induzione.png) |
+
+Nell'editor visuale compaiono nella lista dei tipi ("Friggitrice ad aria", "Microonde", "Piastra / bistecchiera", "Piano a induzione"). Nelle immagini i dati sono di esempio.
+
+### Friggitrice ad aria (`artwork: airfryer`)
+
+La ventola gira e la resistenza si accende quando consuma.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Friggitrice
+artwork: airfryer
+power_entity: sensor.presa_friggitrice_potenza
+threshold_run: 50
+max_power: 1800
+side:
+  title: Cottura
+  rows:
+    - label: Temperatura
+      icon: sun
+      entity: sensor.friggitrice_temperatura     # facoltativo, se l'apparecchio e' smart
+    - label: Tempo residuo
+      icon: timer
+      entity: sensor.friggitrice_minuti
+```
+
+### Microonde (`artwork: microwave`)
+
+Piatto che gira, lampada accesa e onde.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Microonde
+artwork: microwave
+power_entity: sensor.presa_microonde_potenza
+threshold_run: 80
+max_power: 1500
+side:
+  title: Cottura
+  rows:
+    - label: Tempo residuo
+      icon: timer
+      entity: sensor.microonde_minuti
+    - label: Potenza
+      icon: bolt
+      entity: sensor.presa_microonde_potenza
+```
+
+### Piastra / bistecchiera (`artwork: griddle`)
+
+Resistenza rossa accesa, righe incandescenti e fumo.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Piastra
+artwork: griddle
+power_entity: sensor.presa_piastra_potenza
+threshold_run: 50
+max_power: 2000
+side:
+  title: Piastra
+  rows:
+    - label: Temperatura
+      icon: sun
+      entity: sensor.piastra_temperatura
+```
+
+### Piano a induzione (`artwork: induction`)
+
+Quattro zone. Per default, quando il piano e' in funzione si accendono tutte. Se hai un'entità che dice quali sono accese, mettila in `zones_entity`: un **numero** (le prime N zone, es. `2`) oppure un **elenco** come `1,3` (sinistra-alto = 1, destra-alto = 2, sinistra-basso = 3, destra-basso = 4). Le zone non attive restano spente.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Piano a induzione
+artwork: induction
+power_entity: sensor.piano_induzione_potenza
+threshold_run: 100
+max_power: 7400
+zones_entity: sensor.piano_induzione_zone_attive   # facoltativo (predefinito: tutte insieme)
+side:
+  title: Piano
+  rows:
+    - label: Zone accese
+      icon: flag
+      entity: sensor.piano_induzione_zone_attive
+```
+
+## 📡 Accensione con script (facoltativo, per tutti gli elettrodomestici)
+
+Per apparecchi comandati a infrarossi o radiofrequenza (per esempio con un Broadlink) puoi avere sulla card un pulsante di accensione che avvia uno script, una scena o un servizio, anche senza una presa smart. E' **spento di default**: senza `power_script` la card non cambia.
+
+```yaml
+# 1) con uno script che hai gia' (script, scena, pulsante, automazione...)
+power_script: script.accendi_friggitrice
+power_script_off: script.spegni_friggitrice   # facoltativo
+```
+
+```yaml
+# 2) con un'azione diretta, per esempio un comando Broadlink
+power_script:
+  action: remote.send_command
+  target:
+    entity_id: remote.broadlink_salone
+  data:
+    command: accendi_microonde
+    device: microonde
+```
+
+- Nella testata compare il pulsante di accensione; il tocco avvia lo script (il pulsante si colora un istante).
+- Senza `power_script_off` il pulsante lancia sempre `power_script` (comodo per gli apparecchi IR con un solo tasto on/off).
+- Con `power_script_off`, se la card e' "IN FUNZIONE" o "STANDBY" il tocco avvia lo spegnimento, altrimenti l'accensione.
+- Entità ammesse: `script.`, `scene.`, `button.`, `input_button.`, `automation.` (la avvia), `switch.` e `input_boolean.` (commuta).
+- Nell'editor visuale: sezione "Accensione con script"; l'azione diretta si scrive nella vista YAML.
+- Non toglie né cambia "Togli corrente": sono due opzioni indipendenti.
 
 ## 🔌 Togli corrente (facoltativo, spento di default)
 
