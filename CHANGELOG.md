@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — 1.16.0: telecomando Samsung sotto la card TV
+
+- **Nuovo**: opzione `show_samsung_remote: true` (predefinita `false`) sulla card Elettrodomestici con `artwork: tv`: sotto la card compare lo stesso telecomando in stile Samsung di `samsung-tv-remote-card` (tasti, D-pad, volume/canali, tasti colorati, app, sorgenti, immagine/audio, Art Mode), integrato nel bundle (una sola risorsa, nessun conflitto se `samsung-tv-remote-card` e' installata: elemento interno `shc-samsung-remote`).
+- Opzioni facoltative: `samsung_entity`, `samsung_remote_entity`, `samsung_turn_on_script`, `samsung_layout`, `samsung_apps`, `samsung_sources`, `samsung_show_picture|sound|art|ambient`. Editor visuale: spunta "Mostra il telecomando Samsung sotto la card" con i campi TV ed entita' remote.
+- Requisiti: integrazione SamsungTV Smart (HACS) per tasti, app, immagine/audio e Art Mode; con la sola integrazione core funzionano i comandi `media_player` standard.
+- Senza l'opzione la card TV resta identica a prima (verificato: nessun elemento aggiunto, nessun errore in console).
+- Documentazione in README e `docs/elettrodomestici.md`, con screenshot.
+
 ## 2026-11-01 — 1.15.1: pulsante script piu' chiaro, ventilatore con script, immagine personalizzata, Volume 2 a scomparsa (#3, #7)
 
 - **Pulsante di accensione con script** (elettrodomestici): resta acceso (verde) quando l'apparecchio e' acceso. Lo stato viene da `power_script_state` (nuovo, facoltativo), altrimenti dal consumo; con i telecomandi IR/RF senza feedback la card ricorda l'ultimo comando inviato, cosi' `power_script_off` parte davvero quando l'apparecchio e' acceso. Prima il tocco lanciava sempre lo script di accensione se il consumo era sotto la soglia di standby.

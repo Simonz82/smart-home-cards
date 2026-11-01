@@ -69,6 +69,80 @@ Quattro nuovi disegni della card **Elettrodomestici** (`custom:shc-appliance-clo
 
 <sub>Immagini con dati di esempio.</sub>
 
+## 📺 Telecomando Samsung sotto la card TV (novità 1.16.0)
+
+La card **Elettrodomestici** con `artwork: tv` può mostrare, **sotto la card**, lo stesso telecomando in stile Samsung della card [samsung-tv-remote-card](https://github.com/Simonz82/ha_tv_samsung): tasti, D-pad, volume e canali, tasti colorati, app, sorgenti, immagine/audio, Art Mode. Tutto in una sola risorsa: non serve installare altro. È **facoltativo e spento di default**: senza l'opzione la card TV resta identica a prima.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: TV
+artwork: tv
+power_entity: sensor.presa_tv_power
+live:
+  state_entity: media_player.tv
+show_samsung_remote: true        # il telecomando compare sotto la card
+```
+
+<table>
+  <tr>
+    <td align="center" valign="top" width="40%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-tv-telecomando.png" width="300" alt="Card TV con telecomando (telefono)"><br><sub>Telefono: telecomando verticale</sub></td>
+    <td align="center" valign="top" width="60%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-tv-telecomando-largo.png" width="420" alt="Card TV con telecomando (tablet/PC)"><br><sub>Tablet / PC: telecomando + pannello</sub></td>
+  </tr>
+</table>
+
+**Requisiti.** Una TV Samsung Tizen e l'integrazione **[SamsungTV Smart](https://github.com/ollo69/ha-samsungtv-smart)** (integrazione custom, si installa da HACS: `ollo69/ha-samsungtv-smart`). Serve quella, e non solo l'integrazione Samsung TV di Home Assistant, perché molte funzioni del telecomando sono sue:
+
+| Funzione | Con SamsungTV Smart | Con la sola integrazione core "Samsung TV" |
+|---|---|---|
+| Accensione/spegnimento, volume, muto, play/pausa/stop | si | si (sono funzioni standard del `media_player`) |
+| Tasti del telecomando (frecce, OK, Home, Menu, colori, numeri...) | si (`media_player.play_media` con `send_key`) | solo se indichi una `samsung_remote_entity` (un'entità `remote` che accetta `send_command`); non verificato |
+| Elenco sorgenti | si (attributo `source_list`) | in parte: dipende da cosa espone l'integrazione |
+| Avvio app (Netflix, YouTube...) | si (`play_media` di tipo `app`) | no |
+| Immagine e audio (modalità) | si (`picture_mode_list`, `sound_mode_list`, servizio `select_picture_mode`) | no, i selettori restano nascosti |
+| Art Mode (The Frame) | si (`art_mode_status`, servizio `set_art_mode`) | no, il tasto resta nascosto |
+
+Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da sole. Con la TV spenta o non disponibile restano attivi solo l'accensione e lo spegnimento.
+
+**Opzioni** (tutte facoltative tranne `show_samsung_remote`):
+
+| Opzione | Cosa fa |
+|---|---|
+| `show_samsung_remote: true` | mostra il telecomando sotto la card (solo con `artwork: tv`) |
+| `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
+| `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
+| `samsung_turn_on_script` | script da lanciare per accendere (utile se la TV non si accende da sola, es. con Wake-on-LAN o presa) |
+| `samsung_layout` | `auto` (predefinito: affiancato da 600 px in su), `remote` (solo telecomando), `panel` |
+| `samsung_apps` | elenco app, fino a 4 sul telecomando: `- { name: Plex, app_id: "3201512006963", color: "#e5a00d" }`; con `source:` usa `select_source` |
+| `samsung_sources` | elenco sorgenti da mostrare al posto di `source_list` |
+| `samsung_show_picture`, `samsung_show_sound`, `samsung_show_art`, `samsung_show_ambient` | `false` per nascondere la sezione |
+
+**Editor visuale.** Nella card TV compare la sezione "Telecomando Samsung": spunta "Mostra il telecomando Samsung sotto la card"; spuntandola si aprono i campi TV ed entità remote. Le app si impostano in YAML.
+
+<img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/editor-elettrodomestici-tv-telecomando.png" width="480" alt="Editor: sezione Telecomando Samsung">
+
+**Limiti noti.** Le app predefinite (Netflix, YouTube, Prime Video, Disney+) non hanno ID verificati su tutti i modelli: se una non parte, impostala in `samsung_apps` con `app_id` o `source`. Il telecomando integrato è un componente interno della card (`shc-samsung-remote`) e non ha un editor suo: usa questa card. Se hai anche installato `samsung-tv-remote-card` non c'è conflitto (nomi diversi). Provato su una TV Samsung Tizen con SamsungTV Smart (interfaccia, layout, editor); l'invio dei singoli tasti dipende dal modello. Con la sola integrazione core i soli comandi `media_player` sono sicuri.
+
+<details>
+<summary><b>English</b></summary>
+
+With `artwork: tv` the **Appliances** card can show, **below the card**, the same Samsung-style remote as [samsung-tv-remote-card](https://github.com/Simonz82/ha_tv_samsung): keys, D-pad, volume/channel, colour keys, apps, sources, picture/sound modes, Art Mode. It is bundled in the same single resource and is **opt-in**: without the option the TV card is unchanged.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: TV
+artwork: tv
+power_entity: sensor.tv_plug_power
+live:
+  state_entity: media_player.tv
+show_samsung_remote: true
+```
+
+**Requirements.** A Samsung Tizen TV and the **[SamsungTV Smart](https://github.com/ollo69/ha-samsungtv-smart)** custom integration (HACS: `ollo69/ha-samsungtv-smart`). The core "Samsung TV" integration alone is not enough: power, volume, mute and play/pause/stop are standard `media_player` features and work with both, but remote keys (`send_key`), app launch, `source_list` with apps, picture/sound modes and Art Mode come from SamsungTV Smart. With only the core integration you can pass `samsung_remote_entity` (a `remote` entity supporting `send_command`) for the keys (untested), and the picture/sound/Art Mode sections stay hidden.
+
+**Options:** `show_samsung_remote`, `samsung_entity`, `samsung_remote_entity`, `samsung_turn_on_script`, `samsung_layout` (`auto`/`remote`/`panel`), `samsung_apps`, `samsung_sources`, `samsung_show_picture|sound|art|ambient`. The visual editor has the checkbox and the TV / remote entity pickers; apps are set in YAML. Known limits: default app IDs are not verified on every model (set `app_id` or `source` in `samsung_apps`); the embedded remote has no editor of its own; no conflict if `samsung-tv-remote-card` is also installed.
+
+</details>
+
 ## 🧊 Frigo e 📱 Tablet a muro (novità)
 
 Due nuovi disegni della card **Elettrodomestici** (`custom:shc-appliance-clone-card`). Guida completa: [docs/elettrodomestici.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/elettrodomestici.md).
