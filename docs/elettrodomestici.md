@@ -547,9 +547,16 @@ power_script:
     device: microonde
 ```
 
-- Nella testata compare il pulsante di accensione; il tocco avvia lo script (il pulsante si colora un istante).
+- Nella testata compare il pulsante di accensione; il tocco avvia lo script. Il pulsante resta **acceso (verde)** quando l'apparecchio risulta acceso e si colora un istante al tocco.
 - Senza `power_script_off` il pulsante lancia sempre `power_script` (comodo per gli apparecchi IR con un solo tasto on/off).
-- Con `power_script_off`, se la card e' "IN FUNZIONE" o "STANDBY" il tocco avvia lo spegnimento, altrimenti l'accensione.
+- Con `power_script_off`, se l'apparecchio risulta acceso il tocco avvia lo spegnimento, altrimenti l'accensione.
+- Come la card capisce se e' acceso: (1) se imposti `power_script_state` (una qualsiasi entita': `switch`, `binary_sensor`, `media_player`... acceso = `on`) usa quella; (2) altrimenti guarda il consumo (IN FUNZIONE o STANDBY); (3) con i telecomandi IR/RF, che non danno feedback, dopo il tocco ricorda l'ultimo comando inviato (acceso/spento) finche' lo stato della card non cambia. Se il consumo a riposo e' sotto la soglia di standby (tipico di lavatrici e forni spenti dal telecomando), imposta `power_script_state` oppure abbassa `threshold_standby`.
+
+```yaml
+power_script: script.accendi_lavatrice
+power_script_off: script.spegni_lavatrice
+power_script_state: switch.presa_lavatrice   # facoltativo
+```
 - Entità ammesse: `script.`, `scene.`, `button.`, `input_button.`, `automation.` (la avvia), `switch.` e `input_boolean.` (commuta).
 - Nell'editor visuale: sezione "Accensione con script"; l'azione diretta si scrive nella vista YAML.
 - Non toglie né cambia "Togli corrente": sono due opzioni indipendenti.

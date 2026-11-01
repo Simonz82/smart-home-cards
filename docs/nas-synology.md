@@ -59,7 +59,9 @@ sensors:
   temp: sensor.nas_temperatura
 ```
 
-Tutti opzionali singolarmente: metti solo quelli che la tua integrazione espone davvero (es. `usb_pct`/`vol2` non esistono se non hai quei dischi).
+Tutti opzionali singolarmente: metti solo quelli che la tua integrazione espone davvero (es. `usb_pct`/`vol2` non esistono se non hai quei dischi). La riga **Volume 2** compare solo se imposti `sensors.vol2`.
+
+Per usare una tua foto al posto di quella di default aggiungi `image: /local/foto/mio-nas.png` (percorso `/local/...` o URL); vale anche per le card UPS, Fritz!Box, Server e Proxmox.
 
 ### `volumes` / `disks` — dettaglio per singolo volume/unità (opzionale)
 

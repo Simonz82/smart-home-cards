@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — 1.15.1: pulsante script piu' chiaro, ventilatore con script, immagine personalizzata, Volume 2 a scomparsa (#3, #7)
+
+- **Pulsante di accensione con script** (elettrodomestici): resta acceso (verde) quando l'apparecchio e' acceso. Lo stato viene da `power_script_state` (nuovo, facoltativo), altrimenti dal consumo; con i telecomandi IR/RF senza feedback la card ricorda l'ultimo comando inviato, cosi' `power_script_off` parte davvero quando l'apparecchio e' acceso. Prima il tocco lanciava sempre lo script di accensione se il consumo era sotto la soglia di standby.
+- **Ventilatore**: `power_script` / `power_script_off` anche sulla card ventilatore (il tasto power avvia lo script al posto del servizio `fan`).
+- **Immagine personalizzata**: opzione `image` nelle card NAS, UPS, Fritz!Box, Server, Proxmox ed Elettrodomestici (percorso `/local/...` o URL). Con due UPS puoi usare due foto diverse.
+- **NAS**: la riga Volume 2 compare solo se `sensors.vol2` e' configurato.
+- Tutto facoltativo: senza le nuove opzioni le card restano come prima.
+
 ## 2026-10-31 — 1.15.0: quattro nuovi elettrodomestici e accensione con script (#3)
 
 - **Nuovi disegni** nella card elettrodomestici: `airfryer` (friggitrice ad aria), `microwave` (microonde), `griddle` (piastra / bistecchiera), `induction` (piano a induzione), con animazione "in funzione" e icona nell'intestazione. Presenti nella lista dei tipi dell'editor.

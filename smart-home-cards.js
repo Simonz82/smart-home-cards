@@ -3,6 +3,31 @@
 // differenziata e rete Zigbee. Popup Impostazioni/Statistiche/Grafici presi dai package "Centro Controllo".
 // Indipendente da altre card: legge/scrive solo via hass.
 
+// Immagine personalizzata (opzione "image"): sostituisce la foto dentro il disegno della card.
+function shcHeroImage(hero, image) {
+  if (!image || typeof image !== "string") return hero;
+  const src = /^(https?:)?\/\//.test(image) || image.startsWith("/") ? image : "/local/" + image;
+  return hero.replace(/<image href="[^"]*"/, '<image href="' + String(src).replace(/"/g, "&quot;") + '"');
+}
+
+// Esegue uno script / scena / pulsante o un'azione completa {action, target, data}.
+function shcCallScriptTarget(hass, t) {
+  if (!hass || !t) return;
+  if (typeof t === "object") {
+    const act = String(t.action || t.service || "");
+    const i = act.indexOf(".");
+    if (i < 1) return;
+    const data = { ...(t.data || {}) };
+    if (t.target) Object.assign(data, t.target);
+    if (t.entity_id && !data.entity_id) data.entity_id = t.entity_id;
+    hass.callService(act.slice(0, i), act.slice(i + 1), data);
+    return;
+  }
+  const dom = String(t).split(".")[0];
+  const svc = { script: "turn_on", scene: "turn_on", button: "press", input_button: "press", automation: "trigger", switch: "toggle", input_boolean: "toggle" }[dom];
+  if (svc) hass.callService(dom, svc, { entity_id: t });
+}
+
 const HERO_BUILDERS = {
   dishwasher: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
     <defs>
@@ -578,6 +603,7 @@ const STYLE = `
 .shc-ap-card.is-run .shch-spin-plate{animation:shch-spin 5s linear infinite}
 .shc-ap-card[data-zones] .shch-zone:not(.on){opacity:.2!important;animation:none!important}
 .shc-ap-pscript.sent{background:#dcfce7;border-color:#86efac;color:#15803d}
+.shc-ap-pscript.on{background:#16a34a;border-color:#16a34a;color:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.25)}
 /* Layout "centrato" della card energia: foto al centro in alto, sotto il blocco OGGI su 2 colonne */
 .shc-ap-card.layout-centrato .shc-ap-top-row{flex-direction:column;align-items:stretch;gap:10px}
 .shc-ap-card.layout-centrato .shc-ap-hero{flex:0 0 auto;width:100%;height:200px}
@@ -1414,7 +1440,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._activePeriod = "today";
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "dw" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.dishwasher)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.dishwasher)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.dishwasher;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card">
@@ -1611,28 +1637,43 @@ class ShcApplianceCloneCard extends HTMLElement {
   }
 
   _callScriptTarget(t) {
-    const hass = this._hass;
-    if (!hass || !t) return;
-    if (typeof t === "object") {
-      const act = String(t.action || t.service || "");
-      const i = act.indexOf(".");
-      if (i < 1) return;
-      const data = { ...(t.data || {}) };
-      if (t.target) Object.assign(data, t.target);
-      if (t.entity_id && !data.entity_id) data.entity_id = t.entity_id;
-      hass.callService(act.slice(0, i), act.slice(i + 1), data);
-      return;
+    shcCallScriptTarget(this._hass, t);
+  }
+
+  // Stato "acceso" per il pulsante script: entita' power_script_state se indicata, altrimenti stato
+  // della card (in funzione / standby); per i telecomandi IR/RF senza feedback vale lo stato presunto
+  // dall'ultima pressione, finche' la card non cambia modo.
+  _psActive() {
+    const c = this._config;
+    if (c.power_script_state) {
+      const st = this._hass && this._hass.states[c.power_script_state];
+      if (!st || ["unavailable", "unknown"].includes(st.state)) return false;
+      const n = Number(st.state);
+      return st.state === "on" || (st.state !== "off" && Number.isFinite(n) && n > 0) || ["playing", "heat", "cool", "open", "home"].includes(st.state);
     }
-    const dom = String(t).split(".")[0];
-    const svc = { script: "turn_on", scene: "turn_on", button: "press", input_button: "press", automation: "trigger", switch: "toggle", input_boolean: "toggle" }[dom];
-    if (svc) hass.callService(dom, svc, { entity_id: t });
+    if (this._psAssumed !== undefined && this._psAssumed !== null) return this._psAssumed;
+    const card = this._root.querySelector(".shc-ap-card");
+    return !!card && (card.classList.contains("is-run") || card.classList.contains("is-standby"));
+  }
+
+  _updatePowerScript(mode) {
+    if (mode !== this._psMode) {
+      this._psMode = mode;
+      this._psAssumed = null;
+    }
+    const btn = this._root.querySelector(".shc-ap-pscript");
+    if (btn) btn.classList.toggle("on", this._psActive());
   }
 
   _runPowerScript() {
     const c = this._config;
-    const card = this._root.querySelector(".shc-ap-card");
-    const active = !!card && (card.classList.contains("is-run") || card.classList.contains("is-standby"));
+    const active = this._psActive();
     this._callScriptTarget(c.power_script_off && active ? c.power_script_off : c.power_script);
+    if (!c.power_script_state) {
+      this._psAssumed = !active;
+      const btn = this._root.querySelector(".shc-ap-pscript");
+      if (btn) btn.classList.toggle("on", this._psAssumed);
+    }
   }
 
   // Zone attive del piano a induzione: zones_entity = numero (le prime N) oppure elenco "1,3".
@@ -2339,6 +2380,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._root.querySelector(".shc-ap-badge-label").textContent = label;
     this._updateSocketState();
     this._updateZones();
+    this._updatePowerScript(mode);
 
     const powerVal = Number.isFinite(watts) ? Math.max(0, watts) : 0;
     const powerUnit = cfg.power_unit || "W";
@@ -3057,6 +3099,7 @@ class ShcNasCardEditor extends ShcSimpleCardEditorBase {
       { title: "Base", fields: [
         { key: "name", label: "Nome", kind: "text", placeholder: "Synology NAS" },
         { key: "model", label: "Modello", kind: "text", placeholder: "DS925+" },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/synology-ds925.png", hint: "Percorso o URL di una tua foto." },
         { key: "update_entity", label: "Aggiornamento DSM", domain: ["update"], required: true },
         { key: "security_entity", label: "Stato di sicurezza", domain: ["binary_sensor"], hint: "Creato in automatico dall'integrazione Synology DSM (device_class 'safety': acceso = problema rilevato)" },
       ]},
@@ -3120,6 +3163,7 @@ class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
       { title: "Base", fields: [
         { key: "name", label: "Nome", kind: "text", placeholder: "UPS" },
         { key: "model", label: "Modello", kind: "text", placeholder: "APC Back-UPS BE850G2" },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/apc-ups.png", hint: "Percorso o URL di una foto tuo: utile con due UPS diversi." },
         { key: "status_entity", label: "Stato UPS", domain: ["sensor"], required: true },
       ]},
       { title: "Batteria e carico", fields: [
@@ -3476,6 +3520,8 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       <div class="shc-ed-row">
         <span class="shc-ed-label">${esc(L("Script di spegnimento (facoltativo)", "Power-off script (optional)"))}</span>
         <ha-entity-picker class="shc-ed-pscript-off" include-domains='["script","scene","button","input_button","automation","switch","input_boolean"]' allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(L("Stato acceso/spento dello script (facoltativo)", "On/off state of the script (optional)"))}</span>
+        <ha-entity-picker class="shc-ed-pscript-state" allow-custom-entity></ha-entity-picker>
         <p class="shc-ed-hint">${esc(L("Se impostato, nella testata compare un pulsante di accensione che avvia lo script (utile per apparecchi IR/RF, es. Broadlink). Senza script di spegnimento il pulsante lancia sempre quello di accensione. Per inviare direttamente un comando (remote.send_command) usa la vista YAML.", "If set, a power button in the card header runs the script (handy for IR/RF appliances, e.g. Broadlink). Without a power-off script the button always runs the power-on one. To send a command directly (remote.send_command) use the YAML view."))}</p>
       </div>
       ${
@@ -3607,6 +3653,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-live-remaining", cfg.live?.remaining_entity, null, "live.remaining_entity");
     wirePicker(".shc-ed-layout", cfg.layout_entity, null, "layout_entity");
     wirePicker(".shc-ed-pscript", typeof cfg.power_script === "string" ? cfg.power_script : "", null, "power_script");
+    wirePicker(".shc-ed-pscript-state", cfg.power_script_state, null, "power_script_state");
     wirePicker(".shc-ed-pscript-off", typeof cfg.power_script_off === "string" ? cfg.power_script_off : "", null, "power_script_off");
     wirePicker(".shc-ed-zones", cfg.zones_entity, null, "zones_entity");
     // Togli corrente: nessun suggerimento automatico (opt-in esplicito), blocco frigo/relè cucina.
@@ -3732,7 +3779,7 @@ class ShcFritzCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "fz" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.fritzbox)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.fritzbox)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.fritzbox;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card">
@@ -4148,7 +4195,7 @@ class ShcServerCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "sv" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.server;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -4750,7 +4797,7 @@ class ShcNasCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "na" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.nas)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.nas)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.nas;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -5331,6 +5378,8 @@ class ShcNasCard extends HTMLElement {
       vol1Bar.style.width = `${Math.min(100, Math.max(0, v1Val))}%`;
       vol1Bar.style.background = meterSeverityColor(v1Val);
     }
+    // Volume 2 visibile solo se configurato (sensors.vol2): niente barra vuota sui NAS con un solo volume.
+    this._root.querySelector(".shc-n-meter-vol2").hidden = !s.vol2;
     if (s.vol2) {
       this._root.querySelector(".shc-n-vol2-label").textContent = s.vol2_label || "Volume 2";
       const v2 = Number(hass.states[s.vol2]?.state);
@@ -6014,7 +6063,7 @@ class ShcUpsCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "up" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.ups)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.ups)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.ups;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -6779,7 +6828,7 @@ class ShcProxmoxCard extends HTMLElement {
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "px" + Math.random().toString(36).slice(2, 8);
-    const hero = (HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.proxmox)(this._heroId);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.proxmox)(this._heroId), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.server;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card is-run">
@@ -11238,7 +11287,13 @@ class ShcFanCard extends ShcDeviceCardBase {
     bind(".shc-cl-btn.power", () => {
       const st = this._st();
       if (!st || st.state === "unavailable") return;
-      this._call("fan", st.state === "on" ? "turn_off" : "turn_on", { entity_id: this._config.entity });
+      const cfg = this._config;
+      // power_script: accensione/spegnimento con script (ventilatori IR/RF, es. Broadlink), facoltativo
+      if (cfg.power_script) {
+        shcCallScriptTarget(this._hass, cfg.power_script_off && st.state === "on" ? cfg.power_script_off : cfg.power_script);
+        return;
+      }
+      this._call("fan", st.state === "on" ? "turn_off" : "turn_on", { entity_id: cfg.entity });
     });
     bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSpeed(Number(b.dataset.step)));
   }
@@ -11487,6 +11542,10 @@ class ShcFanCardEditor extends ShcSimpleCardEditorBase {
         { key: "temperature_entity", label: "Sensore temperatura", domain: ["sensor"] },
         { key: "humidity_entity", label: "Sensore umidità", domain: ["sensor"] },
         { key: "power_entity", label: "Potenza (W) della presa", domain: ["sensor"] },
+      ]},
+      { title: "Accensione con script (facoltativo)", fields: [
+        { key: "power_script", label: "Script / scena / pulsante di accensione", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Il tasto power della card avvia questo script invece di accendere il ventilatore. Per inviare direttamente un comando (remote.send_command) usa la vista YAML." },
+        { key: "power_script_off", label: "Script di spegnimento (facoltativo)", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Usato quando il ventilatore e' acceso; senza, il tasto lancia sempre lo script di accensione." },
       ]},
       { title: "Nebbia e luce", fields: [
         { key: "mist_entity", label: "Nebulizzatore", domain: ["switch"] },

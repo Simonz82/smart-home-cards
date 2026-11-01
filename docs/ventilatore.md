@@ -97,6 +97,8 @@ switches:
 | `timer_off_entity` | — | Timer di spegnimento del ventilatore (minuti) |
 | `schedule` | helper del package | `on_enabled`, `on_time`, `off_enabled`, `off_time`, `auto_day` |
 | `power_entity` | — | Potenza (W) della presa, per il grafico |
+| `power_script` | — | Facoltativo: script / scena / pulsante (oppure azione `remote.send_command`) che il tasto power della card avvia al posto del servizio `fan`. Per ventilatori IR/RF (Broadlink) |
+| `power_script_off` | — | Facoltativo: script di spegnimento, usato quando il ventilatore risulta acceso; senza, il tasto lancia sempre `power_script` |
 | `switches` | — | Interruttori nel popup Stato (`entity`, `name`) |
 | `min`, `max` | 15, 35 | Scala della gauge |
 | `show_levels` | `true` | Velocità come "4/12"; `false` per la percentuale |

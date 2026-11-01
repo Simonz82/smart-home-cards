@@ -67,6 +67,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" â†’ cerca **"UPS"** â†
 type: custom:shc-ups-card
 name: UPS
 model: "APC Back-UPS BE850G2"
+image: /local/foto/ups-studio.png   # facoltativo: tua foto (percorso /local/... o URL). Utile con due UPS diversi
 status_entity: sensor.ups_status
 battery_entity: sensor.ups_battery_charge
 load_entity: sensor.ups_load
