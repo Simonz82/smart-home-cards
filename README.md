@@ -50,6 +50,9 @@ Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del cl
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-memo.png" width="260" alt="🔊 Alexa Memo"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">🔊 Alexa Memo</a></b></td>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-webradio.png" width="260" alt="📻 Alexa WebRadio"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">📻 Alexa WebRadio</a></b></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="#-telecomando-samsung-sotto-la-card-tv-novità-1160"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-tv-telecomando.png" width="260" alt="📺 TV + telecomando Samsung"></a><br><b><a href="#-telecomando-samsung-sotto-la-card-tv-novità-1160">📺 TV + telecomando Samsung</a></b></td>
+  </tr>
 </table>
 
 ## 🍳 Friggitrice, microonde, piastra e piano a induzione (novità 1.15.0)
