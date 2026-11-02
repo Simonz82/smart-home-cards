@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-02 — HACS default store
+
+- Added to the HACS default store (hacs/default#11212): ora si installa cercando "Smart Home Cards" in HACS, senza repository personalizzato. Nessuna nuova versione.
+
 ## 2026-11-02 — 1.16.1: escape HTML dei valori provenienti da entita' e configurazione
 
 - **Sicurezza**: nomi di sorgenti (`source_list` / `samsung_sources`), modalita' immagine/audio, nomi e colori delle app (`samsung_apps`) del telecomando Samsung, unita' di misura e colori delle serie nel popup grafico e la soglia della card Zigbee passano ora da `esc()` prima di finire in `innerHTML`. Un nome contenente markup viene mostrato come testo; il servizio chiamato riceve sempre il nome originale (l'attributo e' decodificato dal browser).

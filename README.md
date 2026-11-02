@@ -260,13 +260,15 @@ Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push
 
 ## 📦 Installazione con HACS
 
-Clicca il pulsante per aprire il repository direttamente in HACS (anche se non è ancora nell'elenco predefinito):
+![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)
+
+Disponibile nell'elenco predefinito di HACS dal 2 novembre 2026 (Available in the HACS default store since 2 Nov 2026).
+
+Apri **HACS**, cerca **Smart Home Cards** e premi **Scarica**: aggiornamenti automatici, nessun file da ricopiare a mano. Oppure clicca il pulsante per aprire il repository direttamente in HACS:
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Simonz82&repository=smart-home-cards&category=plugin)
 
-Oppure apri **HACS**, cerca **Smart Home Cards** e installala: aggiornamenti automatici, nessun file da ricopiare a mano.
-
-Se la ricerca non la trova (la tua versione di HACS non ha ancora la raccolta nell'elenco predefinito), aggiungila come **repository personalizzato**: tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**. Dettagli: [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
+Nota: se usi una versione molto vecchia di HACS che non la trova, aggiornala (in alternativa: Repository personalizzati, `https://github.com/Simonz82/smart-home-cards`, categoria Dashboard). Dettagli: [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
 
 ## Installazione rapida
 

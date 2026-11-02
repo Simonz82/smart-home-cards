@@ -11,8 +11,8 @@ Se hai [HACS](https://hacs.xyz) installato, lascia che sia lui a scaricare e agg
    [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Simonz82&repository=smart-home-cards&category=plugin)
 
    Oppure, a mano: apri **HACS** dal menu laterale.
-2. Cerca **Smart Home Cards** e installala.
-3. Se la ricerca non la trova, aggiungi prima il repository come **repository personalizzato**: tre puntini in alto a destra → **Repository personalizzati** → URL `https://github.com/Simonz82/smart-home-cards`, Categoria **Dashboard**. Poi ripeti il passo 2.
+2. Cerca **Smart Home Cards** e premi **Scarica** (la card è nell'elenco predefinito di HACS dal 2 novembre 2026).
+3. Solo se hai una versione molto vecchia di HACS che non la trova: aggiornala, oppure aggiungi il repository come repository personalizzato (tre puntini → Repository personalizzati → URL `https://github.com/Simonz82/smart-home-cards`, Categoria **Dashboard**) e ripeti il passo 2.
 4. HACS aggiunge da solo la risorsa `/hacsfiles/smart-home-cards/smart-home-cards.js` alla dashboard: non serve il passo 4 qui sotto ("Registra il file come risorsa"). Da qui in poi continua dal punto 6 ("Aggiungi la card alla dashboard").
 
 Da questo momento, quando pubblico un aggiornamento, HACS te lo segnala e lo installi con un clic, senza ricopiare nulla a mano.
