@@ -1,5 +1,7 @@
 # smart-home-cards
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Simonz82&repository=smart-home-cards&category=plugin)
+
 Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e complete" senza impilare 4-5 card diverse (HACS) una dentro l'altra. Ogni card è un unico file JavaScript, gira su qualunque dashboard (anche sul cellulare), ha un popup Impostazioni e uno Statistiche integrati, e un **editor visuale nativo** (niente YAML obbligatorio: "Aggiungi card" → cerchi il nome → compili i campi).
 
 **Repository unico**: le 17 card (elettrodomestici, energia, climatizzatore, stufetta, ventilatore, caldaia e caloriferi, FritzBox, rete Zigbee, server HA, NAS, Proxmox, UPS, raccolta differenziata, centro notifiche, annuncio testo Alexa, memo Alexa, webradio Alexa) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
@@ -258,7 +260,11 @@ Tutte le card condividono lo stesso motore di **notifiche personalizzate** (push
 
 ## 📦 Installazione con HACS
 
-Apri **HACS**, cerca **Smart Home Cards** e installala: aggiornamenti automatici, nessun file da ricopiare a mano.
+Clicca il pulsante per aprire il repository direttamente in HACS (anche se non è ancora nell'elenco predefinito):
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Simonz82&repository=smart-home-cards&category=plugin)
+
+Oppure apri **HACS**, cerca **Smart Home Cards** e installala: aggiornamenti automatici, nessun file da ricopiare a mano.
 
 Se la ricerca non la trova (la tua versione di HACS non ha ancora la raccolta nell'elenco predefinito), aggiungila come **repository personalizzato**: tre puntini in alto a destra → Repository personalizzati → `https://github.com/Simonz82/smart-home-cards`, categoria **Dashboard**. Dettagli: [docs/installazione.md](https://github.com/Simonz82/smart-home-cards/blob/main/docs/installazione.md#0-con-hacs-se-preferisci-non-copiare-i-file-a-mano).
 
