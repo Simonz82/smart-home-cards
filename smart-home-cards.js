@@ -865,7 +865,7 @@ function gcFmt(v, unit) {
   if (!Number.isFinite(v)) return "—";
   const a = Math.abs(v);
   const s = v.toLocaleString("it-IT", { maximumFractionDigits: a >= 100 ? 0 : a >= 10 ? 1 : 2 });
-  return unit ? `${s} ${unit}` : s;
+  return unit ? `${s} ${esc(unit)}` : s;
 }
 
 function gcNiceTicks(min, max, n) {
@@ -1117,7 +1117,7 @@ function shcOpenChartPopup(card, opts) {
       return;
     }
     chipsEl.innerHTML = series
-      .map((s, i) => `<button type="button" class="shc-gc-chip${st.active.has(i) ? " on" : ""}" data-i="${i}" style="--c:${s.color}"><i></i>${esc(s.label)}</button>`)
+      .map((s, i) => `<button type="button" class="shc-gc-chip${st.active.has(i) ? " on" : ""}" data-i="${i}" style="--c:${esc(s.color)}"><i></i>${esc(s.label)}</button>`)
       .join("");
   };
   chipsEl.addEventListener("click", (e) => {
@@ -1223,7 +1223,7 @@ function shcOpenChartPopup(card, opts) {
         const v = s.pts.map((p) => p.y);
         if (!v.length) return "";
         const a = v.reduce((x, y) => x + y, 0) / v.length;
-        return `<span class="shc-gc-sumrow"><b style="color:${s.color}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
+        return `<span class="shc-gc-sumrow"><b style="color:${esc(s.color)}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
       })
       .join("");
     void avg;
@@ -1269,7 +1269,7 @@ function shcOpenChartPopup(card, opts) {
     });
     const when = new Date(tms).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     tip.innerHTML = `<div class="shc-gc-tip-t">${when}</div>${rows
-      .map((r) => `<div><i style="background:${r.s.color}"></i>${geo.act.length > 1 ? esc(r.s.label) + ": " : ""}<b>${gcFmt(r.p.y, r.s.unit)}</b></div>`)
+      .map((r) => `<div><i style="background:${esc(r.s.color)}"></i>${geo.act.length > 1 ? esc(r.s.label) + ": " : ""}<b>${gcFmt(r.p.y, r.s.unit)}</b></div>`)
       .join("")}`;
     tip.hidden = false;
     const plot = q(".shc-gc-plot").getBoundingClientRect();
@@ -1549,14 +1549,14 @@ class ShcSamsungRemote extends HTMLElement {
   <div class="rock"><button data-k="KEY_CHUP">${shcSrIco("chevron-up")}</button><div class="mid">CH</div><button data-k="KEY_CHDOWN">${shcSrIco("chevron-down")}</button></div></div>
  <div class="colors"><button class="cb" style="background:#ef4444" data-k="KEY_RED"></button><button class="cb" style="background:#22c55e" data-k="KEY_GREEN"></button><button class="cb" style="background:#eab308" data-k="KEY_YELLOW"></button><button class="cb" style="background:#3b82f6" data-k="KEY_BLUE"></button></div>
  <div class="row" style="justify-content:center;gap:8px"><button class="b sm" data-k="KEY_REWIND">${shcSrIco("rewind")}</button><button class="b sm" data-s="media_play">${shcSrIco("play")}</button><button class="b sm" data-s="media_pause">${shcSrIco("pause")}</button><button class="b sm" data-s="media_stop">${shcSrIco("stop")}</button><button class="b sm" data-k="KEY_FF">${shcSrIco("fast-forward")}</button></div>
- <div class="apps">${apps.slice(0, 4).map((a, i) => `<button class="app" data-app="${i}" style="background:linear-gradient(180deg,${a.color || "#334155"},${a.color || "#334155"}99)">${a.name}</button>`).join("")}</div></div>
+ <div class="apps">${apps.slice(0, 4).map((a, i) => `<button class="app" data-app="${i}" style="background:linear-gradient(180deg,${esc(a.color || "#334155")},${esc(a.color || "#334155")}99)">${esc(a.name)}</button>`).join("")}</div></div>
 </div>
 <div class="pop" id="pop"><h4>${t.keypad}</h4><div class="g">${[1,2,3,4,5,6,7,8,9].map((n) => `<button class="b" data-k="KEY_${n}">${n}</button>`).join("")}<button class="b" data-k="KEY_MINUS">${shcSrIco("minus")}</button><button class="b" data-k="KEY_0">0</button><button class="b" data-k="KEY_ENTER">${shcSrIco("check")}</button></div></div>
 </div>
 <div class="panel dis-off">
  <div class="wide-only"><div class="hero" id="hero"><div><small>${t.playing}</small><b id="ht"></b><span id="hs"></span></div></div></div>
  <div id="sec-src"><h2>${t.source}</h2><div class="chips" id="srcs"></div></div>
- <div class="wide-only"><h2>${t.apps}</h2><div class="chips">${apps.map((a, i) => `<button class="chip" data-app="${i}">${a.name}</button>`).join("")}</div>
+ <div class="wide-only"><h2>${t.apps}</h2><div class="chips">${apps.map((a, i) => `<button class="chip" data-app="${i}">${esc(a.name)}</button>`).join("")}</div>
  <h2>${t.volume}</h2><div class="vol">${shcSrIco("volume-high")}<input type="range" min="0" max="100" id="vs"><b id="vv"></b></div></div>
  <div id="sec-pic"><h2>${t.picture}</h2><div class="mods"><select class="chip" id="pm"></select><select class="chip" id="sm"></select></div></div>
  <div id="sec-mod"><h2>${t.modes}</h2><div class="mods"><button class="chip" id="artb" data-act="art">${t.art}</button><button class="chip" id="ambb" data-k="KEY_AMBIENT">${t.ambient}</button><button class="chip" data-act="off">${t.poweroff}</button></div></div>
@@ -1648,7 +1648,7 @@ class ShcSamsungRemote extends HTMLElement {
     const sk = srcs.join("|") + "|" + (a.source || "");
     if (this._sk !== sk) {
       this._sk = sk;
-      q("#srcs").innerHTML = srcs.map((s) => `<button class="chip${s === a.source ? " on" : ""}" data-src="${s}">${s}</button>`).join("");
+      q("#srcs").innerHTML = srcs.map((s) => `<button class="chip${s === a.source ? " on" : ""}" data-src="${esc(s)}">${esc(s)}</button>`).join("");
     }
     q("#sec-src").style.display = srcs.length ? "" : "none";
     // picture / sound
@@ -1656,7 +1656,7 @@ class ShcSamsungRemote extends HTMLElement {
       const k = (list || []).join("|") + "|" + cur;
       if (sel._k === k) return;
       sel._k = k;
-      sel.innerHTML = (list || []).map((x) => `<option value="${x}"${x === cur ? " selected" : ""}>${x}</option>`).join("");
+      sel.innerHTML = (list || []).map((x) => `<option value="${esc(x)}"${x === cur ? " selected" : ""}>${esc(x)}</option>`).join("");
     };
     const pl = a.picture_mode_list, sl = a.sound_mode_list;
     const showP = c.show_picture !== false && pl && pl.length, showS = c.show_sound !== false && sl && sl.length;
@@ -9182,7 +9182,7 @@ class ShcZigbeeCard extends HTMLElement {
     q(".shc-zb-batt").textContent = String(d.battery.length);
     const lowRow = q(".shc-zb-low");
     lowRow.hidden = !d.low.length;
-    q(".shc-zb-lowval").innerHTML = d.low.length ? `<b>${d.low.length}</b> <span style="color:var(--shc-dim)">sotto ${d.soglia}%</span>` : "";
+    q(".shc-zb-lowval").innerHTML = d.low.length ? `<b>${d.low.length}</b> <span style="color:var(--shc-dim)">sotto ${esc(d.soglia)}%</span>` : "";
 
     const pct = d.total ? Math.round((d.online / d.total) * 100) : 0;
     q(".shc-zb-online-val").textContent = d.st ? `${d.online}/${d.total}` : "—";

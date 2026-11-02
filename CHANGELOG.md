@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-02 — 1.16.1: escape HTML dei valori provenienti da entita' e configurazione
+
+- **Sicurezza**: nomi di sorgenti (`source_list` / `samsung_sources`), modalita' immagine/audio, nomi e colori delle app (`samsung_apps`) del telecomando Samsung, unita' di misura e colori delle serie nel popup grafico e la soglia della card Zigbee passano ora da `esc()` prima di finire in `innerHTML`. Un nome contenente markup viene mostrato come testo; il servizio chiamato riceve sempre il nome originale (l'attributo e' decodificato dal browser).
+- Nessun cambiamento di funzione.
+
 ## 2026-11-01 — 1.16.0: telecomando Samsung sotto la card TV
 
 - **Nuovo**: opzione `show_samsung_remote: true` (predefinita `false`) sulla card Elettrodomestici con `artwork: tv`: sotto la card compare lo stesso telecomando in stile Samsung di `samsung-tv-remote-card` (tasti, D-pad, volume/canali, tasti colorati, app, sorgenti, immagine/audio, Art Mode), integrato nel bundle (una sola risorsa, nessun conflitto se `samsung-tv-remote-card` e' installata: elemento interno `shc-samsung-remote`).
