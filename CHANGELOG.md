@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-03 — 1.16.4 (da provare): costo piu' affidabile, frigo senza "Fine/Durata", telecomando a pulsante
+
+- **Costo (statistiche automatiche)**: Oggi, Mese e Anno ora includono anche l'ora in corso (prima il costo restava indietro fino a un'ora, perche' le statistiche orarie arrivano solo a ora chiusa). Se manca il prezzo, sotto la tabella compare la spiegazione (campo non impostato, entita' inesistente o senza valore numerico) invece di un "—" muto. Il prezzo accetta anche la virgola e puo' essere un `sensor` o un `number`, non solo un `input_number`.
+- **Card NAS**: se il prezzo non e' leggibile mostra "—" invece di "0,00 €".
+- **Frigorifero**: nell'editor spariscono Avanzamento programma e Fine prevista; sulla card non compaiono piu' "Fine" e "Durata" dell'ultimo ciclo (senza `cycle_sensor` sparisce tutto il riquadro). Le configurazioni con `side` o `cycle_sensor` restano com'erano.
+- **TV**: nuova opzione `samsung_remote_position: button`: il telecomando resta chiuso e si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio. Predefinito `below` (come prima). Presente anche nell'editor.
+
 ## 2026-11-03 — 1.16.3: layout classico/centrato nell'editor di tutti gli elettrodomestici
 
 - **Editor visuale**: la card Elettrodomestici (`custom:shc-appliance-clone-card`) ha ora il campo **Layout** (Classico / Centrato, chiave `layout`, predefinito Classico) per tutti i tipi: frigorifero, forno, friggitrice ad aria, microonde, piastra, piano a induzione, lavatrice, asciugatrice, lavastoviglie, TV e tablet. Prima si poteva scegliere solo il menu `layout_entity` nelle impostazioni avanzate.

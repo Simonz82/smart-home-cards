@@ -565,6 +565,7 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 | Opzione | Cosa fa |
 |---|---|
 | `show_samsung_remote: true` | mostra il telecomando sotto la card (solo con `artwork: tv`) |
+| `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
 | `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
 | `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
 | `samsung_turn_on_script` | script da lanciare per accendere (utile se la TV non si accende da sola, es. con Wake-on-LAN o presa) |

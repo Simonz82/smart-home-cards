@@ -605,6 +605,7 @@ const STYLE = `
 .shc-ap-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
 .shc-ap-tools{display:flex;gap:4px;flex:0 0 auto}
 .shc-ap-tool{width:37px;height:37px;display:grid;place-items:center;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);cursor:pointer}
+.shc-ap-tool.on{color:var(--primary-color,#03a9f4);border-color:var(--primary-color,#03a9f4)}
 .shc-ap-tool[hidden]{display:none}
 .shc-ap-tool svg{width:19px;height:19px}
 .shc-ap-tool:hover{border-color:#bae6fd;color:var(--shc-blue-deep)}
@@ -1040,6 +1041,25 @@ async function shcCreateCostHelper(hass, { name, initial = 0.25 }) {
   return `input_number.${result.id}`;
 }
 
+// Prezzo €/kWh letto da un'entita' (virgola o punto). NaN se manca o non e' numerico.
+function shcPrice(hass, entityId) {
+  const st = entityId ? hass.states[entityId] : null;
+  if (!st) return NaN;
+  const raw = String(st.state).replace(",", ".").trim();
+  if (raw === "" || ["unavailable", "unknown", "none"].includes(raw.toLowerCase())) return NaN;
+  return Number(raw);
+}
+
+// Riga di spiegazione quando il costo non si puo' calcolare (invece di un "—" muto).
+function shcCostNote(hass, entityId) {
+  if (Number.isFinite(shcPrice(hass, entityId))) return "";
+  let why;
+  if (!entityId) why = "non hai impostato «Costo energia (€/kWh)» nell'editor della card";
+  else if (!hass.states[entityId]) why = `l'entit\u00e0 <code>${esc(entityId)}</code> non esiste (controlla il nome)`;
+  else why = `l'entit\u00e0 <code>${esc(entityId)}</code> non ha un valore numerico (stato: ${esc(hass.states[entityId].state)})`;
+  return `<div class="shc-ap-row-val" style="margin-top:8px;opacity:.8;font-size:12px;white-space:normal">Costo non calcolato: ${why}. Serve un prezzo in €/kWh (es. un helper Numero con 0,25).</div>`;
+}
+
 async function shcComputeAutoPeriods(hass, energyEntity, costPerKwh) {
   const now = new Date();
   const iso = (d) => d.toISOString();
@@ -1066,14 +1086,18 @@ async function shcComputeAutoPeriods(hass, energyEntity, costPerKwh) {
   const yearPrev0 = new Date(year0);
   yearPrev0.setFullYear(yearPrev0.getFullYear() - 1);
 
-  const [today, yesterday, month, monthPrev, year, yearPrev] = await Promise.all([
-    sumChange(today0, now, "hour"),
+  // Oggi in blocchi da 5 minuti (le statistiche orarie arrivano solo a ora chiusa: il costo restava
+  // indietro fino a un'ora); mese e anno = giorni/mesi chiusi + oggi.
+  const [today, yesterday, monthClosed, monthPrev, yearClosed, yearPrev] = await Promise.all([
+    sumChange(today0, now, "5minute"),
     sumChange(yesterday0, today0, "hour"),
-    sumChange(month0, now, "day"),
+    sumChange(month0, today0, "day"),
     sumChange(monthPrev0, month0, "day"),
-    sumChange(year0, now, "month"),
+    sumChange(year0, today0, "month"),
     sumChange(yearPrev0, year0, "month"),
   ]);
+  const month = monthClosed + today;
+  const year = yearClosed + today;
   const mk = (kwh) => ({ kwh, cost: Number.isFinite(costPerKwh) ? kwh * costPerKwh : null });
   return { today: mk(today), yesterday: mk(yesterday), month: mk(month), month_prev: mk(monthPrev), year: mk(year), year_prev: mk(yearPrev) };
 }
@@ -1736,6 +1760,7 @@ class ShcApplianceCloneCard extends HTMLElement {
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="Presa"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
           <span class="shc-ap-tools">${this._powerScriptOn() ? `<button type="button" class="shc-ap-tool shc-ap-pscript" title="${esc(shcL(this._hass, "Accendi / spegni", "Turn on / off"))}">${ICON_POWER_CUT}</button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
+            ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche" hidden>${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
@@ -1791,6 +1816,19 @@ class ShcApplianceCloneCard extends HTMLElement {
         this._root.appendChild(sEl);
         this._samsungEl = sEl;
         if (this._hass) sEl.hass = this._hass;
+        // samsung_remote_position: "button" = telecomando chiuso, si apre dal pulsante mdi:remote-tv
+        // accanto all'ingranaggio; "below" (default) = sempre sotto la card.
+        const rBtn = this._root.querySelector(".shc-ap-sremote");
+        if (rBtn) {
+          sEl.style.display = "none";
+          rBtn.hidden = false;
+          rBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const open = sEl.style.display === "none";
+            sEl.style.display = open ? "block" : "none";
+            rBtn.classList.toggle("on", open);
+          });
+        }
       }
     }
     // side: rilabel del riquadro "Ultimo ciclo" per dispositivi senza cicli (es. frigo: compressore)
@@ -1804,6 +1842,18 @@ class ShcApplianceCloneCard extends HTMLElement {
         lbl[i].querySelector("small").textContent = r.label || "";
         if (r.icon && icons[r.icon]) lbl[i].querySelector(".shc-ap-cycle-ic").innerHTML = icons[r.icon];
       });
+    }
+    // Frigorifero senza "side": niente cicli, quindi niente Fine/Durata (senza cycle_sensor
+    // nasconde l'intero riquadro). Le config esistenti con side o cycle_sensor restano com'erano.
+    if (this._config.artwork === "fridge" && !this._config.side) {
+      const rows = this._root.querySelectorAll(".shc-ap-cycle-row");
+      if (!this._config.cycle_sensor) {
+        const box = this._root.querySelector(".shc-ap-cycle-side");
+        if (box) box.style.display = "none";
+      } else {
+        this._root.querySelector(".shc-ap-cycle-cap").textContent = "Consumo";
+        [0, 1].forEach((i) => rows[i] && (rows[i].style.display = "none"));
+      }
     }
     if (this._config.hide_consumi) this._root.querySelector(".shc-ap-consumi").hidden = true;
     const psBtn = this._root.querySelector(".shc-ap-pscript");
@@ -2373,7 +2423,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const cfg = this._config;
     const slot = overlay?.querySelector("[data-auto-periods]");
     if (!slot || !cfg.energy_stat_entity) return;
-    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    const costRaw = shcPrice(this._hass, cfg.cost_entity);
     try {
       const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
       const labels = cfg.period_labels || {};
@@ -2396,7 +2446,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         row("month_prev", "Mese prec."),
         row("year", "Anno"),
         row("year_prev", "Anno prec."),
-      ].join("");
+      ].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
       slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
     }
@@ -3077,8 +3127,8 @@ const SHC_EDITOR_STYLE = `
   .shc-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
   .shc-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
   .shc-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
-  .shc-ed-lay-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
-  .shc-ed-lay-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
+  .shc-ed-lay-btn,.shc-ed-rpos-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+  .shc-ed-lay-btn.on,.shc-ed-rpos-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
   .shc-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
   .shc-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   ha-entity-picker{width:100%}
@@ -3431,7 +3481,7 @@ class ShcNasCardEditor extends ShcSimpleCardEditorBase {
       { title: "Consumi (pulsante fulmine)", fields: [
         { key: "energy.power", label: "Consumo attuale (W)", domain: ["sensor"] },
         { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
-        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number"] },
+        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number", "sensor", "number"] },
       ]},
       { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
     ];
@@ -3465,7 +3515,7 @@ class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
         { key: "power.voltage", label: "Tensione", domain: ["sensor"] },
         { key: "power.current", label: "Corrente", domain: ["sensor"] },
         { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
-        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number"] },
+        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number", "sensor", "number"] },
       ]},
       { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
     ];
@@ -3752,7 +3802,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       </div>
       <div class="shc-ed-row">
         <span class="shc-ed-label">Costo energia (€/kWh)</span>
-        <ha-entity-picker class="shc-ed-cost" include-domains='["input_number"]' allow-custom-entity></ha-entity-picker>
+        <ha-entity-picker class="shc-ed-cost" include-domains='["input_number","sensor","number"]' allow-custom-entity></ha-entity-picker>
         ${!cfg.cost_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-cost">Crea helper costo (0,25 €/kWh di partenza)</button>` : ""}
       </div>
       <div class="shc-ed-row">
@@ -3865,7 +3915,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         </label>
         ${
           cfg.show_samsung_remote === true
-            ? `<span class="shc-ed-label">${esc(L("TV (media_player, se diversa dallo stato live)", "TV (media_player, if different from the live state)"))}</span>
+            ? `<span class="shc-ed-label">${esc(L("Dove mostrare il telecomando", "Where to show the remote"))}</span>
+        <div class="shc-ed-choice">
+          <button type="button" class="shc-ed-rpos-btn${cfg.samsung_remote_position === "button" ? "" : " on"}" data-rpos="below">${esc(L("Sotto la card", "Below the card"))}</button>
+          <button type="button" class="shc-ed-rpos-btn${cfg.samsung_remote_position === "button" ? " on" : ""}" data-rpos="button">${esc(L("Pulsante (mdi:remote-tv)", "Button (mdi:remote-tv)"))}</button>
+        </div>
+        <span class="shc-ed-label">${esc(L("TV (media_player, se diversa dallo stato live)", "TV (media_player, if different from the live state)"))}</span>
         <ha-entity-picker class="shc-ed-sremote-ent" include-domains='["media_player"]' allow-custom-entity></ha-entity-picker>
         <span class="shc-ed-label">${esc(L("Entita remote per i tasti (facoltativa)", "Remote entity for keys (optional)"))}</span>
         <ha-entity-picker class="shc-ed-sremote-rem" include-domains='["remote"]' allow-custom-entity></ha-entity-picker>`
@@ -3924,7 +3979,10 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         <span class="shc-ed-label">Entita' dello stato (es. "in funzione", "pronto"...)</span>
         <ha-entity-picker class="shc-ed-live-state" allow-custom-entity></ha-entity-picker>
       </div>
-      <div class="shc-ed-row">
+      ${
+        cfg.artwork === "fridge"
+          ? ""
+          : `<div class="shc-ed-row">
         <span class="shc-ed-label">Avanzamento programma (facoltativo)</span>
         <ha-entity-picker class="shc-ed-live-progress" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>
@@ -3932,6 +3990,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         <span class="shc-ed-label">Fine prevista (facoltativo)</span>
         <ha-entity-picker class="shc-ed-live-remaining" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>`
+      }`
           : ""
       }
 
@@ -4018,6 +4077,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-zones", cfg.zones_entity, null, "zones_entity");
     wirePicker(".shc-ed-sremote-ent", cfg.samsung_entity || cfg.live?.state_entity, null, "samsung_entity");
     wirePicker(".shc-ed-sremote-rem", cfg.samsung_remote_entity, null, "samsung_remote_entity");
+    body.querySelectorAll(".shc-ed-rpos-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._set("samsung_remote_position", btn.dataset.rpos === "button" ? "button" : undefined);
+        body.querySelectorAll(".shc-ed-rpos-btn").forEach((b) => b.classList.toggle("on", b === btn));
+      });
+    });
     const sremCb = body.querySelector(".shc-ed-sremote");
     if (sremCb)
       sremCb.addEventListener("change", () => {
@@ -5565,14 +5630,15 @@ class ShcNasCard extends HTMLElement {
     const cfg = this._config;
     const en = cfg.energy || {};
     const val = (id, digits) => this._val(hass, id, digits);
-    const costoKwh = Number(hass.states[en.cost_entity || "input_number.costo_energia"]?.state) || 0;
+    const costoKwh = shcPrice(hass, en.cost_entity || cfg.cost_entity || "input_number.costo_energia");
+    const eur = (kwh) => (Number.isFinite(costoKwh) ? `${(kwh * costoKwh).toFixed(2)} \u20ac` : "\u2014");
 
     const attualeHtml = en.power ? this._statRow("Consumo attuale", val(en.power, 1)) : "";
     const todayKwh = en.today_kwh ? Number(hass.states[en.today_kwh]?.state) : NaN;
     const monthKwh = en.month_kwh ? Number(hass.states[en.month_kwh]?.state) : NaN;
     const energiaHtml = [
-      Number.isFinite(todayKwh) ? this._statRow2("Oggi", `${todayKwh.toFixed(2)} kWh`, `${(todayKwh * costoKwh).toFixed(2)} \u20ac`) : "",
-      Number.isFinite(monthKwh) ? this._statRow2("Mese", `${monthKwh.toFixed(2)} kWh`, `${(monthKwh * costoKwh).toFixed(2)} \u20ac`) : "",
+      Number.isFinite(todayKwh) ? this._statRow2("Oggi", `${todayKwh.toFixed(2)} kWh`, eur(todayKwh)) : "",
+      Number.isFinite(monthKwh) ? this._statRow2("Mese", `${monthKwh.toFixed(2)} kWh`, eur(monthKwh)) : "",
     ].join("");
 
     const useAutoStats = !!cfg.energy_stat_entity;
@@ -5603,7 +5669,7 @@ class ShcNasCard extends HTMLElement {
     const cfg = this._config;
     const slot = overlay?.querySelector("[data-auto-periods]");
     if (!slot || !cfg.energy_stat_entity) return;
-    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    const costRaw = shcPrice(this._hass, cfg.cost_entity);
     try {
       const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
       const row = (key, def) => {
@@ -5618,7 +5684,7 @@ class ShcNasCard extends HTMLElement {
           </div>
         </div>`;
       };
-      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("");
+      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
       slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
     }
@@ -7589,7 +7655,7 @@ class ShcProxmoxCard extends HTMLElement {
     const cfg = this._config;
     const slot = overlay?.querySelector("[data-auto-periods]");
     if (!slot || !cfg.energy_stat_entity) return;
-    const costRaw = cfg.cost_entity ? Number(this._hass.states[cfg.cost_entity]?.state) : NaN;
+    const costRaw = shcPrice(this._hass, cfg.cost_entity);
     try {
       const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
       const row = (key, def) => {
@@ -7604,7 +7670,7 @@ class ShcProxmoxCard extends HTMLElement {
           </div>
         </div>`;
       };
-      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("");
+      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
       slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
     }
