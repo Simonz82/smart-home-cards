@@ -1050,6 +1050,14 @@ function shcPrice(hass, entityId) {
   return Number(raw);
 }
 
+// Numero da un valore qualsiasi: null/vuoto/non numerico -> NaN (Number(null) darebbe 0 e un falso "0,00 €"); accetta la virgola.
+function shcNum(v) {
+  if (v === null || v === undefined) return NaN;
+  const t = String(v).replace(",", ".").trim();
+  if (t === "" || ["unavailable", "unknown", "none"].includes(t.toLowerCase())) return NaN;
+  return Number(t);
+}
+
 // Riga di spiegazione quando il costo non si puo' calcolare (invece di un "—" muto).
 function shcCostNote(hass, entityId) {
   if (Number.isFinite(shcPrice(hass, entityId))) return "";
@@ -2241,7 +2249,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const cycles = cyclesSt ? (cyclesAttr ? (cyclesSt.attributes?.[cyclesAttr] ?? "\u2014") : cyclesSt.state) : "\u2014";
     const time = pAttrs.time ? attrs[pAttrs.time] ?? "\u2014" : "\u2014";
     const cost = pAttrs.cost ? attrs[pAttrs.cost] : null;
-    const costTxt = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
+    const costTxt = Number.isFinite(shcNum(cost)) ? `${shcNum(cost).toFixed(2)} \u20ac` : "\u2014";
     const label = cfg.period_labels[periodKey] || periodKey;
     return `<div class="shc-ap-week-row">
       <div class="shc-ap-week-day">${esc(label)}</div>
@@ -2382,7 +2390,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         const tempo = hass.states[row.tempo]?.state ?? "\u2014";
         const consumoNum = Number(hass.states[row.consumo]?.state);
         const consumo = Number.isFinite(consumoNum) ? `${consumoNum.toFixed(2)} kWh` : "\u2014";
-        const costoNum = Number(hass.states[row.costo]?.state);
+        const costoNum = shcNum(hass.states[row.costo]?.state);
         const costo = Number.isFinite(costoNum) ? `${costoNum.toFixed(2)} \u20ac` : "\u2014";
         return `<div class="shc-ap-week-row">
           <div class="shc-ap-week-day">${esc(row._label)}</div>
@@ -2809,7 +2817,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._root.querySelector(".shc-c-end").textContent = end ?? "\u2014";
     this._root.querySelector(".shc-c-duration").textContent = duration ?? "\u2014";
     this._root.querySelector(".shc-c-energy").textContent = energy ?? "\u2014";
-    this._root.querySelector(".shc-c-cost").textContent = Number.isFinite(Number(cost)) ? `${Number(cost).toFixed(2)} \u20ac` : "\u2014";
+    this._root.querySelector(".shc-c-cost").textContent = Number.isFinite(shcNum(cost)) ? `${shcNum(cost).toFixed(2)} \u20ac` : "\u2014";
     }
 
     const warnEl = this._root.querySelector(".shc-ap-warn");
@@ -6156,7 +6164,8 @@ class ShcEnergyCard extends HTMLElement {
     const st = entityId ? hass.states[entityId] : null;
     if (!st) return "\u2014";
     const raw = attr ? st.attributes?.[attr] : st.state;
-    const n = Number(raw);
+    if (raw === undefined || raw === null || ["unavailable", "unknown"].includes(raw)) return "\u2014";
+    const n = shcNum(raw);
     const unit = st.attributes?.unit_of_measurement || "";
     const num = Number.isFinite(n) && digits != null ? n.toFixed(digits) : raw;
     return `${num}${unit ? " " + unit : ""}`;
@@ -10616,7 +10625,7 @@ class ShcClimateCard extends HTMLElement {
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Presa / misuratore</div>
         ${cfg.power_entity ? this._row("Potenza adesso", `<span class="shc-ap-row-val">${power === null ? "—" : `${Math.round(power)} W`}</span>`) : ""}
         ${cfg.energy_entity ? this._row("Energia totale", `<span class="shc-ap-row-val">${total === null ? "—" : `${clNum(total, 1)} kWh`}</span>`) : ""}
-        ${cfg.price_entity && total !== null ? this._row("Costo totale stimato", `<span class="shc-ap-row-val">${clNum(total * (this._val(cfg.price_entity) || 0), 2)} €</span>`) : ""}
+        ${cfg.price_entity && total !== null && Number.isFinite(shcPrice(this._hass, cfg.price_entity)) ? this._row("Costo totale stimato", `<span class="shc-ap-row-val">${clNum(total * shcPrice(this._hass, cfg.price_entity), 2)} €</span>`) : ""}
         ${!cfg.power_entity && !cfg.energy_entity ? `<p class="shc-cl-note">Nessun misuratore configurato (power_entity / energy_entity).</p>` : ""}
       </div>
       ${cfg.power_entity ? `<div class="shc-ap-sec">${this._row("Grafico della potenza", `<button type="button" class="shc-ap-action-btn" data-pg="1">Apri</button>`)}</div>` : ""}`;
@@ -12592,7 +12601,7 @@ class ShcBoilerCard extends ShcDeviceCardBase {
       this._openDialog("Consumi gas", `<div class="shc-ap-sec"><p class="shc-cl-note">Non riesco a leggere le statistiche: ${esc(e?.message || e)}</p></div>`);
       return;
     }
-    const price = Number(cfg.gas_price) || 0;
+    const price = shcNum(cfg.gas_price) || 0;
     const m3 = (v) => `${clNum(v, 2)} m³`;
     const eur = (v) => (price ? `<i>${clNum(v * price, 2)} €</i>` : "");
     const box = (label, s) => `<div class="shc-bl-sumbox"><small>${label}</small><b>${m3(s.heat + s.water)}</b>${eur(s.heat + s.water)}
