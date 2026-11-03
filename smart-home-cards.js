@@ -7,7 +7,20 @@
 function shcHeroImage(hero, image) {
   if (!image || typeof image !== "string") return hero;
   const src = /^(https?:)?\/\//.test(image) || image.startsWith("/") ? image : "/local/" + image;
-  return hero.replace(/<image href="[^"]*"/, '<image href="' + String(src).replace(/"/g, "&quot;") + '"');
+  const safe = String(src).replace(/"/g, "&quot;");
+  if (/<image href="[^"]*"/.test(hero)) return hero.replace(/<image href="[^"]*"/, '<image href="' + safe + '"');
+  // Disegno vettoriale senza foto (elettrodomestici): la tua immagine prende il posto del disegno.
+  return hero.replace(/(<svg[^>]*>)[\s\S]*<\/svg>/, '$1<image href="' + safe + '" x="8" y="8" width="224" height="224" preserveAspectRatio="xMidYMid meet" onerror="this.style.display=\'none\'"/></svg>');
+}
+
+// Data/ora a 2 formati: completo (default, "31/10/2026, 14:20") oppure corto "31/10 14:20" con
+// date_format: short, o auto (corto solo su schermi stretti, <= 480 px). Usato sul fronte delle card.
+function shcFmtDateTime(d, mode) {
+  const narrow = typeof window !== "undefined" && window.innerWidth <= 480;
+  if (mode === "short" || (mode === "auto" && narrow)) {
+    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "");
+  }
+  return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 // Esegue uno script / scena / pulsante o un'azione completa {action, target, data}.
@@ -558,6 +571,12 @@ const STYLE = `
 .shc-ap-chip svg{width:27px;height:27px}
 .shc-ap-headings{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
 .shc-ap-name{font-size:14.5px;font-weight:900;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--shc-text)}
+@media (max-width:480px){
+  .shc-ap-card .shc-ap-name{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;line-height:1.15}
+  .shc-ap-card .shc-ap-tools{gap:3px}
+  .shc-ap-card .shc-ap-tool{width:30px;height:30px;border-radius:10px}
+  .shc-ap-card .shc-ap-tool svg{width:17px;height:17px}
+}
 .shc-ap-room{font-size:11px;font-weight:750;color:var(--shc-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shc-ap-sock{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;padding:4px 7px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap;cursor:pointer;line-height:1}
 .shc-ap-sock-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;display:inline-block}
@@ -631,6 +650,9 @@ const STYLE = `
 .shc-e-top-w{flex:0 0 auto;white-space:nowrap}
 .shc-ap-cycle-row-b{padding:4px 8px;border-radius:9px;border:1px solid var(--shc-border);background:var(--shc-card);align-items:center}
 .shc-ap-cycle-label{display:flex;align-items:center;gap:5px;min-width:0;flex:0 0 auto}
+/* Valori sempre leggibili: se etichetta + valore non stanno su una riga, il valore va a capo (mai "31/10/20..."). Energia esclusa. */
+.shc-ap-card:not(.shc-e-card) .shc-ap-cycle-row-b{flex-wrap:wrap;row-gap:1px}
+.shc-ap-card:not(.shc-e-card) .shc-ap-cycle-row-b b:not(.shc-e-top){margin-left:auto;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .shc-ap-cycle-ic{display:flex;align-items:center;flex:0 0 auto;color:var(--shc-blue)}
 .shc-ap-panel{display:flex;align-items:center;gap:14px;margin:10px 13px 13px;padding:13px 14px;border-radius:16px;background:var(--shc-soft)}
 .shc-ap-meters{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
@@ -3334,6 +3356,7 @@ class ShcFritzCardEditor extends ShcSimpleCardEditorBase {
     return [
       { title: "Base", fields: [
         { key: "name", label: "Nome", kind: "text", placeholder: "FritzBox" },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/fritz-box.png", hint: "Percorso o URL di una tua foto." },
         { key: "connection_entity", label: "Sensore di connessione (acceso/spento)", domain: ["binary_sensor"], required: true },
       ]},
       { title: "Banda in tempo reale", fields: [
@@ -3355,7 +3378,10 @@ customElements.define("shc-fritz-card-editor", ShcFritzCardEditor);
 class ShcServerCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Home Assistant" }]},
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Home Assistant" },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/ha_logo.gif", hint: "Percorso o URL di una tua foto." },
+      ]},
       { title: "Sistema", fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
@@ -3409,7 +3435,10 @@ customElements.define("shc-nas-card-editor", ShcNasCardEditor);
 class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Proxmox" }]},
+      { title: "Base", fields: [
+        { key: "name", label: "Nome", kind: "text", placeholder: "Proxmox" },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/proxmox-logo.svg", hint: "Percorso o URL di una tua foto." },
+      ]},
       { title: "Sistema", fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
@@ -3443,7 +3472,7 @@ class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
       { title: "Base", fields: [
         { key: "name", label: "Nome", kind: "text", placeholder: "UPS" },
         { key: "model", label: "Modello", kind: "text", placeholder: "APC Back-UPS BE850G2" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/apc-ups.png", hint: "Percorso o URL di una foto tuo: utile con due UPS diversi." },
+        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/apc-ups.png", hint: "Percorso o URL di una tua foto: utile con due UPS diversi." },
         { key: "status_entity", label: "Stato UPS", domain: ["sensor"], required: true },
       ]},
       { title: "Batteria e carico", fields: [
@@ -3770,6 +3799,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       </div>
 
       <div class="shc-ed-row">
+        <span class="shc-ed-label">Immagine personalizzata (opzionale)</span>
+        <input class="shc-ed-input shc-ed-image" type="text" placeholder="/local/foto/lavastoviglie.png">
+        <p class="shc-ed-hint">Percorso o URL di una tua foto.</p>
+      </div>
+
+      <div class="shc-ed-row">
         <span class="shc-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
         <p class="shc-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
         <div class="shc-ed-choice">
@@ -3934,6 +3969,9 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     const name = body.querySelector(".shc-ed-name");
     name.value = cfg.name || "";
     name.addEventListener("change", () => this._set("name", name.value));
+    const image = body.querySelector(".shc-ed-image");
+    image.value = cfg.image || "";
+    image.addEventListener("change", () => this._set("image", image.value.trim()));
 
     // Le entity-picker si valorizzano assegnando la proprieta' via JS (un attributo scritto nel
     // markup non basta), altrimenti mostrerebbero sempre vuoto anche per una card gia' configurata.
@@ -4191,11 +4229,11 @@ class ShcFritzCard extends HTMLElement {
     return overlay;
   }
 
-  _fmtDateTime(iso) {
+  _fmtDateTime(iso, face) {
     if (!iso) return "\u2014";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return shcFmtDateTime(d, face ? this._config && this._config.date_format : "");
   }
 
   _settingsRowHtml(hass, row) {
@@ -4414,7 +4452,7 @@ class ShcFritzCard extends HTMLElement {
       : "N/D";
 
     this._root.querySelector(".shc-c-ip").textContent = attrs.ip ?? "\u2014";
-    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(attrs.uptime_connect);
+    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(attrs.uptime_connect, true);
     const s = cfg.stats || {};
     const portanteDown = s.portante_down ? hass.states[s.portante_down] : null;
     const portanteUp = s.portante_up ? hass.states[s.portante_up] : null;
@@ -4623,11 +4661,11 @@ class ShcServerCard extends HTMLElement {
     return overlay;
   }
 
-  _fmtDateTime(iso) {
+  _fmtDateTime(iso, face) {
     if (!iso) return "\u2014";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return shcFmtDateTime(d, face ? this._config && this._config.date_format : "");
   }
 
   _daysUntil(iso) {
@@ -5008,7 +5046,7 @@ class ShcServerCard extends HTMLElement {
 
     const coreUpd = u.core ? hass.states[u.core] : null;
     this._root.querySelector(".shc-c-core").textContent = coreUpd?.attributes?.installed_version ?? "\u2014";
-    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(hass.states[up.ha_since]?.state);
+    this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(hass.states[up.ha_since]?.state, true);
     const sslIso = cfg.ssl_cert ? hass.states[cfg.ssl_cert]?.state : null;
     const sslDays = this._daysUntil(sslIso);
     this._root.querySelector(".shc-c-ssl").textContent = sslDays != null ? `${sslDays} gg` : "\u2014";
@@ -5246,11 +5284,11 @@ class ShcNasCard extends HTMLElement {
     return overlay;
   }
 
-  _fmtDateTime(iso) {
+  _fmtDateTime(iso, face) {
     if (!iso) return "\u2014";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return shcFmtDateTime(d, face ? this._config && this._config.date_format : "");
   }
 
   _settingsRowHtml(hass, row) {
@@ -7269,11 +7307,11 @@ class ShcProxmoxCard extends HTMLElement {
     return overlay;
   }
 
-  _fmtDateTime(iso) {
+  _fmtDateTime(iso, face) {
     if (!iso) return "\u2014";
     const d = new Date(iso);
     if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return shcFmtDateTime(d, face ? this._config && this._config.date_format : "");
   }
 
   _settingsRowHtml(hass, row) {
@@ -7666,7 +7704,7 @@ class ShcProxmoxCard extends HTMLElement {
     this._root.querySelector(".shc-ap-badge-label").textContent = online ? "ONLINE" : "OFFLINE";
     this._root.querySelector(".shc-px-ct").textContent = this._val(hass, s.containers, 0);
     this._root.querySelector(".shc-px-vm").textContent = this._val(hass, s.vms, 0);
-    this._root.querySelector(".shc-px-boot").textContent = this._fmtDateTime(hass.states[s.last_boot]?.state);
+    this._root.querySelector(".shc-px-boot").textContent = this._fmtDateTime(hass.states[s.last_boot]?.state, true);
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
@@ -11598,12 +11636,37 @@ class ShcFanCard extends ShcDeviceCardBase {
       const cfg = this._config;
       // power_script: accensione/spegnimento con script (ventilatori IR/RF, es. Broadlink), facoltativo
       if (cfg.power_script) {
-        shcCallScriptTarget(this._hass, cfg.power_script_off && st.state === "on" ? cfg.power_script_off : cfg.power_script);
+        const active = this._fnOn(st);
+        shcCallScriptTarget(this._hass, cfg.power_script_off && active ? cfg.power_script_off : cfg.power_script);
+        // Senza power_script_state (telecomandi RF/IR senza feedback) la card ricorda l'ultimo comando inviato.
+        if (!cfg.power_script_state) {
+          this._fnAssumed = !active;
+          this._fnAssumedFan = st.state;
+          this.hass = this._hass;
+        }
         return;
       }
       this._call("fan", st.state === "on" ? "turn_off" : "turn_on", { entity_id: cfg.entity });
     });
     bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSpeed(Number(b.dataset.step)));
+  }
+
+  // Ventilatore acceso: entita' power_script_state se indicata (on, o un numero > 0); senza, per i
+  // ventilatori comandati a script senza feedback vale l'ultimo comando inviato, finche' lo stato
+  // dell'entita' fan non cambia; altrimenti lo stato dell'entita' fan.
+  _fnOn(st) {
+    const c = this._config;
+    if (c.power_script_state) {
+      const ps = this._hass && this._hass.states[c.power_script_state];
+      if (!ps || ["unavailable", "unknown"].includes(ps.state)) return false;
+      const n = Number(ps.state);
+      return ps.state === "on" || (ps.state !== "off" && Number.isFinite(n) && n > 0) || ["playing", "heat", "cool", "open", "home"].includes(ps.state);
+    }
+    if (c.power_script && this._fnAssumed != null) {
+      if (st && st.state !== this._fnAssumedFan) this._fnAssumed = null;
+      else return this._fnAssumed;
+    }
+    return !!st && st.state === "on";
   }
 
   _speedStep() {
@@ -11653,7 +11716,7 @@ class ShcFanCard extends ShcDeviceCardBase {
     const st = this._st();
     const q = (sel) => this._root.querySelector(sel);
     const unav = !st || ["unavailable", "unknown"].includes(st.state);
-    const on = !unav && st.state === "on";
+    const on = !unav && this._fnOn(st);
     const a = st?.attributes || {};
     const pct = on && Number.isFinite(Number(a.percentage)) ? Number(a.percentage) : null;
     const mistOn = this._on(cfg.mist_entity);
@@ -11854,6 +11917,7 @@ class ShcFanCardEditor extends ShcSimpleCardEditorBase {
       { title: "Accensione con script (facoltativo)", fields: [
         { key: "power_script", label: "Script / scena / pulsante di accensione", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Il tasto power della card avvia questo script invece di accendere il ventilatore. Per inviare direttamente un comando (remote.send_command) usa la vista YAML." },
         { key: "power_script_off", label: "Script di spegnimento (facoltativo)", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Usato quando il ventilatore e' acceso; senza, il tasto lancia sempre lo script di accensione." },
+        { key: "power_script_state", label: "Stato acceso/spento (facoltativo)", hint: "Entita' (input_boolean, switch, binary_sensor...) che dice se il ventilatore e' acceso: la card diventa verde e le pale girano. Senza, la card ricorda l'ultimo comando." },
       ]},
       { title: "Nebbia e luce", fields: [
         { key: "mist_entity", label: "Nebulizzatore", domain: ["switch"] },

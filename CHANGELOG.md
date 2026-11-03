@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-03 — 1.16.2: schermi stretti, immagine nell'editor, ventilatore RF/IR (#8, #3)
+
+- **Telefono (#8)**: nelle card Proxmox, Server Home Assistant, NAS e Fritz!Box il valore non viene piu' troncato ("31/10/20…", "2026.…", "DSM 7.4.1-9008…"): se etichetta e valore non stanno insieme, il valore va a capo sotto l'etichetta. Il titolo va a capo invece di troncarsi e sotto i 480 px i pulsanti dell'intestazione sono un po' piu' piccoli. Su schermi larghi nulla cambia.
+- **Nuovo `date_format`** (`full` predefinito, `short`, `auto`): data di avvio corta "31/10 09:41" (con `auto` solo sotto i 480 px) su Proxmox, Server HA e Fritz!Box.
+- **Immagine personalizzata (#8)**: il campo "Immagine personalizzata" e' ora nell'editor visuale anche di Proxmox, Server Home Assistant, Fritz!Box ed Elettrodomestici (come NAS e UPS). Sugli elettrodomestici disegnati in vettoriale la tua immagine sostituisce il disegno.
+- **Ventilatore (#3)**: nuova opzione `power_script_state` sulla card ventilatore (entita' che dice se e' acceso): con ventilatori RF/IR (Broadlink) il tasto diventa verde, le pale girano e `power_script_off` parte. Senza, la card ricorda l'ultimo comando inviato. Esempio completo in `docs/ventilatore.md`.
+
 ## 2026-11-02 — HACS default store
 
 - Added to the HACS default store (hacs/default#11212): ora si installa cercando "Smart Home Cards" in HACS, senza repository personalizzato. Nessuna nuova versione.

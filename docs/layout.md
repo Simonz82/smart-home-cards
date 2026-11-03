@@ -185,3 +185,13 @@ Tutte le card, nei due layout e nei due temi.
 | **Chiaro** | ![♻️ Raccolta differenziata classico chiaro](screenshot/layout/garbage-classico-light.png) | ![♻️ Raccolta differenziata centrato chiaro](screenshot/layout/garbage-centrato-light.png) |
 | **Scuro** | ![♻️ Raccolta differenziata classico scuro](screenshot/layout/garbage-classico-dark.png) | ![♻️ Raccolta differenziata centrato scuro](screenshot/layout/garbage-centrato-dark.png) |
 
+
+## Schermi stretti (telefono)
+
+Nelle card Proxmox, Server Home Assistant, NAS e Fritz!Box, se etichetta e valore non stanno sulla stessa riga (per esempio "Avviato il" con la data completa) il valore va a capo sotto l'etichetta invece di essere troncato. Anche il titolo va a capo e i pulsanti dell'intestazione diventano un po' piu' piccoli sotto i 480 px. Su schermi larghi non cambia nulla.
+
+Per accorciare la data di avvio ("31/10 09:41" invece di "31/10/2026, 09:41") usa l'opzione `date_format`:
+
+```yaml
+date_format: auto   # full (predefinito) | short | auto (corta solo sotto i 480 px)
+```

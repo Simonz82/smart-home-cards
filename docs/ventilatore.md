@@ -99,6 +99,7 @@ switches:
 | `power_entity` | — | Potenza (W) della presa, per il grafico |
 | `power_script` | — | Facoltativo: script / scena / pulsante (oppure azione `remote.send_command`) che il tasto power della card avvia al posto del servizio `fan`. Per ventilatori IR/RF (Broadlink) |
 | `power_script_off` | — | Facoltativo: script di spegnimento, usato quando il ventilatore risulta acceso; senza, il tasto lancia sempre `power_script` |
+| `power_script_state` | — | Facoltativo: entita' (`input_boolean`, `switch`, `binary_sensor`...) che dice se il ventilatore e' acceso (`on`). Serve per i ventilatori a infrarossi/radiofrequenza (Broadlink) la cui entita' `fan` non cambia stato: con questa entita' il tasto diventa verde, le pale girano e lo spegnimento (`power_script_off`) parte. Senza, la card ricorda l'ultimo comando inviato |
 | `switches` | — | Interruttori nel popup Stato (`entity`, `name`) |
 | `min`, `max` | 15, 35 | Scala della gauge |
 | `show_levels` | `true` | Velocità come "4/12"; `false` per la percentuale |
@@ -114,3 +115,55 @@ D'inverno il ventilatore va in cantina. Con **Nascondi se scollegata** (casella 
 - **Notte tranquilla**: con il setup giorno/notte, accendendolo dopo le 23:30 parte già in modalità Notte, piano e con la luce spenta.
 - **Spegnimento a tempo**: dal popup ⚙️ scegli "2 h" e ti addormenti senza pensarci.
 - **Aria secca d'estate**: attiva l'umidificazione automatica con obiettivo 55%: il trattino rosso ti mostra quanto manca.
+
+### Ventilatore RF/IR comandato con script (esempio completo)
+
+Se il ventilatore e' su una presa o un telecomando RF/IR (per esempio Broadlink), Home Assistant non sa se e' acceso. Crea un `input_boolean` che rappresenta lo stato e fallo aggiornare dagli script; la card lo usa con `power_script_state`.
+
+```yaml
+input_boolean:
+  ventilatore_acceso:
+    name: Ventilatore acceso
+
+script:
+  accendi_ventilatore:
+    sequence:
+      - action: remote.send_command
+        target:
+          entity_id: remote.broadlink_salone
+        data:
+          device: ventilatore
+          command: power
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ventilatore_acceso
+  spegni_ventilatore:
+    sequence:
+      - action: remote.send_command
+        target:
+          entity_id: remote.broadlink_salone
+        data:
+          device: ventilatore
+          command: power
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ventilatore_acceso
+
+template:
+  - fan:
+      - name: Ventilatore salone
+        unique_id: ventilatore_salone
+        state: "{{ is_state('input_boolean.ventilatore_acceso', 'on') }}"
+        turn_on:
+          - action: script.accendi_ventilatore
+        turn_off:
+          - action: script.spegni_ventilatore
+```
+
+```yaml
+type: custom:shc-fan-card
+entity: fan.ventilatore_salone
+power_script: script.accendi_ventilatore
+power_script_off: script.spegni_ventilatore
+power_script_state: input_boolean.ventilatore_acceso
+```
