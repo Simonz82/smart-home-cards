@@ -7,6 +7,8 @@
 - Due pulsanti affiancati **Telecomando** ed **EPG**: si apre un pannello alla volta, un secondo tocco lo richiude. Con `epg_channels` il telecomando (`show_samsung_remote`) si apre da qui.
 - Pannello EPG: canali in ordine LCN con titolo, mini barra e "dopo", canale corrente evidenziato in cima, canali senza guida in grigio; scheda "Prima serata" se esistono i sensori `sensor.<id>_program_primetime`. Toccando un canale la TV ci va (`media_player.play_media`, `media_content_type: channel`, SamsungTV Smart).
 - Ripiego quando i sensori del canale non sono disponibili: ultimo canale scelto dalla card, salvato nel browser.
+- **Loghi emittenti**: piccolo logo (30 px, fondo neutro) nella riga canale e in ogni riga dell'EPG. Sorgente automatica: entita' `image.<id>_icon` dell'integrazione XMLTV EPG (opzione "enable_channel_icons"); in alternativa campo facoltativo `logo` (URL) per canale in `epg_channels`. Nessun logo e' incluso nella card. Senza logo resta il numero.
+- **Prima serata**: la scheda compare da sola se esistono i sensori `sensor.<id>_program_primetime` (opzione dell'integrazione, orario a scelta).
 - Editor: sezione "Guida TV / EPG" (sensori canale ed elenco canali, una riga per canale).
 
 ## 2026-11-03 — 1.16.4 (da provare): costo piu' affidabile, frigo senza "Fine/Durata", telecomando a pulsante

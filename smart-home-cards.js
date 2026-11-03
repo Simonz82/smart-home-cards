@@ -667,6 +667,10 @@ const STYLE = `
 .shc-epg-pb u{display:block;height:100%;background:var(--primary-color,#03a9f4);border-radius:3px;text-decoration:none}
 .shc-epg-pick{align-self:flex-start;border:1px solid var(--primary-color,#03a9f4);color:var(--primary-color,#03a9f4);background:transparent;border-radius:10px;padding:7px 12px;font-weight:800;font-size:13px;cursor:pointer}
 .shc-epg-m .shc-epg-pb{flex:none;width:100%}
+.shc-epg-lg{flex:0 0 30px;width:30px;height:30px;border-radius:8px;background:#fff;border:1px solid var(--shc-border);display:grid;place-items:center;overflow:hidden;box-sizing:border-box}
+.shc-epg-lg.ph{visibility:hidden}
+.shc-epg-lg img{max-width:100%;max-height:100%;object-fit:contain;padding:2px;box-sizing:border-box}
+.shc-epg-nm{display:flex;align-items:center;gap:8px;min-width:0}
 .shc-epg-btns{display:flex;gap:8px}
 .shc-epg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:38px;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);font-weight:800;font-size:13px;cursor:pointer}
 .shc-epg-btn.on{color:var(--primary-color,#03a9f4);border-color:var(--primary-color,#03a9f4)}
@@ -1100,6 +1104,20 @@ function shcEpgProg(hass, id, kind) {
   const a = st.attributes || {};
   const s = Date.parse(a.start), e = Date.parse(a.end);
   return { title: a.title || st.state, start: isNaN(s) ? null : s, end: isNaN(e) ? null : e };
+}
+// Logo del canale: prima l'entita' immagine dell'integrazione XMLTV EPG (image.<id>_icon), poi il campo
+// facoltativo `logo` (URL) del canale. Nessun logo incluso nella card: solo URL o entita' dell'utente.
+function shcEpgLogo(hass, ch) {
+  if (!ch) return "";
+  if (ch.id) {
+    const st = hass.states["image." + ch.id + "_icon"];
+    if (st && !["unavailable", "unknown"].includes(st.state) && st.attributes && st.attributes.entity_picture) return st.attributes.entity_picture;
+  }
+  return typeof ch.logo === "string" ? ch.logo : "";
+}
+function shcEpgLogoHtml(hass, ch) {
+  const u = shcEpgLogo(hass, ch);
+  return u ? `<span class="shc-epg-lg"><img src="${esc(u)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.style.display='none'"></span>` : "";
 }
 function shcEpgPct(p, now) {
   if (!p || p.start == null || p.end == null || p.end <= p.start) return 0;
@@ -2881,6 +2899,8 @@ class ShcApplianceCloneCard extends HTMLElement {
     const sigParts = [cur.kind, cur.name || "", cur.ch ? cur.ch.number : "", minute, this._epgPane, this._epgTab];
     if (cur.ch && cur.ch.id) sigParts.push(hass.states["sensor." + cur.ch.id + "_program_current"]?.state, hass.states["sensor." + cur.ch.id + "_program_upcoming"]?.state);
     if (this._epgPane === "epg") list.forEach((c) => { if (c.id) sigParts.push(hass.states["sensor." + c.id + "_program_current"]?.state, hass.states["sensor." + c.id + "_program_" + (this._epgTab === "prime" ? "primetime" : "upcoming")]?.state); });
+    sigParts.push(cur.ch ? shcEpgLogo(hass, cur.ch) : "");
+    if (this._epgPane === "epg") list.forEach((c) => sigParts.push(shcEpgLogo(hass, c)));
     const sig = sigParts.join("|");
     if (sig === this._epgSig) return;
     this._epgSig = sig;
@@ -2907,13 +2927,14 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (hasPrime) tabs.innerHTML = `<button type="button" class="shc-epg-tab${this._epgTab === "now" ? " on" : ""}" data-tab="now">${esc(L("Ora", "Now"))}</button><button type="button" class="shc-epg-tab${this._epgTab === "prime" ? " on" : ""}" data-tab="prime">${esc(L("Prima serata", "Prime time"))}</button>`;
     const prime = this._epgTab === "prime";
     const curNum = cur.ch ? String(cur.ch.number) : "";
+    const anyLogo = list.some((c) => shcEpgLogo(hass, c));
     const row = (c, pinned) => {
       const id = c.id;
       const p = id ? shcEpgProg(hass, id, prime ? "primetime" : "current") : null;
       const nx = id ? shcEpgProg(hass, id, "upcoming") : null;
-      if (!id || !p) return `<button type="button" class="shc-epg-row off${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b><span class="shc-epg-m"><span class="shc-epg-l1"><em>${esc(c.name)}</em></span></span></button>`;
+      if (!id || !p) return `<button type="button" class="shc-epg-row off${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b>${shcEpgLogoHtml(hass, c) || (anyLogo ? '<span class="shc-epg-lg ph"></span>' : "")}<span class="shc-epg-m"><span class="shc-epg-l1"><em>${esc(c.name)}</em></span></span></button>`;
       const pct = prime ? 0 : shcEpgPct(p, now);
-      return `<button type="button" class="shc-epg-row${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b><span class="shc-epg-m">
+      return `<button type="button" class="shc-epg-row${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b>${shcEpgLogoHtml(hass, c) || (anyLogo ? '<span class="shc-epg-lg ph"></span>' : "")}<span class="shc-epg-m">
         <span class="shc-epg-l1"><em>${esc(c.name)}</em>${p.start != null ? `<small>${shcEpgTime(p.start)}${p.end != null ? "–" + shcEpgTime(p.end) : ""}</small>` : ""}</span>
         <span class="shc-epg-t">${esc(p.title)}</span>
         ${prime ? "" : `<i class="shc-epg-pb"><u style="width:${pct.toFixed(0)}%"></u></i>`}
@@ -2930,7 +2951,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const L = (it, en) => shcL(hass, it, en);
     const p = shcEpgProg(hass, ch.id, "current");
     const nx = shcEpgProg(hass, ch.id, "upcoming");
-    let h = `<div class="shc-epg-l1"><b>${esc(ch.number)} · ${esc(ch.name)}</b></div>`;
+    let h = `<div class="shc-epg-l1"><span class="shc-epg-nm">${shcEpgLogoHtml(hass, ch)}<b>${esc(ch.number)} · ${esc(ch.name)}</b></span></div>`;
     if (p) {
       h += `<div class="shc-epg-t">${esc(p.title)}</div>`;
       if (p.start != null && p.end != null) h += `<div class="shc-epg-bar"><small>${shcEpgTime(p.start)}</small><i class="shc-epg-pb"><u style="width:${shcEpgPct(p, now).toFixed(0)}%"></u></i><small>${shcEpgTime(p.end)}</small></div>`;
