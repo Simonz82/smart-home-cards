@@ -566,6 +566,8 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 |---|---|
 | `show_samsung_remote: true` | mostra il telecomando sotto la card (solo con `artwork: tv`) |
 | `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
+| `epg_channels` | Elenco canali per la guida TV (EPG): `[{number, name, id}]`, `id: null` = canale senza guida. Con l'elenco la card mostra sotto la barra della potenza la riga del canale in onda e i pulsanti Telecomando / EPG (con `epg_channels` `samsung_remote_position` non serve: il telecomando si apre dal pulsante). Senza elenco la card resta identica. Sensori attesi: `sensor.<id>_program_current`, `_upcoming` e, se presente, `_primetime` (scheda "Prima serata") |
+| `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
 | `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
 | `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
 | `samsung_turn_on_script` | script da lanciare per accendere (utile se la TV non si accende da sola, es. con Wake-on-LAN o presa) |

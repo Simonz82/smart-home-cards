@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-03 — 1.17.0 (da provare): guida TV (EPG) nella card TV
+
+- **Card TV (`artwork: tv`)**: nuove opzioni `epg_channels`, `channel_entity`, `channel_name_entity` (tutte facoltative; senza `epg_channels` la card e' identica a prima).
+- Sotto la barra della potenza: riga del canale in onda ("5 · Canale 5", titolo, barra di avanzamento inizio-fine, "Dopo: titolo · ora"). Su HDMI o in un'app mostra il nome della sorgente o dell'app; se il canale non e' noto, "Scegli canale".
+- Due pulsanti affiancati **Telecomando** ed **EPG**: si apre un pannello alla volta, un secondo tocco lo richiude. Con `epg_channels` il telecomando (`show_samsung_remote`) si apre da qui.
+- Pannello EPG: canali in ordine LCN con titolo, mini barra e "dopo", canale corrente evidenziato in cima, canali senza guida in grigio; scheda "Prima serata" se esistono i sensori `sensor.<id>_program_primetime`. Toccando un canale la TV ci va (`media_player.play_media`, `media_content_type: channel`, SamsungTV Smart).
+- Ripiego quando i sensori del canale non sono disponibili: ultimo canale scelto dalla card, salvato nel browser.
+- Editor: sezione "Guida TV / EPG" (sensori canale ed elenco canali, una riga per canale).
+
 ## 2026-11-03 — 1.16.4 (da provare): costo piu' affidabile, frigo senza "Fine/Durata", telecomando a pulsante
 
 - **Costo (statistiche automatiche)**: Oggi, Mese e Anno ora includono anche l'ora in corso (prima il costo restava indietro fino a un'ora, perche' le statistiche orarie arrivano solo a ora chiusa). Se manca il prezzo, sotto la tabella compare la spiegazione (campo non impostato, entita' inesistente o senza valore numerico) invece di un "—" muto. Il prezzo accetta anche la virgola e puo' essere un `sensor` o un `number`, non solo un `input_number`.

@@ -655,6 +655,33 @@ const STYLE = `
 .shc-ap-card:not(.shc-e-card) .shc-ap-cycle-row-b{flex-wrap:wrap;row-gap:1px}
 .shc-ap-card:not(.shc-e-card) .shc-ap-cycle-row-b b:not(.shc-e-top){margin-left:auto;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .shc-ap-cycle-ic{display:flex;align-items:center;flex:0 0 auto;color:var(--shc-blue)}
+.shc-epg{margin:0 13px 13px;display:flex;flex-direction:column;gap:9px}
+.shc-epg-now{padding:10px 12px;border-radius:14px;background:var(--shc-soft);display:flex;flex-direction:column;gap:3px;min-width:0}
+.shc-epg-l1{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}
+.shc-epg-l1 b,.shc-epg-l1 em{font-size:13.5px;font-weight:900;font-style:normal;color:var(--shc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-epg-l1 small,.shc-epg-bar small,.shc-epg-nx{font-size:11px;font-weight:700;color:var(--shc-dim)}
+.shc-epg-nx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-epg-t{font-size:13px;font-weight:700;color:var(--shc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-epg-bar{display:flex;align-items:center;gap:7px}
+.shc-epg-pb{display:block;flex:1;height:4px;border-radius:3px;background:var(--shc-border);overflow:hidden;min-width:20px}
+.shc-epg-pb u{display:block;height:100%;background:var(--primary-color,#03a9f4);border-radius:3px;text-decoration:none}
+.shc-epg-pick{align-self:flex-start;border:1px solid var(--primary-color,#03a9f4);color:var(--primary-color,#03a9f4);background:transparent;border-radius:10px;padding:7px 12px;font-weight:800;font-size:13px;cursor:pointer}
+.shc-epg-m .shc-epg-pb{flex:none;width:100%}
+.shc-epg-btns{display:flex;gap:8px}
+.shc-epg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:38px;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);font-weight:800;font-size:13px;cursor:pointer}
+.shc-epg-btn.on{color:var(--primary-color,#03a9f4);border-color:var(--primary-color,#03a9f4)}
+.shc-epg-pane[hidden]{display:none}
+.shc-epg-tabs{display:flex;gap:6px;margin-bottom:8px}
+.shc-epg-tabs[hidden]{display:none}
+.shc-epg-tab{flex:1;height:32px;border:1px solid var(--shc-border);border-radius:10px;background:var(--shc-card);color:var(--shc-dim);font-weight:800;font-size:12.5px;cursor:pointer}
+.shc-epg-tab.on{color:var(--primary-color,#03a9f4);border-color:var(--primary-color,#03a9f4)}
+.shc-epg-list{max-height:min(55vh,380px);overflow-y:auto;display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain}
+.shc-epg-row{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;padding:8px 10px;border:1px solid var(--shc-border);border-radius:12px;background:var(--shc-card);cursor:pointer;font:inherit;color:inherit}
+.shc-epg-row.cur{border-color:var(--primary-color,#03a9f4);background:var(--shc-soft)}
+.shc-epg-row.off{opacity:.5;align-items:center}
+.shc-epg-n{flex:0 0 28px;text-align:center;font-size:14px;font-weight:900;color:var(--primary-color,#03a9f4)}
+.shc-epg-row.off .shc-epg-n{color:var(--shc-dim)}
+.shc-epg-m{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .shc-ap-panel{display:flex;align-items:center;gap:14px;margin:10px 13px 13px;padding:13px 14px;border-radius:16px;background:var(--shc-soft)}
 .shc-ap-meters{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
 .shc-c-meter-clickable{cursor:pointer;border-radius:8px;transition:background .12s ease}
@@ -1056,6 +1083,27 @@ function shcNum(v) {
   const t = String(v).replace(",", ".").trim();
   if (t === "" || ["unavailable", "unknown", "none"].includes(t.toLowerCase())) return NaN;
   return Number(t);
+}
+
+// ---- EPG (guida TV) per la card TV: tutto opzionale, attivo solo con epg_channels ----
+function shcEpgNorm(s) {
+  return String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\b(hd|fhd|uhd|4k)\b/g, "").replace(/[^a-z0-9]+/g, "");
+}
+function shcEpgTime(ms) {
+  return new Date(ms).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+}
+// Programma di un canale: kind = current | upcoming | primetime. null se sensore assente o senza dati.
+function shcEpgProg(hass, id, kind) {
+  if (!id) return null;
+  const st = hass.states["sensor." + id + "_program_" + kind];
+  if (!st || ["unavailable", "unknown", "none", ""].includes(String(st.state).toLowerCase())) return null;
+  const a = st.attributes || {};
+  const s = Date.parse(a.start), e = Date.parse(a.end);
+  return { title: a.title || st.state, start: isNaN(s) ? null : s, end: isNaN(e) ? null : e };
+}
+function shcEpgPct(p, now) {
+  if (!p || p.start == null || p.end == null || p.end <= p.start) return 0;
+  return Math.max(0, Math.min(100, ((now - p.start) / (p.end - p.start)) * 100));
 }
 
 // Riga di spiegazione quando il costo non si puo' calcolare (invece di un "—" muto).
@@ -1638,6 +1686,7 @@ class ShcSamsungRemote extends HTMLElement {
     if (navigator.vibrate) navigator.vibrate(8);
     if (c.remote_entity) this._hass.callService("remote", "send_command", { entity_id: c.remote_entity, command: k });
     else this._svc("media_player", "play_media", { media_content_type: "send_key", media_content_id: k });
+    try { this.dispatchEvent(new CustomEvent("shc-sr-key", { detail: { key: k }, bubbles: true, composed: true })); } catch (_) {}
   }
   _click(e) {
     const el = e.target.closest("button,.chip");
@@ -1768,7 +1817,7 @@ class ShcApplianceCloneCard extends HTMLElement {
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="Presa"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
           <span class="shc-ap-tools">${this._powerScriptOn() ? `<button type="button" class="shc-ap-tool shc-ap-pscript" title="${esc(shcL(this._hass, "Accendi / spegni", "Turn on / off"))}">${ICON_POWER_CUT}</button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
-            ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
+            ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" && !this._epgOn() ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche" hidden>${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
@@ -1805,8 +1854,10 @@ class ShcApplianceCloneCard extends HTMLElement {
             }
           </div>
         </div>
+        ${this._epgOn() ? this._epgHtml() : ""}
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._epgInit();
     // Telecomando Samsung sotto la card TV: solo artwork "tv" + show_samsung_remote: true (opt-in).
     this._samsungEl = null;
     if (this._config.artwork === "tv" && this._config.show_samsung_remote === true) {
@@ -1821,12 +1872,17 @@ class ShcApplianceCloneCard extends HTMLElement {
           if (this._config[from] !== undefined && this._config[from] !== "") sCfg[to] = this._config[from];
         });
         sEl.setConfig(sCfg);
-        this._root.appendChild(sEl);
+        const epgRem = this._epgOn() ? this._root.querySelector(".shc-epg-rem") : null;
+        if (epgRem) {
+          sEl.style.marginTop = "0";
+          sEl.style.display = "block";
+          epgRem.appendChild(sEl);
+        } else this._root.appendChild(sEl);
         this._samsungEl = sEl;
         if (this._hass) sEl.hass = this._hass;
         // samsung_remote_position: "button" = telecomando chiuso, si apre dal pulsante mdi:remote-tv
         // accanto all'ingranaggio; "below" (default) = sempre sotto la card.
-        const rBtn = this._root.querySelector(".shc-ap-sremote");
+        const rBtn = this._epgOn() ? null : this._root.querySelector(".shc-ap-sremote");
         if (rBtn) {
           sEl.style.display = "none";
           rBtn.hidden = false;
@@ -2686,10 +2742,207 @@ class ShcApplianceCloneCard extends HTMLElement {
     }
   }
 
+  // ---- EPG nella card TV (opzionale: serve epg_channels) ----
+  _epgOn() {
+    return this._config && this._config.artwork === "tv" && Array.isArray(this._config.epg_channels) && this._config.epg_channels.length > 0;
+  }
+  _epgMp() {
+    return this._config.samsung_entity || this._config.live?.state_entity || "";
+  }
+  _epgHtml() {
+    const h = this._hass;
+    return `<div class="shc-epg">
+      <div class="shc-epg-now"></div>
+      <div class="shc-epg-btns">
+        ${this._config.show_samsung_remote === true ? `<button type="button" class="shc-epg-btn" data-pane="rem"><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:18px;display:flex"></ha-icon><span>${esc(shcL(h, "Telecomando", "Remote"))}</span></button>` : ""}
+        <button type="button" class="shc-epg-btn" data-pane="epg"><ha-icon icon="mdi:television-guide" style="--mdc-icon-size:18px;display:flex"></ha-icon><span>EPG</span></button>
+      </div>
+      <div class="shc-epg-pane shc-epg-rem" hidden></div>
+      <div class="shc-epg-pane shc-epg-guide" hidden>
+        <div class="shc-epg-tabs" hidden></div>
+        <div class="shc-epg-list"></div>
+      </div>
+    </div>`;
+  }
+  _epgInit() {
+    if (!this._epgOn()) return;
+    this._epgTab = "now";
+    this._epgPane = "";
+    this._epgSig = "";
+    const r = this._root;
+    r.querySelectorAll(".shc-epg-btn").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._epgSetPane(this._epgPane === b.dataset.pane ? "" : b.dataset.pane);
+      });
+    });
+    r.querySelector(".shc-epg-now").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (e.target.closest(".shc-epg-pick")) this._epgSetPane("epg");
+    });
+    r.querySelector(".shc-epg-guide").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const tab = e.target.closest(".shc-epg-tab");
+      if (tab) {
+        this._epgTab = tab.dataset.tab;
+        this._epgSig = "";
+        this._epgRender();
+        return;
+      }
+      const row = e.target.closest(".shc-epg-row");
+      if (row) this._epgPlay(row.dataset.num);
+    });
+    // numeri digitati sul telecomando della card -> ripiego "ultimo canale"
+    this._epgBuf = "";
+    this._root.addEventListener("shc-sr-key", (e) => {
+      const k = String(e.detail?.key || "");
+      const m = /^KEY_(\d)$/.exec(k);
+      clearTimeout(this._epgBufT);
+      if (m) {
+        this._epgBuf += m[1];
+        this._epgBufT = setTimeout(() => this._epgCommitBuf(), 2500);
+      } else if (k === "KEY_ENTER") this._epgCommitBuf();
+      else this._epgBuf = "";
+    });
+    clearInterval(this._epgTimer);
+    this._epgTimer = setInterval(() => {
+      if (this.isConnected && this._hass) this._epgRender();
+    }, 30000);
+  }
+  _epgCommitBuf() {
+    const n = this._epgBuf;
+    this._epgBuf = "";
+    if (n && this._config.epg_channels.some((c) => String(c.number) === String(+n))) this._epgSave(String(+n));
+  }
+  _epgKey() {
+    return "shc_epg_last_" + (this._epgMp() || this._config.channel_entity || "tv");
+  }
+  _epgSave(num) {
+    try { localStorage.setItem(this._epgKey(), String(num)); } catch (_) {}
+    this._epgSig = "";
+    if (this._hass) this._epgRender();
+  }
+  _epgSetPane(p) {
+    this._epgPane = p;
+    const r = this._root;
+    r.querySelectorAll(".shc-epg-btn").forEach((b) => b.classList.toggle("on", b.dataset.pane === p));
+    const rem = r.querySelector(".shc-epg-rem"), g = r.querySelector(".shc-epg-guide");
+    if (rem) rem.hidden = p !== "rem";
+    if (g) g.hidden = p !== "epg";
+    this._epgSig = "";
+    if (p === "epg") this._epgRender();
+  }
+  _epgPlay(num) {
+    const mp = this._epgMp();
+    if (!mp || !this._hass) return;
+    if (navigator.vibrate) navigator.vibrate(8);
+    this._hass.callService("media_player", "play_media", { entity_id: mp, media_content_type: "channel", media_content_id: String(num) });
+    this._epgSave(num);
+  }
+  // Che cosa guarda la TV: app/sorgente, canale noto, nome canale non in lista o nulla.
+  _epgCurrent(hass) {
+    const c = this._config, list = c.epg_channels;
+    const mp = hass.states[this._epgMp()];
+    const a = (mp && mp.attributes) || {};
+    const appName = a.app_name || a.app_id;
+    if (appName && String(appName).trim() && !/^(tv|digitaltv|live ?tv)$/i.test(String(appName).trim())) return { kind: "app", name: String(a.app_name || a.app_id) };
+    const src = a.source ? String(a.source).trim() : "";
+    const tvSrc = !src || /^(tv|digitaltv|live ?tv|tv\/hdmi)$/i.test(src);
+    if (!tvSrc) return { kind: "app", name: src };
+    const val = (id) => {
+      const st = id ? hass.states[id] : null;
+      return st && !["unavailable", "unknown", "none", ""].includes(String(st.state).toLowerCase()) ? String(st.state).trim() : "";
+    };
+    const n = val(c.channel_entity), nm = val(c.channel_name_entity);
+    if (n) {
+      const ch = list.find((x) => String(x.number) === String(+n) || String(x.number) === n);
+      if (ch) return { kind: "ch", ch };
+    }
+    if (nm) {
+      const key = shcEpgNorm(nm);
+      const ch = key && list.find((x) => shcEpgNorm(x.name) === key);
+      if (ch) return { kind: "ch", ch };
+      return { kind: "name", name: nm };
+    }
+    if (n) return { kind: "name", name: n };
+    let last = "";
+    try { last = localStorage.getItem(this._epgKey()) || ""; } catch (_) {}
+    const ch = last && list.find((x) => String(x.number) === last);
+    return ch ? { kind: "ch", ch, fallback: true } : { kind: "none" };
+  }
+  _epgRender() {
+    const hass = this._hass;
+    if (!hass || !this._epgOn()) return;
+    const list = this._config.epg_channels;
+    const now = Date.now();
+    const cur = this._epgCurrent(hass);
+    const minute = Math.floor(now / 60000);
+    // firma: rirender solo se cambia qualcosa (hass arriva molto spesso)
+    const sigParts = [cur.kind, cur.name || "", cur.ch ? cur.ch.number : "", minute, this._epgPane, this._epgTab];
+    if (cur.ch && cur.ch.id) sigParts.push(hass.states["sensor." + cur.ch.id + "_program_current"]?.state, hass.states["sensor." + cur.ch.id + "_program_upcoming"]?.state);
+    if (this._epgPane === "epg") list.forEach((c) => { if (c.id) sigParts.push(hass.states["sensor." + c.id + "_program_current"]?.state, hass.states["sensor." + c.id + "_program_" + (this._epgTab === "prime" ? "primetime" : "upcoming")]?.state); });
+    const sig = sigParts.join("|");
+    if (sig === this._epgSig) return;
+    this._epgSig = sig;
+    const r = this._root;
+    const L = (it, en) => shcL(hass, it, en);
+    // riga canale
+    const now$ = r.querySelector(".shc-epg-now");
+    if (cur.kind === "app") {
+      now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(cur.name)}</b></div>`;
+    } else if (cur.kind === "name") {
+      now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(cur.name)}</b></div>`;
+    } else if (cur.kind === "none") {
+      now$.innerHTML = `<button type="button" class="shc-epg-pick">${esc(L("Scegli canale", "Choose channel"))}</button>`;
+    } else {
+      now$.innerHTML = this._epgNowHtml(hass, cur.ch, now);
+    }
+    // lista EPG
+    const g = r.querySelector(".shc-epg-guide");
+    if (this._epgPane !== "epg") return;
+    const hasPrime = list.some((c) => c.id && hass.states["sensor." + c.id + "_program_primetime"]);
+    const tabs = g.querySelector(".shc-epg-tabs");
+    tabs.hidden = !hasPrime;
+    if (!hasPrime && this._epgTab === "prime") this._epgTab = "now";
+    if (hasPrime) tabs.innerHTML = `<button type="button" class="shc-epg-tab${this._epgTab === "now" ? " on" : ""}" data-tab="now">${esc(L("Ora", "Now"))}</button><button type="button" class="shc-epg-tab${this._epgTab === "prime" ? " on" : ""}" data-tab="prime">${esc(L("Prima serata", "Prime time"))}</button>`;
+    const prime = this._epgTab === "prime";
+    const curNum = cur.ch ? String(cur.ch.number) : "";
+    const row = (c, pinned) => {
+      const id = c.id;
+      const p = id ? shcEpgProg(hass, id, prime ? "primetime" : "current") : null;
+      const nx = id ? shcEpgProg(hass, id, "upcoming") : null;
+      if (!id || !p) return `<button type="button" class="shc-epg-row off${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b><span class="shc-epg-m"><span class="shc-epg-l1"><em>${esc(c.name)}</em></span></span></button>`;
+      const pct = prime ? 0 : shcEpgPct(p, now);
+      return `<button type="button" class="shc-epg-row${pinned ? " cur" : ""}" data-num="${esc(c.number)}"><b class="shc-epg-n">${esc(c.number)}</b><span class="shc-epg-m">
+        <span class="shc-epg-l1"><em>${esc(c.name)}</em>${p.start != null ? `<small>${shcEpgTime(p.start)}${p.end != null ? "–" + shcEpgTime(p.end) : ""}</small>` : ""}</span>
+        <span class="shc-epg-t">${esc(p.title)}</span>
+        ${prime ? "" : `<i class="shc-epg-pb"><u style="width:${pct.toFixed(0)}%"></u></i>`}
+        ${!prime && nx ? `<small class="shc-epg-nx">${esc(L("Dopo", "Next"))}: ${esc(nx.title)}${nx.start != null ? " · " + shcEpgTime(nx.start) : ""}</small>` : ""}
+      </span></button>`;
+    };
+    let html = "";
+    const curCh = cur.ch ? list.find((c) => String(c.number) === curNum) : null;
+    if (curCh) html += row(curCh, true);
+    html += list.filter((c) => !curCh || c !== curCh).map((c) => row(c, false)).join("");
+    g.querySelector(".shc-epg-list").innerHTML = html;
+  }
+  _epgNowHtml(hass, ch, now) {
+    const L = (it, en) => shcL(hass, it, en);
+    const p = shcEpgProg(hass, ch.id, "current");
+    const nx = shcEpgProg(hass, ch.id, "upcoming");
+    let h = `<div class="shc-epg-l1"><b>${esc(ch.number)} · ${esc(ch.name)}</b></div>`;
+    if (p) {
+      h += `<div class="shc-epg-t">${esc(p.title)}</div>`;
+      if (p.start != null && p.end != null) h += `<div class="shc-epg-bar"><small>${shcEpgTime(p.start)}</small><i class="shc-epg-pb"><u style="width:${shcEpgPct(p, now).toFixed(0)}%"></u></i><small>${shcEpgTime(p.end)}</small></div>`;
+      if (nx) h += `<small class="shc-epg-nx">${esc(L("Dopo", "Next"))}: ${esc(nx.title)}${nx.start != null ? " · " + shcEpgTime(nx.start) : ""}</small>`;
+    } else if (ch.id) h += `<small class="shc-epg-nx">${esc(L("Guida non disponibile", "Guide not available"))}</small>`;
+    return h;
+  }
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
     if (this._samsungEl) this._samsungEl.hass = hass;
+    if (this._epgOn()) this._epgRender();
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
 
@@ -3939,6 +4192,20 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
           : ""
       }
       ${
+        cfg.artwork === "tv"
+          ? `<div class="shc-ed-sec">${esc(L("Guida TV / EPG (facoltativo)", "TV guide / EPG (optional)"))}</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Sensore numero canale", "Channel number sensor"))}</span>
+        <ha-entity-picker class="shc-ed-ch-ent" include-domains='["sensor","input_number","input_text"]' allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(L("Sensore nome canale", "Channel name sensor"))}</span>
+        <ha-entity-picker class="shc-ed-ch-name" include-domains='["sensor","input_text"]' allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(L("Elenco canali (una riga per canale: numero, nome, id sensori EPG)", "Channel list (one line per channel: number, name, EPG sensor id)"))}</span>
+        <textarea class="shc-ed-ch-list" rows="6" spellcheck="false" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:12px" placeholder="1, Rai 1, rai_1&#10;29, La7 Cinema, -">${esc((cfg.epg_channels || []).map((c) => c.number + ", " + c.name + ", " + (c.id || "-")).join("\n"))}</textarea>
+        <p class="shc-ed-hint">${esc(L("Id = parte centrale di sensor.<id>_program_current; \"-\" = canale senza guida. Accetta anche le righe del file YAML epg_channels. Senza elenco la card resta come prima.", "Id = middle part of sensor.<id>_program_current; \"-\" = channel without guide. YAML epg_channels lines are accepted too. Without a list the card is unchanged."))}</p>
+      </div>`
+          : ""
+      }
+      ${
         cfg.artwork === "induction"
           ? `<div class="shc-ed-row">
         <span class="shc-ed-label">${esc(L("Zone attive del piano (facoltativo)", "Active hob zones (optional)"))}</span>
@@ -4085,6 +4352,23 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-zones", cfg.zones_entity, null, "zones_entity");
     wirePicker(".shc-ed-sremote-ent", cfg.samsung_entity || cfg.live?.state_entity, null, "samsung_entity");
     wirePicker(".shc-ed-sremote-rem", cfg.samsung_remote_entity, null, "samsung_remote_entity");
+    wirePicker(".shc-ed-ch-ent", cfg.channel_entity, null, "channel_entity");
+    wirePicker(".shc-ed-ch-name", cfg.channel_name_entity, null, "channel_name_entity");
+    const chTa = body.querySelector(".shc-ed-ch-list");
+    if (chTa)
+      chTa.addEventListener("change", () => {
+        const out = [];
+        chTa.value.split(/\r?\n/).forEach((ln) => {
+          const t = ln.trim();
+          if (!t || t[0] === "#") return;
+          let m = /number:\s*(\d+).*?name:\s*["']?([^"',}]+)["']?.*?id:\s*["']?([\w-]+)["']?/.exec(t);
+          if (!m) m = /^-?\s*(\d+)\s*[,;]\s*([^,;]+?)\s*(?:[,;]\s*([\w-]*))?\s*$/.exec(t);
+          if (!m) return;
+          const id = m[3] && !["null", "-", "none"].includes(m[3].toLowerCase()) ? m[3] : null;
+          out.push({ number: +m[1], name: m[2].trim(), id });
+        });
+        this._set("epg_channels", out.length ? out : undefined);
+      });
     body.querySelectorAll(".shc-ed-rpos-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         this._set("samsung_remote_position", btn.dataset.rpos === "button" ? "button" : undefined);
