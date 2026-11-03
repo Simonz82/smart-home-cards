@@ -90,6 +90,8 @@ layout: centrato     # oppure: classico (predefinito)
 
 Se sono presenti entrambi, vince il menu (`layout_entity`).
 
+**Elettrodomestici (dalla 1.16.3).** La card Elettrodomestici (`custom:shc-appliance-clone-card`) vale per tutti i tipi: lavatrice, asciugatrice, lavastoviglie, frigorifero, forno, TV, tablet, friggitrice ad aria, microonde, piastra e piano a induzione. Nell'editor visuale c'è il campo **Layout** (Classico / Centrato, predefinito Classico, chiave `layout`) subito sotto l'immagine; in *Impostazioni avanzate* resta il menu `layout_entity`. Se imposti `layout_entity` e non hai scritto una sezione "Aspetto", nelle Impostazioni (ingranaggio) la riga **Layout** compare da sola.
+
 ## Note sul layout centrato
 
 - Le informazioni sono su **due colonne**; se sono dispari (3), l'ultima occupa tutta la larghezza.

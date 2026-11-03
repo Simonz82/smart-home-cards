@@ -2087,7 +2087,12 @@ class ShcApplianceCloneCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    // Con layout_entity ma senza sezione "Aspetto" scritta a mano, la riga Layout compare da sola.
+    const secList = [...(this._config.settings_sections || [])];
+    if (this._config.layout_entity && hass.states[this._config.layout_entity] && !secList.some((x) => x.title === "Aspetto")) {
+      secList.unshift({ title: "Aspetto", rows: [{ entity: this._config.layout_entity, label: "Layout" }] });
+    }
+    const sections = secList
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -3072,6 +3077,8 @@ const SHC_EDITOR_STYLE = `
   .shc-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
   .shc-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
   .shc-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
+  .shc-ed-lay-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+  .shc-ed-lay-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
   .shc-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
   .shc-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   ha-entity-picker{width:100%}
@@ -3805,6 +3812,15 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       </div>
 
       <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(L("Layout", "Layout"))}</span>
+        <div class="shc-ed-choice">
+          <button type="button" class="shc-ed-lay-btn${cfg.layout === "centrato" ? "" : " on"}" data-layout="classico">${esc(L("Classico", "Classic"))}</button>
+          <button type="button" class="shc-ed-lay-btn${cfg.layout === "centrato" ? " on" : ""}" data-layout="centrato">${esc(L("Centrato", "Centered"))}</button>
+        </div>
+        <p class="shc-ed-hint">${esc(L("Classico = foto a sinistra; Centrato = foto in alto. Se sotto, in Impostazioni avanzate, scegli un menu layout (input_select), vale quello.", "Classic = photo on the left; Centered = photo on top. If you pick a layout menu (input_select) under Advanced settings, that one wins."))}</p>
+      </div>
+
+      <div class="shc-ed-row">
         <span class="shc-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
         <p class="shc-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
         <div class="shc-ed-choice">
@@ -3964,6 +3980,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         this._domoticoOverride = btn.dataset.domotico === "1";
         this._emit();
         this._render();
+      });
+    });
+    body.querySelectorAll(".shc-ed-lay-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._set("layout", btn.dataset.layout);
+        body.querySelectorAll(".shc-ed-lay-btn").forEach((b) => b.classList.toggle("on", b === btn));
       });
     });
     const name = body.querySelector(".shc-ed-name");

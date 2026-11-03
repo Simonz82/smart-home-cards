@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-03 — 1.16.3: layout classico/centrato nell'editor di tutti gli elettrodomestici
+
+- **Editor visuale**: la card Elettrodomestici (`custom:shc-appliance-clone-card`) ha ora il campo **Layout** (Classico / Centrato, chiave `layout`, predefinito Classico) per tutti i tipi: frigorifero, forno, friggitrice ad aria, microonde, piastra, piano a induzione, lavatrice, asciugatrice, lavastoviglie, TV e tablet. Prima si poteva scegliere solo il menu `layout_entity` nelle impostazioni avanzate.
+- **Impostazioni (ingranaggio)**: se la card ha `layout_entity` ma nessuna sezione "Aspetto" scritta a mano, la riga **Layout** compare da sola (come sul Forno), anche sul frigorifero.
+- Resa verificata con ogni layout su frigorifero, microonde, piastra, friggitrice, forno e piano a induzione. Senza `layout` nulla cambia (resta Classico).
+
 ## 2026-11-03 — 1.16.2: schermi stretti, immagine nell'editor, ventilatore RF/IR (#8, #3)
 
 - **Telefono (#8)**: nelle card Proxmox, Server Home Assistant, NAS e Fritz!Box il valore non viene piu' troncato ("31/10/20…", "2026.…", "DSM 7.4.1-9008…"): se etichetta e valore non stanno insieme, il valore va a capo sotto l'etichetta. Il titolo va a capo invece di troncarsi e sotto i 480 px i pulsanti dell'intestazione sono un po' piu' piccoli. Su schermi larghi nulla cambia.

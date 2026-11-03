@@ -737,6 +737,8 @@ settings_sections:
   # ...le altre sezioni
 ```
 
+Dalla 1.16.3 l'editor visuale ha il campo **Layout** (Classico / Centrato, chiave `layout`, predefinito `classico`) per **tutti** i tipi, frigorifero, friggitrice, microonde, piastra e piano a induzione compresi; se imposti `layout_entity`, la riga Layout compare da sola nelle Impostazioni.
+
 | Classico | Centrato |
 |---|---|
 | ![Lavatrice (uguale per asciugatrice, lavastoviglie, forno e TV, con il proprio menu `layout_<nome>`) classico](screenshot/layout/lavatrice-classico-light.png) | ![Lavatrice (uguale per asciugatrice, lavastoviglie, forno e TV, con il proprio menu `layout_<nome>`) centrato](screenshot/layout/lavatrice-centrato-light.png) |
