@@ -431,6 +431,10 @@ energy_stat_entity: sensor.frigo_energia
 settings_sections: []
 ```
 
+> **IT:** dalla 1.17.1 `auto_stats: true` non serve più: basta `energy_stat_entity` (più `cost_entity` per i costi) e il popup Consumi diventa automatico, a meno che la card abbia una configurazione avanzata (`period_attrs`, `cycle_sensor`, `week_rows`). `auto_stats: false` lo spegne.
+>
+> **EN:** since 1.17.1 `auto_stats: true` is no longer needed: `energy_stat_entity` (plus `cost_entity` for costs) is enough and the Consumption popup becomes automatic, unless the card has an advanced setup (`period_attrs`, `cycle_sensor`, `week_rows`). `auto_stats: false` turns it off.
+
 ## 🍟 Friggitrice, microonde, piastra e piano a induzione
 
 Quattro disegni in più, con la stessa logica degli altri: `artwork` + `power_entity` (la presa con misura dei Watt) e, se vuoi, il riquadro `side` per temperatura, tempo residuo o livello. Se l'apparecchio non è smart, bastano i Watt: sopra `threshold_run` la card passa a "IN FUNZIONE" e il disegno si anima.

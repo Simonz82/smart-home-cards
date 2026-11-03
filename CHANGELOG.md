@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-03 — 1.17.1: fix #10
+
+- fix #10: Consumi/cost panel now works with energy_stat_entity + cost_entity without auto_stats (auto_stats: false lo spegne; con period_attrs/cycle_sensor/week_rows resta la configurazione avanzata).
+
 ## 2026-11-03 — 1.17.0 (da provare): guida TV (EPG) nella card TV
 
 - **Card TV (`artwork: tv`)**: nuove opzioni `epg_channels`, `channel_entity`, `channel_name_entity` (tutte facoltative; senza `epg_channels` la card e' identica a prima).

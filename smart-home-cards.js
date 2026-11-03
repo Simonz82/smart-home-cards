@@ -2411,7 +2411,11 @@ class ShcApplianceCloneCard extends HTMLElement {
     // consumi per periodo calcolati dalle statistiche HA, alternativa a period_attrs/cycle_sensor
     // scritti a mano nel package. Se la card ha gia' una configurazione avanzata (period_attrs),
     // quella resta quella che si vede - questo percorso non la sostituisce mai da solo.
-    const useAutoStats = !!(this._config.auto_stats && this._config.energy_stat_entity);
+    // Senza auto_stats esplicito il percorso automatico parte da solo se non c'e' config avanzata
+    // (period_attrs/cycle_sensor/week_rows): basta energy_stat_entity (+ cost_entity). auto_stats: false lo spegne.
+    const cfgA = this._config;
+    const hasLegacy = !!(cfgA.period_attrs || cfgA.cycle_sensor || cfgA.week_rows);
+    const useAutoStats = !!cfgA.energy_stat_entity && (cfgA.auto_stats === true || (cfgA.auto_stats !== false && !hasLegacy));
 
     this._openDialog("Consumi", `
       ${useAutoStats ? this._autoConsumiHtml() : this._consumiHtml()}
