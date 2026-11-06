@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-06 — 1.17.2: suggerimento "Ultimo ciclo" (issue #12)
+
+- Card Elettrodomestici: senza `cycle_sensor` (e senza `side`) il riquadro "Ultimo ciclo" mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" / "Set cycle_sensor and cycle_attrs to show the last cycle" al posto dei trattini. Frigo senza `side` ancora nascosto; configurazioni con `cycle_sensor` o `side` invariate.
+- README: nuova sezione su `cycle_sensor` + `cycle_attrs` (end/duration/energy/cost) con esempio forno.
+- L'editor visuale non ha i campi cycle_sensor/cycle_attrs (restano in YAML): nessuna modifica.
+
 ## 2026-11-03 — 1.17.1: fix #10
 
 - fix #10: Consumi/cost panel now works with energy_stat_entity + cost_entity without auto_stats (auto_stats: false lo spegne; con period_attrs/cycle_sensor/week_rows resta la configurazione avanzata).

@@ -709,6 +709,8 @@ const STYLE = `
 .shc-ap-warn[hidden]{display:none}
 .shc-ap-ctrl{margin:0 13px 12px;padding:11px 12px;border-radius:16px;background:var(--shc-soft);display:flex;flex-direction:column;gap:9px}
 .shc-ap-ctrl[hidden]{display:none}
+.shc-ap-cycle-list[hidden],.shc-ap-cycle-hint[hidden]{display:none}
+.shc-ap-cycle-hint{margin-top:6px;font-size:11.5px;line-height:1.35;color:var(--shc-dim);font-style:italic}
 .shc-ap-cycle-row[hidden],.shc-ap-panel[hidden],.shc-ap-meter[hidden]{display:none}
 .shc-ap-ctrl-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:850;letter-spacing:.3px;text-transform:uppercase;color:var(--shc-dim)}
 .shc-ap-ctrl-prog{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:13px;color:var(--shc-text);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
@@ -1852,6 +1854,7 @@ class ShcApplianceCloneCard extends HTMLElement {
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-c-energy">\u2014</b></div>
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="shc-c-cost">\u2014</b></div>
             </div>
+            <div class="shc-ap-cycle-hint" hidden>${esc(shcL(this._hass, "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo", "Set cycle_sensor and cycle_attrs to show the last cycle"))}</div>
           </div>
         </div>
         <div class="shc-ap-warn" hidden></div>
@@ -3091,6 +3094,11 @@ class ShcApplianceCloneCard extends HTMLElement {
         el.textContent = r ? fmtSide(r) : "\u2014";
         if (el.parentElement) el.parentElement.hidden = !r;
       });
+    } else if (!cfg.cycle_sensor && cfg.artwork !== "fridge") {
+      // Senza cycle_sensor il riquadro non ha dati: suggerimento al posto dei trattini (1.17.2)
+      const lst = this._root.querySelector(".shc-ap-cycle-list");
+      const hint = this._root.querySelector(".shc-ap-cycle-hint");
+      if (lst && hint) { lst.hidden = true; hint.hidden = false; }
     } else {
     this._root.querySelector(".shc-c-end").textContent = end ?? "\u2014";
     this._root.querySelector(".shc-c-duration").textContent = duration ?? "\u2014";

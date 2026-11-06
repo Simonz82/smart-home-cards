@@ -152,6 +152,8 @@ Quando una di queste entità è nello stato indicato, la card mostra la relativa
 
 ### Riepilogo ciclo, storico e costi (opzionale, avanzato)
 
+> **1.17.2:** senza `cycle_sensor` (e senza `side`) il riquadro "Ultimo ciclo" mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" invece dei trattini. Esempio completo col forno nel [README](../README.md).
+
 Questi campi mostrano l'ultimo ciclo (fine/durata/consumo/costo), i costi per periodo (oggi/ieri/mese/anno) e i cicli contati. **Non sono entità singole**: sono i **nomi degli attributi** che la card legge da un unico sensore "riepilogo", che indichi con `cycle_sensor`:
 
 ```yaml

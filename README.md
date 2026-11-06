@@ -75,6 +75,32 @@ Foto nella tabella [Tutte le card a colpo d'occhio](#-tutte-le-card-a-colpo-docc
 
 <sub>Immagini con dati di esempio.</sub>
 
+## ⏱️ Riquadro "Ultimo ciclo": cycle_sensor + cycle_attrs (novità 1.17.2)
+
+Nelle card **Elettrodomestici** il riquadro "Ultimo ciclo" (fine, durata, consumo, costo) non indovina nulla da solo: legge gli **attributi di un unico sensore** che indichi tu.
+
+- `cycle_sensor`: l'entità "riepilogo" (di solito un template sensor).
+- `cycle_attrs`: il **nome degli attributi** di quel sensore, uno per riga del riquadro: `end` (fine), `duration` (durata), `energy` (consumo), `cost` (costo).
+
+Se manca `cycle_sensor` (e non usi `side`), dalla 1.17.2 il riquadro mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" invece dei trattini. Il frigo senza `side` continua a nascondere il riquadro. Le card già configurate non cambiano.
+
+Esempio (forno): il sensore `sensor.time_on_elettrodomestici_2` ha gli attributi `terminato`, `tempo_ciclo_elettrodomestici_2`, `consumo_ciclo_elettrodomestici_2`, `costo_ciclo_elettrodomestici_2`:
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Forno
+cycle_sensor: sensor.time_on_elettrodomestici_2
+cycle_attrs:
+  end: terminato
+  duration: tempo_ciclo_elettrodomestici_2
+  energy: consumo_ciclo_elettrodomestici_2
+  cost: costo_ciclo_elettrodomestici_2
+```
+
+Tutti i nomi sono esempi: usa quelli degli attributi del tuo sensore. Dettagli e campi opzionali (periodi, cicli contati) in [docs/elettrodomestici.md](docs/elettrodomestici.md).
+
+**EN:** the "Last cycle" box reads the attributes of one summary sensor. Set `cycle_sensor` (the entity) and `cycle_attrs` (attribute names for `end`, `duration`, `energy`, `cost`). Without `cycle_sensor` (and without `side`) the box now shows a hint instead of dashes (1.17.2). The fridge without `side` still hides the box; existing setups are unchanged.
+
 ## 📺 Telecomando Samsung sotto la card TV (novità 1.16.0)
 
 La card **Elettrodomestici** con `artwork: tv` può mostrare, **sotto la card**, lo stesso telecomando in stile Samsung della card [samsung-tv-remote-card](https://github.com/Simonz82/ha_tv_samsung): tasti, D-pad, volume e canali, tasti colorati, app, sorgenti, immagine/audio, Art Mode. Tutto in una sola risorsa: non serve installare altro. È **facoltativo e spento di default**: senza l'opzione la card TV resta identica a prima.
