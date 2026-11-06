@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-06 — 1.19.1: Dutch (nl)
+
+- New language: **Dutch (nl)**, all texts of every card and visual editor, contributed by @hartliefHA (PR #14). With Home Assistant in Dutch the cards now appear in Dutch.
+- Dates, months and weekdays follow the language too (`nl-NL`), as suggested in PR #14.
+
 ## 2026-11-06 — 1.19.0: translations (issue #11), phase 2 = all the other cards
 
 - All remaining cards now follow the language of Home Assistant (`hass.locale.language`, fallback `hass.language`): Energy, NAS, Proxmox, Home Assistant server, FRITZ!Box, UPS, Zigbee, Climate, Heater, Fan, Boiler, Waste collection, Alexa (text, memo, web radio) and Notification Center, including their popups (Settings, Statistics, Charts, Consumption...), warnings and tooltips.

@@ -3562,7 +3562,7 @@ const SHC_I18N = {
       "humid.target_lc": "target",
       "boiler.program_lc": "schedule"
     },
-// nl – Nederlandse vertaling (hartliefHA)
+  // nl – Nederlandse vertaling (hartliefHA, PR #14)
   nl: {
       "tool.settings": "Instellingen",
       "tool.stats": "Statistieken",
@@ -4580,9 +4580,10 @@ function shcLang(hass) {
   const l = SHC_LANG_LAST;
   return SHC_I18N[l] ? l : "en";
 }
-// Locale per date/ore: italiano per l'italiano, altrimenti inglese (24 ore, gg/mm).
+// Locale per date/ore: italiano, olandese, altrimenti inglese (24 ore, gg/mm).
+const SHC_LOCALES = { it: "it-IT", nl: "nl-NL" };
 function shcLoc(hass) {
-  return shcLang(hass) === "it" ? "it-IT" : "en-GB";
+  return SHC_LOCALES[shcLang(hass)] || "en-GB";
 }
 function shcT(hass, key, vars) {
   const l = shcLang(hass);
