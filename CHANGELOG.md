@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-06 — 1.19.0: translations (issue #11), phase 2 = all the other cards
+
+- All remaining cards now follow the language of Home Assistant (`hass.locale.language`, fallback `hass.language`): Energy, NAS, Proxmox, Home Assistant server, FRITZ!Box, UPS, Zigbee, Climate, Heater, Fan, Boiler, Waste collection, Alexa (text, memo, web radio) and Notification Center, including their popups (Settings, Statistics, Charts, Consumption...), warnings and tooltips.
+- The **visual editors** of every card (and the Appliance editor, helper creation messages) are translated too; the editor refreshes by itself once the language of Home Assistant is known.
+- Dictionaries `it` and `en` (about 900 new keys in `SHC_I18N`); any other language falls back to English. Contributors: copy the `en` block, translate the values.
+- With Home Assistant in Italian nothing changes (texts identical to 1.18.x). With English (or any other language) the cards now appear in English.
+- Fix: the default Appliance name ("Elettrodomestico" / "Appliance") is now resolved when Home Assistant gives the language, not at configuration time.
+- Dates and times in all cards use the Home Assistant language (`it-IT` for Italian, `en-GB` otherwise).
+- Never translated: config keys, HA state/attribute values, your own labels and names, proper names (Proxmox, FRITZ!Box, Zigbee2MQTT...), dishwasher program names and preset radio stations.
+- The Samsung remote keeps its own it/en strings (unchanged).
+
 ## 2026-11-06 — 1.18.0: translations (issue #11), phase 1 = Appliance card
 
 - The Appliance card (`shc-appliance-clone-card`: labels, states, buttons, Settings / Consumption / Statistics / Charts popups, tooltips, chart popup, cost note) now follows the language of Home Assistant (`hass.locale.language`, fallback `hass.language`). Dictionaries: `it` and `en`; any other language falls back to English.

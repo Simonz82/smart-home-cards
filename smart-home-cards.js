@@ -18,9 +18,9 @@ function shcHeroImage(hero, image) {
 function shcFmtDateTime(d, mode) {
   const narrow = typeof window !== "undefined" && window.innerWidth <= 480;
   if (mode === "short" || (mode === "auto" && narrow)) {
-    return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "");
+    return d.toLocaleString(shcLoc(), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "");
   }
-  return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleString(shcLoc(), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 // Esegue uno script / scena / pulsante o un'azione completa {action, target, data}.
@@ -377,7 +377,7 @@ const HERO_BUILDERS = {
     <rect x="40" y="18" width="160" height="204" rx="14" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".55" stroke-width="1.5"/>
     <rect x="58" y="34" width="124" height="56" rx="8" fill="#0c1930"/>
     <text class="shc-e-watt" x="120" y="70" text-anchor="middle" font-size="30" font-weight="900" fill="#38bdf8" font-family="Roboto, sans-serif">0</text>
-    <text x="120" y="84" text-anchor="middle" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1" font-family="Roboto, sans-serif">WATT ISTANTANEI</text>
+    <text x="120" y="84" text-anchor="middle" font-size="10" font-weight="800" fill="#94a3b8" letter-spacing="1" font-family="Roboto, sans-serif">${shcT(null, "energy.live_watts")}</text>
     <rect x="54" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
     <circle cx="66" cy="112" r="2.4" fill="#22c55e" class="shch-flicker"/>
     <rect x="81" y="104" width="24" height="32" rx="3" fill="url(#shch-steel-${id})" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1"/>
@@ -1037,7 +1037,7 @@ async function shcCreateHelperFlow(hass, handler, data) {
   const flow = await hass.callApi("POST", "config/config_entries/flow", { handler, show_advanced_options: false });
   const result = await hass.callApi("POST", `config/config_entries/flow/${flow.flow_id}`, data);
   if (result.type !== "create_entry") {
-    throw new Error(result.errors ? JSON.stringify(result.errors) : `Impossibile creare l'helper (${handler}).`);
+    throw new Error(result.errors ? JSON.stringify(result.errors) : shcT(hass, "helper.unable_to_create_helper", { "1": (handler) }));
   }
   const entryId = result.result?.entry_id;
   // L'entita' non compare nel registro nello stesso istante: si aspetta un attimo, riprovando.
@@ -1047,7 +1047,7 @@ async function shcCreateHelperFlow(hass, handler, data) {
     if (found) return found.entity_id;
     await new Promise((r) => setTimeout(r, 300));
   }
-  throw new Error("Helper creato ma non trovo ancora la sua entita': riprova tra poco (Impostazioni > Dispositivi e servizi > Helper).");
+  throw new Error(shcT(hass, "helper.helper_created_but_its"));
 }
 
 async function shcCreateEnergyHelper(hass, { name, sourceEntity, round = 2 }) {
@@ -1532,8 +1532,7 @@ function shcPowerCutBlocked(artwork, entity) {
   return /frigo|fridge|freezer|congelator|rel[eè]?[_ ]?cucina|relay[_ ]?cucina|elettrodomestici_cucina/i.test(entity || "");
 }
 function shcL(hass, it, en) {
-  const l = String(hass?.locale?.language || hass?.language || "it").toLowerCase();
-  return l.startsWith("it") ? it : en;
+  return shcLang(hass) === "it" ? it : en;
 }
 
 // -----------------------------------------------------------------------
@@ -1646,7 +1645,913 @@ const SHC_I18N = {
     "cycle.hint": "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo",
       "name.default": "Elettrodomestico",
       "chart.d7": "7 gg",
-      "chart.d30": "30 gg"
+      "chart.d30": "30 gg",
+      "helper.unable_to_create_helper": "Impossibile creare l'helper ({1}).",
+      "helper.helper_created_but_its": "Helper creato ma non trovo ancora la sua entita': riprova tra poco (Impostazioni > Dispositivi e servizi > Helper).",
+      "editor.item_showedit": "{1} element{2} — mostra/modifica",
+      "editor.remove": "Rimuovi",
+      "editor.add": "Aggiungi",
+      "editor.required": " — obbligatorio",
+      "editor.an_entity_is_required": "Serve un'entita' per far funzionare la card.",
+      "fritzcard.basic": "Base",
+      "fritzcard.name": "Nome",
+      "fritzcard.custom_image_optional": "Immagine personalizzata (opzionale)",
+      "fritzcard.path_or_url_of": "Percorso o URL di una tua foto.",
+      "fritzcard.connection_sensor_onoff": "Sensore di connessione (acceso/spento)",
+      "fritzcard.realtime_bandwidth": "Banda in tempo reale",
+      "fritzcard.live_download_mbps": "Download live (Mbps)",
+      "fritzcard.live_upload_mbps": "Upload live (Mbps)",
+      "fritzcard.download_sync_rate": "Portante Download",
+      "fritzcard.upload_sync_rate": "Portante Upload",
+      "fritzcard.advanced": "Avanzate",
+      "fritzcard.firmware_update": "Aggiornamento firmware",
+      "fritzcard.fallback_scale_limit_mbps": "Fondo scala di riserva (Mbps, usato solo se la portante non e' disponibile)",
+      "fritzcard.layout_menu_classiccentered": "Menu layout (classico/centrato)",
+      "servercard.system": "Sistema",
+      "servercard.disk": "Disco (%)",
+      "servercard.ssl_certificate_expiration": "Scadenza certificato SSL",
+      "servercard.core_update": "Aggiornamento Core",
+      "servercard.supervisor_update": "Aggiornamento Supervisor",
+      "servercard.running_since_datetime": "Avviato da (data/ora)",
+      "nascard.model": "Modello",
+      "nascard.dsm_update": "Aggiornamento DSM",
+      "nascard.security_status": "Stato di sicurezza",
+      "nascard.automatically_created_by_the": "Creato in automatico dall'integrazione Synology DSM (device_class 'safety': acceso = problema rilevato)",
+      "nascard.temperature": "Temperatura",
+      "nascard.volume_labels": "Etichette dei volumi",
+      "nascard.volume_1_name": "Nome Volume 1",
+      "nascard.volume_2_name": "Nome Volume 2",
+      "nascard.consumption_lightning_button": "Consumi (pulsante fulmine)",
+      "nascard.current_consumption_w": "Consumo attuale (W)",
+      "nascard.energy_sensor_kwh_with": "Sensore energia (kWh, con storico a lungo termine)",
+      "nascard.optional_if_connected_the": "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno.",
+      "nascard.energy_cost_kwh": "Costo energia (€/kWh)",
+      "proxmoxcard.cpu_temperature": "Temperatura CPU",
+      "proxmoxcard.node_status_onlineoffline": "Stato del nodo (online/offline)",
+      "proxmoxcard.active_containers_lxc": "Contenitori (LXC) attivi",
+      "proxmoxcard.active_virtual_machines": "Macchine virtuali attive",
+      "proxmoxcard.last_node_boot": "Ultimo avvio del nodo",
+      "proxmoxcard.ram_used": "RAM usata",
+      "proxmoxcard.ram_free": "RAM libera",
+      "proxmoxcard.locallvm_disk": "Disco local-lvm (%)",
+      "proxmoxcard.voltage": "Tensione",
+      "proxmoxcard.current": "Corrente",
+      "upscard.path_or_url_of": "Percorso o URL di una tua foto: utile con due UPS diversi.",
+      "upscard.ups_status": "Stato UPS",
+      "upscard.battery_and_load": "Batteria e carico",
+      "upscard.battery_charge": "Carica batteria (%)",
+      "upscard.actual_load_w": "Carico reale (W)",
+      "upscard.remaining_runtime": "Autonomia residua",
+      "upscard.input_voltage": "Tensione ingresso",
+      "upscard.low_battery_warning": "Batteria scarica (avviso)",
+      "upscard.power_outage_notification_automation": "Automazione notifiche caduta corrente",
+      "upscard.rated_power_w": "Potenza nominale (W)",
+      "notifcentercard.notification_center": "Centro Notifiche",
+      "notifcentercard.volumes_and_times": "Volumi e tempi",
+      "notifcentercard.announcement_volume": "Volume annuncio",
+      "notifcentercard.restore_volume": "Volume ripristino",
+      "notifcentercard.message_duration_seconds": "Tempo del messaggio (secondi)",
+      "notifcentercard.notification_schedule": "Orario notifiche",
+      "notifcentercard.start_time": "Orario inizio",
+      "notifcentercard.end_time": "Orario fine",
+      "alexatextcard.speaker_and_text": "Speaker e testo",
+      "alexatextcard.speaker_selector": "Selettore speaker",
+      "alexatextcard.script_to_add_speaker": "Script aggiungi speaker al gruppo",
+      "alexatextcard.script_to_remove_speaker": "Script rimuovi speaker dal gruppo",
+      "alexatextcard.text_field": "Campo testo",
+      "alexatextcard.playback": "Riproduzione",
+      "alexatextcard.play_script": "Script riproduci",
+      "alexatextcard.multiroom_group": "Gruppo multiroom",
+      "alexatextcard.the_group_updated_by": "Il group.* aggiornato dagli script aggiungi/rimuovi speaker, mostrato in card come \"In riproduzione su\".",
+      "alexamemocard.message": "Messaggio",
+      "alexamemocard.active": "Attivo",
+      "alexamemocard.selected_alexa_devices": "Dispositivi Alexa scelti",
+      "alexamemocard.inputtext_with_entityids_of": "input_text con gli entity_id dei media_player scelti, separati da virgola (vuoto = dispositivo predefinito).",
+      "alexamemocard.speakers_shown_as_chips": "Speaker mostrati come chip",
+      "alexamemocard.name_on_chip_empty": "Nome sul chip (vuoto = nome dell'entita')",
+      "alexamemocard.when_to_announce": "Quando annunciare",
+      "alexamemocard.repeat_daily_in_period": "Ripeti ogni giorno nel periodo",
+      "alexamemocard.start_date": "Data inizio",
+      "alexamemocard.end_date": "Data fine",
+      "alexamemocard.time": "Orario",
+      "alexamemocard.date_and_time_onetime": "Data e ora (una tantum)",
+      "alexamemocard.person_and_retry_on": "Persona e riprova al rientro",
+      "alexamemocard.person_entityid_saved_here": "Persona (entity_id salvato qui, vuoto = nessuna)",
+      "alexamemocard.pending_internal": "In sospeso (interno)",
+      "alexamemocard.delay_after_return_minutes": "Ritardo dopo il rientro (minuti)",
+      "alexamemocard.how_many_memos_to": "Quanti memo mostrare (solo su Memo 1)",
+      "alexamemocard.optional_link_only_on": "Facoltativo: collegalo solo sulla card Memo 1 per far apparire lo stepper che sblocca Memo 3/4.",
+      "alexawebradiocard.radio_and_volume": "Radio e volume",
+      "alexawebradiocard.stationplaylist_selector": "Selettore stazione/playlist",
+      "alexawebradiocard.current_station_sensor": "Sensore stazione corrente",
+      "alexawebradiocard.template_sensor_with_selectservicesentitypicture": "Sensore template con attributi select/servizi/entity_picture.",
+      "alexawebradiocard.speaker_selector_to_addremove": "Selettore speaker da aggiungere/rimuovere",
+      "alexawebradiocard.tapping_a_chip_lets": "Toccando un chip la card sceglie qui l'opzione dello speaker e poi lancia lo script aggiungi o rimuovi.",
+      "alexawebradiocard.speaker_selector_option_empty": "Opzione del selettore speaker (vuoto = nome dell'entita')",
+      "alexawebradiocard.stations_and_playlists": "Stazioni e playlist",
+      "alexawebradiocard.images_folder": "Cartella immagini",
+      "alexawebradiocard.used_for_images_specified": "Usata per le immagini indicate solo come nome file. Un percorso che inizia con / o http resta com'e'.",
+      "alexawebradiocard.stations": "Stazioni",
+      "alexawebradiocard.station_selector_option": "Opzione del selettore stazione",
+      "alexawebradiocard.displayed_name_empty_option": "Nome mostrato (vuoto = opzione)",
+      "alexawebradiocard.image_filename_or_path": "Immagine (nome file o percorso)",
+      "alexawebradiocard.group_eg_tunein_radio": "Gruppo (es. TuneIn Radio, Spotify)",
+      "alexawebradiocard.alarm_optional": "Sveglia (facoltativa)",
+      "alexawebradiocard.alarm_active": "Sveglia attiva",
+      "alexawebradiocard.turnon_time": "Orario accensione",
+      "alexawebradiocard.turnoff_time": "Orario spegnimento",
+      "alexawebradiocard.alarm_days": "Giorni della sveglia",
+      "alexawebradiocard.day_switch": "Interruttore del giorno",
+      "alexawebradiocard.name_on_chip": "Nome sul chip",
+      "alexawebradiocard.automatic_reduced_volume_optional": "Volume ridotto automatico (facoltativo)",
+      "alexawebradiocard.reduced_volume_automation": "Automazione volume ridotto",
+      "alexawebradiocard.volume_after_turnoff": "Volume dopo lo spegnimento",
+      "garbagecard.waste_collection": "Raccolta Differenziata",
+      "garbagecard.todays_waste_sensor": "Sensore del rifiuto di oggi",
+      "garbagecard.days_and_times": "Giorni e orari",
+      "garbagecard.day_of_the_week": "Giorno della settimana",
+      "garbagecard.collection_day": "Giorno del ritiro",
+      "garbagecard.setout_time": "Orario di esposizione",
+      "garbagecard.custom_collection_types": "Tipi di raccolta scritti a mano",
+      "garbagecard.collection_types_list_shows": "Elenco tipi di raccolta (mostra il pulsante sulla card)",
+      "garbagecard.optional_if_connected_a": "Facoltativo: se lo colleghi compare il pulsante per scrivere i tipi di raccolta del tuo comune.",
+      "garbagecard.notification_center_page_path": "Percorso pagina Centro Notifiche (facoltativo)",
+      "garbagecard.without_this_field_the": "Senza questo campo il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste.",
+      "energycard.bar": "Barra {1}",
+      "energycard.label": "Etichetta",
+      "energycard.general": "Generale",
+      "energycard.entity_power_in_w": "Entita' (potenza in W)",
+      "energycard.scale_limit_w": "Fondo scala (W)",
+      "energycard.home_energy": "Energia Casa",
+      "energycard.general_power_sensor_w": "Sensore di potenza generale (W)",
+      "energycard.general_scale_limit_w": "Fondo scala generale (W)",
+      "appledit.history": "Storici",
+      "appledit.advanced_configuration_detected_yaml": "Configurazione avanzata rilevata (package YAML): i consumi per periodo restano quelli gia' in uso, invariati.",
+      "appledit.history_consumption_by_period": "Storici (consumi per periodo, senza YAML)",
+      "appledit.energy_sensor_kwh": "Sensore energia (kWh)",
+      "appledit.create_automatically_from_power": "Crea automaticamente dal sensore di potenza",
+      "appledit.create_cost_helper_025": "Crea helper costo (0,25 €/kWh di partenza)",
+      "appledit.show_consumption_by_period": "Mostra \"Consumi per periodo\" nella card (Statistiche)",
+      "appledit.creating": "Creazione in corso…",
+      "appledit.error": "Errore: {1}",
+      "appledit.what_appliance_is_it": "Che elettrodomestico e'?",
+      "appledit.eg_dishwasher": "es. Lavastoviglie",
+      "appledit.is_this_appliance_smart": "Questo elettrodomestico e' domotico o e' solo una presa?",
+      "appledit.smart_has_its_own": "Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).",
+      "appledit.plug_only": "Solo presa",
+      "appledit.only_measures_watts": "Misura solo i Watt",
+      "appledit.smart": "Domotico",
+      "appledit.has_states_and_programs": "Ha stati e programmi",
+      "appledit.power": "Potenza",
+      "appledit.optional_if_the_state": " — facoltativo se c'e' l'entita' dello stato",
+      "appledit.without_a_watt_sensor": "Senza sensore Watt la banda \"Potenza attuale\" non compare.",
+      "appledit.hide_the_power_bar": "Nascondi la banda della potenza",
+      "appledit.state_and_program_smart": "Stato e programma (domotico)",
+      "appledit.state_entity_eg_running": "Entita' dello stato (es. \"in funzione\", \"pronto\"...)",
+      "appledit.program_progress_optional": "Avanzamento programma (facoltativo)",
+      "appledit.estimated_finish_optional": "Fine prevista (facoltativo)",
+      "appledit.advanced_settings_thresholds_layout": "Impostazioni avanzate (soglie, layout)",
+      "appledit.running_threshold_w": "Soglia \"in funzione\" (W)",
+      "appledit.standby_threshold_w": "Soglia \"standby\" (W)",
+      "appledit.power_bar_full_scale": "Fondo scala barra potenza (W)",
+      "appledit.layout_menu_optional": "Menu layout (facoltativo)",
+      "appledit.without_the_notification_center": "Senza il percorso Centro Notifiche, il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste. Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.",
+      "fritz.connectionentity_is_required": "connection_entity è obbligatorio",
+      "fritz.settings": "Impostazioni",
+      "fritz.statistics": "Statistiche",
+      "fritz.graphs": "Grafici",
+      "fritz.bandwidth_test": "Test di banda",
+      "fritz.updates": "Aggiornamenti",
+      "fritz.connection": "Connessione",
+      "fritz.since": "Da",
+      "fritz.sync_rate_down": "Portante Down",
+      "fritz.sync_rate_up": "Portante Up",
+      "fritz.download_now_live": "Download ora (live)",
+      "fritz.upload_now_live": "Upload ora (live)",
+      "fritz.run": "Esegui",
+      "fritz.tools": "Strumenti",
+      "fritz.no_settings_configured_for": "Nessuna impostazione configurata per questa card (vedi la guida, campo \"settings_sections\").",
+      "fritz.sync_rate": "Portante",
+      "fritz.bandwidth_used": "Banda usata",
+      "fritz.bandwidth_used_mbs": "Banda usata (MB/s)",
+      "fritz.snr_noise": "Rumore SNR",
+      "fritz.attenuation": "Attenuazione",
+      "fritz.restarted_on": "Riavviato il",
+      "fritz.connected_since": "Connesso dal",
+      "fritz.signal": "Segnale",
+      "fritz.installed_firmware": "Firmware installato",
+      "fritz.available_firmware": "Firmware disponibile",
+      "fritz.status": "Stato",
+      "fritz.up_to_date": "Aggiornato",
+      "fritz.update_available": "Aggiornamento disponibile",
+      "fritz.fritzos_firmware": "Firmware FritzOS",
+      "fritz.bandwidth_currently_in_use": "Banda in uso ora",
+      "fritz.last_speed_test": "Ultimo speedtest",
+      "fritz.line_quality": "Qualità linea",
+      "fritz.test_performed_on": "Test eseguito il",
+      "fritz.ookla_speedtest_periodic_measurement": "Speedtest Ookla (misurazione periodica)",
+      "fritz.connected": "CONNESSO",
+      "fritz.disconnected": "DISCONNESSO",
+      "fritz.firmware_update_available": "⚠ Aggiornamento firmware disponibile: {1}",
+      "server.core_version": "Versione Core",
+      "server.running_for": "Avviato da",
+      "server.ssl_certificate": "Certificato SSL",
+      "server.ha_disk": "Disco HA",
+      "server.days": "{1}Giorni",
+      "server.monday": "Lunedì",
+      "server.tuesday": "Martedì",
+      "server.wednesday": "Mercoledì",
+      "server.thursday": "Giovedì",
+      "server.friday": "Venerdì",
+      "server.saturday": "Sabato",
+      "server.sunday": "Domenica",
+      "server.days_2": "Giorni – {1}",
+      "server.settings": "{1} Impostazioni",
+      "server.no_data": "Nessun dato",
+      "server.cpu_speed": "Velocità CPU",
+      "server.total_ram": "RAM totale",
+      "server.disk_used": "Disco usato",
+      "server.disk_free": "Disco libero",
+      "server.total_disk": "Disco totale",
+      "server.disk": "Disco %",
+      "server.local_ip": "IP locale",
+      "server.public_ip": "IP pubblico",
+      "server.ha_started_on": "HA avviato il",
+      "server.ha_running_for": "HA in funzione da",
+      "server.server_started_on": "Server avviato il",
+      "server.server_running_for": "Server in funzione da",
+      "server.mariadb_space": "Spazio MariaDB",
+      "server.network": "Rete",
+      "server.startup": "Avvio",
+      "server.installed_core": "Core installato",
+      "server.available_core": "Core disponibile",
+      "server.installed_supervisor": "Supervisor installato",
+      "server.available_supervisor": "Supervisor disponibile",
+      "server.addons_to_update": "Addon da aggiornare",
+      "server.hacs_to_update": "HACS da aggiornare",
+      "server.last_successful_backup_synology": "Ultimo backup riuscito (Synology)",
+      "server.ssl_certificate_expires_on": "Certificato SSL scade il",
+      "server.days_remaining": "Giorni rimanenti",
+      "server.available_updates": "Aggiornamenti disponibili",
+      "server.maintenance": "Manutenzione",
+      "server.days_3": "{1} gg",
+      "server.ssl_expires_in_days": "SSL scade tra {1}gg",
+      "nas.updateentity_is_required": "update_entity è obbligatorio",
+      "nas.consumption": "Consumi",
+      "nas.security": "Sicurezza",
+      "nas.consumption_2": "Consumo",
+      "nas.normal": "Normale",
+      "nas.migrated": "Migrato",
+      "nas.total_cpu": "CPU totale",
+      "nas.user_cpu": "CPU utente",
+      "nas.load_average": "Carico medio",
+      "nas.available_ram": "RAM disponibile",
+      "nas.volumes": "Volumi",
+      "nas.disks": "Dischi",
+      "nas.installed_dsm": "DSM installato",
+      "nas.available_dsm": "DSM disponibile",
+      "nas.operating_system_dsm": "Sistema Operativo (DSM)",
+      "nas.current_consumption": "Consumo attuale",
+      "nas.today": "Oggi",
+      "nas.month": "Mese",
+      "nas.realtime": "In tempo reale",
+      "nas.nas_energy": "Energia NAS",
+      "nas.consumption_by_period": "Consumi per periodo",
+      "nas.loading": "Caricamento…",
+      "nas.cost": "Costo",
+      "nas.yesterday": "Ieri",
+      "nas.prev_month": "Mese prec.",
+      "nas.year": "Anno",
+      "nas.prev_year": "Anno prec.",
+      "nas.statistics_not_currently_available": "Statistiche non disponibili al momento",
+      "nas.this_month_kwh_per": "Questo mese (kWh al giorno)",
+      "nas.loading_2": "Caricamento...",
+      "nas.this_year_kwh_per": "Quest'anno (kWh al mese)",
+      "nas.jan": "Gen",
+      "nas.feb": "Feb",
+      "nas.mar": "Mar",
+      "nas.apr": "Apr",
+      "nas.may": "Mag",
+      "nas.jun": "Giu",
+      "nas.jul": "Lug",
+      "nas.aug": "Ago",
+      "nas.sep": "Set",
+      "nas.oct": "Ott",
+      "nas.nov": "Nov",
+      "nas.dec": "Dic",
+      "nas.data_loading_error": "Errore caricamento dati",
+      "nas.warning": "Attenzione",
+      "nas.security_check_required": "Controllo sicurezza da verificare",
+      "energy.powerentity_is_required": "power_entity è obbligatorio",
+      "energy.month_cost": "Costo mese",
+      "energy.top_consumption": "Top consumo",
+      "energy.switches": "Interruttori",
+      "energy.power_trend": "Andamento potenza",
+      "energy.last_24_hours": "Ultime 24 ore",
+      "energy.featured": "In evidenza",
+      "energy.all_circuits_live_descending": "Tutti i circuiti (live, ordine decrescente)",
+      "energy.weekly_average": "Media settimanale",
+      "energy.previous_period": "Periodo precedente",
+      "energy.last_7_days": "Ultimi 7 giorni",
+      "energy.power_trend_24h": "Andamento potenza (24h)",
+      "energy.threshold_exceeded_w_limit": "⚠ Soglia superata: {1} W (limite {2} W)",
+      "ups.statusentity_is_required": "status_entity è obbligatorio",
+      "ups.runtime": "Autonomia",
+      "ups.input": "Ingresso",
+      "ups.load": "Carico",
+      "ups.battery": "Batteria",
+      "ups.power_outage_notifications": "Notifiche caduta corrente",
+      "ups.automations": "Automazioni",
+      "ups.no_settings": "Nessuna impostazione",
+      "ups.status_code": "Codice stato",
+      "ups.charge": "Carica",
+      "ups.low_battery_threshold": "Soglia batteria scarica",
+      "ups.actual_load_nas_outlet": "Carico reale (Presa NAS)",
+      "ups.load_ups_estimate_inaccurate": "Carico (stima UPS, poco precisa)",
+      "ups.mains_power": "Rete elettrica",
+      "ups.on_battery": "A BATTERIA",
+      "ups.running_on_battery_runtime": "⚠ In funzione a batteria — autonomia {1}",
+      "garbage.entity_is_required": "entity è obbligatorio",
+      "garbage.collection_types": "Tipi di raccolta",
+      "garbage.today_is": "Oggi è",
+      "garbage.put_out_from": "Esporre dalle",
+      "garbage.configure_waste_collection_for": "Configura la raccolta del tuo comune",
+      "garbage.write_the": "Scrivi le",
+      "garbage.items": "voci",
+      "garbage.for_waste_separated_by": "dei rifiuti, separate da virgola.",
+      "garbage.each_item_is_what": "Ogni voce è ciò che viene ritirato in una singola giornata",
+      "garbage.when_setting_up_the": ": quando poi imposti i giorni, per ogni giorno scegli",
+      "garbage.a_single_item": "una sola voce",
+      "garbage.if_on_one_day": ". Se in un giorno fanno",
+      "garbage.two_collections_together": "due ritiri insieme",
+      "garbage.write_a_dedicated_item": ", scrivi una voce apposta che li comprende entrambi.",
+      "garbage.example": "Esempio",
+      "garbage.write": "Scrivi:",
+      "garbage.paper_glass_plastic_organic": "Carta, Vetro, Plastica, Organico, Organico e Resto",
+      "garbage.on_monday_choose": "• il lunedì scegli",
+      "garbage.organic": "Organico",
+      "garbage.only_organic_is_collected": "(ritirano solo l'organico)",
+      "garbage.on_thursday_choose": "• il giovedì scegli",
+      "garbage.organic_and_general_waste": "Organico e Resto",
+      "garbage.on_that_day_organic": "(quel giorno ritirano organico e resto insieme)",
+      "garbage.on_saturday_choose": "• il sabato scegli",
+      "garbage.none": "Nulla",
+      "garbage.no_collection_added_automatically": "(nessun ritiro, viene aggiunta da sola)",
+      "garbage.an_icon_is_automatically": "A ogni voce viene aggiunta un'icona in automatico. Le scelte già fatte per i giorni restano, se la voce esiste ancora.",
+      "garbage.menu_preview": "Anteprima dei menu",
+      "garbage.save_list": "Salva elenco",
+      "garbage.none_2": "🤷 Nulla",
+      "proxmox.node": "Nodo",
+      "proxmox.active_containers": "Contenitori attivi",
+      "proxmox.active_vms": "VM attive",
+      "proxmox.started_on": "Avviato il",
+      "proxmox.disk": "Disco",
+      "proxmox.cpu_temp": "Temp CPU",
+      "proxmox.locallvm_disk": "Disco local-lvm %",
+      "proxmox.ssd_temperature": "Temperatura SSD",
+      "proxmox.ssd_wearout": "Usura SSD",
+      "proxmox.poweron_hours": "Ore di accensione",
+      "proxmox.power_cycles": "Cicli di alimentazione",
+      "proxmox.ssd_health": "Salute SSD",
+      "proxmox.issue_detected": "Problema rilevato",
+      "proxmox.physical_disk": "Disco fisico",
+      "proxmox.current_power": "Potenza attuale",
+      "proxmox.energy_today": "Energia oggi",
+      "proxmox.energy_month": "Energia mese",
+      "proxmox.installed_version": "Versione installata",
+      "proxmox.available_version": "Versione disponibile",
+      "proxmox.yes": "Sì",
+      "proxmox.node_unreachable": "Nodo non raggiungibile",
+      "proxmox.cpu_at": "CPU al {1}%",
+      "proxmox.ram_at": "RAM al {1}%",
+      "proxmox.cpu_temp_at_c": "Temp CPU a {1}°C",
+      "proxmox.ssd_problem": "Problema SSD",
+      "notifcenter.message_duration": "Tempo del messaggio",
+      "notifcenter.missing_configuration_for": "⚠️ Manca la configurazione di: {1}.",
+      "notifcenter.open_edit_on_card": "Apri \"Modifica\" (⋮ sulla card, in modalità modifica dashboard) e ricompila i campi.",
+      "alexatext.add_speaker_script": "Script aggiungi speaker",
+      "alexatext.remove_speaker_script": "Script rimuovi speaker",
+      "alexatext.remove_from_group": "Rimuovi dal gruppo",
+      "alexatext.add_to_group": "Aggiungi al gruppo",
+      "alexatext.text": "Testo",
+      "alexatext.type_your_message": "Scrivi il messaggio...",
+      "alexatext.play": "{1} Riproduci",
+      "alexatext.playing_on": "In riproduzione su",
+      "alexatext.no_devices_added_for": "Nessun dispositivo inserito per la riproduzione.",
+      "alexamemo.repeat": "Ripetizione",
+      "alexamemo.single_datetime": "Data/ora singola",
+      "alexamemo.person": "Persona",
+      "alexamemo.pending": "In sospeso",
+      "alexamemo.return_delay": "Ritardo rientro",
+      "alexamemo.alexa_devices": "Dispositivi Alexa",
+      "alexamemo.how_it_works": "Come funziona",
+      "alexamemo.announces_a_voice_message": "Annuncia un messaggio vocale su Alexa a un orario stabilito: ogni giorno per un periodo, oppure una tantum in una data precisa.",
+      "alexamemo.if_you_set_a": "Se imposti una",
+      "alexamemo.and_they_are_not": "e all'orario previsto non è in casa, l'annuncio non va perso: viene ripetuto pochi minuti dopo il suo rientro.",
+      "alexamemo.the_volume_waiting_time": "Il volume, il tempo di attesa e la finestra oraria in cui è permesso annunciare sono",
+      "alexamemo.shared_with_all_alexa": "condivisi con tutte le notifiche Alexa",
+      "alexamemo.and_are_configured_in": "e si impostano nella card Centro Notifiche qui sopra, valgono anche per questo memo.",
+      "alexamemo.other_active_memos": "Altri memo attivi",
+      "alexamemo.fewer_memos": "Meno memo",
+      "alexamemo.more_memos": "Più memo",
+      "alexamemo.alexa_devices_empty_default": "Dispositivi Alexa (vuoto = predefinito)",
+      "alexamemo.date_and_time": "Data e ora",
+      "alexamemo.person_optional": "Persona (opzionale)",
+      "alexamemo.delay_after_return": "Ritardo dopo il rientro",
+      "alexamemo.pending_2": "IN SOSPESO",
+      "alexamemo.none_always_announce": "Nessuna – annuncia sempre",
+      "alexamemo.of_4": "{1} di 4",
+      "alexamemo.disabled": "Disattivato.",
+      "alexamemo.pending_will_announce_upon": "⏳ In sospeso — annuncerà al rientro di {1}.",
+      "alexamemo.pending_3": "⏳ In sospeso.",
+      "alexamemo.every_day_at_from": "Ogni giorno alle {1}, dal {2} al {3}.",
+      "alexamemo.oneoff": "Una tantum: {1}.",
+      "alexamemo.no_date_set": "Nessuna data impostata.",
+      "alexawebradio.station_selector": "Selettore stazione",
+      "alexawebradio.station_sensor": "Sensore stazione",
+      "alexawebradio.turns_on_alexa_web": "Accende la web radio Alexa sugli speaker selezionati, con la stazione o playlist scelta qui sotto.",
+      "alexawebradio.speakers_are_addedremoved_from": "Gli speaker si aggiungono/rimuovono dal gruppo multiroom toccando i loro chip: quello evidenziato in blu è già acceso.",
+      "alexawebradio.the": "La",
+      "alexawebradio.alarm": "Sveglia",
+      "alexawebradio.clock_icon_automatically_turns": "(icona orologio) accende/spegne automaticamente la radio a due orari, nei giorni scelti. Il",
+      "alexawebradio.reduced_volume": "Volume ridotto",
+      "alexawebradio.restart_icon_lowers_the": "(icona restart) abbassa il volume da solo quando la radio si spegne.",
+      "alexawebradio.radio_alarm": "Sveglia Radio",
+      "alexawebradio.turn_on": "Accensione",
+      "alexawebradio.turn_off": "Spegnimento",
+      "alexawebradio.days": "Giorni",
+      "alexawebradio.automatic_reduced_volume": "Volume Ridotto Automatico",
+      "alexawebradio.active_on_turn_off": "Attivo allo spegnimento",
+      "alexawebradio.radio": "Radio",
+      "alexawebradio.multiroom_speakers": "Speaker multiroom",
+      "zigbee.entity_is_required_package": "entity è obbligatorio (sensor.zigbee_dispositivi_offline del package)",
+      "zigbee.zigbee_network": "Rete Zigbee",
+      "zigbee.pairing": "Abbinamenti",
+      "zigbee.devices": "Dispositivi",
+      "zigbee.signal_and_batteries": "Segnale e batterie",
+      "zigbee.notifications": "Notifiche",
+      "zigbee.min_lqi": "LQI min",
+      "zigbee.mains_powered": "A rete",
+      "zigbee.battery_powered": "A batteria",
+      "zigbee.low_batt": "Batt. bassa",
+      "zigbee.online_devices": "Dispositivi online",
+      "zigbee.average_signal": "Segnale medio",
+      "zigbee.mains_powered_2": "a rete",
+      "zigbee.pairing_2": "ABBINAMENTO {1}",
+      "zigbee.below": "sotto {1}%",
+      "zigbee.zigbee2mqtt_is_not_responding": "⚠ Zigbee2MQTT non risponde: tutti i dispositivi risultano irraggiungibili",
+      "zigbee.for": "{1} (da {2})",
+      "zigbee.average_lqi": "LQI medio",
+      "zigbee.minimum_lqi": "LQI minimo",
+      "zigbee.entire_network": "Tutta la rete",
+      "zigbee.coordinator_only": "Solo coordinatore",
+      "zigbee.pairing_active_since": "Abbinamento attivo dalle {1}",
+      "zigbee.via": "Tramite:",
+      "zigbee.coordinator_only_2": "solo coordinatore",
+      "zigbee.entire_network_2": "tutta la rete",
+      "zigbee.stop_pairing": "Ferma abbinamento",
+      "zigbee.pair_via": "Abbina tramite",
+      "zigbee.start_pairing_4_min": "Avvia abbinamento (4 min)",
+      "zigbee.new_devices": "Nuovi dispositivi",
+      "zigbee.start_then_put_the": "Avvia, poi metti il dispositivo in modalità abbinamento. \"Abbina tramite\" forza l'ingresso da un ripetitore preciso: scegli quello più vicino al punto dove andrà il dispositivo, così si aggancia lì e non a uno lontano. Zigbee2MQTT richiude da solo allo scadere. Quando l'abbinamento riesce arriva l'avviso (nella fascia oraria delle notifiche).",
+      "zigbee.recently_paired": "Ultimi abbinati",
+      "zigbee.no_devices_paired_yet": "Nessun abbinamento registrato finora",
+      "zigbee.version": "Versione",
+      "zigbee.connected": "Connesso",
+      "zigbee.disconnected": "Non connesso",
+      "zigbee.log_level": "Livello log",
+      "zigbee.zigbee2mqtt_frontend": "Interfaccia Zigbee2MQTT",
+      "zigbee.open": "Apri",
+      "zigbee.restart_zigbee2mqtt": "Riavvia Zigbee2MQTT",
+      "zigbee.restart": "Riavvia",
+      "zigbee.all": "Tutti",
+      "zigbee.excluded": "Escluso",
+      "zigbee.offline_for": "offline da {1}",
+      "zigbee.search_by_name_or": "Cerca per nome o modello",
+      "zigbee.no_devices": "Nessun dispositivo",
+      "zigbee.zigbee_devices": "Dispositivi Zigbee ({1})",
+      "zigbee.online_excluded": "Online (escluso)",
+      "zigbee.offline_excluded": "Offline (escluso)",
+      "zigbee.all_devices": "{1} Tutti i dispositivi",
+      "zigbee.offline_for_2": "Offline da",
+      "zigbee.signal_lqi": "Segnale (LQI)",
+      "zigbee.power_source": "Alimentazione",
+      "zigbee.management": "Gestione",
+      "zigbee.exclude_from_count_and": "Escludi da conteggio e avvisi",
+      "zigbee.useful_for_a_device": "Utile per un dispositivo che spegni di proposito (es. una presa stagionale): resta in elenco ma non fa scattare il rosso né gli avvisi.",
+      "zigbee.device_page_in_ha": "Scheda del dispositivo in HA",
+      "zigbee.device": "Dispositivo",
+      "zigbee.signal_weakest_first": "Segnale (dal più debole)",
+      "zigbee.no_lqi_value_enable": "Nessun valore LQI: abilita le entità *_linkquality",
+      "zigbee.below_50_the_connection": "Sotto 50 il collegamento è debole: avvicina un dispositivo alimentato a rete (fa da ripetitore) o sposta quello in fondo alla lista.",
+      "zigbee.batteries_lowest_first": "Batterie (dalla più scarica)",
+      "zigbee.no_batterypowered_devices": "Nessun dispositivo a batteria",
+      "zigbee.level_unavailable": "Livello non disponibile",
+      "zigbee.remove": "Togli",
+      "zigbee.none": "Nessuno",
+      "zigbee.alerts": "Avvisi",
+      "zigbee.offline_alerts_and_new": "Avvisi offline e nuovi dispositivi",
+      "zigbee.low_battery_alert": "Avviso batteria bassa",
+      "zigbee.offline_for_at_least": "Offline da almeno",
+      "zigbee.low_battery_below": "Batteria bassa sotto",
+      "zigbee.time_window": "Fascia oraria",
+      "zigbee.from": "Dalle",
+      "zigbee.until": "Fino alle",
+      "zigbee.no_notifications_are_sent": "Fuori fascia non parte nessuna notifica: quello che succede di notte arriva in un riepilogo all'apertura della fascia.",
+      "zigbee.already_alerted": "Già avvisati",
+      "zigbee.low_battery": "Batteria bassa",
+      "zigbee.new_waiting_for_time": "Nuovi in attesa della fascia",
+      "zigbee.an_alerted_device_will": "Un dispositivo avvisato non viene ripetuto finché non torna online (o la batteria non risale sopra soglia).",
+      "zigbee.excluded_from_count_and": "Esclusi da conteggio e avvisi",
+      "zigbee.to_exclude_a_device": "Per escludere un dispositivo: elenco Dispositivi → tocca il dispositivo.",
+      "zigbee.test": "Prova",
+      "zigbee.send_a_test_notification": "Invia una notifica di prova",
+      "zigbee.send": "Invia",
+      "zigbeecard.package_summary_sensor_sensorzigbeedispositivioffline": "Sensore riepilogo del package (sensor.zigbee_dispositivi_offline)",
+      "zigbeecard.zigbee2mqtt_bridge_state_connection": "Stato del bridge Zigbee2MQTT (connessione)",
+      "zigbeecard.permit_join": "Permetti abbinamento (permit join)",
+      "zigbeecard.pairing_end_countdown": "Fine abbinamento (conto alla rovescia)",
+      "zigbeecard.zigbee2mqtt_mqtt_base_topic": "Topic base MQTT di Zigbee2MQTT",
+      "zigbeecard.restart_button": "Pulsante riavvio",
+      "zigbeecard.zigbee2mqtt_frontend_url": "Indirizzo interfaccia Zigbee2MQTT",
+      "zigbeecard.the_path_shown_in": "Il percorso che vedi nella barra degli indirizzi aprendo Zigbee2MQTT dal menu laterale, oppure un indirizzo http completo.",
+      "zigbeecard.device_images_folder": "Cartella foto dispositivi",
+      "zigbeecard.if_an_image_is": "Se una foto manca la card la prende dal sito di Zigbee2MQTT.",
+      "zigbeecard.notifications_package_helpers": "Notifiche (helper del package)",
+      "zigbeecard.alerts_enabled": "Avvisi attivi",
+      "zigbeecard.offline_minutes_before_alert": "Minuti di offline prima dell'avviso",
+      "zigbeecard.low_battery_threshold": "Soglia batteria bassa",
+      "zigbeecard.alerts_from": "Avvisi dalle",
+      "zigbeecard.alerts_until": "Avvisi fino alle",
+      "zigbeecard.test_notification_script": "Script notifica di prova",
+      "climate.entity_is_required_climatexxx": "entity è obbligatorio (climate.xxx)",
+      "climate.climate": "Climatizzatore",
+      "climate.schedule": "Programmazione",
+      "climate.fan_and_vanes": "Ventola e alette",
+      "climate.status_and_diagnostics": "Stato e diagnostica",
+      "climate.room_temperature_target_and": "Temperatura stanza, impostata e umidità",
+      "climate.target_temperature": "Temperatura impostata",
+      "climate.climate_2": "Clima",
+      "climate.room": "Stanza",
+      "climate.target": "Impostata",
+      "climate.humidity": "Umidità",
+      "climate.outdoor": "Esterna",
+      "climate.turn_on_off": "Accendi / spegni",
+      "climate.minus": "Meno",
+      "climate.target_2": "impostata",
+      "climate.plus": "Più",
+      "climate.power_consumption": "Potenza assorbita",
+      "climate.unreachable": "Non raggiungibile",
+      "climate.gauge_unavailable": "Gauge non disponibile",
+      "climate.room_temperature": "Temperatura stanza",
+      "climate.outdoor_temperature": "Temperatura esterna",
+      "climate.off": "SPENTO",
+      "climate.idle": "IN PAUSA",
+      "climate.vanes": "Alette: {1}",
+      "climate.speed": "velocità {1}",
+      "climate.auto_fan": "Ventola automatica",
+      "climate.manual_fan": "Ventola manuale",
+      "climate.turn_on": "Accensione {1}{2}",
+      "climate.turn_off": "Spegnimento {1}",
+      "climate.air_conditioner_unreachable_check": "⚠ Climatizzatore non raggiungibile: controlla alimentazione e collegamento al cloud",
+      "climate.adjust_fan_automatically": "Regola la ventola da sola",
+      "climate.the_further_from_the": "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità nel popup Ventola, la ventola automatica si spegne.",
+      "climate.no_schedule_configured_copy": "Nessuna programmazione configurata. Copia il package",
+      "climate.see_guide_or_specify": "(vedi guida) oppure indica i tuoi helper nell'opzione",
+      "climate.of_the_card": "della card.",
+      "climate.scheduled_turnon": "Accensione programmata",
+      "climate.active": "Attiva",
+      "climate.at": "Alle",
+      "climate.mode": "Modalità",
+      "climate.scheduled_turnoff": "Spegnimento programmato",
+      "climate.schedules": "Programmazioni",
+      "climate.oneoff": "una tantum",
+      "climate.triggers_once_at_the": ": scattano una volta sola all'orario scelto, poi si disattivano da sole. Riaccendile per la volta successiva. Quando sono attive compaiono sotto i comandi della card.",
+      "climate.week": "Settimana",
+      "climate.air_conditioner_consumption": "Consumi del climatizzatore",
+      "climate.cooling": "Freddo",
+      "climate.heating": "Caldo",
+      "climate.values_from_the_air": "Valori dall'integrazione del climatizzatore (si aggiornano qualche volta all'ora).",
+      "climate.plug_meter": "Presa / misuratore",
+      "climate.current_power": "Potenza adesso",
+      "climate.total_energy": "Energia totale",
+      "climate.estimated_total_cost": "Costo totale stimato",
+      "climate.no_meter_configured_powerentity": "Nessun misuratore configurato (power_entity / energy_entity).",
+      "climate.power_graph": "Grafico della potenza",
+      "climate.speed_2": "Velocità {1}",
+      "climate.air_conditioner_unreachable_controls": "Il climatizzatore non è raggiungibile: i comandi tornano attivi appena si ricollega.",
+      "climate.the_further_from_the_2": "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità qui sotto, la ventola automatica si spegne.",
+      "climate.selected_by_auto": " (scelta dall'automatica)",
+      "climate.vanes_2": "Alette",
+      "climate.special_modes": "Modalità speciali",
+      "climate.boost_maximum_power_for": "Boost: massima potenza per circa 20 minuti. Fuori casa: mantiene una temperatura di sicurezza.",
+      "climate.the_air_conditioner_does": "Il climatizzatore non espone velocità della ventola, alette o preset.",
+      "climate.unavailable": "non disponibile",
+      "climate.yes": "SÌ",
+      "climate.currently": "Sta facendo",
+      "climate.cooling_2": "Raffresca",
+      "climate.heating_2": "Riscalda",
+      "climate.idle_2": "In pausa",
+      "climate.drying": "Deumidifica",
+      "climate.fan": "Ventila",
+      "climate.off_2": "Spento",
+      "climate.last_changed": "Ultimo cambio",
+      "climate.temperature_range": "Intervallo temperatura",
+      "climate.c_step": "{1} – {2} °C, passo {3}",
+      "climate.full_card": "Scheda completa",
+      "climate.update_data_from_cloud": "Aggiorna dati dal cloud",
+      "climate.update": "Aggiorna",
+      "climate.diagnostics": "Diagnostica",
+      "climatecard.room_name_gauge_title": "Nome stanza (titolo della gauge)",
+      "climatecard.living_room": "Soggiorno",
+      "climatecard.top_image_with_bar": "In alto: immagine (con barra) oppure gauge",
+      "climatecard.room_temperature_sensor_for": "Sensore temperatura stanza (per il grafico)",
+      "climatecard.room_humidity_sensor": "Sensore umidità stanza",
+      "climatecard.outdoor_temperature_sensor": "Sensore temperatura esterna",
+      "climatecard.auto_fan_switch_button": "Interruttore ventola automatica (pulsante sulla card)",
+      "climatecard.auto_fan_only_inside": "Ventola automatica solo dentro Programmazione",
+      "climatecard.removes_pill_from_card": "Toglie la pillola dalla card e mette l'interruttore nel popup Programmazione.",
+      "climatecard.hide_consumption_button": "Nascondi il pulsante Consumi",
+      "climatecard.without_power_energy_or": "Senza sensori di potenza, energia o consumi il pulsante non compare comunque.",
+      "climatecard.power_w_of_ac": "Potenza (W) della presa del clima",
+      "climatecard.total_energy_kwh": "Energia totale (kWh)",
+      "climatecard.power_scale_max_w": "Fondo scala potenza (W)",
+      "climatecard.without_watt_sensor_the": "Senza sensore Watt la banda non compare comunque.",
+      "climatecard.cooling_today_kwh": "Freddo oggi (kWh)",
+      "climatecard.heating_today_kwh": "Caldo oggi (kWh)",
+      "climatecard.cooling_month_kwh": "Freddo mese (kWh)",
+      "climatecard.heating_month_kwh": "Caldo mese (kWh)",
+      "climatecard.schedule_helpers_from_climayaml": "Programmazione (helper del package clima.yaml)",
+      "climatecard.hide_schedule_button": "Nascondi il pulsante Programmazione",
+      "climatecard.without_schedule_helpers_the": "Senza gli helper di programmazione il pulsante non compare comunque.",
+      "climatecard.scheduled_turnon_active": "Accensione programmata attiva",
+      "climatecard.turnon_mode": "Modalità accensione",
+      "climatecard.turnon_temperature": "Temperatura accensione",
+      "climatecard.scheduled_turnoff_active": "Spegnimento programmato attivo",
+      "climatecard.other": "Altro",
+      "climatecard.refresh_data_button_button": "Pulsante aggiorna dati (button)",
+      "device.display": "Visualizzazione",
+      "device.hide_when_disconnected": "Nascondi se scollegata",
+      "device.when_disconnected_from_power": "Quando è scollegata dalla corrente o dal Wi‑Fi resta solo una striscia bassa con il nome e OFFLINE. Toccandola si riapre questo comando.",
+      "device.target_humidity": "Umidità obiettivo",
+      "device.offline": "{1} offline",
+      "device.disconnected_since": "Scollegato dal {1}",
+      "device.disconnected_from_power_or": "Scollegato dalla corrente o dal Wi‑Fi",
+      "device.since": "Dal",
+      "device.turn_off_the_switch": "Spegni l'interruttore qui sotto per vedere sempre la card completa, anche quando il dispositivo è scollegato. Quando torna online la card completa ricompare comunque da sola.",
+      "device.now": "Adesso",
+      "device.full_card": "Card completa",
+      "device.show": "Mostra",
+      "device.entity_card": "Scheda dell'entità",
+      "heater.heater": "Stufetta",
+      "heater.automatic_management": "Gestione automatica",
+      "heater.room_temperature_and_humidity": "Temperatura e umidità della stanza, soglia",
+      "heater.level": "Livello",
+      "heater.internal": "Interna",
+      "heater.threshold": "Soglia",
+      "heater.then": "Poi",
+      "heater.threshold_2": "soglia",
+      "heater.off": "SPENTA",
+      "heater.fan": "VENTILA",
+      "heater.heat": "RISCALDA {1}",
+      "heater.off_2": "Spenta",
+      "heater.manual": "Manuale",
+      "heater.fan_2": "Ventilazione",
+      "heater.heat_2": "Riscalda {1}",
+      "heater.level_2": "Livello {1}",
+      "heater.fan_only": "Solo ventilazione",
+      "heater.oscillation": "Oscillazione",
+      "heater.at_switches_to": ", a {1}° passa a {2}",
+      "heater.automatic_management_off": "Gestione automatica spenta",
+      "heater.heater_unreachable_check_power": "⚠ Stufetta non raggiungibile: controlla che sia collegata alla corrente e al Wi‑Fi",
+      "heater.no_automatic_management_configured": "Nessuna gestione automatica configurata. Copia il package",
+      "heater.see_guide_or_specify": "(vedi guida) oppure indica i tuoi helper nelle opzioni",
+      "heater.room_threshold": "Soglia della stanza",
+      "heater.once_threshold_is_reached": "Raggiunta la soglia passa a",
+      "heater.every_turnon_from_card": "Ogni accensione (dalla card, dall'app o con Alexa) parte in",
+      "heater.the_maximum_when_the": ", il massimo. Quando il sensore della stanza arriva alla soglia la stufetta scende al livello scelto. Per tornare in {1} basta spegnerla e riaccenderla, oppure toccare {2} sulla card. La temperatura usata è quella del sensore della stanza, non quella interna della stufetta, che vicino alla resistenza legge sempre alta.",
+      "heater.internal_thermostat": "Termostato interno",
+      "heater.target_temperature": "Temperatura obiettivo",
+      "heater.this_is_the_heaters": "È il termostato della stufetta stessa (sensore interno, legge alto). La gestione automatica usa invece la soglia della stanza.",
+      "heater.no_switch_configured_add": "Nessun interruttore configurato: aggiungili nell'opzione",
+      "heater.oscillation_child_lock_sound": "(oscillazione, blocco bambini, suono…).",
+      "heater.last_time": "ultima volta {1}",
+      "heater.internal_temperature": "Temperatura interna",
+      "heater.automations_and_diagnostics": "Automazioni e diagnostica",
+      "heatercard.bathroom": "Bagno",
+      "heatercard.room_temperature_sensor": "Sensore temperatura stanza",
+      "heatercard.oscillation_switch_if_separate": "Interruttore oscillazione (se separato)",
+      "heatercard.plug_power_w": "Potenza (W) della presa",
+      "heatercard.automatic_management_helpers_from": "Gestione automatica (helper del package stufetta.yaml)",
+      "heatercard.automatic_management_active": "Gestione automatica attiva",
+      "heatercard.room_temperature_threshold": "Soglia temperatura stanza",
+      "heatercard.level_after_threshold": "Livello dopo la soglia",
+      "heatercard.start_level": "Livello di partenza",
+      "heatercard.switches_settings_popup": "Interruttori (popup Impostazioni)",
+      "heatercard.switch": "Interruttore",
+      "heatercard.hide_when_disconnected_from": "Nascondi se scollegata dalla corrente",
+      "heatercard.when_the_card_receives": "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli.",
+      "fan.entity_is_required_fanxxx": "entity è obbligatorio (fan.xxx)",
+      "fan.fan": "Ventilatore",
+      "fan.mist_and_light": "Nebbia e luce",
+      "fan.status_and_maintenance": "Stato e manutenzione",
+      "fan.room_temperature_and_humidity": "Temperatura e umidità della stanza, umidità obiettivo",
+      "fan.speed": "Velocità",
+      "fan.mist": "Nebbia",
+      "fan.cleaning": "Pulizia",
+      "fan.slower": "Più lento",
+      "fan.speed_2": "velocità",
+      "fan.faster": "Più veloce",
+      "fan.oscillates": " · oscilla",
+      "fan.mister": "Nebulizzatore",
+      "fan.turn_on": "Accensione {1}",
+      "fan.auto_daynight": "Giorno/notte automatico",
+      "fan.turns_off_in": "Si spegne tra {1}",
+      "fan.fan_unavailable_check_that": "⚠ Ventilatore non raggiungibile: controlla che sia collegato alla corrente e al Wi‑Fi",
+      "fan.water_tank_empty_fill": "💧 Serbatoio dell'acqua vuoto: riempilo per la nebbia",
+      "fan.hours_since_last_cleaning": "🧽 {1} ore dall'ultima pulizia: è ora di pulirlo",
+      "fan.automatic_setup_on_poweron": "Setup automatico all'accensione",
+      "fan.day_night": "Giorno / notte",
+      "fan.when_turned_on_it": "Quando lo accendi sceglie da solo: di giorno modalità Normale, velocità media, nebbia e luce; di notte modalità Notte, velocità minima, nebbia bassa e luce spenta.",
+      "fan.fan_timer": "Timer del ventilatore",
+      "fan.turns_off_in_2": "Si spegne tra",
+      "fan.timer_off": "timer spento",
+      "fan.scheduled_turnon_and_turnoff": "Accensione e spegnimento programmati sono",
+      "fan.they_trigger_once_and": ": scattano una volta e si disattivano da soli. Quando sono attivi compaiono sotto i comandi della card.",
+      "fan.follows_humidity": "Segue l'umidità",
+      "fan.fixed_color": "Colore fisso",
+      "fan.intensity": "Intensità",
+      "fan.automatic_humidification": "Umidificazione automatica",
+      "fan.with_automatic_humidification_mist": "Con l'umidificazione automatica la nebbia si ferma quando la stanza arriva all'umidità obiettivo (trattino rosso sotto la barra dell'umidità).",
+      "fan.ambient_light": "Luce ambientale",
+      "fan.on": "Accesa",
+      "fan.color": "Colore",
+      "fan.mister_and_light_not": "Nebulizzatore e luce non configurati (opzioni",
+      "fan.on_2": "Acceso",
+      "fan.mode_and_speed": "Modalità e velocità",
+      "fan.water_tank": "Serbatoio acqua",
+      "fan.empty": "Vuoto",
+      "fan.hours_since_last_cleaning_2": "Ore dall'ultima pulizia",
+      "fan.h_of": "{1} h su {2}",
+      "fan.the_cleaning_counter_is": "Il contatore della pulizia si azzera dal ventilatore (o dall'app) dopo averlo pulito. Il package avvisa ogni {1} ore di utilizzo.",
+      "fancard.bedroom": "Camera",
+      "fancard.temperature_sensor": "Sensore temperatura",
+      "fancard.humidity_sensor": "Sensore umidità",
+      "fancard.turn_on_with_script": "Accensione con script (facoltativo)",
+      "fancard.turnon_script_scene_button": "Script / scena / pulsante di accensione",
+      "fancard.the_cards_power_button": "Il tasto power della card avvia questo script invece di accendere il ventilatore. Per inviare direttamente un comando (remote.send_command) usa la vista YAML.",
+      "fancard.turnoff_script_optional": "Script di spegnimento (facoltativo)",
+      "fancard.used_when_the_fan": "Usato quando il ventilatore e' acceso; senza, il tasto lancia sempre lo script di accensione.",
+      "fancard.onoff_state_optional": "Stato acceso/spento (facoltativo)",
+      "fancard.entity_inputboolean_switch_binarysensor": "Entita' (input_boolean, switch, binary_sensor...) che dice se il ventilatore e' acceso: la card diventa verde e le pale girano. Senza, la card ricorda l'ultimo comando.",
+      "fancard.mist_level": "Livello nebbia",
+      "fancard.light_mode": "Modalità luce",
+      "fancard.maintenance_and_timer": "Manutenzione e timer",
+      "fancard.empty_water_tank_binarysensor": "Serbatoio acqua vuoto (binary_sensor)",
+      "fancard.cleaning_alert_every_hours": "Avviso pulizia ogni (ore)",
+      "fancard.fan_turnoff_timer_min": "Timer spegnimento del ventilatore (min)",
+      "fancard.scheduling_ventilatoreyaml_package_helpers": "Programmazione (helper del package ventilatore.yaml)",
+      "fancard.automatic_daynight_setup": "Setup automatico giorno/notte",
+      "fancard.switches_status_popup": "Interruttori (popup Stato)",
+      "boiler.radiators": "Caloriferi",
+      "boiler.schedule": "Programma",
+      "boiler.boiler_status": "Stato caldaia",
+      "boiler.house_and_set_temperature": "Temperatura della casa e impostata, sotto la pressione dell'impianto",
+      "boiler.boiler": "Caldaia",
+      "boiler.house": "Casa",
+      "boiler.pressure": "Pressione",
+      "boiler.water": "Acqua",
+      "boiler.gas_today": "Gas oggi",
+      "boiler.turn_on_schedule_turn": "Accendi (programma) / spegni",
+      "boiler.system_pressure": "Pressione impianto",
+      "boiler.house_temperature": "Temperatura casa",
+      "boiler.off_frost_protection": "Spenti (antigelo)",
+      "boiler.schedule_2": "Programma {1}",
+      "boiler.heating_radiators": "scalda i caloriferi",
+      "boiler.producing_hot_water": "fa acqua calda",
+      "boiler.idle": "in attesa",
+      "boiler.off": "SPENTI",
+      "boiler.heating": "SCALDA",
+      "boiler.hot_water": "ACQUA CALDA",
+      "boiler.manual": "MANUALE",
+      "boiler.schedule_3": "PROGRAMMA {1}",
+      "boiler.in_use": "In uso {1}°",
+      "boiler.in_use_2": "In uso",
+      "boiler.ready": "Pronta",
+      "boiler.at_turnon": "all'accensione",
+      "boiler.time_schedule": "Programma orario {1}",
+      "boiler.fireplace_mode": "Modalità camino",
+      "boiler.schedule_at_changes_to": "Programma {1}: alle {2} passa a {3}°",
+      "boiler.the_temperature": "la temperatura",
+      "boiler.with_the_power_button": "Con il pulsante accensione parte in manuale a {1}°",
+      "boiler.fireplace_mode_active": "Modalità camino attiva",
+      "boiler.boiler_unavailable_check_power": "⚠ Caldaia non raggiungibile: controlla la corrente e il modulo internet della caldaia",
+      "boiler.low_pressure_bar_open": "🔧 Pressione bassa ({1} bar): apri la valvola blu di carico fino a circa 1,5 bar",
+      "boiler.high_pressure_bar_bleed": "🔧 Pressione alta ({1} bar): sfiata un calorifero o chiama il tecnico",
+      "boiler.time_schedule_2": "Programma orario",
+      "boiler.current_schedule_temperature": "Temperatura del programma adesso",
+      "boiler.next_change": "Prossimo cambio",
+      "boiler.with_the_fireplace_or": "Con il camino (o una stufa) acceso nella stanza del termostato, la caldaia continua a scaldare le altre stanze anche se lì fa già caldo.",
+      "boiler.the_and_buttons_change": "i tasti − e + cambiano la temperatura solo fino al prossimo cambio orario, poi torna quella del programma. In",
+      "boiler.the_temperature_remains_fixed": "la temperatura resta fissa.",
+      "boiler.off_2": "Spenti",
+      "boiler.leaves_frost_protection_and": "lascia attivo l'antigelo e l'acqua calda. Gli orari dei programmi si cambiano dall'app Baxi.",
+      "boiler.specify_the_gas_sensors": "Indica i sensori del gas (opzioni",
+      "boiler.weeks": "Settimane",
+      "boiler.months": "Mesi",
+      "boiler.years": "Anni",
+      "boiler.gas_consumption": "Consumi gas",
+      "boiler.loading_consumption": "Carico i consumi…",
+      "boiler.cannot_read_statistics": "Non riesco a leggere le statistiche: {1}",
+      "boiler.from": "dal {1}",
+      "boiler.day": "Giorno",
+      "boiler.heating_2": "Riscald.",
+      "boiler.total": "Totale",
+      "boiler.no_data_for_this": "Nessun dato in questo periodo.",
+      "boiler.heating_energy_consumed": "Riscaldamento: energia consumata",
+      "boiler.heating_heat_produced": "Riscaldamento: calore prodotto",
+      "boiler.hot_water_energy_consumed": "Acqua calda: energia consumata",
+      "boiler.hot_water_heat_produced": "Acqua calda: calore prodotto",
+      "boiler.heating_3": "Riscaldamento",
+      "boiler.hot_water_2": "Acqua calda",
+      "boiler.estimated_m_of_gas": "m³ di gas stimati",
+      "boiler.history": "Storico",
+      "boiler.today_from_boiler_kwh": "Oggi dalla caldaia (kWh)",
+      "boiler.cost_calculated_at_m": " Costo calcolato a {1} €/m³.",
+      "boiler.to_also_see_the": " Per vedere anche il costo aggiungi l'opzione <code>gas_price</code> (€/m³).",
+      "boiler.heating_4": "Scalda",
+      "boiler.idle_2": "In attesa",
+      "boiler.water_pressure": "Pressione acqua",
+      "boiler.internet_access_router": "Accesso a internet (router)",
+      "boiler.automatic_alerts": "Avvisi automatici",
+      "boiler.correct_pressure_with_cold": "Pressione giusta a impianto freddo: tra {1} e {2} bar (ideale circa 1,5). Se scende, apri piano la valvola blu di carico sotto la caldaia e chiudila a 1,5 bar.",
+      "boilercard.thermostat_boiler_zone": "Termostato / zona caldaia",
+      "boilercard.house_humidity_optional": "Umidità della casa (facoltativa)",
+      "boilercard.system_water_pressure_bar": "Pressione acqua impianto (bar)",
+      "boilercard.status_and_schedule": "Stato e programma",
+      "boilercard.boiler_heating": "Caldaia in riscaldamento",
+      "boilercard.hot_water_in_use": "Acqua calda in uso",
+      "boilercard.hot_water_temperature": "Temperatura acqua calda",
+      "boilercard.next_temperature": "Prossima temperatura",
+      "boilercard.next_change_time": "Ora del prossimo cambio",
+      "boilercard.heating_gas_m": "Gas riscaldamento (m³)",
+      "boilercard.hot_water_gas_m": "Gas acqua calda (m³)",
+      "boilercard.heating_energy_consumed_kwh": "Energia riscaldamento consumata (kWh)",
+      "boilercard.heating_heat_produced_kwh": "Calore riscaldamento prodotto (kWh)",
+      "boilercard.hot_water_energy_consumed": "Energia acqua calda consumata (kWh)",
+      "boilercard.hot_water_heat_produced": "Calore acqua calda prodotto (kWh)",
+      "boilercard.gas_price_m_optional": "Prezzo gas €/m³ (facoltativo)",
+      "boilercard.boiler_internet_access_router": "Accesso internet della caldaia (router)",
+      "boilercard.automations_sensors_status_popup": "Automazioni / sensori (popup Stato)",
+      "boilercard.entity": "Entità",
+      "appledit.power_sensor_watt": "Sensore della potenza (Watt){1}",
+      "zigbee.offline": "⚠ Offline: {1}",
+      "climate.fan_2": "Ventola{1}",
+      "heater.automatic_starts_at": "Automatica: parte in {1}{2}",
+      "boiler.manual_keeps_until_you": "Manuale: tiene {1} finché non cambi",
+      "boiler.gas_is_estimated_from": "Il gas è stimato dai kWh che comunica la caldaia (circa 10,7 kWh per m³ di metano). Lo storico parte da quando esistono i sensori in Home Assistant.{1}",
+      "clmode.off": "Spento",
+      "clmode.cool": "Raffresca",
+      "clmode.heat": "Riscalda",
+      "clmode.dry": "Deumidifica",
+      "clmode.fan_only": "Ventilazione",
+      "clfan.quiet": "Silenzioso",
+      "clfan.low": "Bassa",
+      "clfan.medium": "Media",
+      "clfan.high": "Alta",
+      "clswing.fixed": "Ferme",
+      "clswing.swing": "Oscillanti",
+      "clswing.comfort": "Comfort",
+      "clswing.vertical": "Verticale",
+      "clswing.horizontal": "Orizzontale",
+      "clswing.both": "Entrambe",
+      "clpreset.none": "Normale",
+      "clpreset.away": "Fuori casa",
+      "clpreset.sleep": "Notte",
+      "fnpreset.normal": "Normale",
+      "fnpreset.natural": "Naturale",
+      "fnpreset.sleep": "Notte",
+      "apptype.washing_machine": "Lavatrice",
+      "apptype.dryer": "Asciugatrice",
+      "apptype.dishwasher": "Lavastoviglie",
+      "apptype.fridge": "Frigorifero",
+      "apptype.wall_tablet": "Tablet a muro",
+      "apptype.oven": "Forno",
+      "apptype.air_fryer": "Friggitrice ad aria",
+      "apptype.microwave": "Microonde",
+      "apptype.griddle_grill": "Piastra / bistecchiera",
+      "apptype.induction_hob": "Piano a induzione",
+      "wrday.lunedi": "Lunedì",
+      "wrday.martedi": "Martedì",
+      "wrday.mercoledi": "Mercoledì",
+      "wrday.giovedi": "Giovedì",
+      "wrday.venerdi": "Venerdì",
+      "wrday.sabato": "Sabato",
+      "wrday.domenica": "Domenica",
+      "energy.live_watts": "WATT ISTANTANEI",
+      "ctl.threshold_lc": "soglia",
+      "humid.target_lc": "obiettivo",
+      "boiler.program_lc": "programma"
     },
   en: {
       "tool.settings": "Settings",
@@ -1749,7 +2654,913 @@ const SHC_I18N = {
     "cycle.hint": "Set cycle_sensor and cycle_attrs to show the last cycle",
       "name.default": "Appliance",
       "chart.d7": "7 d",
-      "chart.d30": "30 d"
+      "chart.d30": "30 d",
+      "helper.unable_to_create_helper": "Unable to create helper ({1}).",
+      "helper.helper_created_but_its": "Helper created, but its entity cannot be found yet: try again shortly (Settings > Devices & services > Helpers).",
+      "editor.item_showedit": "{1} item{2} — show/edit",
+      "editor.remove": "Remove",
+      "editor.add": "Add",
+      "editor.required": " — required",
+      "editor.an_entity_is_required": "An entity is required for the card to work.",
+      "fritzcard.basic": "Basic",
+      "fritzcard.name": "Name",
+      "fritzcard.custom_image_optional": "Custom image (optional)",
+      "fritzcard.path_or_url_of": "Path or URL of your photo.",
+      "fritzcard.connection_sensor_onoff": "Connection sensor (on/off)",
+      "fritzcard.realtime_bandwidth": "Real-time bandwidth",
+      "fritzcard.live_download_mbps": "Live download (Mbps)",
+      "fritzcard.live_upload_mbps": "Live upload (Mbps)",
+      "fritzcard.download_sync_rate": "Download sync rate",
+      "fritzcard.upload_sync_rate": "Upload sync rate",
+      "fritzcard.advanced": "Advanced",
+      "fritzcard.firmware_update": "Firmware update",
+      "fritzcard.fallback_scale_limit_mbps": "Fallback scale limit (Mbps, used only if sync rate is unavailable)",
+      "fritzcard.layout_menu_classiccentered": "Layout menu (classic/centered)",
+      "servercard.system": "System",
+      "servercard.disk": "Disk (%)",
+      "servercard.ssl_certificate_expiration": "SSL certificate expiration",
+      "servercard.core_update": "Core update",
+      "servercard.supervisor_update": "Supervisor update",
+      "servercard.running_since_datetime": "Running since (date/time)",
+      "nascard.model": "Model",
+      "nascard.dsm_update": "DSM update",
+      "nascard.security_status": "Security status",
+      "nascard.automatically_created_by_the": "Automatically created by the Synology DSM integration (device_class 'safety': on = issue detected)",
+      "nascard.temperature": "Temperature",
+      "nascard.volume_labels": "Volume labels",
+      "nascard.volume_1_name": "Volume 1 name",
+      "nascard.volume_2_name": "Volume 2 name",
+      "nascard.consumption_lightning_button": "Consumption (lightning button)",
+      "nascard.current_consumption_w": "Current consumption (W)",
+      "nascard.energy_sensor_kwh_with": "Energy sensor (kWh, with long-term statistics)",
+      "nascard.optional_if_connected_the": "Optional: if connected, the Consumption button also shows period totals and month/year bar charts.",
+      "nascard.energy_cost_kwh": "Energy cost (€/kWh)",
+      "proxmoxcard.cpu_temperature": "CPU temperature",
+      "proxmoxcard.node_status_onlineoffline": "Node status (online/offline)",
+      "proxmoxcard.active_containers_lxc": "Active containers (LXC)",
+      "proxmoxcard.active_virtual_machines": "Active virtual machines",
+      "proxmoxcard.last_node_boot": "Last node boot",
+      "proxmoxcard.ram_used": "RAM used",
+      "proxmoxcard.ram_free": "RAM free",
+      "proxmoxcard.locallvm_disk": "Local-lvm disk (%)",
+      "proxmoxcard.voltage": "Voltage",
+      "proxmoxcard.current": "Current",
+      "upscard.path_or_url_of": "Path or URL of your photo: useful with two different UPSs.",
+      "upscard.ups_status": "UPS status",
+      "upscard.battery_and_load": "Battery and load",
+      "upscard.battery_charge": "Battery charge (%)",
+      "upscard.actual_load_w": "Actual load (W)",
+      "upscard.remaining_runtime": "Remaining runtime",
+      "upscard.input_voltage": "Input voltage",
+      "upscard.low_battery_warning": "Low battery (warning)",
+      "upscard.power_outage_notification_automation": "Power outage notification automation",
+      "upscard.rated_power_w": "Rated power (W)",
+      "notifcentercard.notification_center": "Notification Center",
+      "notifcentercard.volumes_and_times": "Volumes and times",
+      "notifcentercard.announcement_volume": "Announcement volume",
+      "notifcentercard.restore_volume": "Restore volume",
+      "notifcentercard.message_duration_seconds": "Message duration (seconds)",
+      "notifcentercard.notification_schedule": "Notification schedule",
+      "notifcentercard.start_time": "Start time",
+      "notifcentercard.end_time": "End time",
+      "alexatextcard.speaker_and_text": "Speaker and text",
+      "alexatextcard.speaker_selector": "Speaker selector",
+      "alexatextcard.script_to_add_speaker": "Script to add speaker to group",
+      "alexatextcard.script_to_remove_speaker": "Script to remove speaker from group",
+      "alexatextcard.text_field": "Text field",
+      "alexatextcard.playback": "Playback",
+      "alexatextcard.play_script": "Play script",
+      "alexatextcard.multiroom_group": "Multiroom group",
+      "alexatextcard.the_group_updated_by": "The group.* updated by the add/remove speaker scripts, shown on the card as \"Now playing on\".",
+      "alexamemocard.message": "Message",
+      "alexamemocard.active": "Active",
+      "alexamemocard.selected_alexa_devices": "Selected Alexa devices",
+      "alexamemocard.inputtext_with_entityids_of": "input_text with entity_ids of selected media_players, comma-separated (empty = default device).",
+      "alexamemocard.speakers_shown_as_chips": "Speakers shown as chips",
+      "alexamemocard.name_on_chip_empty": "Name on chip (empty = entity name)",
+      "alexamemocard.when_to_announce": "When to announce",
+      "alexamemocard.repeat_daily_in_period": "Repeat daily in period",
+      "alexamemocard.start_date": "Start date",
+      "alexamemocard.end_date": "End date",
+      "alexamemocard.time": "Time",
+      "alexamemocard.date_and_time_onetime": "Date and time (one-time)",
+      "alexamemocard.person_and_retry_on": "Person and retry on return",
+      "alexamemocard.person_entityid_saved_here": "Person (entity_id saved here, empty = none)",
+      "alexamemocard.pending_internal": "Pending (internal)",
+      "alexamemocard.delay_after_return_minutes": "Delay after return (minutes)",
+      "alexamemocard.how_many_memos_to": "How many memos to show (only on Memo 1)",
+      "alexamemocard.optional_link_only_on": "Optional: link only on Memo 1 card to show the stepper that unlocks Memo 3/4.",
+      "alexawebradiocard.radio_and_volume": "Radio and volume",
+      "alexawebradiocard.stationplaylist_selector": "Station/playlist selector",
+      "alexawebradiocard.current_station_sensor": "Current station sensor",
+      "alexawebradiocard.template_sensor_with_selectservicesentitypicture": "Template sensor with select/services/entity_picture attributes.",
+      "alexawebradiocard.speaker_selector_to_addremove": "Speaker selector to add/remove",
+      "alexawebradiocard.tapping_a_chip_lets": "Tapping a chip lets the card select the speaker option here and then runs the add or remove script.",
+      "alexawebradiocard.speaker_selector_option_empty": "Speaker selector option (empty = entity name)",
+      "alexawebradiocard.stations_and_playlists": "Stations and playlists",
+      "alexawebradiocard.images_folder": "Images folder",
+      "alexawebradiocard.used_for_images_specified": "Used for images specified by filename only. A path starting with / or http remains unchanged.",
+      "alexawebradiocard.stations": "Stations",
+      "alexawebradiocard.station_selector_option": "Station selector option",
+      "alexawebradiocard.displayed_name_empty_option": "Displayed name (empty = option)",
+      "alexawebradiocard.image_filename_or_path": "Image (filename or path)",
+      "alexawebradiocard.group_eg_tunein_radio": "Group (e.g., TuneIn Radio, Spotify)",
+      "alexawebradiocard.alarm_optional": "Alarm (optional)",
+      "alexawebradiocard.alarm_active": "Alarm active",
+      "alexawebradiocard.turnon_time": "Turn-on time",
+      "alexawebradiocard.turnoff_time": "Turn-off time",
+      "alexawebradiocard.alarm_days": "Alarm days",
+      "alexawebradiocard.day_switch": "Day switch",
+      "alexawebradiocard.name_on_chip": "Name on chip",
+      "alexawebradiocard.automatic_reduced_volume_optional": "Automatic reduced volume (optional)",
+      "alexawebradiocard.reduced_volume_automation": "Reduced volume automation",
+      "alexawebradiocard.volume_after_turnoff": "Volume after turn-off",
+      "garbagecard.waste_collection": "Waste Collection",
+      "garbagecard.todays_waste_sensor": "Today's waste sensor",
+      "garbagecard.days_and_times": "Days and times",
+      "garbagecard.day_of_the_week": "Day of the week",
+      "garbagecard.collection_day": "Collection day",
+      "garbagecard.setout_time": "Set-out time",
+      "garbagecard.custom_collection_types": "Custom collection types",
+      "garbagecard.collection_types_list_shows": "Collection types list (shows button on card)",
+      "garbagecard.optional_if_connected_a": "Optional: if connected, a button appears to enter the collection types for your municipality.",
+      "garbagecard.notification_center_page_path": "Notification Center page path (optional)",
+      "garbagecard.without_this_field_the": "Without this field, the megaphone button stays hidden instead of pointing to a non-existent page.",
+      "energycard.bar": "Bar {1}",
+      "energycard.label": "Label",
+      "energycard.general": "General",
+      "energycard.entity_power_in_w": "Entity (power in W)",
+      "energycard.scale_limit_w": "Scale limit (W)",
+      "energycard.home_energy": "Home Energy",
+      "energycard.general_power_sensor_w": "General power sensor (W)",
+      "energycard.general_scale_limit_w": "General scale limit (W)",
+      "appledit.history": "History",
+      "appledit.advanced_configuration_detected_yaml": "Advanced configuration detected (YAML package): consumption by period remains the one already in use, unchanged.",
+      "appledit.history_consumption_by_period": "History (consumption by period, without YAML)",
+      "appledit.energy_sensor_kwh": "Energy sensor (kWh)",
+      "appledit.create_automatically_from_power": "Create automatically from power sensor",
+      "appledit.create_cost_helper_025": "Create cost helper (0.25 €/kWh to start)",
+      "appledit.show_consumption_by_period": "Show \"Consumption by period\" in the card (Statistics)",
+      "appledit.creating": "Creating…",
+      "appledit.error": "Error: {1}",
+      "appledit.what_appliance_is_it": "What appliance is it?",
+      "appledit.eg_dishwasher": "e.g. Dishwasher",
+      "appledit.is_this_appliance_smart": "Is this appliance smart or just a plug?",
+      "appledit.smart_has_its_own": "Smart = has its own states and programs (dishwasher, dryer, smart oven...). Plug only = only measures Watts (washing machine or oven connected to a Sonoff, Shelly plug/meter...).",
+      "appledit.plug_only": "Plug only",
+      "appledit.only_measures_watts": "Only measures Watts",
+      "appledit.smart": "Smart",
+      "appledit.has_states_and_programs": "Has states and programs",
+      "appledit.power": "Power",
+      "appledit.optional_if_the_state": " — optional if the state entity is present",
+      "appledit.without_a_watt_sensor": "Without a Watt sensor, the \"Current power\" bar will not appear.",
+      "appledit.hide_the_power_bar": "Hide the power bar",
+      "appledit.state_and_program_smart": "State and program (smart)",
+      "appledit.state_entity_eg_running": "State entity (e.g. \"running\", \"ready\"...)",
+      "appledit.program_progress_optional": "Program progress (optional)",
+      "appledit.estimated_finish_optional": "Estimated finish (optional)",
+      "appledit.advanced_settings_thresholds_layout": "Advanced settings (thresholds, layout)",
+      "appledit.running_threshold_w": "\"Running\" threshold (W)",
+      "appledit.standby_threshold_w": "\"Standby\" threshold (W)",
+      "appledit.power_bar_full_scale": "Power bar full scale (W)",
+      "appledit.layout_menu_optional": "Layout menu (optional)",
+      "appledit.without_the_notification_center": "Without the Notification Center path, the megaphone button remains hidden instead of linking to a non-existent page. Notifications and alerts (salt/rinse aid...) are still configured via YAML: follow the original package guide.",
+      "fritz.connectionentity_is_required": "connection_entity is required",
+      "fritz.settings": "Settings",
+      "fritz.statistics": "Statistics",
+      "fritz.graphs": "Graphs",
+      "fritz.bandwidth_test": "Bandwidth test",
+      "fritz.updates": "Updates",
+      "fritz.connection": "Connection",
+      "fritz.since": "Since",
+      "fritz.sync_rate_down": "Sync rate Down",
+      "fritz.sync_rate_up": "Sync rate Up",
+      "fritz.download_now_live": "Download now (live)",
+      "fritz.upload_now_live": "Upload now (live)",
+      "fritz.run": "Run",
+      "fritz.tools": "Tools",
+      "fritz.no_settings_configured_for": "No settings configured for this card (see guide, \"settings_sections\" field).",
+      "fritz.sync_rate": "Sync rate",
+      "fritz.bandwidth_used": "Bandwidth used",
+      "fritz.bandwidth_used_mbs": "Bandwidth used (MB/s)",
+      "fritz.snr_noise": "SNR noise",
+      "fritz.attenuation": "Attenuation",
+      "fritz.restarted_on": "Restarted on",
+      "fritz.connected_since": "Connected since",
+      "fritz.signal": "Signal",
+      "fritz.installed_firmware": "Installed firmware",
+      "fritz.available_firmware": "Available firmware",
+      "fritz.status": "Status",
+      "fritz.up_to_date": "Up to date",
+      "fritz.update_available": "Update available",
+      "fritz.fritzos_firmware": "FritzOS firmware",
+      "fritz.bandwidth_currently_in_use": "Bandwidth currently in use",
+      "fritz.last_speed_test": "Last speed test",
+      "fritz.line_quality": "Line quality",
+      "fritz.test_performed_on": "Test performed on",
+      "fritz.ookla_speedtest_periodic_measurement": "Ookla Speedtest (periodic measurement)",
+      "fritz.connected": "CONNECTED",
+      "fritz.disconnected": "DISCONNECTED",
+      "fritz.firmware_update_available": "⚠ Firmware update available: {1}",
+      "server.core_version": "Core version",
+      "server.running_for": "Running for",
+      "server.ssl_certificate": "SSL certificate",
+      "server.ha_disk": "HA disk",
+      "server.days": "{1}Days",
+      "server.monday": "Monday",
+      "server.tuesday": "Tuesday",
+      "server.wednesday": "Wednesday",
+      "server.thursday": "Thursday",
+      "server.friday": "Friday",
+      "server.saturday": "Saturday",
+      "server.sunday": "Sunday",
+      "server.days_2": "Days – {1}",
+      "server.settings": "{1} Settings",
+      "server.no_data": "No data",
+      "server.cpu_speed": "CPU speed",
+      "server.total_ram": "Total RAM",
+      "server.disk_used": "Disk used",
+      "server.disk_free": "Disk free",
+      "server.total_disk": "Total disk",
+      "server.disk": "Disk %",
+      "server.local_ip": "Local IP",
+      "server.public_ip": "Public IP",
+      "server.ha_started_on": "HA started on",
+      "server.ha_running_for": "HA running for",
+      "server.server_started_on": "Server started on",
+      "server.server_running_for": "Server running for",
+      "server.mariadb_space": "MariaDB space",
+      "server.network": "Network",
+      "server.startup": "Startup",
+      "server.installed_core": "Installed Core",
+      "server.available_core": "Available Core",
+      "server.installed_supervisor": "Installed Supervisor",
+      "server.available_supervisor": "Available Supervisor",
+      "server.addons_to_update": "Add-ons to update",
+      "server.hacs_to_update": "HACS to update",
+      "server.last_successful_backup_synology": "Last successful backup (Synology)",
+      "server.ssl_certificate_expires_on": "SSL certificate expires on",
+      "server.days_remaining": "Days remaining",
+      "server.available_updates": "Available updates",
+      "server.maintenance": "Maintenance",
+      "server.days_3": "{1} days",
+      "server.ssl_expires_in_days": "SSL expires in {1} days",
+      "nas.updateentity_is_required": "update_entity is required",
+      "nas.consumption": "Consumption",
+      "nas.security": "Security",
+      "nas.consumption_2": "Consumption",
+      "nas.normal": "Normal",
+      "nas.migrated": "Migrated",
+      "nas.total_cpu": "Total CPU",
+      "nas.user_cpu": "User CPU",
+      "nas.load_average": "Load average",
+      "nas.available_ram": "Available RAM",
+      "nas.volumes": "Volumes",
+      "nas.disks": "Disks",
+      "nas.installed_dsm": "Installed DSM",
+      "nas.available_dsm": "Available DSM",
+      "nas.operating_system_dsm": "Operating System (DSM)",
+      "nas.current_consumption": "Current consumption",
+      "nas.today": "Today",
+      "nas.month": "Month",
+      "nas.realtime": "Real-time",
+      "nas.nas_energy": "NAS energy",
+      "nas.consumption_by_period": "Consumption by period",
+      "nas.loading": "Loading…",
+      "nas.cost": "Cost",
+      "nas.yesterday": "Yesterday",
+      "nas.prev_month": "Prev. month",
+      "nas.year": "Year",
+      "nas.prev_year": "Prev. year",
+      "nas.statistics_not_currently_available": "Statistics not currently available",
+      "nas.this_month_kwh_per": "This month (kWh per day)",
+      "nas.loading_2": "Loading...",
+      "nas.this_year_kwh_per": "This year (kWh per month)",
+      "nas.jan": "Jan",
+      "nas.feb": "Feb",
+      "nas.mar": "Mar",
+      "nas.apr": "Apr",
+      "nas.may": "May",
+      "nas.jun": "Jun",
+      "nas.jul": "Jul",
+      "nas.aug": "Aug",
+      "nas.sep": "Sep",
+      "nas.oct": "Oct",
+      "nas.nov": "Nov",
+      "nas.dec": "Dec",
+      "nas.data_loading_error": "Data loading error",
+      "nas.warning": "Warning",
+      "nas.security_check_required": "Security check required",
+      "energy.powerentity_is_required": "power_entity is required",
+      "energy.month_cost": "Month cost",
+      "energy.top_consumption": "Top consumption",
+      "energy.switches": "Switches",
+      "energy.power_trend": "Power trend",
+      "energy.last_24_hours": "Last 24 hours",
+      "energy.featured": "Featured",
+      "energy.all_circuits_live_descending": "All circuits (live, descending order)",
+      "energy.weekly_average": "Weekly average",
+      "energy.previous_period": "Previous period",
+      "energy.last_7_days": "Last 7 days",
+      "energy.power_trend_24h": "Power trend (24h)",
+      "energy.threshold_exceeded_w_limit": "⚠ Threshold exceeded: {1} W (limit {2} W)",
+      "ups.statusentity_is_required": "status_entity is required",
+      "ups.runtime": "Runtime",
+      "ups.input": "Input",
+      "ups.load": "Load",
+      "ups.battery": "Battery",
+      "ups.power_outage_notifications": "Power outage notifications",
+      "ups.automations": "Automations",
+      "ups.no_settings": "No settings",
+      "ups.status_code": "Status code",
+      "ups.charge": "Charge",
+      "ups.low_battery_threshold": "Low battery threshold",
+      "ups.actual_load_nas_outlet": "Actual load (NAS outlet)",
+      "ups.load_ups_estimate_inaccurate": "Load (UPS estimate, inaccurate)",
+      "ups.mains_power": "Mains power",
+      "ups.on_battery": "ON BATTERY",
+      "ups.running_on_battery_runtime": "⚠ Running on battery — runtime {1}",
+      "garbage.entity_is_required": "entity is required",
+      "garbage.collection_types": "Collection types",
+      "garbage.today_is": "Today is",
+      "garbage.put_out_from": "Put out from",
+      "garbage.configure_waste_collection_for": "Configure waste collection for your municipality",
+      "garbage.write_the": "Write the",
+      "garbage.items": "items",
+      "garbage.for_waste_separated_by": "for waste, separated by comma.",
+      "garbage.each_item_is_what": "Each item is what is collected on a single day",
+      "garbage.when_setting_up_the": ": when setting up the days, for each day choose",
+      "garbage.a_single_item": "a single item",
+      "garbage.if_on_one_day": ". If on one day they do",
+      "garbage.two_collections_together": "two collections together",
+      "garbage.write_a_dedicated_item": ", write a dedicated item that includes both.",
+      "garbage.example": "Example",
+      "garbage.write": "Write:",
+      "garbage.paper_glass_plastic_organic": "Paper, Glass, Plastic, Organic, Organic and General Waste",
+      "garbage.on_monday_choose": "• on Monday choose",
+      "garbage.organic": "Organic",
+      "garbage.only_organic_is_collected": "(only organic is collected)",
+      "garbage.on_thursday_choose": "• on Thursday choose",
+      "garbage.organic_and_general_waste": "Organic and General Waste",
+      "garbage.on_that_day_organic": "(on that day organic and general waste are collected together)",
+      "garbage.on_saturday_choose": "• on Saturday choose",
+      "garbage.none": "None",
+      "garbage.no_collection_added_automatically": "(no collection, added automatically)",
+      "garbage.an_icon_is_automatically": "An icon is automatically added to each item. Existing selections for days remain if the item still exists.",
+      "garbage.menu_preview": "Menu preview",
+      "garbage.save_list": "Save list",
+      "garbage.none_2": "🤷 None",
+      "proxmox.node": "Node",
+      "proxmox.active_containers": "Active containers",
+      "proxmox.active_vms": "Active VMs",
+      "proxmox.started_on": "Started on",
+      "proxmox.disk": "Disk",
+      "proxmox.cpu_temp": "CPU Temp",
+      "proxmox.locallvm_disk": "Local-lvm disk %",
+      "proxmox.ssd_temperature": "SSD temperature",
+      "proxmox.ssd_wearout": "SSD wearout",
+      "proxmox.poweron_hours": "Power-on hours",
+      "proxmox.power_cycles": "Power cycles",
+      "proxmox.ssd_health": "SSD health",
+      "proxmox.issue_detected": "Issue detected",
+      "proxmox.physical_disk": "Physical disk",
+      "proxmox.current_power": "Current power",
+      "proxmox.energy_today": "Energy today",
+      "proxmox.energy_month": "Energy month",
+      "proxmox.installed_version": "Installed version",
+      "proxmox.available_version": "Available version",
+      "proxmox.yes": "Yes",
+      "proxmox.node_unreachable": "Node unreachable",
+      "proxmox.cpu_at": "CPU at {1}%",
+      "proxmox.ram_at": "RAM at {1}%",
+      "proxmox.cpu_temp_at_c": "CPU Temp at {1}°C",
+      "proxmox.ssd_problem": "SSD problem",
+      "notifcenter.message_duration": "Message duration",
+      "notifcenter.missing_configuration_for": "⚠️ Missing configuration for: {1}.",
+      "notifcenter.open_edit_on_card": "Open \"Edit\" (⋮ on card, in dashboard edit mode) and fill in the fields.",
+      "alexatext.add_speaker_script": "Add speaker script",
+      "alexatext.remove_speaker_script": "Remove speaker script",
+      "alexatext.remove_from_group": "Remove from group",
+      "alexatext.add_to_group": "Add to group",
+      "alexatext.text": "Text",
+      "alexatext.type_your_message": "Type your message...",
+      "alexatext.play": "{1} Play",
+      "alexatext.playing_on": "Playing on",
+      "alexatext.no_devices_added_for": "No devices added for playback.",
+      "alexamemo.repeat": "Repeat",
+      "alexamemo.single_datetime": "Single date/time",
+      "alexamemo.person": "Person",
+      "alexamemo.pending": "Pending",
+      "alexamemo.return_delay": "Return delay",
+      "alexamemo.alexa_devices": "Alexa devices",
+      "alexamemo.how_it_works": "How it works",
+      "alexamemo.announces_a_voice_message": "Announces a voice message on Alexa at a set time: daily for a period, or one-off on a specific date.",
+      "alexamemo.if_you_set_a": "If you set a",
+      "alexamemo.and_they_are_not": "and they are not home at the scheduled time, the announcement is not lost: it is repeated a few minutes after their return.",
+      "alexamemo.the_volume_waiting_time": "The volume, waiting time and allowed announcement time window are",
+      "alexamemo.shared_with_all_alexa": "shared with all Alexa notifications",
+      "alexamemo.and_are_configured_in": "and are configured in the Notification Center card above, also applying to this memo.",
+      "alexamemo.other_active_memos": "Other active memos",
+      "alexamemo.fewer_memos": "Fewer memos",
+      "alexamemo.more_memos": "More memos",
+      "alexamemo.alexa_devices_empty_default": "Alexa devices (empty = default)",
+      "alexamemo.date_and_time": "Date and time",
+      "alexamemo.person_optional": "Person (optional)",
+      "alexamemo.delay_after_return": "Delay after return",
+      "alexamemo.pending_2": "PENDING",
+      "alexamemo.none_always_announce": "None – always announce",
+      "alexamemo.of_4": "{1} of 4",
+      "alexamemo.disabled": "Disabled.",
+      "alexamemo.pending_will_announce_upon": "⏳ Pending — will announce upon {1}'s return.",
+      "alexamemo.pending_3": "⏳ Pending.",
+      "alexamemo.every_day_at_from": "Every day at {1}, from {2} to {3}.",
+      "alexamemo.oneoff": "One-off: {1}.",
+      "alexamemo.no_date_set": "No date set.",
+      "alexawebradio.station_selector": "Station selector",
+      "alexawebradio.station_sensor": "Station sensor",
+      "alexawebradio.turns_on_alexa_web": "Turns on Alexa web radio on selected speakers, with the station or playlist chosen below.",
+      "alexawebradio.speakers_are_addedremoved_from": "Speakers are added/removed from the multiroom group by tapping their chips: the one highlighted in blue is already on.",
+      "alexawebradio.the": "The",
+      "alexawebradio.alarm": "Alarm",
+      "alexawebradio.clock_icon_automatically_turns": "(clock icon) automatically turns the radio on/off at two times, on the selected days. The",
+      "alexawebradio.reduced_volume": "Reduced volume",
+      "alexawebradio.restart_icon_lowers_the": "(restart icon) lowers the volume automatically when the radio turns off.",
+      "alexawebradio.radio_alarm": "Radio Alarm",
+      "alexawebradio.turn_on": "Turn on",
+      "alexawebradio.turn_off": "Turn off",
+      "alexawebradio.days": "Days",
+      "alexawebradio.automatic_reduced_volume": "Automatic Reduced Volume",
+      "alexawebradio.active_on_turn_off": "Active on turn off",
+      "alexawebradio.radio": "Radio",
+      "alexawebradio.multiroom_speakers": "Multiroom speakers",
+      "zigbee.entity_is_required_package": "entity is required (package sensor.zigbee_dispositivi_offline)",
+      "zigbee.zigbee_network": "Zigbee Network",
+      "zigbee.pairing": "Pairing",
+      "zigbee.devices": "Devices",
+      "zigbee.signal_and_batteries": "Signal and batteries",
+      "zigbee.notifications": "Notifications",
+      "zigbee.min_lqi": "Min LQI",
+      "zigbee.mains_powered": "Mains powered",
+      "zigbee.battery_powered": "Battery powered",
+      "zigbee.low_batt": "Low batt.",
+      "zigbee.online_devices": "Online devices",
+      "zigbee.average_signal": "Average signal",
+      "zigbee.mains_powered_2": "mains powered",
+      "zigbee.pairing_2": "PAIRING {1}",
+      "zigbee.below": "below {1}%",
+      "zigbee.zigbee2mqtt_is_not_responding": "⚠ Zigbee2MQTT is not responding: all devices appear unreachable",
+      "zigbee.for": "{1} (for {2})",
+      "zigbee.average_lqi": "Average LQI",
+      "zigbee.minimum_lqi": "Minimum LQI",
+      "zigbee.entire_network": "Entire network",
+      "zigbee.coordinator_only": "Coordinator only",
+      "zigbee.pairing_active_since": "Pairing active since {1}",
+      "zigbee.via": "Via:",
+      "zigbee.coordinator_only_2": "coordinator only",
+      "zigbee.entire_network_2": "entire network",
+      "zigbee.stop_pairing": "Stop pairing",
+      "zigbee.pair_via": "Pair via",
+      "zigbee.start_pairing_4_min": "Start pairing (4 min)",
+      "zigbee.new_devices": "New devices",
+      "zigbee.start_then_put_the": "Start, then put the device into pairing mode. \"Pair via\" forces joining through a specific router: choose the closest one to where the device will be placed, so it connects there rather than to a distant one. Zigbee2MQTT closes automatically when expired. When pairing succeeds, a notification is sent (during the notification time window).",
+      "zigbee.recently_paired": "Recently paired",
+      "zigbee.no_devices_paired_yet": "No devices paired yet",
+      "zigbee.version": "Version",
+      "zigbee.connected": "Connected",
+      "zigbee.disconnected": "Disconnected",
+      "zigbee.log_level": "Log level",
+      "zigbee.zigbee2mqtt_frontend": "Zigbee2MQTT frontend",
+      "zigbee.open": "Open",
+      "zigbee.restart_zigbee2mqtt": "Restart Zigbee2MQTT",
+      "zigbee.restart": "Restart",
+      "zigbee.all": "All",
+      "zigbee.excluded": "Excluded",
+      "zigbee.offline_for": "offline for {1}",
+      "zigbee.search_by_name_or": "Search by name or model",
+      "zigbee.no_devices": "No devices",
+      "zigbee.zigbee_devices": "Zigbee Devices ({1})",
+      "zigbee.online_excluded": "Online (excluded)",
+      "zigbee.offline_excluded": "Offline (excluded)",
+      "zigbee.all_devices": "{1} All devices",
+      "zigbee.offline_for_2": "Offline for",
+      "zigbee.signal_lqi": "Signal (LQI)",
+      "zigbee.power_source": "Power source",
+      "zigbee.management": "Management",
+      "zigbee.exclude_from_count_and": "Exclude from count and alerts",
+      "zigbee.useful_for_a_device": "Useful for a device you turn off intentionally (e.g. a seasonal plug): it stays in the list but won't trigger red status or alerts.",
+      "zigbee.device_page_in_ha": "Device page in HA",
+      "zigbee.device": "Device",
+      "zigbee.signal_weakest_first": "Signal (weakest first)",
+      "zigbee.no_lqi_value_enable": "No LQI value: enable *_linkquality entities",
+      "zigbee.below_50_the_connection": "Below 50 the connection is weak: move a mains-powered device closer (acts as a router) or move the one at the bottom of the list.",
+      "zigbee.batteries_lowest_first": "Batteries (lowest first)",
+      "zigbee.no_batterypowered_devices": "No battery-powered devices",
+      "zigbee.level_unavailable": "Level unavailable",
+      "zigbee.remove": "Remove",
+      "zigbee.none": "None",
+      "zigbee.alerts": "Alerts",
+      "zigbee.offline_alerts_and_new": "Offline alerts and new devices",
+      "zigbee.low_battery_alert": "Low battery alert",
+      "zigbee.offline_for_at_least": "Offline for at least",
+      "zigbee.low_battery_below": "Low battery below",
+      "zigbee.time_window": "Time window",
+      "zigbee.from": "From",
+      "zigbee.until": "Until",
+      "zigbee.no_notifications_are_sent": "No notifications are sent outside the time window: events occurring overnight are summarized when the window opens.",
+      "zigbee.already_alerted": "Already alerted",
+      "zigbee.low_battery": "Low battery",
+      "zigbee.new_waiting_for_time": "New waiting for time window",
+      "zigbee.an_alerted_device_will": "An alerted device will not be repeated until it goes back online (or battery rises above threshold).",
+      "zigbee.excluded_from_count_and": "Excluded from count and alerts",
+      "zigbee.to_exclude_a_device": "To exclude a device: Devices list → tap the device.",
+      "zigbee.test": "Test",
+      "zigbee.send_a_test_notification": "Send a test notification",
+      "zigbee.send": "Send",
+      "zigbeecard.package_summary_sensor_sensorzigbeedispositivioffline": "Package summary sensor (sensor.zigbee_dispositivi_offline)",
+      "zigbeecard.zigbee2mqtt_bridge_state_connection": "Zigbee2MQTT bridge state (connection)",
+      "zigbeecard.permit_join": "Permit join",
+      "zigbeecard.pairing_end_countdown": "Pairing end (countdown)",
+      "zigbeecard.zigbee2mqtt_mqtt_base_topic": "Zigbee2MQTT MQTT base topic",
+      "zigbeecard.restart_button": "Restart button",
+      "zigbeecard.zigbee2mqtt_frontend_url": "Zigbee2MQTT frontend URL",
+      "zigbeecard.the_path_shown_in": "The path shown in the address bar when opening Zigbee2MQTT from the sidebar, or a full http URL.",
+      "zigbeecard.device_images_folder": "Device images folder",
+      "zigbeecard.if_an_image_is": "If an image is missing, the card fetches it from the Zigbee2MQTT website.",
+      "zigbeecard.notifications_package_helpers": "Notifications (package helpers)",
+      "zigbeecard.alerts_enabled": "Alerts enabled",
+      "zigbeecard.offline_minutes_before_alert": "Offline minutes before alert",
+      "zigbeecard.low_battery_threshold": "Low battery threshold",
+      "zigbeecard.alerts_from": "Alerts from",
+      "zigbeecard.alerts_until": "Alerts until",
+      "zigbeecard.test_notification_script": "Test notification script",
+      "climate.entity_is_required_climatexxx": "entity is required (climate.xxx)",
+      "climate.climate": "Climate",
+      "climate.schedule": "Schedule",
+      "climate.fan_and_vanes": "Fan and vanes",
+      "climate.status_and_diagnostics": "Status and diagnostics",
+      "climate.room_temperature_target_and": "Room temperature, target and humidity",
+      "climate.target_temperature": "Target temperature",
+      "climate.climate_2": "Climate",
+      "climate.room": "Room",
+      "climate.target": "Target",
+      "climate.humidity": "Humidity",
+      "climate.outdoor": "Outdoor",
+      "climate.turn_on_off": "Turn on / off",
+      "climate.minus": "Minus",
+      "climate.target_2": "target",
+      "climate.plus": "Plus",
+      "climate.power_consumption": "Power consumption",
+      "climate.unreachable": "Unreachable",
+      "climate.gauge_unavailable": "Gauge unavailable",
+      "climate.room_temperature": "Room temperature",
+      "climate.outdoor_temperature": "Outdoor temperature",
+      "climate.off": "OFF",
+      "climate.idle": "IDLE",
+      "climate.vanes": "Vanes: {1}",
+      "climate.speed": "speed {1}",
+      "climate.auto_fan": "Auto fan",
+      "climate.manual_fan": "Manual fan",
+      "climate.turn_on": "Turn on {1}{2}",
+      "climate.turn_off": "Turn off {1}",
+      "climate.air_conditioner_unreachable_check": "⚠ Air conditioner unreachable: check power supply and cloud connection",
+      "climate.adjust_fan_automatically": "Adjust fan automatically",
+      "climate.the_further_from_the": "The further from the target temperature, the higher the speed; once reached, it slows down. If you choose a speed in the Fan popup, auto fan turns off.",
+      "climate.no_schedule_configured_copy": "No schedule configured. Copy the package",
+      "climate.see_guide_or_specify": "(see guide) or specify your helpers in the option",
+      "climate.of_the_card": "of the card.",
+      "climate.scheduled_turnon": "Scheduled turn-on",
+      "climate.active": "Active",
+      "climate.at": "At",
+      "climate.mode": "Mode",
+      "climate.scheduled_turnoff": "Scheduled turn-off",
+      "climate.schedules": "Schedules",
+      "climate.oneoff": "one-off",
+      "climate.triggers_once_at_the": ": triggers once at the chosen time, then disables itself. Re-enable for the next time. When active they appear below the card controls.",
+      "climate.week": "Week",
+      "climate.air_conditioner_consumption": "Air conditioner consumption",
+      "climate.cooling": "Cooling",
+      "climate.heating": "Heating",
+      "climate.values_from_the_air": "Values from the air conditioner integration (updated a few times per hour).",
+      "climate.plug_meter": "Plug / meter",
+      "climate.current_power": "Current power",
+      "climate.total_energy": "Total energy",
+      "climate.estimated_total_cost": "Estimated total cost",
+      "climate.no_meter_configured_powerentity": "No meter configured (power_entity / energy_entity).",
+      "climate.power_graph": "Power graph",
+      "climate.speed_2": "Speed {1}",
+      "climate.air_conditioner_unreachable_controls": "Air conditioner unreachable: controls will become active as soon as it reconnects.",
+      "climate.the_further_from_the_2": "The further from the target temperature, the higher the speed; once reached, it slows down. If you choose a speed below, auto fan turns off.",
+      "climate.selected_by_auto": " (selected by auto)",
+      "climate.vanes_2": "Vanes",
+      "climate.special_modes": "Special modes",
+      "climate.boost_maximum_power_for": "Boost: maximum power for about 20 minutes. Away: maintains a safe temperature.",
+      "climate.the_air_conditioner_does": "The air conditioner does not expose fan speeds, vanes, or presets.",
+      "climate.unavailable": "unavailable",
+      "climate.yes": "YES",
+      "climate.currently": "Currently",
+      "climate.cooling_2": "Cooling",
+      "climate.heating_2": "Heating",
+      "climate.idle_2": "Idle",
+      "climate.drying": "Drying",
+      "climate.fan": "Fan",
+      "climate.off_2": "Off",
+      "climate.last_changed": "Last changed",
+      "climate.temperature_range": "Temperature range",
+      "climate.c_step": "{1} – {2} °C, step {3}",
+      "climate.full_card": "Full card",
+      "climate.update_data_from_cloud": "Update data from cloud",
+      "climate.update": "Update",
+      "climate.diagnostics": "Diagnostics",
+      "climatecard.room_name_gauge_title": "Room name (gauge title)",
+      "climatecard.living_room": "Living room",
+      "climatecard.top_image_with_bar": "Top: image (with bar) or gauge",
+      "climatecard.room_temperature_sensor_for": "Room temperature sensor (for graph)",
+      "climatecard.room_humidity_sensor": "Room humidity sensor",
+      "climatecard.outdoor_temperature_sensor": "Outdoor temperature sensor",
+      "climatecard.auto_fan_switch_button": "Auto fan switch (button on card)",
+      "climatecard.auto_fan_only_inside": "Auto fan only inside Schedule",
+      "climatecard.removes_pill_from_card": "Removes pill from card and puts the switch inside Schedule popup.",
+      "climatecard.hide_consumption_button": "Hide Consumption button",
+      "climatecard.without_power_energy_or": "Without power, energy or consumption sensors the button will not appear anyway.",
+      "climatecard.power_w_of_ac": "Power (W) of AC plug",
+      "climatecard.total_energy_kwh": "Total energy (kWh)",
+      "climatecard.power_scale_max_w": "Power scale max (W)",
+      "climatecard.without_watt_sensor_the": "Without Watt sensor the bar will not appear anyway.",
+      "climatecard.cooling_today_kwh": "Cooling today (kWh)",
+      "climatecard.heating_today_kwh": "Heating today (kWh)",
+      "climatecard.cooling_month_kwh": "Cooling month (kWh)",
+      "climatecard.heating_month_kwh": "Heating month (kWh)",
+      "climatecard.schedule_helpers_from_climayaml": "Schedule (helpers from clima.yaml package)",
+      "climatecard.hide_schedule_button": "Hide Schedule button",
+      "climatecard.without_schedule_helpers_the": "Without schedule helpers the button will not appear anyway.",
+      "climatecard.scheduled_turnon_active": "Scheduled turn-on active",
+      "climatecard.turnon_mode": "Turn-on mode",
+      "climatecard.turnon_temperature": "Turn-on temperature",
+      "climatecard.scheduled_turnoff_active": "Scheduled turn-off active",
+      "climatecard.other": "Other",
+      "climatecard.refresh_data_button_button": "Refresh data button (button)",
+      "device.display": "Display",
+      "device.hide_when_disconnected": "Hide when disconnected",
+      "device.when_disconnected_from_power": "When disconnected from power or Wi‑Fi only a small bar remains with name and OFFLINE. Tapping it reopens this dialog.",
+      "device.target_humidity": "Target humidity",
+      "device.offline": "{1} offline",
+      "device.disconnected_since": "Disconnected since {1}",
+      "device.disconnected_from_power_or": "Disconnected from power or Wi‑Fi",
+      "device.since": "Since",
+      "device.turn_off_the_switch": "Turn off the switch below to always see the full card, even when the device is disconnected. When back online the full card reappears automatically.",
+      "device.now": "Now",
+      "device.full_card": "Full card",
+      "device.show": "Show",
+      "device.entity_card": "Entity card",
+      "heater.heater": "Heater",
+      "heater.automatic_management": "Automatic management",
+      "heater.room_temperature_and_humidity": "Room temperature and humidity, threshold",
+      "heater.level": "Level",
+      "heater.internal": "Internal",
+      "heater.threshold": "Threshold",
+      "heater.then": "Then",
+      "heater.threshold_2": "threshold",
+      "heater.off": "OFF",
+      "heater.fan": "FAN",
+      "heater.heat": "HEAT {1}",
+      "heater.off_2": "Off",
+      "heater.manual": "Manual",
+      "heater.fan_2": "Fan",
+      "heater.heat_2": "Heat {1}",
+      "heater.level_2": "Level {1}",
+      "heater.fan_only": "Fan only",
+      "heater.oscillation": "Oscillation",
+      "heater.at_switches_to": ", at {1}° switches to {2}",
+      "heater.automatic_management_off": "Automatic management off",
+      "heater.heater_unreachable_check_power": "⚠ Heater unreachable: check power connection and Wi‑Fi",
+      "heater.no_automatic_management_configured": "No automatic management configured. Copy the package",
+      "heater.see_guide_or_specify": "(see guide) or specify your helpers in options",
+      "heater.room_threshold": "Room threshold",
+      "heater.once_threshold_is_reached": "Once threshold is reached switch to",
+      "heater.every_turnon_from_card": "Every turn-on (from card, app, or via Alexa) starts at",
+      "heater.the_maximum_when_the": ", the maximum. When the room sensor reaches the threshold, the heater drops to the chosen level. To return to {1}, simply turn it off and back on, or tap {2} on the card. The temperature used is from the room sensor, not the internal heater sensor, which reads high near the heating element.",
+      "heater.internal_thermostat": "Internal thermostat",
+      "heater.target_temperature": "Target temperature",
+      "heater.this_is_the_heaters": "This is the heater's built-in thermostat (internal sensor, reads high). Automatic management uses the room threshold instead.",
+      "heater.no_switch_configured_add": "No switch configured: add them in the option",
+      "heater.oscillation_child_lock_sound": "(oscillation, child lock, sound…).",
+      "heater.last_time": "last time {1}",
+      "heater.internal_temperature": "Internal temperature",
+      "heater.automations_and_diagnostics": "Automations and diagnostics",
+      "heatercard.bathroom": "Bathroom",
+      "heatercard.room_temperature_sensor": "Room temperature sensor",
+      "heatercard.oscillation_switch_if_separate": "Oscillation switch (if separate)",
+      "heatercard.plug_power_w": "Plug power (W)",
+      "heatercard.automatic_management_helpers_from": "Automatic management (helpers from stufetta.yaml package)",
+      "heatercard.automatic_management_active": "Automatic management active",
+      "heatercard.room_temperature_threshold": "Room temperature threshold",
+      "heatercard.level_after_threshold": "Level after threshold",
+      "heatercard.start_level": "Start level",
+      "heatercard.switches_settings_popup": "Switches (Settings popup)",
+      "heatercard.switch": "Switch",
+      "heatercard.hide_when_disconnected_from": "Hide when disconnected from power",
+      "heatercard.when_the_card_receives": "When the card receives no data only a small bar remains with name and OFFLINE. Tap for details.",
+      "fan.entity_is_required_fanxxx": "entity is required (fan.xxx)",
+      "fan.fan": "Fan",
+      "fan.mist_and_light": "Mist and light",
+      "fan.status_and_maintenance": "Status and maintenance",
+      "fan.room_temperature_and_humidity": "Room temperature and humidity, target humidity",
+      "fan.speed": "Speed",
+      "fan.mist": "Mist",
+      "fan.cleaning": "Cleaning",
+      "fan.slower": "Slower",
+      "fan.speed_2": "speed",
+      "fan.faster": "Faster",
+      "fan.oscillates": " · oscillates",
+      "fan.mister": "Mister",
+      "fan.turn_on": "Turn on {1}",
+      "fan.auto_daynight": "Auto day/night",
+      "fan.turns_off_in": "Turns off in {1}",
+      "fan.fan_unavailable_check_that": "⚠ Fan unavailable: check that it is connected to power and Wi‑Fi",
+      "fan.water_tank_empty_fill": "💧 Water tank empty: fill it for mist",
+      "fan.hours_since_last_cleaning": "🧽 {1} hours since last cleaning: time to clean it",
+      "fan.automatic_setup_on_poweron": "Automatic setup on power-on",
+      "fan.day_night": "Day / night",
+      "fan.when_turned_on_it": "When turned on, it chooses automatically: during the day Normal mode, medium speed, mist and light; at night Night mode, minimum speed, low mist and light off.",
+      "fan.fan_timer": "Fan timer",
+      "fan.turns_off_in_2": "Turns off in",
+      "fan.timer_off": "timer off",
+      "fan.scheduled_turnon_and_turnoff": "Scheduled turn-on and turn-off are",
+      "fan.they_trigger_once_and": ": they trigger once and turn off automatically. When active, they appear under the card controls.",
+      "fan.follows_humidity": "Follows humidity",
+      "fan.fixed_color": "Fixed color",
+      "fan.intensity": "Intensity",
+      "fan.automatic_humidification": "Automatic humidification",
+      "fan.with_automatic_humidification_mist": "With automatic humidification, mist stops when the room reaches target humidity (red tick below the humidity bar).",
+      "fan.ambient_light": "Ambient light",
+      "fan.on": "On",
+      "fan.color": "Color",
+      "fan.mister_and_light_not": "Mister and light not configured (options",
+      "fan.on_2": "On",
+      "fan.mode_and_speed": "Mode and speed",
+      "fan.water_tank": "Water tank",
+      "fan.empty": "Empty",
+      "fan.hours_since_last_cleaning_2": "Hours since last cleaning",
+      "fan.h_of": "{1} h of {2}",
+      "fan.the_cleaning_counter_is": "The cleaning counter is reset from the fan (or app) after cleaning. The package alerts every {1} hours of use.",
+      "fancard.bedroom": "Bedroom",
+      "fancard.temperature_sensor": "Temperature sensor",
+      "fancard.humidity_sensor": "Humidity sensor",
+      "fancard.turn_on_with_script": "Turn on with script (optional)",
+      "fancard.turnon_script_scene_button": "Turn-on script / scene / button",
+      "fancard.the_cards_power_button": "The card's power button starts this script instead of turning on the fan. To send a command directly (remote.send_command), use the YAML view.",
+      "fancard.turnoff_script_optional": "Turn-off script (optional)",
+      "fancard.used_when_the_fan": "Used when the fan is on; without it, the button always runs the turn-on script.",
+      "fancard.onoff_state_optional": "On/off state (optional)",
+      "fancard.entity_inputboolean_switch_binarysensor": "Entity (input_boolean, switch, binary_sensor...) indicating whether the fan is on: the card turns green and the blades spin. Without it, the card remembers the last command.",
+      "fancard.mist_level": "Mist level",
+      "fancard.light_mode": "Light mode",
+      "fancard.maintenance_and_timer": "Maintenance and timer",
+      "fancard.empty_water_tank_binarysensor": "Empty water tank (binary_sensor)",
+      "fancard.cleaning_alert_every_hours": "Cleaning alert every (hours)",
+      "fancard.fan_turnoff_timer_min": "Fan turn-off timer (min)",
+      "fancard.scheduling_ventilatoreyaml_package_helpers": "Scheduling (ventilatore.yaml package helpers)",
+      "fancard.automatic_daynight_setup": "Automatic day/night setup",
+      "fancard.switches_status_popup": "Switches (Status popup)",
+      "boiler.radiators": "Radiators",
+      "boiler.schedule": "Schedule",
+      "boiler.boiler_status": "Boiler status",
+      "boiler.house_and_set_temperature": "House and set temperature, system pressure below",
+      "boiler.boiler": "Boiler",
+      "boiler.house": "House",
+      "boiler.pressure": "Pressure",
+      "boiler.water": "Water",
+      "boiler.gas_today": "Gas today",
+      "boiler.turn_on_schedule_turn": "Turn on (schedule) / turn off",
+      "boiler.system_pressure": "System pressure",
+      "boiler.house_temperature": "House temperature",
+      "boiler.off_frost_protection": "Off (frost protection)",
+      "boiler.schedule_2": "Schedule {1}",
+      "boiler.heating_radiators": "heating radiators",
+      "boiler.producing_hot_water": "producing hot water",
+      "boiler.idle": "idle",
+      "boiler.off": "OFF",
+      "boiler.heating": "HEATING",
+      "boiler.hot_water": "HOT WATER",
+      "boiler.manual": "MANUAL",
+      "boiler.schedule_3": "SCHEDULE {1}",
+      "boiler.in_use": "In use {1}°",
+      "boiler.in_use_2": "In use",
+      "boiler.ready": "Ready",
+      "boiler.at_turnon": "at turn-on",
+      "boiler.time_schedule": "Time schedule {1}",
+      "boiler.fireplace_mode": "Fireplace mode",
+      "boiler.schedule_at_changes_to": "Schedule {1}: at {2} changes to {3}°",
+      "boiler.the_temperature": "the temperature",
+      "boiler.with_the_power_button": "With the power button it starts in manual at {1}°",
+      "boiler.fireplace_mode_active": "Fireplace mode active",
+      "boiler.boiler_unavailable_check_power": "⚠ Boiler unavailable: check power and the boiler internet module",
+      "boiler.low_pressure_bar_open": "🔧 Low pressure ({1} bar): open the blue filling valve up to about 1.5 bar",
+      "boiler.high_pressure_bar_bleed": "🔧 High pressure ({1} bar): bleed a radiator or call a technician",
+      "boiler.time_schedule_2": "Time schedule",
+      "boiler.current_schedule_temperature": "Current schedule temperature",
+      "boiler.next_change": "Next change",
+      "boiler.with_the_fireplace_or": "With the fireplace (or a stove) on in the thermostat room, the boiler keeps heating other rooms even if it is already warm there.",
+      "boiler.the_and_buttons_change": "the − and + buttons change the temperature only until the next scheduled change, then it reverts to the schedule temperature. In",
+      "boiler.the_temperature_remains_fixed": "the temperature remains fixed.",
+      "boiler.off_2": "Off",
+      "boiler.leaves_frost_protection_and": "leaves frost protection and hot water active. Program schedules are changed from the Baxi app.",
+      "boiler.specify_the_gas_sensors": "Specify the gas sensors (options",
+      "boiler.weeks": "Weeks",
+      "boiler.months": "Months",
+      "boiler.years": "Years",
+      "boiler.gas_consumption": "Gas consumption",
+      "boiler.loading_consumption": "Loading consumption…",
+      "boiler.cannot_read_statistics": "Cannot read statistics: {1}",
+      "boiler.from": "from {1}",
+      "boiler.day": "Day",
+      "boiler.heating_2": "Heating",
+      "boiler.total": "Total",
+      "boiler.no_data_for_this": "No data for this period.",
+      "boiler.heating_energy_consumed": "Heating: energy consumed",
+      "boiler.heating_heat_produced": "Heating: heat produced",
+      "boiler.hot_water_energy_consumed": "Hot water: energy consumed",
+      "boiler.hot_water_heat_produced": "Hot water: heat produced",
+      "boiler.heating_3": "Heating",
+      "boiler.hot_water_2": "Hot water",
+      "boiler.estimated_m_of_gas": "estimated m³ of gas",
+      "boiler.history": "History",
+      "boiler.today_from_boiler_kwh": "Today from boiler (kWh)",
+      "boiler.cost_calculated_at_m": " Cost calculated at {1} €/m³.",
+      "boiler.to_also_see_the": " To also see the cost, add the <code>gas_price</code> (€/m³) option.",
+      "boiler.heating_4": "Heating",
+      "boiler.idle_2": "Idle",
+      "boiler.water_pressure": "Water pressure",
+      "boiler.internet_access_router": "Internet access (router)",
+      "boiler.automatic_alerts": "Automatic alerts",
+      "boiler.correct_pressure_with_cold": "Correct pressure with cold system: between {1} and {2} bar (ideally around 1.5). If it drops, slowly open the blue filling valve under the boiler and close it at 1.5 bar.",
+      "boilercard.thermostat_boiler_zone": "Thermostat / boiler zone",
+      "boilercard.house_humidity_optional": "House humidity (optional)",
+      "boilercard.system_water_pressure_bar": "System water pressure (bar)",
+      "boilercard.status_and_schedule": "Status and schedule",
+      "boilercard.boiler_heating": "Boiler heating",
+      "boilercard.hot_water_in_use": "Hot water in use",
+      "boilercard.hot_water_temperature": "Hot water temperature",
+      "boilercard.next_temperature": "Next temperature",
+      "boilercard.next_change_time": "Next change time",
+      "boilercard.heating_gas_m": "Heating gas (m³)",
+      "boilercard.hot_water_gas_m": "Hot water gas (m³)",
+      "boilercard.heating_energy_consumed_kwh": "Heating energy consumed (kWh)",
+      "boilercard.heating_heat_produced_kwh": "Heating heat produced (kWh)",
+      "boilercard.hot_water_energy_consumed": "Hot water energy consumed (kWh)",
+      "boilercard.hot_water_heat_produced": "Hot water heat produced (kWh)",
+      "boilercard.gas_price_m_optional": "Gas price €/m³ (optional)",
+      "boilercard.boiler_internet_access_router": "Boiler internet access (router)",
+      "boilercard.automations_sensors_status_popup": "Automations / sensors (Status popup)",
+      "boilercard.entity": "Entity",
+      "appledit.power_sensor_watt": "Power sensor (Watt){1}",
+      "zigbee.offline": "⚠ Offline: {1}",
+      "climate.fan_2": "Fan{1}",
+      "heater.automatic_starts_at": "Automatic: starts at {1}{2}",
+      "boiler.manual_keeps_until_you": "Manual: keeps {1} until you change",
+      "boiler.gas_is_estimated_from": "Gas is estimated from the kWh reported by the boiler (about 10.7 kWh per m³ of methane). History starts from when sensors exist in Home Assistant.{1}",
+      "clmode.off": "Off",
+      "clmode.cool": "Cool",
+      "clmode.heat": "Heat",
+      "clmode.dry": "Dry",
+      "clmode.fan_only": "Fan only",
+      "clfan.quiet": "Quiet",
+      "clfan.low": "Low",
+      "clfan.medium": "Medium",
+      "clfan.high": "High",
+      "clswing.fixed": "Fixed",
+      "clswing.swing": "Swinging",
+      "clswing.comfort": "Comfort",
+      "clswing.vertical": "Vertical",
+      "clswing.horizontal": "Horizontal",
+      "clswing.both": "Both",
+      "clpreset.none": "Normal",
+      "clpreset.away": "Away",
+      "clpreset.sleep": "Night",
+      "fnpreset.normal": "Normal",
+      "fnpreset.natural": "Natural",
+      "fnpreset.sleep": "Night",
+      "apptype.washing_machine": "Washing machine",
+      "apptype.dryer": "Dryer",
+      "apptype.dishwasher": "Dishwasher",
+      "apptype.fridge": "Fridge",
+      "apptype.wall_tablet": "Wall tablet",
+      "apptype.oven": "Oven",
+      "apptype.air_fryer": "Air fryer",
+      "apptype.microwave": "Microwave",
+      "apptype.griddle_grill": "Griddle / grill",
+      "apptype.induction_hob": "Induction hob",
+      "wrday.lunedi": "Monday",
+      "wrday.martedi": "Tuesday",
+      "wrday.mercoledi": "Wednesday",
+      "wrday.giovedi": "Thursday",
+      "wrday.venerdi": "Friday",
+      "wrday.sabato": "Saturday",
+      "wrday.domenica": "Sunday",
+      "energy.live_watts": "LIVE WATTS",
+      "ctl.threshold_lc": "threshold",
+      "humid.target_lc": "target",
+      "boiler.program_lc": "schedule"
     },
 };
 let SHC_LANG_LAST = String(document.documentElement?.lang || "").toLowerCase().slice(0, 2);
@@ -1781,6 +3592,21 @@ function shcWeekdayAbbr(hass) {
   return Array.from({ length: 7 }, (_, d) => {
     const t = new Date(2024, 0, 7 + d).toLocaleDateString(loc, { weekday: "short" }).replace(/\.$/, "");
     return t.charAt(0).toUpperCase() + t.slice(1);
+  });
+}
+
+// Aggiorna i testi statici (data-i18n / data-i18n-title) quando la lingua di HA diventa nota o cambia.
+function shcApplyI18n(card) {
+  const lang = shcLang(card._hass);
+  if (card._i18nLang === lang) return;
+  card._i18nLang = lang;
+  const r = card._root || card.shadowRoot;
+  if (!r) return;
+  r.querySelectorAll("[data-i18n]").forEach((el) => {
+    el.textContent = shcT(card._hass, el.dataset.i18n);
+  });
+  r.querySelectorAll("[data-i18n-title]").forEach((el) => {
+    el.title = shcT(card._hass, el.dataset.i18nTitle);
   });
 }
 
@@ -2048,6 +3874,7 @@ if (!customElements.get("shc-samsung-remote")) customElements.define("shc-samsun
 class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
     if (!config.power_entity && !config.live?.state_entity) throw new Error(shcT(this._hass, "err.need_entity"));
+    this._autoName = !config.name;
     this._config = {
       name: shcT(this._hass, "name.default"),
       artwork: "dishwasher",
@@ -3217,6 +5044,11 @@ class ShcApplianceCloneCard extends HTMLElement {
     const lang = shcLang(this._hass);
     if (this._i18nLang === lang) return;
     this._i18nLang = lang;
+    if (this._autoName && this._config) {
+      this._config.name = shcT(this._hass, "name.default");
+      const nm = this._root.querySelector(".shc-ap-name");
+      if (nm) nm.textContent = this._config.name;
+    }
     this._root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = shcT(this._hass, el.dataset.i18n); });
     this._root.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = shcT(this._hass, el.dataset.i18nTitle); });
   }
@@ -3627,7 +5459,7 @@ class ShcApplianceCloneCard extends HTMLElement {
 
   static getStubConfig(hass) {
     return {
-      name: shcT(this._hass, "name.default"),
+      name: shcT(hass, "name.default"),
       artwork: "dishwasher",
       power_entity: "",
       threshold_run: 5,
@@ -3649,17 +5481,17 @@ class ShcApplianceCloneCard extends HTMLElement {
 // l'editor lo lascia intatto, si modifica solo passando alla vista YAML.
 // -----------------------------------------------------------------------
 const SHC_APPLIANCE_TYPES = [
-  { value: "washer", label: "Lavatrice", domotico: false },
-  { value: "dryer", label: "Asciugatrice", domotico: true },
-  { value: "dishwasher", label: "Lavastoviglie", domotico: true },
-  { value: "fridge", label: "Frigorifero", domotico: false },
-  { value: "tablet", label: "Tablet a muro", domotico: true },
-  { value: "oven", label: "Forno", domotico: false },
+  { value: "washer", get label() { return shcT(null, "apptype.washing_machine"); }, domotico: false },
+  { value: "dryer", get label() { return shcT(null, "apptype.dryer"); }, domotico: true },
+  { value: "dishwasher", get label() { return shcT(null, "apptype.dishwasher"); }, domotico: true },
+  { value: "fridge", get label() { return shcT(null, "apptype.fridge"); }, domotico: false },
+  { value: "tablet", get label() { return shcT(null, "apptype.wall_tablet"); }, domotico: true },
+  { value: "oven", get label() { return shcT(null, "apptype.oven"); }, domotico: false },
   { value: "tv", label: "TV", domotico: true },
-  { value: "airfryer", label: "Friggitrice ad aria", labelEn: "Air fryer", domotico: false },
-  { value: "microwave", label: "Microonde", labelEn: "Microwave", domotico: false },
-  { value: "griddle", label: "Piastra / bistecchiera", labelEn: "Griddle / grill", domotico: false },
-  { value: "induction", label: "Piano a induzione", labelEn: "Induction hob", domotico: false },
+  { value: "airfryer", get label() { return shcT(null, "apptype.air_fryer"); }, domotico: false },
+  { value: "microwave", get label() { return shcT(null, "apptype.microwave"); }, domotico: false },
+  { value: "griddle", get label() { return shcT(null, "apptype.griddle_grill"); }, domotico: false },
+  { value: "induction", get label() { return shcT(null, "apptype.induction_hob"); }, domotico: false },
 ];
 
 const SHC_EDITOR_STYLE = `
@@ -3764,15 +5596,10 @@ const WR_DEFAULT_STATIONS = [
   { group: "Deezer", option: "TOP ITALY", name: "Top Italy", image: "deezer.png" },
 ];
 
-const WR_DEFAULT_ALARM_DAYS = [
-  ["lunedi", "Lunedì"],
-  ["martedi", "Martedì"],
-  ["mercoledi", "Mercoledì"],
-  ["giovedi", "Giovedì"],
-  ["venerdi", "Venerdì"],
-  ["sabato", "Sabato"],
-  ["domenica", "Domenica"],
-].map(([key, name]) => ({ entity: `input_boolean.alexa_sveglia_${key}`, name }));
+const WR_DEFAULT_ALARM_DAYS = ["lunedi", "martedi", "mercoledi", "giovedi", "venerdi", "sabato", "domenica"].map((key) => ({
+  entity: `input_boolean.alexa_sveglia_${key}`,
+  get name() { return shcT(null, "wrday." + key); },
+}));
 
 // Elenco dalla config della card (oggetti, o semplici entity_id come stringhe), altrimenti i default.
 function shcConfigList(value, defaults, firstKey = "entity") {
@@ -3807,6 +5634,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    if (this._config && this._schemaLang !== undefined && this._schemaLang !== shcLang(hass)) this._render();
     if (this._root) {
       this._root.querySelectorAll("ha-entity-picker").forEach((el) => {
         el.hass = hass;
@@ -3830,6 +5658,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
   }
 
   _render() {
+    this._schemaLang = shcLang(this._hass);
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
       this._root.innerHTML = `<style>${SHC_EDITOR_STYLE}</style><div class="shc-ed-body"></div>`;
@@ -3852,7 +5681,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
               <span class="shc-ed-label">${esc(f.label)}</span>
               ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
               <details class="shc-ed-list" data-list-box="${esc(f.key)}"${open}>
-              <summary>${items.length} element${items.length === 1 ? "o" : "i"} — mostra/modifica</summary>
+              <summary>${shcT(this._hass, "editor.item_showedit", { "1": (items.length), "2": (shcLang(this._hass) === "it" ? (items.length === 1 ? "o" : "i") : (items.length === 1 ? "" : "s")) })}</summary>
               ${items
                 .map(
                   (item, i) => `<div class="shc-ed-list-item">
@@ -3864,20 +5693,20 @@ class ShcSimpleCardEditorBase extends HTMLElement {
                       : `<input class="shc-ed-input" data-list="${esc(f.key)}" data-idx="${i}" data-sub="${esc(sf.key)}" type="text">`),
                   )
                   .join("")}
-                <button type="button" class="shc-ed-btn shc-ed-list-del" data-list-del="${esc(f.key)}" data-idx="${i}">Rimuovi</button>
+                <button type="button" class="shc-ed-btn shc-ed-list-del" data-list-del="${esc(f.key)}" data-idx="${i}">${esc(shcT(this._hass, "editor.remove"))}</button>
               </div>`,
                 )
                 .join("")}
-              <button type="button" class="shc-ed-btn" data-list-add="${esc(f.key)}">Aggiungi</button>
+              <button type="button" class="shc-ed-btn" data-list-add="${esc(f.key)}">${esc(shcT(this._hass, "editor.add"))}</button>
               </details>
             </div>`;
           }
           if (f.kind === "entity" || !f.kind) {
             return `<div class="shc-ed-row">
-              <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+              <span class="shc-ed-label">${esc(f.label)}${f.required ? shcT(this._hass, "editor.required") : ""}</span>
               ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
               <ha-entity-picker data-key="${esc(f.key)}" ${f.domain ? `include-domains='${JSON.stringify(f.domain)}'` : ""} allow-custom-entity></ha-entity-picker>
-              ${f.required && !val ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
+              ${f.required && !val ? `<div class="shc-ed-missing">${esc(shcT(this._hass, "editor.an_entity_is_required"))}</div>` : ""}
             </div>`;
           }
           if (f.kind === "bool") {
@@ -3887,7 +5716,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
             </label>`;
           }
           return `<div class="shc-ed-row">
-            <span class="shc-ed-label">${esc(f.label)}${f.required ? " — obbligatorio" : ""}</span>
+            <span class="shc-ed-label">${esc(f.label)}${f.required ? shcT(this._hass, "editor.required") : ""}</span>
             ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
             <input class="shc-ed-input" data-key="${esc(f.key)}" type="${f.kind === "number" ? "number" : "text"}" placeholder="${esc(f.placeholder || "")}">
           </div>`;
@@ -3961,21 +5790,21 @@ class ShcSimpleCardEditorBase extends HTMLElement {
 class ShcFritzCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "FritzBox" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/fritz-box.png", hint: "Percorso o URL di una tua foto." },
-        { key: "connection_entity", label: "Sensore di connessione (acceso/spento)", domain: ["binary_sensor"], required: true },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "FritzBox" },
+        { key: "image", label: shcT(this._hass, "fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/foto-pkg/fritz-box.png", hint: shcT(this._hass, "fritzcard.path_or_url_of") },
+        { key: "connection_entity", label: shcT(this._hass, "fritzcard.connection_sensor_onoff"), domain: ["binary_sensor"], required: true },
       ]},
-      { title: "Banda in tempo reale", fields: [
-        { key: "stats.mbps_down", label: "Download live (Mbps)", domain: ["sensor"] },
-        { key: "stats.mbps_up", label: "Upload live (Mbps)", domain: ["sensor"] },
-        { key: "stats.portante_down", label: "Portante Download", domain: ["sensor"] },
-        { key: "stats.portante_up", label: "Portante Upload", domain: ["sensor"] },
+      { title: shcT(this._hass, "fritzcard.realtime_bandwidth"), fields: [
+        { key: "stats.mbps_down", label: shcT(this._hass, "fritzcard.live_download_mbps"), domain: ["sensor"] },
+        { key: "stats.mbps_up", label: shcT(this._hass, "fritzcard.live_upload_mbps"), domain: ["sensor"] },
+        { key: "stats.portante_down", label: shcT(this._hass, "fritzcard.download_sync_rate"), domain: ["sensor"] },
+        { key: "stats.portante_up", label: shcT(this._hass, "fritzcard.upload_sync_rate"), domain: ["sensor"] },
       ]},
-      { title: "Avanzate", fields: [
-        { key: "update_entity", label: "Aggiornamento firmware", domain: ["update"] },
-        { key: "max_mbps", label: "Fondo scala di riserva (Mbps, usato solo se la portante non e' disponibile)", kind: "number", placeholder: "300" },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "update_entity", label: shcT(this._hass, "fritzcard.firmware_update"), domain: ["update"] },
+        { key: "max_mbps", label: shcT(this._hass, "fritzcard.fallback_scale_limit_mbps"), kind: "number", placeholder: "300" },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -3985,21 +5814,21 @@ customElements.define("shc-fritz-card-editor", ShcFritzCardEditor);
 class ShcServerCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Home Assistant" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/ha_logo.gif", hint: "Percorso o URL di una tua foto." },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Home Assistant" },
+        { key: "image", label: shcT(this._hass, "fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/foto-pkg/ha_logo.gif", hint: shcT(this._hass, "fritzcard.path_or_url_of") },
       ]},
-      { title: "Sistema", fields: [
+      { title: shcT(this._hass, "servercard.system"), fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
-        { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
+        { key: "sensors.disk_pct", label: shcT(this._hass, "servercard.disk"), domain: ["sensor"] },
       ]},
-      { title: "Avanzate", fields: [
-        { key: "ssl_cert", label: "Scadenza certificato SSL", domain: ["sensor"] },
-        { key: "updates.core", label: "Aggiornamento Core", domain: ["update"] },
-        { key: "updates.supervisor", label: "Aggiornamento Supervisor", domain: ["update"] },
-        { key: "uptime.ha_since", label: "Avviato da (data/ora)", domain: ["sensor"] },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "ssl_cert", label: shcT(this._hass, "servercard.ssl_certificate_expiration"), domain: ["sensor"] },
+        { key: "updates.core", label: shcT(this._hass, "servercard.core_update"), domain: ["update"] },
+        { key: "updates.supervisor", label: shcT(this._hass, "servercard.supervisor_update"), domain: ["update"] },
+        { key: "uptime.ha_since", label: shcT(this._hass, "servercard.running_since_datetime"), domain: ["sensor"] },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -4009,31 +5838,31 @@ customElements.define("shc-server-card-editor", ShcServerCardEditor);
 class ShcNasCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Synology NAS" },
-        { key: "model", label: "Modello", kind: "text", placeholder: "DS925+" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/synology-ds925.png", hint: "Percorso o URL di una tua foto." },
-        { key: "update_entity", label: "Aggiornamento DSM", domain: ["update"], required: true },
-        { key: "security_entity", label: "Stato di sicurezza", domain: ["binary_sensor"], hint: "Creato in automatico dall'integrazione Synology DSM (device_class 'safety': acceso = problema rilevato)" },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Synology NAS" },
+        { key: "model", label: shcT(this._hass, "nascard.model"), kind: "text", placeholder: "DS925+" },
+        { key: "image", label: shcT(this._hass, "fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/foto-pkg/synology-ds925.png", hint: shcT(this._hass, "fritzcard.path_or_url_of") },
+        { key: "update_entity", label: shcT(this._hass, "nascard.dsm_update"), domain: ["update"], required: true },
+        { key: "security_entity", label: shcT(this._hass, "nascard.security_status"), domain: ["binary_sensor"], hint: shcT(this._hass, "nascard.automatically_created_by_the") },
       ]},
-      { title: "Sistema", fields: [
+      { title: shcT(this._hass, "servercard.system"), fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
         { key: "sensors.vol1", label: "Volume 1 (%)", domain: ["sensor"] },
         { key: "sensors.vol2", label: "Volume 2 (%)", domain: ["sensor"] },
         { key: "sensors.usb_pct", label: "USB (%)", domain: ["sensor"] },
-        { key: "sensors.temp", label: "Temperatura", domain: ["sensor"] },
+        { key: "sensors.temp", label: shcT(this._hass, "nascard.temperature"), domain: ["sensor"] },
       ]},
-      { title: "Etichette dei volumi", fields: [
-        { key: "vol1_label", label: "Nome Volume 1", kind: "text", placeholder: "Volume 1" },
-        { key: "vol2_label", label: "Nome Volume 2", kind: "text", placeholder: "Volume 2" },
+      { title: shcT(this._hass, "nascard.volume_labels"), fields: [
+        { key: "vol1_label", label: shcT(this._hass, "nascard.volume_1_name"), kind: "text", placeholder: "Volume 1" },
+        { key: "vol2_label", label: shcT(this._hass, "nascard.volume_2_name"), kind: "text", placeholder: "Volume 2" },
       ]},
-      { title: "Consumi (pulsante fulmine)", fields: [
-        { key: "energy.power", label: "Consumo attuale (W)", domain: ["sensor"] },
-        { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
-        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number", "sensor", "number"] },
+      { title: shcT(this._hass, "nascard.consumption_lightning_button"), fields: [
+        { key: "energy.power", label: shcT(this._hass, "nascard.current_consumption_w"), domain: ["sensor"] },
+        { key: "energy_stat_entity", label: shcT(this._hass, "nascard.energy_sensor_kwh_with"), domain: ["sensor"], hint: shcT(this._hass, "nascard.optional_if_connected_the") },
+        { key: "cost_entity", label: shcT(this._hass, "nascard.energy_cost_kwh"), domain: ["input_number", "sensor", "number"] },
       ]},
-      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [{ key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] }]},
     ];
   }
 }
@@ -4042,32 +5871,32 @@ customElements.define("shc-nas-card-editor", ShcNasCardEditor);
 class ShcProxmoxCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Proxmox" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/proxmox-logo.svg", hint: "Percorso o URL di una tua foto." },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Proxmox" },
+        { key: "image", label: shcT(this._hass, "fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/foto-pkg/proxmox-logo.svg", hint: shcT(this._hass, "fritzcard.path_or_url_of") },
       ]},
-      { title: "Sistema", fields: [
+      { title: shcT(this._hass, "servercard.system"), fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
-        { key: "sensors.disk_pct", label: "Disco (%)", domain: ["sensor"] },
-        { key: "sensors.cpu_temp", label: "Temperatura CPU", domain: ["sensor"] },
+        { key: "sensors.disk_pct", label: shcT(this._hass, "servercard.disk"), domain: ["sensor"] },
+        { key: "sensors.cpu_temp", label: shcT(this._hass, "proxmoxcard.cpu_temperature"), domain: ["sensor"] },
         { key: "sensors.gpu_pct", label: "GPU (%)", domain: ["sensor"] },
-        { key: "sensors.status", label: "Stato del nodo (online/offline)", domain: ["binary_sensor", "sensor"] },
-        { key: "sensors.containers", label: "Contenitori (LXC) attivi", domain: ["sensor"] },
-        { key: "sensors.vms", label: "Macchine virtuali attive", domain: ["sensor"] },
-        { key: "sensors.last_boot", label: "Ultimo avvio del nodo", domain: ["sensor"] },
-        { key: "sensors.ram_used", label: "RAM usata", domain: ["sensor"] },
-        { key: "sensors.ram_free", label: "RAM libera", domain: ["sensor"] },
-        { key: "sensors.disk_lvm_pct", label: "Disco local-lvm (%)", domain: ["sensor"] },
+        { key: "sensors.status", label: shcT(this._hass, "proxmoxcard.node_status_onlineoffline"), domain: ["binary_sensor", "sensor"] },
+        { key: "sensors.containers", label: shcT(this._hass, "proxmoxcard.active_containers_lxc"), domain: ["sensor"] },
+        { key: "sensors.vms", label: shcT(this._hass, "proxmoxcard.active_virtual_machines"), domain: ["sensor"] },
+        { key: "sensors.last_boot", label: shcT(this._hass, "proxmoxcard.last_node_boot"), domain: ["sensor"] },
+        { key: "sensors.ram_used", label: shcT(this._hass, "proxmoxcard.ram_used"), domain: ["sensor"] },
+        { key: "sensors.ram_free", label: shcT(this._hass, "proxmoxcard.ram_free"), domain: ["sensor"] },
+        { key: "sensors.disk_lvm_pct", label: shcT(this._hass, "proxmoxcard.locallvm_disk"), domain: ["sensor"] },
       ]},
-      { title: "Consumi (pulsante fulmine)", fields: [
-        { key: "power.power", label: "Consumo attuale (W)", domain: ["sensor"] },
-        { key: "power.voltage", label: "Tensione", domain: ["sensor"] },
-        { key: "power.current", label: "Corrente", domain: ["sensor"] },
-        { key: "energy_stat_entity", label: "Sensore energia (kWh, con storico a lungo termine)", domain: ["sensor"], hint: "Facoltativo: se lo colleghi, il pulsante Consumi mostra anche i totali per periodo e gli istogrammi mese/anno." },
-        { key: "cost_entity", label: "Costo energia (€/kWh)", domain: ["input_number", "sensor", "number"] },
+      { title: shcT(this._hass, "nascard.consumption_lightning_button"), fields: [
+        { key: "power.power", label: shcT(this._hass, "nascard.current_consumption_w"), domain: ["sensor"] },
+        { key: "power.voltage", label: shcT(this._hass, "proxmoxcard.voltage"), domain: ["sensor"] },
+        { key: "power.current", label: shcT(this._hass, "proxmoxcard.current"), domain: ["sensor"] },
+        { key: "energy_stat_entity", label: shcT(this._hass, "nascard.energy_sensor_kwh_with"), domain: ["sensor"], hint: shcT(this._hass, "nascard.optional_if_connected_the") },
+        { key: "cost_entity", label: shcT(this._hass, "nascard.energy_cost_kwh"), domain: ["input_number", "sensor", "number"] },
       ]},
-      { title: "Avanzate", fields: [{ key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] }]},
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [{ key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] }]},
     ];
   }
 }
@@ -4076,23 +5905,23 @@ customElements.define("shc-proxmox-card-editor", ShcProxmoxCardEditor);
 class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "UPS" },
-        { key: "model", label: "Modello", kind: "text", placeholder: "APC Back-UPS BE850G2" },
-        { key: "image", label: "Immagine personalizzata (opzionale)", kind: "text", placeholder: "/local/foto-pkg/apc-ups.png", hint: "Percorso o URL di una tua foto: utile con due UPS diversi." },
-        { key: "status_entity", label: "Stato UPS", domain: ["sensor"], required: true },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "UPS" },
+        { key: "model", label: shcT(this._hass, "nascard.model"), kind: "text", placeholder: "APC Back-UPS BE850G2" },
+        { key: "image", label: shcT(this._hass, "fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/foto-pkg/apc-ups.png", hint: shcT(this._hass, "upscard.path_or_url_of") },
+        { key: "status_entity", label: shcT(this._hass, "upscard.ups_status"), domain: ["sensor"], required: true },
       ]},
-      { title: "Batteria e carico", fields: [
-        { key: "battery_entity", label: "Carica batteria (%)", domain: ["sensor"] },
-        { key: "load_entity", label: "Carico reale (W)", domain: ["sensor"] },
-        { key: "runtime_entity", label: "Autonomia residua", domain: ["sensor"] },
+      { title: shcT(this._hass, "upscard.battery_and_load"), fields: [
+        { key: "battery_entity", label: shcT(this._hass, "upscard.battery_charge"), domain: ["sensor"] },
+        { key: "load_entity", label: shcT(this._hass, "upscard.actual_load_w"), domain: ["sensor"] },
+        { key: "runtime_entity", label: shcT(this._hass, "upscard.remaining_runtime"), domain: ["sensor"] },
       ]},
-      { title: "Avanzate", fields: [
-        { key: "input_voltage_entity", label: "Tensione ingresso", domain: ["sensor"] },
-        { key: "runtime_low_entity", label: "Batteria scarica (avviso)", domain: ["binary_sensor"] },
-        { key: "automation_entity", label: "Automazione notifiche caduta corrente", domain: ["automation"] },
-        { key: "rated_watts", label: "Potenza nominale (W)", kind: "number", placeholder: "450" },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "input_voltage_entity", label: shcT(this._hass, "upscard.input_voltage"), domain: ["sensor"] },
+        { key: "runtime_low_entity", label: shcT(this._hass, "upscard.low_battery_warning"), domain: ["binary_sensor"] },
+        { key: "automation_entity", label: shcT(this._hass, "upscard.power_outage_notification_automation"), domain: ["automation"] },
+        { key: "rated_watts", label: shcT(this._hass, "upscard.rated_power_w"), kind: "number", placeholder: "450" },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -4102,15 +5931,15 @@ customElements.define("shc-ups-card-editor", ShcUpsCardEditor);
 class ShcNotifCenterCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Centro Notifiche" }]},
-      { title: "Volumi e tempi", fields: [
-        { key: "volume_notifica_entity", label: "Volume annuncio", domain: ["input_number"], required: true },
-        { key: "volume_ripristino_entity", label: "Volume ripristino", domain: ["input_number"], required: true },
-        { key: "tempo_messaggio_entity", label: "Tempo del messaggio (secondi)", domain: ["input_number"], required: true },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [{ key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "notifcentercard.notification_center") }]},
+      { title: shcT(this._hass, "notifcentercard.volumes_and_times"), fields: [
+        { key: "volume_notifica_entity", label: shcT(this._hass, "notifcentercard.announcement_volume"), domain: ["input_number"], required: true },
+        { key: "volume_ripristino_entity", label: shcT(this._hass, "notifcentercard.restore_volume"), domain: ["input_number"], required: true },
+        { key: "tempo_messaggio_entity", label: shcT(this._hass, "notifcentercard.message_duration_seconds"), domain: ["input_number"], required: true },
       ]},
-      { title: "Orario notifiche", fields: [
-        { key: "orario_inizio_entity", label: "Orario inizio", domain: ["input_datetime"], required: true },
-        { key: "orario_fine_entity", label: "Orario fine", domain: ["input_datetime"], required: true },
+      { title: shcT(this._hass, "notifcentercard.notification_schedule"), fields: [
+        { key: "orario_inizio_entity", label: shcT(this._hass, "notifcentercard.start_time"), domain: ["input_datetime"], required: true },
+        { key: "orario_fine_entity", label: shcT(this._hass, "notifcentercard.end_time"), domain: ["input_datetime"], required: true },
       ]},
     ];
   }
@@ -4120,17 +5949,17 @@ customElements.define("shc-notif-center-card-editor", ShcNotifCenterCardEditor);
 class ShcAlexaTextCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Alexa" }] },
-      { title: "Speaker e testo", fields: [
-        { key: "speaker_select_entity", label: "Selettore speaker", domain: ["input_select"], required: true },
-        { key: "add_script", label: "Script aggiungi speaker al gruppo", domain: ["script"], required: true },
-        { key: "remove_script", label: "Script rimuovi speaker dal gruppo", domain: ["script"], required: true },
-        { key: "text_entity", label: "Campo testo", domain: ["input_text"], required: true },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [{ key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Alexa" }] },
+      { title: shcT(this._hass, "alexatextcard.speaker_and_text"), fields: [
+        { key: "speaker_select_entity", label: shcT(this._hass, "alexatextcard.speaker_selector"), domain: ["input_select"], required: true },
+        { key: "add_script", label: shcT(this._hass, "alexatextcard.script_to_add_speaker"), domain: ["script"], required: true },
+        { key: "remove_script", label: shcT(this._hass, "alexatextcard.script_to_remove_speaker"), domain: ["script"], required: true },
+        { key: "text_entity", label: shcT(this._hass, "alexatextcard.text_field"), domain: ["input_text"], required: true },
       ]},
-      { title: "Riproduzione", fields: [
+      { title: shcT(this._hass, "alexatextcard.playback"), fields: [
         { key: "volume_entity", label: "Volume", domain: ["input_number"], required: true },
-        { key: "play_script", label: "Script riproduci", domain: ["script"], required: true },
-        { key: "group_entity", label: "Gruppo multiroom", domain: ["group"], required: true, hint: "Il group.* aggiornato dagli script aggiungi/rimuovi speaker, mostrato in card come \"In riproduzione su\"." },
+        { key: "play_script", label: shcT(this._hass, "alexatextcard.play_script"), domain: ["script"], required: true },
+        { key: "group_entity", label: shcT(this._hass, "alexatextcard.multiroom_group"), domain: ["group"], required: true, hint: shcT(this._hass, "alexatextcard.the_group_updated_by") },
       ]},
     ];
   }
@@ -4140,30 +5969,30 @@ customElements.define("shc-alexa-text-card-editor", ShcAlexaTextCardEditor);
 class ShcAlexaMemoCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Memo" }] },
-      { title: "Messaggio", fields: [
-        { key: "active_entity", label: "Attivo", domain: ["input_boolean"], required: true },
-        { key: "text_entity", label: "Messaggio", domain: ["input_text"], required: true },
-        { key: "devices_entity", label: "Dispositivi Alexa scelti", domain: ["input_text"], required: true, hint: "input_text con gli entity_id dei media_player scelti, separati da virgola (vuoto = dispositivo predefinito)." },
-        { key: "devices", label: "Speaker mostrati come chip", kind: "list", defaults: SHC_ALEXA_DEFAULT_DEVICES, itemFields: [
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [{ key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Memo" }] },
+      { title: shcT(this._hass, "alexamemocard.message"), fields: [
+        { key: "active_entity", label: shcT(this._hass, "alexamemocard.active"), domain: ["input_boolean"], required: true },
+        { key: "text_entity", label: shcT(this._hass, "alexamemocard.message"), domain: ["input_text"], required: true },
+        { key: "devices_entity", label: shcT(this._hass, "alexamemocard.selected_alexa_devices"), domain: ["input_text"], required: true, hint: shcT(this._hass, "alexamemocard.inputtext_with_entityids_of") },
+        { key: "devices", label: shcT(this._hass, "alexamemocard.speakers_shown_as_chips"), kind: "list", defaults: SHC_ALEXA_DEFAULT_DEVICES, itemFields: [
           { key: "entity", label: "Speaker", kind: "entity", domain: ["media_player"] },
-          { key: "name", label: "Nome sul chip (vuoto = nome dell'entita')" },
+          { key: "name", label: shcT(this._hass, "alexamemocard.name_on_chip_empty") },
         ]},
       ]},
-      { title: "Quando annunciare", fields: [
-        { key: "repeat_entity", label: "Ripeti ogni giorno nel periodo", domain: ["input_boolean"], required: true },
-        { key: "date_start_entity", label: "Data inizio", domain: ["input_datetime"], required: true },
-        { key: "date_end_entity", label: "Data fine", domain: ["input_datetime"], required: true },
-        { key: "time_entity", label: "Orario", domain: ["input_datetime"], required: true },
-        { key: "once_datetime_entity", label: "Data e ora (una tantum)", domain: ["input_datetime"], required: true },
+      { title: shcT(this._hass, "alexamemocard.when_to_announce"), fields: [
+        { key: "repeat_entity", label: shcT(this._hass, "alexamemocard.repeat_daily_in_period"), domain: ["input_boolean"], required: true },
+        { key: "date_start_entity", label: shcT(this._hass, "alexamemocard.start_date"), domain: ["input_datetime"], required: true },
+        { key: "date_end_entity", label: shcT(this._hass, "alexamemocard.end_date"), domain: ["input_datetime"], required: true },
+        { key: "time_entity", label: shcT(this._hass, "alexamemocard.time"), domain: ["input_datetime"], required: true },
+        { key: "once_datetime_entity", label: shcT(this._hass, "alexamemocard.date_and_time_onetime"), domain: ["input_datetime"], required: true },
       ]},
-      { title: "Persona e riprova al rientro", fields: [
-        { key: "person_entity", label: "Persona (entity_id salvato qui, vuoto = nessuna)", domain: ["input_text"], required: true },
-        { key: "pending_entity", label: "In sospeso (interno)", domain: ["input_boolean"], required: true },
-        { key: "retry_delay_entity", label: "Ritardo dopo il rientro (minuti)", domain: ["input_number"], required: true },
+      { title: shcT(this._hass, "alexamemocard.person_and_retry_on"), fields: [
+        { key: "person_entity", label: shcT(this._hass, "alexamemocard.person_entityid_saved_here"), domain: ["input_text"], required: true },
+        { key: "pending_entity", label: shcT(this._hass, "alexamemocard.pending_internal"), domain: ["input_boolean"], required: true },
+        { key: "retry_delay_entity", label: shcT(this._hass, "alexamemocard.delay_after_return_minutes"), domain: ["input_number"], required: true },
       ]},
-      { title: "Avanzate", fields: [
-        { key: "slot_count_entity", label: "Quanti memo mostrare (solo su Memo 1)", domain: ["input_number"], hint: "Facoltativo: collegalo solo sulla card Memo 1 per far apparire lo stepper che sblocca Memo 3/4." },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "slot_count_entity", label: shcT(this._hass, "alexamemocard.how_many_memos_to"), domain: ["input_number"], hint: shcT(this._hass, "alexamemocard.optional_link_only_on") },
       ]},
     ];
   }
@@ -4173,45 +6002,45 @@ customElements.define("shc-alexa-memo-card-editor", ShcAlexaMemoCardEditor);
 class ShcAlexaWebradioCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [{ key: "name", label: "Nome", kind: "text", placeholder: "Radio Alexa" }] },
-      { title: "Radio e volume", fields: [
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [{ key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: "Radio Alexa" }] },
+      { title: shcT(this._hass, "alexawebradiocard.radio_and_volume"), fields: [
         { key: "power_entity", label: "Radio ON/OFF", domain: ["input_boolean"], required: true },
-        { key: "station_select_entity", label: "Selettore stazione/playlist", domain: ["input_select"], required: true },
-        { key: "station_sensor_entity", label: "Sensore stazione corrente", domain: ["sensor"], required: true, hint: "Sensore template con attributi select/servizi/entity_picture." },
+        { key: "station_select_entity", label: shcT(this._hass, "alexawebradiocard.stationplaylist_selector"), domain: ["input_select"], required: true },
+        { key: "station_sensor_entity", label: shcT(this._hass, "alexawebradiocard.current_station_sensor"), domain: ["sensor"], required: true, hint: shcT(this._hass, "alexawebradiocard.template_sensor_with_selectservicesentitypicture") },
         { key: "volume_entity", label: "Volume", domain: ["input_number"], required: true },
       ]},
       { title: "Multiroom", fields: [
-        { key: "group_entity", label: "Gruppo multiroom", domain: ["group"], required: true },
-        { key: "speaker_list_entity", label: "Selettore speaker da aggiungere/rimuovere", domain: ["input_select"], required: true, hint: "Toccando un chip la card sceglie qui l'opzione dello speaker e poi lancia lo script aggiungi o rimuovi." },
-        { key: "add_script", label: "Script aggiungi speaker al gruppo", domain: ["script"] },
-        { key: "remove_script", label: "Script rimuovi speaker dal gruppo", domain: ["script"] },
-        { key: "speakers", label: "Speaker mostrati come chip", kind: "list", defaults: WR_DEFAULT_SPEAKERS, itemFields: [
+        { key: "group_entity", label: shcT(this._hass, "alexatextcard.multiroom_group"), domain: ["group"], required: true },
+        { key: "speaker_list_entity", label: shcT(this._hass, "alexawebradiocard.speaker_selector_to_addremove"), domain: ["input_select"], required: true, hint: shcT(this._hass, "alexawebradiocard.tapping_a_chip_lets") },
+        { key: "add_script", label: shcT(this._hass, "alexatextcard.script_to_add_speaker"), domain: ["script"] },
+        { key: "remove_script", label: shcT(this._hass, "alexatextcard.script_to_remove_speaker"), domain: ["script"] },
+        { key: "speakers", label: shcT(this._hass, "alexamemocard.speakers_shown_as_chips"), kind: "list", defaults: WR_DEFAULT_SPEAKERS, itemFields: [
           { key: "entity", label: "Speaker", kind: "entity", domain: ["media_player"] },
-          { key: "name", label: "Nome sul chip (vuoto = nome dell'entita')" },
-          { key: "option", label: "Opzione del selettore speaker (vuoto = nome dell'entita')" },
+          { key: "name", label: shcT(this._hass, "alexamemocard.name_on_chip_empty") },
+          { key: "option", label: shcT(this._hass, "alexawebradiocard.speaker_selector_option_empty") },
         ]},
       ]},
-      { title: "Stazioni e playlist", fields: [
-        { key: "image_path", label: "Cartella immagini", kind: "text", placeholder: WR_DEFAULT_IMAGE_PATH, hint: "Usata per le immagini indicate solo come nome file. Un percorso che inizia con / o http resta com'e'." },
-        { key: "stations", label: "Stazioni", kind: "list", defaults: WR_DEFAULT_STATIONS, itemFields: [
-          { key: "option", label: "Opzione del selettore stazione" },
-          { key: "name", label: "Nome mostrato (vuoto = opzione)" },
-          { key: "image", label: "Immagine (nome file o percorso)" },
-          { key: "group", label: "Gruppo (es. TuneIn Radio, Spotify)" },
+      { title: shcT(this._hass, "alexawebradiocard.stations_and_playlists"), fields: [
+        { key: "image_path", label: shcT(this._hass, "alexawebradiocard.images_folder"), kind: "text", placeholder: WR_DEFAULT_IMAGE_PATH, hint: shcT(this._hass, "alexawebradiocard.used_for_images_specified") },
+        { key: "stations", label: shcT(this._hass, "alexawebradiocard.stations"), kind: "list", defaults: WR_DEFAULT_STATIONS, itemFields: [
+          { key: "option", label: shcT(this._hass, "alexawebradiocard.station_selector_option") },
+          { key: "name", label: shcT(this._hass, "alexawebradiocard.displayed_name_empty_option") },
+          { key: "image", label: shcT(this._hass, "alexawebradiocard.image_filename_or_path") },
+          { key: "group", label: shcT(this._hass, "alexawebradiocard.group_eg_tunein_radio") },
         ]},
       ]},
-      { title: "Sveglia (facoltativa)", fields: [
-        { key: "alarm_entity", label: "Sveglia attiva", domain: ["input_boolean"] },
-        { key: "alarm_on_entity", label: "Orario accensione", domain: ["input_datetime"] },
-        { key: "alarm_off_entity", label: "Orario spegnimento", domain: ["input_datetime"] },
-        { key: "alarm_days", label: "Giorni della sveglia", kind: "list", defaults: WR_DEFAULT_ALARM_DAYS, itemFields: [
-          { key: "entity", label: "Interruttore del giorno", kind: "entity", domain: ["input_boolean"] },
-          { key: "name", label: "Nome sul chip" },
+      { title: shcT(this._hass, "alexawebradiocard.alarm_optional"), fields: [
+        { key: "alarm_entity", label: shcT(this._hass, "alexawebradiocard.alarm_active"), domain: ["input_boolean"] },
+        { key: "alarm_on_entity", label: shcT(this._hass, "alexawebradiocard.turnon_time"), domain: ["input_datetime"] },
+        { key: "alarm_off_entity", label: shcT(this._hass, "alexawebradiocard.turnoff_time"), domain: ["input_datetime"] },
+        { key: "alarm_days", label: shcT(this._hass, "alexawebradiocard.alarm_days"), kind: "list", defaults: WR_DEFAULT_ALARM_DAYS, itemFields: [
+          { key: "entity", label: shcT(this._hass, "alexawebradiocard.day_switch"), kind: "entity", domain: ["input_boolean"] },
+          { key: "name", label: shcT(this._hass, "alexawebradiocard.name_on_chip") },
         ]},
       ]},
-      { title: "Volume ridotto automatico (facoltativo)", fields: [
-        { key: "volume_off_automation", label: "Automazione volume ridotto", domain: ["automation"] },
-        { key: "volume_off_entity", label: "Volume dopo lo spegnimento", domain: ["input_number"] },
+      { title: shcT(this._hass, "alexawebradiocard.automatic_reduced_volume_optional"), fields: [
+        { key: "volume_off_automation", label: shcT(this._hass, "alexawebradiocard.reduced_volume_automation"), domain: ["automation"] },
+        { key: "volume_off_entity", label: shcT(this._hass, "alexawebradiocard.volume_after_turnoff"), domain: ["input_number"] },
       ]},
     ];
   }
@@ -4221,21 +6050,21 @@ customElements.define("shc-alexa-webradio-card-editor", ShcAlexaWebradioCardEdit
 class ShcGarbageCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Raccolta Differenziata" },
-        { key: "entity", label: "Sensore del rifiuto di oggi", domain: ["sensor"], required: true },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "garbagecard.waste_collection") },
+        { key: "entity", label: shcT(this._hass, "garbagecard.todays_waste_sensor"), domain: ["sensor"], required: true },
       ]},
-      { title: "Giorni e orari", fields: [
-        { key: "weekday_entity", label: "Giorno della settimana", domain: ["sensor"] },
-        { key: "pickup_day_entity", label: "Giorno del ritiro", domain: ["sensor"] },
-        { key: "expose_time_entity", label: "Orario di esposizione", domain: ["input_datetime"] },
+      { title: shcT(this._hass, "garbagecard.days_and_times"), fields: [
+        { key: "weekday_entity", label: shcT(this._hass, "garbagecard.day_of_the_week"), domain: ["sensor"] },
+        { key: "pickup_day_entity", label: shcT(this._hass, "garbagecard.collection_day"), domain: ["sensor"] },
+        { key: "expose_time_entity", label: shcT(this._hass, "garbagecard.setout_time"), domain: ["input_datetime"] },
       ]},
-      { title: "Tipi di raccolta scritti a mano", fields: [
-        { key: "types_entity", label: "Elenco tipi di raccolta (mostra il pulsante sulla card)", domain: ["input_text"], hint: "Facoltativo: se lo colleghi compare il pulsante per scrivere i tipi di raccolta del tuo comune." },
+      { title: shcT(this._hass, "garbagecard.custom_collection_types"), fields: [
+        { key: "types_entity", label: shcT(this._hass, "garbagecard.collection_types_list_shows"), domain: ["input_text"], hint: shcT(this._hass, "garbagecard.optional_if_connected_a") },
       ]},
-      { title: "Avanzate", fields: [
-        { key: "notif_center_path", label: "Percorso pagina Centro Notifiche (facoltativo)", kind: "text", placeholder: "/lovelace/centronotifiche", hint: "Senza questo campo il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste." },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "notif_center_path", label: shcT(this._hass, "garbagecard.notification_center_page_path"), kind: "text", placeholder: "/lovelace/centronotifiche", hint: shcT(this._hass, "garbagecard.without_this_field_the") },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -4245,23 +6074,23 @@ customElements.define("shc-garbage-card-editor", ShcGarbageCardEditor);
 class ShcEnergyCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     const circuits = [0, 1, 2, 3].map((i) => ({
-      title: `Barra ${i + 1}`,
+      title: shcT(this._hass, "energycard.bar", { "1": (i + 1) }),
       fields: [
-        { key: `circuits.${i}.label`, label: "Etichetta", kind: "text", placeholder: i === 0 ? "Generale" : "" },
-        { key: `circuits.${i}.entity`, label: "Entita' (potenza in W)", domain: ["sensor"] },
-        { key: `circuits.${i}.max`, label: "Fondo scala (W)", kind: "number" },
+        { key: `circuits.${i}.label`, label: shcT(this._hass, "energycard.label"), kind: "text", placeholder: i === 0 ? shcT(this._hass, "energycard.general") : "" },
+        { key: `circuits.${i}.entity`, label: shcT(this._hass, "energycard.entity_power_in_w"), domain: ["sensor"] },
+        { key: `circuits.${i}.max`, label: shcT(this._hass, "energycard.scale_limit_w"), kind: "number" },
       ],
     }));
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Energia Casa" },
-        { key: "power_entity", label: "Sensore di potenza generale (W)", domain: ["sensor"], required: true },
-        { key: "max_power", label: "Fondo scala generale (W)", kind: "number", placeholder: "4500" },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "energycard.home_energy") },
+        { key: "power_entity", label: shcT(this._hass, "energycard.general_power_sensor_w"), domain: ["sensor"], required: true },
+        { key: "max_power", label: shcT(this._hass, "energycard.general_scale_limit_w"), kind: "number", placeholder: "4500" },
       ]},
       ...circuits,
-      { title: "Avanzate", fields: [
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
-        { key: "notif_center_path", label: "Percorso pagina Centro Notifiche (facoltativo)", kind: "text", placeholder: "/lovelace/centronotifiche", hint: "Senza questo campo il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste." },
+      { title: shcT(this._hass, "fritzcard.advanced"), fields: [
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+        { key: "notif_center_path", label: shcT(this._hass, "garbagecard.notification_center_page_path"), kind: "text", placeholder: "/lovelace/centronotifiche", hint: shcT(this._hass, "garbagecard.without_this_field_the") },
       ]},
     ];
   }
@@ -4276,6 +6105,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    if (this._config && this._schemaLang !== undefined && this._schemaLang !== shcLang(hass)) this._render();
     if (this._root) {
       this._root.querySelectorAll("ha-entity-picker").forEach((el) => {
         el.hass = hass;
@@ -4341,24 +6171,24 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
   _storiciHtml(cfg) {
     const hasLegacy = !!(cfg.period_attrs || cfg.cycle_sensor || cfg.week_rows);
     if (hasLegacy) {
-      return `<div class="shc-ed-sec">Storici</div>
-        <p class="shc-ed-hint">Configurazione avanzata rilevata (package YAML): i consumi per periodo restano quelli gia' in uso, invariati.</p>`;
+      return `<div class="shc-ed-sec">${esc(shcT(this._hass, "appledit.history"))}</div>
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "appledit.advanced_configuration_detected_yaml"))}</p>`;
     }
-    return `<div class="shc-ed-sec">Storici (consumi per periodo, senza YAML)</div>
+    return `<div class="shc-ed-sec">${esc(shcT(this._hass, "appledit.history_consumption_by_period"))}</div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Sensore energia (kWh)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.energy_sensor_kwh"))}</span>
         <ha-entity-picker class="shc-ed-energy-stat" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.energy_stat_entity && cfg.power_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-energy">Crea automaticamente dal sensore di potenza</button>` : ""}
+        ${!cfg.energy_stat_entity && cfg.power_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-energy">${esc(shcT(this._hass, "appledit.create_automatically_from_power"))}</button>` : ""}
       </div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Costo energia (€/kWh)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "nascard.energy_cost_kwh"))}</span>
         <ha-entity-picker class="shc-ed-cost" include-domains='["input_number","sensor","number"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.cost_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-cost">Crea helper costo (0,25 €/kWh di partenza)</button>` : ""}
+        ${!cfg.cost_entity ? `<button type="button" class="shc-ed-btn shc-ed-create-cost">${esc(shcT(this._hass, "appledit.create_cost_helper_025"))}</button>` : ""}
       </div>
       <div class="shc-ed-row">
         <label class="shc-ed-checkrow">
           <input type="checkbox" class="shc-ed-auto-stats" ${cfg.auto_stats ? "checked" : ""} ${!cfg.energy_stat_entity ? "disabled" : ""}>
-          <span>Mostra "Consumi per periodo" nella card (Statistiche)</span>
+          <span>${esc(shcT(this._hass, "appledit.show_consumption_by_period"))}</span>
         </label>
       </div>
       <small class="shc-ed-storici-msg"></small>`;
@@ -4368,18 +6198,19 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     const msg = this._root.querySelector(".shc-ed-storici-msg");
     const prevText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Creazione in corso…";
+    btn.textContent = shcT(this._hass, "appledit.creating");
     if (msg) msg.textContent = "";
     try {
       await fn();
     } catch (e) {
-      if (msg) msg.textContent = `Errore: ${e.message || e}`;
+      if (msg) msg.textContent = shcT(this._hass, "appledit.error", { "1": (e.message || e) });
       btn.disabled = false;
       btn.textContent = prevText;
     }
   }
 
   _render() {
+    this._schemaLang = shcLang(this._hass);
     if (!this._root) {
       this._root = this.attachShadow({ mode: "open" });
       this._root.innerHTML = `<style>${SHC_EDITOR_STYLE}</style><div class="shc-ed-body"></div>`;
@@ -4392,23 +6223,23 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
 
     body.innerHTML = `
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Che elettrodomestico e'?</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.what_appliance_is_it"))}</span>
         <div class="shc-ed-types">
           ${SHC_APPLIANCE_TYPES.map(
-            (t) => `<button type="button" class="shc-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.labelEn ? L(t.label, t.labelEn) : t.label)}</button>`,
+            (t) => `<button type="button" class="shc-ed-type-btn${t.value === cfg.artwork ? " on" : ""}" data-type="${t.value}">${esc(t.label)}</button>`,
           ).join("")}
         </div>
       </div>
 
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Nome</span>
-        <input class="shc-ed-input shc-ed-name" type="text" placeholder="es. Lavastoviglie">
+        <span class="shc-ed-label">${esc(shcT(this._hass, "fritzcard.name"))}</span>
+        <input class="shc-ed-input shc-ed-name" type="text" placeholder="${esc(shcT(this._hass, "appledit.eg_dishwasher"))}">
       </div>
 
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Immagine personalizzata (opzionale)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "fritzcard.custom_image_optional"))}</span>
         <input class="shc-ed-input shc-ed-image" type="text" placeholder="/local/foto/lavastoviglie.png">
-        <p class="shc-ed-hint">Percorso o URL di una tua foto.</p>
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "fritzcard.path_or_url_of"))}</p>
       </div>
 
       <div class="shc-ed-row">
@@ -4421,25 +6252,25 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       </div>
 
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Questo elettrodomestico e' domotico o e' solo una presa?</span>
-        <p class="shc-ed-hint">Domotico = ha stati e programmi propri (lavastoviglie, asciugatrice, forno smart...). Solo presa = misura solo i Watt (lavatrice o forno collegati a una presa/misuratore Sonoff, Shelly...).</p>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.is_this_appliance_smart"))}</span>
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "appledit.smart_has_its_own"))}</p>
         <div class="shc-ed-choice">
-          <button type="button" class="shc-ed-choice-btn${!isDomotico ? " on" : ""}" data-domotico="0">Solo presa<small>Misura solo i Watt</small></button>
-          <button type="button" class="shc-ed-choice-btn${isDomotico ? " on" : ""}" data-domotico="1">Domotico<small>Ha stati e programmi</small></button>
+          <button type="button" class="shc-ed-choice-btn${!isDomotico ? " on" : ""}" data-domotico="0">${esc(shcT(this._hass, "appledit.plug_only"))}<small>${esc(shcT(this._hass, "appledit.only_measures_watts"))}</small></button>
+          <button type="button" class="shc-ed-choice-btn${isDomotico ? " on" : ""}" data-domotico="1">${esc(shcT(this._hass, "appledit.smart"))}<small>${esc(shcT(this._hass, "appledit.has_states_and_programs"))}</small></button>
         </div>
       </div>
 
-      <div class="shc-ed-sec">Potenza</div>
+      <div class="shc-ed-sec">${esc(shcT(this._hass, "appledit.power"))}</div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Sensore della potenza (Watt)${isDomotico ? " — facoltativo se c'e' l'entita' dello stato" : " — obbligatorio"}</span>
+        <span class="shc-ed-label">${shcT(this._hass, "appledit.power_sensor_watt", { "1": (isDomotico ? shcT(this._hass, "appledit.optional_if_the_state") : shcT(this._hass, "editor.required")) })}</span>
         <ha-entity-picker class="shc-ed-power" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
-        ${!cfg.power_entity && !cfg.live?.state_entity ? `<div class="shc-ed-missing">Serve un'entita' per far funzionare la card.</div>` : ""}
-        <p class="shc-ed-hint">Senza sensore Watt la banda "Potenza attuale" non compare.</p>
+        ${!cfg.power_entity && !cfg.live?.state_entity ? `<div class="shc-ed-missing">${esc(shcT(this._hass, "editor.an_entity_is_required"))}</div>` : ""}
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "appledit.without_a_watt_sensor"))}</p>
       </div>
       <div class="shc-ed-row">
         <label class="shc-ed-checkrow">
           <input type="checkbox" class="shc-ed-hide-power" ${cfg.hide_power ? "checked" : ""}>
-          <span>Nascondi la banda della potenza</span>
+          <span>${esc(shcT(this._hass, "appledit.hide_the_power_bar"))}</span>
         </label>
       </div>
 
@@ -4538,20 +6369,20 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
 
       ${
         isDomotico
-          ? `<div class="shc-ed-sec">Stato e programma (domotico)</div>
+          ? `<div class="shc-ed-sec">${esc(shcT(this._hass, "appledit.state_and_program_smart"))}</div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Entita' dello stato (es. "in funzione", "pronto"...)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.state_entity_eg_running"))}</span>
         <ha-entity-picker class="shc-ed-live-state" allow-custom-entity></ha-entity-picker>
       </div>
       ${
         cfg.artwork === "fridge"
           ? ""
           : `<div class="shc-ed-row">
-        <span class="shc-ed-label">Avanzamento programma (facoltativo)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.program_progress_optional"))}</span>
         <ha-entity-picker class="shc-ed-live-progress" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>
       <div class="shc-ed-row">
-        <span class="shc-ed-label">Fine prevista (facoltativo)</span>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.estimated_finish_optional"))}</span>
         <ha-entity-picker class="shc-ed-live-remaining" include-domains='["sensor"]' allow-custom-entity></ha-entity-picker>
       </div>`
       }`
@@ -4559,30 +6390,30 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
       }
 
       <details class="shc-ed-adv">
-        <summary>Impostazioni avanzate (soglie, layout)</summary>
+        <summary>${esc(shcT(this._hass, "appledit.advanced_settings_thresholds_layout"))}</summary>
         <div class="shc-ed-grid2">
           <div class="shc-ed-row">
-            <span class="shc-ed-label">Soglia "in funzione" (W)</span>
+            <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.running_threshold_w"))}</span>
             <input class="shc-ed-input shc-ed-thr-run" type="number" value="${cfg.threshold_run ?? 5}">
           </div>
           <div class="shc-ed-row">
-            <span class="shc-ed-label">Soglia "standby" (W)</span>
+            <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.standby_threshold_w"))}</span>
             <input class="shc-ed-input shc-ed-thr-standby" type="number" value="${cfg.threshold_standby ?? 1}">
           </div>
           <div class="shc-ed-row">
-            <span class="shc-ed-label">Fondo scala barra potenza (W)</span>
+            <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.power_bar_full_scale"))}</span>
             <input class="shc-ed-input shc-ed-max-power" type="number" value="${cfg.max_power ?? 2200}">
           </div>
           <div class="shc-ed-row">
-            <span class="shc-ed-label">Menu layout (facoltativo)</span>
+            <span class="shc-ed-label">${esc(shcT(this._hass, "appledit.layout_menu_optional"))}</span>
             <ha-entity-picker class="shc-ed-layout" include-domains='["input_select"]' allow-custom-entity></ha-entity-picker>
           </div>
           <div class="shc-ed-row">
-            <span class="shc-ed-label">Percorso pagina Centro Notifiche (facoltativo)</span>
+            <span class="shc-ed-label">${esc(shcT(this._hass, "garbagecard.notification_center_page_path"))}</span>
             <input class="shc-ed-input shc-ed-notif-path" type="text" placeholder="/lovelace/centronotifiche" value="${esc(cfg.notif_center_path || "")}">
           </div>
         </div>
-        <p class="shc-ed-hint">Senza il percorso Centro Notifiche, il pulsante megafono resta nascosto invece di puntare a una pagina che non esiste. Notifiche e avvisi (sale/brillantante...) si configurano ancora da YAML: segui la guida del pacchetto originale.</p>
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "appledit.without_the_notification_center"))}</p>
       </details>
 
       ${this._storiciHtml(cfg)}
@@ -4780,7 +6611,7 @@ window.customCards.push({
 
 class ShcFritzCard extends HTMLElement {
   setConfig(config) {
-    if (!config.connection_entity) throw new Error("connection_entity \u00e8 obbligatorio");
+    if (!config.connection_entity) throw new Error(shcT(this._hass, "fritz.connectionentity_is_required"));
     this._config = {
       name: "FritzBox",
       artwork: "fritzbox",
@@ -4804,22 +6635,22 @@ class ShcFritzCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Test di banda">${ICON_SPEED}</button>
-            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "fritz.bandwidth_test"))}" data-i18n-title="fritz.bandwidth_test">${ICON_SPEED}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "fritz.updates"))}" data-i18n-title="fritz.updates">${ICON_BELL}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Connessione</span>
+            <span class="shc-ap-cycle-cap" data-i18n="fritz.connection">${esc(shcT(this._hass, "fritz.connection"))}</span>
             <div class="shc-ap-cycle-list">
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_GLOBE}</span><small>IP</small></span><b class="shc-c-ip">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Da</small></span><b class="shc-c-uptime">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_DOWNLOAD}</span><small>Portante Down</small></span><b class="shc-c-pdown">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_UPLOAD}</span><small>Portante Up</small></span><b class="shc-c-pup">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small data-i18n="fritz.since">${esc(shcT(this._hass, "fritz.since"))}</small></span><b class="shc-c-uptime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_DOWNLOAD}</span><small data-i18n="fritz.sync_rate_down">${esc(shcT(this._hass, "fritz.sync_rate_down"))}</small></span><b class="shc-c-pdown">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_UPLOAD}</span><small data-i18n="fritz.sync_rate_up">${esc(shcT(this._hass, "fritz.sync_rate_up"))}</small></span><b class="shc-c-pup">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -4827,11 +6658,11 @@ class ShcFritzCard extends HTMLElement {
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter shc-c-meter-clickable" data-graph="0">
-              <div class="shc-ap-meter-row"><span>Download ora (live)</span><strong class="shc-c-mbps-down-val">0 Mbps</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="fritz.download_now_live">${esc(shcT(this._hass, "fritz.download_now_live"))}</span><strong class="shc-c-mbps-down-val">0 Mbps</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-mbps-down-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable" data-graph="1">
-              <div class="shc-ap-meter-row"><span>Upload ora (live)</span><strong class="shc-c-mbps-up-val">0 Mbps</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="fritz.upload_now_live">${esc(shcT(this._hass, "fritz.upload_now_live"))}</span><strong class="shc-c-mbps-up-val">0 Mbps</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-mbps-up-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -4931,7 +6762,7 @@ class ShcFritzCard extends HTMLElement {
   _actionRowHtml(row) {
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -4949,13 +6780,13 @@ class ShcFritzCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${actionsHtml}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -5015,25 +6846,25 @@ class ShcFritzCard extends HTMLElement {
     };
 
     const connessioneHtml = [
-      this._statRow2("Portante", "Download", val(s.portante_down, 1), "Upload", val(s.portante_up, 1)),
-      this._statRow2("Banda usata", "Download", val(s.mbps_down, 2), "Upload", val(s.mbps_up, 2)),
-      this._statRow2("Banda usata (MB/s)", "Download", val(s.mbs_down, 2), "Upload", val(s.mbs_up, 2)),
+      this._statRow2(shcT(this._hass, "fritz.sync_rate"), "Download", val(s.portante_down, 1), "Upload", val(s.portante_up, 1)),
+      this._statRow2(shcT(this._hass, "fritz.bandwidth_used"), "Download", val(s.mbps_down, 2), "Upload", val(s.mbps_up, 2)),
+      this._statRow2(shcT(this._hass, "fritz.bandwidth_used_mbs"), "Download", val(s.mbs_down, 2), "Upload", val(s.mbs_up, 2)),
     ].join("");
 
     const segnaleHtml = [
-      this._statRow2("Rumore SNR", "Download", attrs.rumore_down ?? "\u2014", "Upload", attrs.rumore_up ?? "\u2014"),
-      this._statRow2("Attenuazione", "Download", attrs.attenuzione_down ?? "\u2014", "Upload", attrs.attenuazione_up ?? "\u2014"),
+      this._statRow2(shcT(this._hass, "fritz.snr_noise"), "Download", attrs.rumore_down ?? "\u2014", "Upload", attrs.rumore_up ?? "\u2014"),
+      this._statRow2(shcT(this._hass, "fritz.attenuation"), "Download", attrs.attenuzione_down ?? "\u2014", "Upload", attrs.attenuazione_up ?? "\u2014"),
     ].join("");
 
     const sistemaHtml = [
-      this._statRow("Riavviato il", this._fmtDateTime(attrs.uptime)),
-      this._statRow("Connesso dal", this._fmtDateTime(attrs.uptime_connect)),
+      this._statRow(shcT(this._hass, "fritz.restarted_on"), this._fmtDateTime(attrs.uptime)),
+      this._statRow(shcT(this._hass, "fritz.connected_since"), this._fmtDateTime(attrs.uptime_connect)),
     ].join("");
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Connessione</div><div class="shc-ap-week-list">${connessioneHtml}</div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Segnale</div><div class="shc-ap-week-list">${segnaleHtml}</div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div><div class="shc-ap-week-list">${sistemaHtml}</div></div>
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.connection"))}</div><div class="shc-ap-week-list">${connessioneHtml}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.signal"))}</div><div class="shc-ap-week-list">${segnaleHtml}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "servercard.system"))}</div><div class="shc-ap-week-list">${sistemaHtml}</div></div>
     `);
   }
 
@@ -5047,11 +6878,11 @@ class ShcFritzCard extends HTMLElement {
     const latest = upd?.attributes?.latest_version ?? attrs.firmware_disponibilie ?? "\u2014";
     const upToDate = String(installed) === String(latest);
     const html = [
-      this._statRow("Firmware installato", installed),
-      this._statRow("Firmware disponibile", latest),
-      this._statRow("Stato", upToDate ? "Aggiornato" : "Aggiornamento disponibile"),
+      this._statRow(shcT(this._hass, "fritz.installed_firmware"), installed),
+      this._statRow(shcT(this._hass, "fritz.available_firmware"), latest),
+      this._statRow(shcT(this._hass, "fritz.status"), upToDate ? shcT(this._hass, "fritz.up_to_date") : shcT(this._hass, "fritz.update_available")),
     ].join("");
-    this._openDialog("Aggiornamenti", `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Firmware FritzOS</div><div class="shc-ap-week-list">${html}</div></div>`);
+    this._openDialog(shcT(this._hass, "fritz.updates"), `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.fritzos_firmware"))}</div><div class="shc-ap-week-list">${html}</div></div>`);
   }
 
   _openConsumi() {
@@ -5068,19 +6899,19 @@ class ShcFritzCard extends HTMLElement {
       return `${num}${unit ? " " + unit : ""}`;
     };
 
-    const liveHtml = this._statRow2("Banda in uso ora", "Download", val(s.mbps_down, 2), "Upload", val(s.mbps_up, 2));
+    const liveHtml = this._statRow2(shcT(this._hass, "fritz.bandwidth_currently_in_use"), "Download", val(s.mbps_down, 2), "Upload", val(s.mbps_up, 2));
 
     const speedtestHtml = Object.keys(sp).length
       ? [
-          this._statRow2("Ultimo speedtest", "Download", val(sp.download, 1), "Upload", val(sp.upload, 1)),
-          this._statRow2("Qualit\u00e0 linea", "Ping", val(sp.ping, 1), "Jitter", val(sp.jitter, 2)),
-          this._statRow("Test eseguito il", this._fmtDateTime(hass.states[sp.last_test]?.state)),
+          this._statRow2(shcT(this._hass, "fritz.last_speed_test"), "Download", val(sp.download, 1), "Upload", val(sp.upload, 1)),
+          this._statRow2(shcT(this._hass, "fritz.line_quality"), "Ping", val(sp.ping, 1), "Jitter", val(sp.jitter, 2)),
+          this._statRow(shcT(this._hass, "fritz.test_performed_on"), this._fmtDateTime(hass.states[sp.last_test]?.state)),
         ].join("")
       : "";
 
-    this._openDialog("Test di banda", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Banda in tempo reale</div><div class="shc-ap-week-list">${liveHtml}</div></div>
-      ${speedtestHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Speedtest Ookla (misurazione periodica)</div><div class="shc-ap-week-list">${speedtestHtml}</div></div>` : ""}
+    this._openDialog(shcT(this._hass, "fritz.bandwidth_test"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritzcard.realtime_bandwidth"))}</div><div class="shc-ap-week-list">${liveHtml}</div></div>
+      ${speedtestHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.ookla_speedtest_periodic_measurement"))}</div><div class="shc-ap-week-list">${speedtestHtml}</div></div>` : ""}
     `);
   }
 
@@ -5097,6 +6928,7 @@ class ShcFritzCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -5115,8 +6947,8 @@ class ShcFritzCard extends HTMLElement {
     badge.classList.add(mode === "running" ? "run" : mode);
     this._root.querySelector(".shc-ap-badge-label").textContent = conn
       ? online
-        ? "CONNESSO"
-        : "DISCONNESSO"
+        ? shcT(this._hass, "fritz.connected")
+        : shcT(this._hass, "fritz.disconnected")
       : "N/D";
 
     this._root.querySelector(".shc-c-ip").textContent = attrs.ip ?? "\u2014";
@@ -5147,7 +6979,7 @@ class ShcFritzCard extends HTMLElement {
     const latest = upd?.attributes?.latest_version ?? attrs.firmware_disponibilie;
     if (installed != null && latest != null && String(installed) !== String(latest)) {
       warnEl.hidden = false;
-      warnEl.textContent = `\u26a0 Aggiornamento firmware disponibile: ${latest}`;
+      warnEl.textContent = shcT(this._hass, "fritz.firmware_update_available", { "1": (latest) });
       card.classList.add("has-alarm");
     } else {
       warnEl.hidden = true;
@@ -5220,20 +7052,20 @@ class ShcServerCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "fritz.updates"))}" data-i18n-title="fritz.updates">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Sistema</span>
+            <span class="shc-ap-cycle-cap" data-i18n="servercard.system">${esc(shcT(this._hass, "servercard.system"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TAG}</span><small>Versione Core</small></span><b class="shc-c-core">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato da</small></span><b class="shc-c-uptime">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small>Certificato SSL</small></span><b class="shc-c-ssl">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TAG}</span><small data-i18n="server.core_version">${esc(shcT(this._hass, "server.core_version"))}</small></span><b class="shc-c-core">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small data-i18n="server.running_for">${esc(shcT(this._hass, "server.running_for"))}</small></span><b class="shc-c-uptime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small data-i18n="server.ssl_certificate">${esc(shcT(this._hass, "server.ssl_certificate"))}</small></span><b class="shc-c-ssl">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -5249,7 +7081,7 @@ class ShcServerCard extends HTMLElement {
               <div class="shc-ap-bar"><i class="shc-c-ram-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-disk">
-              <div class="shc-ap-meter-row"><span>Disco HA</span><strong class="shc-c-disk-val">0%</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="server.ha_disk">${esc(shcT(this._hass, "server.ha_disk"))}</span><strong class="shc-c-disk-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-disk-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -5386,7 +7218,7 @@ class ShcServerCard extends HTMLElement {
       );
     }
     if (row.days) {
-      chips.push(`<span class="shc-ap-chip" data-open-days="${idx}">${ICON_CALENDAR}Giorni</span>`);
+      chips.push(`<span class="shc-ap-chip" data-open-days="${idx}">${shcT(hass, "server.days", { "1": (ICON_CALENDAR) })}</span>`);
     }
     (row.numbers || []).forEach((nu) => {
       const st = hass.states[nu.entity];
@@ -5421,7 +7253,7 @@ class ShcServerCard extends HTMLElement {
     const target = row.service ? row.service : row.entity;
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -5451,19 +7283,19 @@ class ShcServerCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${actionsHtml}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`);
     this._wireSettingsOverlay(overlay);
   }
 
   _renderSettingsDays(row) {
     const hass = this._hass;
-    const DAY_LABELS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
+    const DAY_LABELS = [shcT(this._hass, "server.monday"), shcT(this._hass, "server.tuesday"), shcT(this._hass, "server.wednesday"), shcT(this._hass, "server.thursday"), shcT(this._hass, "server.friday"), shcT(this._hass, "server.saturday"), shcT(this._hass, "server.sunday")];
     const rowsHtml = row.days
       .map((entityId, i) => {
         const st = hass.states[entityId];
@@ -5475,8 +7307,8 @@ class ShcServerCard extends HTMLElement {
       })
       .join("");
 
-    const overlay = this._openDialog(`Giorni – ${row.label}`, `
-      <div class="shc-ap-sub-back" data-back>${ICON_BACK} Impostazioni</div>
+    const overlay = this._openDialog(shcT(this._hass, "server.days_2", { "1": (row.label) }), `
+      <div class="shc-ap-sub-back" data-back>${shcT(this._hass, "server.settings", { "1": (ICON_BACK) })}</div>
       <div class="shc-ap-sec">${rowsHtml}</div>
     `);
     this._wireSettingsOverlay(overlay);
@@ -5566,7 +7398,7 @@ class ShcServerCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -5643,31 +7475,31 @@ class ShcServerCard extends HTMLElement {
 
     const sistemaHtml = [
       this._statRow("CPU", val(s.cpu, 0)),
-      this._statRow("Velocit\u00e0 CPU", val(s.cpu_speed, 1)),
-      this._statRow("RAM usata", val(s.ram_used, 0)),
-      this._statRow("RAM totale", val(s.ram_total, 0)),
+      this._statRow(shcT(this._hass, "server.cpu_speed"), val(s.cpu_speed, 1)),
+      this._statRow(shcT(this._hass, "proxmoxcard.ram_used"), val(s.ram_used, 0)),
+      this._statRow(shcT(this._hass, "server.total_ram"), val(s.ram_total, 0)),
       this._statRow("RAM %", val(s.ram_pct, 1)),
-      this._statRow("Disco usato", val(s.disk_used, 1)),
-      this._statRow("Disco libero", val(s.disk_free, 1)),
-      this._statRow("Disco totale", val(s.disk_total, 1)),
-      this._statRow("Disco %", val(s.disk_pct, 1)),
+      this._statRow(shcT(this._hass, "server.disk_used"), val(s.disk_used, 1)),
+      this._statRow(shcT(this._hass, "server.disk_free"), val(s.disk_free, 1)),
+      this._statRow(shcT(this._hass, "server.total_disk"), val(s.disk_total, 1)),
+      this._statRow(shcT(this._hass, "server.disk"), val(s.disk_pct, 1)),
     ].join("");
 
-    const reteHtml = [this._statRow("IP locale", val(s.local_ip)), this._statRow("IP pubblico", val(s.public_ip))].join("");
+    const reteHtml = [this._statRow(shcT(this._hass, "server.local_ip"), val(s.local_ip)), this._statRow(shcT(this._hass, "server.public_ip"), val(s.public_ip))].join("");
 
     const avvioHtml = [
-      this._statRow("HA avviato il", this._fmtDateTime(hass.states[up.ha_since]?.state)),
-      this._statRow("HA in funzione da", val(up.ha_duration)),
-      this._statRow("Server avviato il", this._fmtDateTime(hass.states[up.server_since]?.state)),
-      this._statRow("Server in funzione da", val(up.server_duration)),
+      this._statRow(shcT(this._hass, "server.ha_started_on"), this._fmtDateTime(hass.states[up.ha_since]?.state)),
+      this._statRow(shcT(this._hass, "server.ha_running_for"), val(up.ha_duration)),
+      this._statRow(shcT(this._hass, "server.server_started_on"), this._fmtDateTime(hass.states[up.server_since]?.state)),
+      this._statRow(shcT(this._hass, "server.server_running_for"), val(up.server_duration)),
     ].join("");
 
-    const dbHtml = cfg.db_size ? this._statRow("Spazio MariaDB", val(cfg.db_size, 1)) : "";
+    const dbHtml = cfg.db_size ? this._statRow(shcT(this._hass, "server.mariadb_space"), val(cfg.db_size, 1)) : "";
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete</div>${reteHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvio</div>${avvioHtml}</div>
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "servercard.system"))}</div>${sistemaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "server.network"))}</div>${reteHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "server.startup"))}</div>${avvioHtml}</div>
       ${dbHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Database</div>${dbHtml}</div>` : ""}
     `);
   }
@@ -5681,30 +7513,31 @@ class ShcServerCard extends HTMLElement {
     const supUpd = u.supervisor ? hass.states[u.supervisor] : null;
 
     const aggiornamentiHtml = [
-      this._statRow("Core installato", coreUpd?.attributes?.installed_version ?? "\u2014"),
-      this._statRow("Core disponibile", coreUpd?.attributes?.latest_version ?? "\u2014"),
-      this._statRow("Supervisor installato", supUpd?.attributes?.installed_version ?? "\u2014"),
-      this._statRow("Supervisor disponibile", supUpd?.attributes?.latest_version ?? "\u2014"),
-      this._statRow("Addon da aggiornare", val(u.addon_count, 0)),
-      this._statRow("HACS da aggiornare", val(u.hacs_count, 0)),
+      this._statRow(shcT(this._hass, "server.installed_core"), coreUpd?.attributes?.installed_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "server.available_core"), coreUpd?.attributes?.latest_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "server.installed_supervisor"), supUpd?.attributes?.installed_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "server.available_supervisor"), supUpd?.attributes?.latest_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "server.addons_to_update"), val(u.addon_count, 0)),
+      this._statRow(shcT(this._hass, "server.hacs_to_update"), val(u.hacs_count, 0)),
     ].join("");
 
     const sslIso = cfg.ssl_cert ? hass.states[cfg.ssl_cert]?.state : null;
     const sslDays = this._daysUntil(sslIso);
     const manutenzioneHtml = [
-      cfg.last_backup ? this._statRow("Ultimo backup riuscito (Synology)", this._fmtDateTime(hass.states[cfg.last_backup]?.state)) : "",
-      cfg.ssl_cert ? this._statRow("Certificato SSL scade il", this._fmtDateTime(sslIso)) : "",
-      cfg.ssl_cert ? this._statRow("Giorni rimanenti", sslDays ?? "\u2014") : "",
+      cfg.last_backup ? this._statRow(shcT(this._hass, "server.last_successful_backup_synology"), this._fmtDateTime(hass.states[cfg.last_backup]?.state)) : "",
+      cfg.ssl_cert ? this._statRow(shcT(this._hass, "server.ssl_certificate_expires_on"), this._fmtDateTime(sslIso)) : "",
+      cfg.ssl_cert ? this._statRow(shcT(this._hass, "server.days_remaining"), sslDays ?? "\u2014") : "",
     ].join("");
 
-    this._openDialog("Aggiornamenti", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Aggiornamenti disponibili</div>${aggiornamentiHtml}</div>
-      ${manutenzioneHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Manutenzione</div>${manutenzioneHtml}</div>` : ""}
+    this._openDialog(shcT(this._hass, "fritz.updates"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "server.available_updates"))}</div>${aggiornamentiHtml}</div>
+      ${manutenzioneHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "server.maintenance"))}</div>${manutenzioneHtml}</div>` : ""}
     `);
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -5717,7 +7550,7 @@ class ShcServerCard extends HTMLElement {
     this._root.querySelector(".shc-c-uptime").textContent = this._fmtDateTime(hass.states[up.ha_since]?.state, true);
     const sslIso = cfg.ssl_cert ? hass.states[cfg.ssl_cert]?.state : null;
     const sslDays = this._daysUntil(sslIso);
-    this._root.querySelector(".shc-c-ssl").textContent = sslDays != null ? `${sslDays} gg` : "\u2014";
+    this._root.querySelector(".shc-c-ssl").textContent = sslDays != null ? shcT(this._hass, "server.days_3", { "1": (sslDays) }) : "\u2014";
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
@@ -5749,7 +7582,7 @@ class ShcServerCard extends HTMLElement {
     if (supUpd?.state === "on") warnings.push(`Supervisor \u2192 ${supUpd.attributes?.latest_version}`);
     if (addonCount > 0) warnings.push(`${addonCount} addon`);
     if (hacsCount > 0) warnings.push(`${hacsCount} HACS`);
-    if (sslDays != null && sslDays <= 14) warnings.push(`SSL scade tra ${sslDays}gg`);
+    if (sslDays != null && sslDays <= 14) warnings.push(shcT(this._hass, "server.ssl_expires_in_days", { "1": (sslDays) }));
     const card = this._root.querySelector(".shc-ap-card");
     if (warnings.length) {
       warnEl.hidden = false;
@@ -5766,7 +7599,7 @@ class ShcServerCard extends HTMLElement {
     return [
       { entity: s.cpu, label: "CPU", color: "#38bdf8" },
       { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
-      { entity: s.disk_pct, label: "Disco HA", color: "#eab308" },
+      { entity: s.disk_pct, label: shcT(this._hass, "server.ha_disk"), color: "#eab308" },
     ];
   }
 
@@ -5797,7 +7630,7 @@ window.customCards.push({
 
 class ShcNasCard extends HTMLElement {
   setConfig(config) {
-    if (!config.update_entity) throw new Error("update_entity \u00e8 obbligatorio");
+    if (!config.update_entity) throw new Error(shcT(this._hass, "nas.updateentity_is_required"));
     this._config = {
       name: "Synology NAS",
       artwork: "nas",
@@ -5822,22 +7655,22 @@ class ShcNasCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "fritz.updates"))}" data-i18n-title="fritz.updates">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "nas.consumption"))}" data-i18n-title="nas.consumption">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Sistema</span>
+            <span class="shc-ap-cycle-cap" data-i18n="servercard.system">${esc(shcT(this._hass, "servercard.system"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOX}</span><small>Modello</small></span><b class="shc-n-model">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOX}</span><small data-i18n="nascard.model">${esc(shcT(this._hass, "nascard.model"))}</small></span><b class="shc-n-model">\u2014</b></div>
               <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TAG}</span><small>DSM</small></span><b class="shc-n-dsm">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small>Sicurezza</small></span><b class="shc-n-security">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-n-watt-front">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_SHIELD}</span><small data-i18n="nas.security">${esc(shcT(this._hass, "nas.security"))}</small></span><b class="shc-n-security">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="nas.consumption_2">${esc(shcT(this._hass, "nas.consumption_2"))}</small></span><b class="shc-n-watt-front">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -5865,7 +7698,7 @@ class ShcNasCard extends HTMLElement {
               <div class="shc-ap-bar"><i class="shc-n-usb-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-n-meter-temp">
-              <div class="shc-ap-meter-row"><span>Temperatura</span><strong class="shc-n-temp-val">0°C</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="nascard.temperature">${esc(shcT(this._hass, "nascard.temperature"))}</span><strong class="shc-n-temp-val">0°C</strong></div>
               <div class="shc-ap-bar"><i class="shc-n-temp-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -5993,7 +7826,7 @@ class ShcNasCard extends HTMLElement {
     const kind = row.service ? "service" : domain === "button" ? "button" : "script";
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${kind}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${kind}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -6011,13 +7844,13 @@ class ShcNasCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${actionsHtml}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -6093,7 +7926,7 @@ class ShcNasCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -6150,7 +7983,7 @@ class ShcNasCard extends HTMLElement {
   }
 
   _stateLabel(raw) {
-    const MAP = { normal: "Normale", has_migrated_disk: "Migrato" };
+    const MAP = { normal: shcT(this._hass, "nas.normal"), has_migrated_disk: shcT(this._hass, "nas.migrated") };
     return MAP[raw] || (raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "\u2014");
   }
 
@@ -6161,12 +7994,12 @@ class ShcNasCard extends HTMLElement {
     const val = (id, digits) => this._val(hass, id, digits);
 
     const sistemaHtml = [
-      this._statRow("CPU totale", val(s.cpu, 0)),
-      this._statRow("CPU utente", val(s.cpu_user, 0)),
-      this._statRow2("Carico medio", val(s.load5, 1), val(s.load15, 1)),
-      this._statRow("RAM usata", val(s.ram_pct, 0)),
-      this._statRow("RAM disponibile", val(s.ram_free, 0)),
-      this._statRow("RAM totale", val(s.ram_total, 0)),
+      this._statRow(shcT(this._hass, "nas.total_cpu"), val(s.cpu, 0)),
+      this._statRow(shcT(this._hass, "nas.user_cpu"), val(s.cpu_user, 0)),
+      this._statRow2(shcT(this._hass, "nas.load_average"), val(s.load5, 1), val(s.load15, 1)),
+      this._statRow(shcT(this._hass, "proxmoxcard.ram_used"), val(s.ram_pct, 0)),
+      this._statRow(shcT(this._hass, "nas.available_ram"), val(s.ram_free, 0)),
+      this._statRow(shcT(this._hass, "server.total_ram"), val(s.ram_total, 0)),
     ].join("");
 
     const volumiHtml = (cfg.volumes || [])
@@ -6178,14 +8011,14 @@ class ShcNasCard extends HTMLElement {
       .join("");
 
     const reteHtml = s.net_down
-      ? this._statRow2("Rete", `\u2193 ${val(s.net_down, 1)}`, `\u2191 ${val(s.net_up, 1)}`)
+      ? this._statRow2(shcT(this._hass, "server.network"), `\u2193 ${val(s.net_down, 1)}`, `\u2191 ${val(s.net_up, 1)}`)
       : "";
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      ${volumiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Volumi</div>${volumiHtml}</div>` : ""}
-      ${dischiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Dischi</div>${dischiHtml}</div>` : ""}
-      ${reteHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete</div>${reteHtml}</div>` : ""}
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "servercard.system"))}</div>${sistemaHtml}</div>
+      ${volumiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.volumes"))}</div>${volumiHtml}</div>` : ""}
+      ${dischiHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.disks"))}</div>${dischiHtml}</div>` : ""}
+      ${reteHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "server.network"))}</div>${reteHtml}</div>` : ""}
     `);
   }
 
@@ -6198,12 +8031,12 @@ class ShcNasCard extends HTMLElement {
     const upToDate = upd?.state !== "on";
 
     const html = [
-      this._statRow("DSM installato", installed),
-      this._statRow("DSM disponibile", latest),
-      this._statRow("Stato", upToDate ? "Aggiornato" : "Aggiornamento disponibile"),
+      this._statRow(shcT(this._hass, "nas.installed_dsm"), installed),
+      this._statRow(shcT(this._hass, "nas.available_dsm"), latest),
+      this._statRow(shcT(this._hass, "fritz.status"), upToDate ? shcT(this._hass, "fritz.up_to_date") : shcT(this._hass, "fritz.update_available")),
     ].join("");
 
-    this._openDialog("Aggiornamenti", `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema Operativo (DSM)</div>${html}</div>`);
+    this._openDialog(shcT(this._hass, "fritz.updates"), `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.operating_system_dsm"))}</div>${html}</div>`);
   }
 
   _openConsumi() {
@@ -6214,18 +8047,18 @@ class ShcNasCard extends HTMLElement {
     const costoKwh = shcPrice(hass, en.cost_entity || cfg.cost_entity || "input_number.costo_energia");
     const eur = (kwh) => (Number.isFinite(costoKwh) ? `${(kwh * costoKwh).toFixed(2)} \u20ac` : "\u2014");
 
-    const attualeHtml = en.power ? this._statRow("Consumo attuale", val(en.power, 1)) : "";
+    const attualeHtml = en.power ? this._statRow(shcT(this._hass, "nas.current_consumption"), val(en.power, 1)) : "";
     const todayKwh = en.today_kwh ? Number(hass.states[en.today_kwh]?.state) : NaN;
     const monthKwh = en.month_kwh ? Number(hass.states[en.month_kwh]?.state) : NaN;
     const energiaHtml = [
-      Number.isFinite(todayKwh) ? this._statRow2("Oggi", `${todayKwh.toFixed(2)} kWh`, eur(todayKwh)) : "",
-      Number.isFinite(monthKwh) ? this._statRow2("Mese", `${monthKwh.toFixed(2)} kWh`, eur(monthKwh)) : "",
+      Number.isFinite(todayKwh) ? this._statRow2(shcT(this._hass, "nas.today"), `${todayKwh.toFixed(2)} kWh`, eur(todayKwh)) : "",
+      Number.isFinite(monthKwh) ? this._statRow2(shcT(this._hass, "nas.month"), `${monthKwh.toFixed(2)} kWh`, eur(monthKwh)) : "",
     ].join("");
 
     const useAutoStats = !!cfg.energy_stat_entity;
-    this._openDialog("Consumi", `
-      ${attualeHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${attualeHtml}</div>` : ""}
-      ${energiaHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Energia NAS</div>${energiaHtml}</div>` : ""}
+    this._openDialog(shcT(this._hass, "nas.consumption"), `
+      ${attualeHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.realtime"))}</div>${attualeHtml}</div>` : ""}
+      ${energiaHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.nas_energy"))}</div>${energiaHtml}</div>` : ""}
       ${useAutoStats ? this._autoConsumiHtml() : ""}
       ${this._energyBarsHtml()}
     `);
@@ -6241,8 +8074,8 @@ class ShcNasCard extends HTMLElement {
   // qui attivo se configuri energy_stat_entity (sensore kWh con storico a lungo termine).
   _autoConsumiHtml() {
     return `<div class="shc-ap-sec">
-      <div class="shc-ap-sec-cap">Consumi per periodo</div>
-      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento…</div></div>
+      <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.consumption_by_period"))}</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">${esc(shcT(this._hass, "nas.loading"))}</div></div>
     </div>`;
   }
 
@@ -6260,21 +8093,21 @@ class ShcNasCard extends HTMLElement {
         return `<div class="shc-ap-week-row">
           <div class="shc-ap-week-day">${esc(def)}</div>
           <div class="shc-ap-week-stats cols2">
-            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
-            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "nas.consumption_2"))}</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "nas.cost"))}</small><b>${cost}</b></div>
           </div>
         </div>`;
       };
-      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("") + shcCostNote(this._hass, cfg.cost_entity);
+      slot.innerHTML = [row("today", shcT(this._hass, "nas.today")), row("yesterday", shcT(this._hass, "nas.yesterday")), row("month", shcT(this._hass, "nas.month")), row("month_prev", shcT(this._hass, "nas.prev_month")), row("year", shcT(this._hass, "nas.year")), row("year_prev", shcT(this._hass, "nas.prev_year"))].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
-      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
+      slot.innerHTML = `<div class="shc-ap-row-val">${esc(shcT(this._hass, "nas.statistics_not_currently_available"))}</div>`;
     }
   }
 
   _energyBarsHtml() {
     if (!this._config.energy_stat_entity) return "";
-    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.this_month_kwh_per"))}</div><div class="shc-ap-chart-loading" data-chart="month">${esc(shcT(this._hass, "nas.loading_2"))}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.this_year_kwh_per"))}</div><div class="shc-ap-chart-loading" data-chart="year">${esc(shcT(this._hass, "nas.loading_2"))}</div></div>`;
   }
 
   async _fetchAutoStats(entityId, period, start, end) {
@@ -6290,7 +8123,7 @@ class ShcNasCard extends HTMLElement {
   }
 
   _barChartSvg(bars, color) {
-    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!bars.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -6330,7 +8163,7 @@ class ShcNasCard extends HTMLElement {
     if (!energyEntity || !overlay) return;
     const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
     const now = new Date();
-    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    const MONTH_ABBR = [shcT(this._hass, "nas.jan"), shcT(this._hass, "nas.feb"), shcT(this._hass, "nas.mar"), shcT(this._hass, "nas.apr"), shcT(this._hass, "nas.may"), shcT(this._hass, "nas.jun"), shcT(this._hass, "nas.jul"), shcT(this._hass, "nas.aug"), shcT(this._hass, "nas.sep"), shcT(this._hass, "nas.oct"), shcT(this._hass, "nas.nov"), shcT(this._hass, "nas.dec")];
     this._fetchAutoStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
       .then((rows) => {
         const el = slot("month");
@@ -6340,7 +8173,7 @@ class ShcNasCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("month");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "nas.data_loading_error");
       });
     this._fetchAutoStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
       .then((rows) => {
@@ -6352,12 +8185,13 @@ class ShcNasCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("year");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "nas.data_loading_error");
       });
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -6368,7 +8202,7 @@ class ShcNasCard extends HTMLElement {
     this._root.querySelector(".shc-n-dsm").textContent = upd?.attributes?.installed_version ?? "\u2014";
 
     const secSt = cfg.security_entity ? hass.states[cfg.security_entity] : null;
-    this._root.querySelector(".shc-n-security").textContent = secSt ? (secSt.state === "on" ? "Attenzione" : "OK") : "\u2014";
+    this._root.querySelector(".shc-n-security").textContent = secSt ? (secSt.state === "on" ? shcT(this._hass, "nas.warning") : "OK") : "\u2014";
 
     const cpu = s.cpu ? Number(hass.states[s.cpu]?.state) : NaN;
     const cpuVal = Number.isFinite(cpu) ? cpu : 0;
@@ -6435,7 +8269,7 @@ class ShcNasCard extends HTMLElement {
     const warnEl = this._root.querySelector(".shc-ap-warn");
     const warnings = [];
     if (upd?.state === "on") warnings.push(`DSM \u2192 ${upd.attributes?.latest_version}`);
-    if (secSt?.state === "on") warnings.push("Controllo sicurezza da verificare");
+    if (secSt?.state === "on") warnings.push(shcT(this._hass, "nas.security_check_required"));
     const card = this._root.querySelector(".shc-ap-card");
     if (warnings.length) {
       warnEl.hidden = false;
@@ -6455,7 +8289,7 @@ class ShcNasCard extends HTMLElement {
       { entity: s.vol1, label: s.vol1_label || "Volume 1", color: "#eab308" },
       { entity: s.vol2, label: s.vol2_label || "Volume 2", color: "#f97316" },
       { entity: s.usb_pct, label: "USB", color: "#a855f7" },
-      { entity: s.temp, label: "Temperatura", color: "#ef4444" },
+      { entity: s.temp, label: shcT(this._hass, "nascard.temperature"), color: "#ef4444" },
     ];
   }
 
@@ -6487,9 +8321,9 @@ window.customCards.push({
 
 class ShcEnergyCard extends HTMLElement {
   setConfig(config) {
-    if (!config.power_entity) throw new Error("power_entity \u00e8 obbligatorio");
+    if (!config.power_entity) throw new Error(shcT(this._hass, "energy.powerentity_is_required"));
     this._config = {
-      name: "Energia Casa",
+      name: shcT(this._hass, "energycard.home_energy"),
       artwork: "energy",
       max_power: 4500,
       periods: [],
@@ -6515,22 +8349,22 @@ class ShcEnergyCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="${esc(shcT(this._hass, "notifcentercard.notification_center"))}" data-i18n-title="notifcentercard.notification_center" hidden>${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "nas.consumption"))}" data-i18n-title="nas.consumption">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Oggi</span>
+            <span class="shc-ap-cycle-cap" data-i18n="nas.today">${esc(shcT(this._hass, "nas.today"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-e-today-kwh">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="shc-e-today-cost">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo mese</small></span><b class="shc-e-month-cost">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small>Top consumo</small></span><b class="shc-e-top">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="nas.consumption_2">${esc(shcT(this._hass, "nas.consumption_2"))}</small></span><b class="shc-e-today-kwh">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small data-i18n="nas.cost">${esc(shcT(this._hass, "nas.cost"))}</small></span><b class="shc-e-today-cost">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small data-i18n="energy.month_cost">${esc(shcT(this._hass, "energy.month_cost"))}</small></span><b class="shc-e-month-cost">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small data-i18n="energy.top_consumption">${esc(shcT(this._hass, "energy.top_consumption"))}</small></span><b class="shc-e-top">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -6661,7 +8495,7 @@ class ShcEnergyCard extends HTMLElement {
     const target = row.service ? row.service : row.entity;
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -6683,15 +8517,15 @@ class ShcEnergyCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
-    const shcSettingsBody = `${sections}${switchesHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Interruttori</div>${switchesHtml}</div>` : ""}${actionsHtml}`;
+    const shcSettingsBody = `${sections}${switchesHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.switches"))}</div>${switchesHtml}</div>` : ""}${actionsHtml}`;
     const overlay = this._openDialog(
-      "Impostazioni",
-      shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`,
+      shcT(this._hass, "fritz.settings"),
+      shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`,
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -6768,7 +8602,7 @@ class ShcEnergyCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color, fixedMax) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 200; // grafico alto (prima 90, risultava schiacciato)
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava "2623")
@@ -6827,8 +8661,8 @@ class ShcEnergyCard extends HTMLElement {
   _openPowerHistory() {
     const cfg = this._config;
     this._openDialog(
-      "Andamento potenza",
-      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultime 24 ore</div><div class="shc-ap-chart-loading" data-chart="24h">Caricamento...</div></div>`,
+      shcT(this._hass, "energy.power_trend"),
+      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.last_24_hours"))}</div><div class="shc-ap-chart-loading" data-chart="24h">${esc(shcT(this._hass, "nas.loading_2"))}</div></div>`,
     );
     const overlay = this._root.querySelector(".shc-ap-overlay");
     const slot = overlay?.querySelector('[data-chart="24h"]');
@@ -6851,11 +8685,11 @@ class ShcEnergyCard extends HTMLElement {
       .then((points) => {
         const el = overlay?.querySelector('[data-chart="24h"]');
         if (!el) return;
-        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
+        const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }));
         el.outerHTML = `<div data-chart="24h">${this._lineChartSvg(points, "#0ea5e9", this._config.max_power)}${labels}</div>`;
       })
       .catch(() => {
-        if (slot) slot.textContent = "Errore caricamento dati";
+        if (slot) slot.textContent = shcT(this._hass, "nas.data_loading_error");
       });
   }
 
@@ -6879,9 +8713,9 @@ class ShcEnergyCard extends HTMLElement {
       .join("");
     const topSt = cfg.top_entity ? hass.states[cfg.top_entity]?.state : null;
 
-    this._openDialog("Statistiche", `
-      ${topSt ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">In evidenza</div>${this._statRow("Top consumo", topSt)}</div>` : ""}
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Tutti i circuiti (live, ordine decrescente)</div><div class="shc-ap-meters">${rows}</div></div>
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      ${topSt ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.featured"))}</div>${this._statRow(shcT(this._hass, "energy.top_consumption"), topSt)}</div>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.all_circuits_live_descending"))}</div><div class="shc-ap-meters">${rows}</div></div>
     `);
   }
 
@@ -6922,12 +8756,12 @@ class ShcEnergyCard extends HTMLElement {
 
     const weekEntries = Object.entries(cfg.weekdays || {});
     const weekHtml = weekEntries.map(([label, entity]) => this._statRow(label, val(entity, 2))).join("");
-    const mediaHtml = cfg.media_entity ? this._statRow("Media settimanale", val(cfg.media_entity, 1)) : "";
+    const mediaHtml = cfg.media_entity ? this._statRow(shcT(this._hass, "energy.weekly_average"), val(cfg.media_entity, 1)) : "";
 
-    this._openDialog("Consumi", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div>${periodsHtml}</div>
-      ${prevHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Periodo precedente</div>${prevHtml}</div>` : ""}
-      ${weekHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi 7 giorni</div>${weekHtml}${mediaHtml}</div>` : ""}
+    this._openDialog(shcT(this._hass, "nas.consumption"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.consumption_by_period"))}</div>${periodsHtml}</div>
+      ${prevHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.previous_period"))}</div>${prevHtml}</div>` : ""}
+      ${weekHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energy.last_7_days"))}</div>${weekHtml}${mediaHtml}</div>` : ""}
     `);
     const overlay = this._root.querySelector(".shc-ap-overlay");
     const chartBtn = document.createElement("button");
@@ -6935,7 +8769,7 @@ class ShcEnergyCard extends HTMLElement {
     chartBtn.className = "shc-ap-action-btn";
     chartBtn.style.width = "100%";
     chartBtn.style.marginTop = "2px";
-    chartBtn.textContent = "Andamento potenza (24h)";
+    chartBtn.textContent = shcT(this._hass, "energy.power_trend_24h");
     chartBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       this._openPowerHistory();
@@ -6945,6 +8779,7 @@ class ShcEnergyCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -7019,7 +8854,7 @@ class ShcEnergyCard extends HTMLElement {
     card.classList.toggle("layout-centrato", layoutScelto === "centrato");
     if (soglia != null && wattVal > soglia) {
       warnEl.hidden = false;
-      warnEl.textContent = `\u26a0 Soglia superata: ${wattVal.toFixed(0)} W (limite ${soglia.toFixed(0)} W)`;
+      warnEl.textContent = shcT(this._hass, "energy.threshold_exceeded_w_limit", { "1": (wattVal.toFixed(0)), "2": (soglia.toFixed(0)) });
       card.classList.add("has-alarm");
     } else {
       warnEl.hidden = true;
@@ -7047,7 +8882,7 @@ class ShcEnergyCard extends HTMLElement {
 
   static getStubConfig(hass) {
     return {
-      name: "Energia Casa",
+      name: shcT(hass, "energycard.home_energy"),
       artwork: "energy",
       power_entity: "",
       max_power: 4500,
@@ -7067,7 +8902,7 @@ window.customCards.push({
 
 class ShcUpsCard extends HTMLElement {
   setConfig(config) {
-    if (!config.status_entity) throw new Error("status_entity \u00e8 obbligatorio");
+    if (!config.status_entity) throw new Error(shcT(this._hass, "ups.statusentity_is_required"));
     this._config = {
       name: "UPS",
       artwork: "ups",
@@ -7090,20 +8925,20 @@ class ShcUpsCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge run"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">ONLINE</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Stato</span>
+            <span class="shc-ap-cycle-cap" data-i18n="fritz.status">${esc(shcT(this._hass, "fritz.status"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PULSE}</span><small>Stato</small></span><b class="shc-u-status">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small>Autonomia</small></span><b class="shc-u-runtime">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small>Ingresso</small></span><b class="shc-u-voltage">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Carico</small></span><b class="shc-u-load-front">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PULSE}</span><small data-i18n="fritz.status">${esc(shcT(this._hass, "fritz.status"))}</small></span><b class="shc-u-status">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small data-i18n="ups.runtime">${esc(shcT(this._hass, "ups.runtime"))}</small></span><b class="shc-u-runtime">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small data-i18n="ups.input">${esc(shcT(this._hass, "ups.input"))}</small></span><b class="shc-u-voltage">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="ups.load">${esc(shcT(this._hass, "ups.load"))}</small></span><b class="shc-u-load-front">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -7111,11 +8946,11 @@ class ShcUpsCard extends HTMLElement {
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter shc-c-meter-clickable shc-u-meter-battery">
-              <div class="shc-ap-meter-row"><span>Batteria</span><strong class="shc-u-battery-val">0%</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="ups.battery">${esc(shcT(this._hass, "ups.battery"))}</span><strong class="shc-u-battery-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-u-battery-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-u-meter-load">
-              <div class="shc-ap-meter-row"><span>Carico</span><strong class="shc-u-load-val">0%</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="ups.load">${esc(shcT(this._hass, "ups.load"))}</span><strong class="shc-u-load-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-u-load-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -7208,7 +9043,7 @@ class ShcUpsCard extends HTMLElement {
     const cfg = this._config;
     const rows = [];
     if (cfg.automation_entity) {
-      rows.push(this._settingsRowHtml(hass, { entity: cfg.automation_entity, label: "Notifiche caduta corrente" }));
+      rows.push(this._settingsRowHtml(hass, { entity: cfg.automation_entity, label: shcT(this._hass, "ups.power_outage_notifications") }));
     }
     // Sezione "Aspetto" (scelta del layout) a parte, in cima; le altre righe restano sotto "Automazioni".
     const aspettoHtml = (cfg.settings_sections || [])
@@ -7220,8 +9055,8 @@ class ShcUpsCard extends HTMLElement {
     });
 
     const overlay = this._openDialog(
-      "Impostazioni",
-      aspettoHtml + (rows.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Automazioni</div>${rows.join("")}</div>` : (aspettoHtml ? "" : `<div class="shc-ap-row-val">Nessuna impostazione</div>`)),
+      shcT(this._hass, "fritz.settings"),
+      aspettoHtml + (rows.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ups.automations"))}</div>${rows.join("")}</div>` : (aspettoHtml ? "" : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "ups.no_settings"))}</div>`)),
     );
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
@@ -7289,7 +9124,7 @@ class ShcUpsCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -7351,36 +9186,37 @@ class ShcUpsCard extends HTMLElement {
     const val = (id, digits) => this._val(hass, id, digits);
 
     const generaleHtml = [
-      this._statRow("Modello", cfg.model || "\u2014"),
-      this._statRow("Stato", val(cfg.status_entity)),
-      this._statRow("Codice stato", val(cfg.status_code_entity)),
+      this._statRow(shcT(this._hass, "nascard.model"), cfg.model || "\u2014"),
+      this._statRow(shcT(this._hass, "fritz.status"), val(cfg.status_entity)),
+      this._statRow(shcT(this._hass, "ups.status_code"), val(cfg.status_code_entity)),
     ].join("");
 
     const batteriaHtml = [
-      this._statRow("Carica", val(cfg.battery_entity, 0)),
-      this._statRow("Autonomia residua", this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)),
-      this._statRow("Soglia batteria scarica", this._fmtMinutes(hass.states[cfg.runtime_low_entity]?.state)),
+      this._statRow(shcT(this._hass, "ups.charge"), val(cfg.battery_entity, 0)),
+      this._statRow(shcT(this._hass, "upscard.remaining_runtime"), this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)),
+      this._statRow(shcT(this._hass, "ups.low_battery_threshold"), this._fmtMinutes(hass.states[cfg.runtime_low_entity]?.state)),
     ].join("");
 
     const reteHtml = [
-      this._statRow("Tensione ingresso", val(cfg.input_voltage_entity, 1)),
+      this._statRow(shcT(this._hass, "upscard.input_voltage"), val(cfg.input_voltage_entity, 1)),
       ...(cfg.power_entity
         ? [
-            this._statRow("Carico reale (Presa NAS)", val(cfg.power_entity, 0)),
-            this._statRow("Carico (stima UPS, poco precisa)", val(cfg.load_entity, 0)),
+            this._statRow(shcT(this._hass, "ups.actual_load_nas_outlet"), val(cfg.power_entity, 0)),
+            this._statRow(shcT(this._hass, "ups.load_ups_estimate_inaccurate"), val(cfg.load_entity, 0)),
           ]
-        : [this._statRow("Carico", val(cfg.load_entity, 0))]),
+        : [this._statRow(shcT(this._hass, "ups.load"), val(cfg.load_entity, 0))]),
     ].join("");
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Generale</div>${generaleHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Batteria</div>${batteriaHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Rete elettrica</div>${reteHtml}</div>
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "energycard.general"))}</div>${generaleHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ups.battery"))}</div>${batteriaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ups.mains_power"))}</div>${reteHtml}</div>
     `);
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -7434,7 +9270,7 @@ class ShcUpsCard extends HTMLElement {
     if (led) led.setAttribute("fill", onBattery ? "#ef4444" : "#22c55e");
 
     const badge = this._root.querySelector(".shc-ap-badge-label");
-    if (badge) badge.textContent = onBattery ? "A BATTERIA" : "ONLINE";
+    if (badge) badge.textContent = onBattery ? shcT(this._hass, "ups.on_battery") : "ONLINE";
     const badgeEl = this._root.querySelector(".shc-ap-badge");
     if (badgeEl) badgeEl.classList.toggle("run", !onBattery);
 
@@ -7442,7 +9278,7 @@ class ShcUpsCard extends HTMLElement {
     const card = this._root.querySelector(".shc-ap-card");
     if (onBattery) {
       warnEl.hidden = false;
-      warnEl.textContent = `\u26a0 In funzione a batteria \u2014 autonomia ${this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)}`;
+      warnEl.textContent = shcT(this._hass, "ups.running_on_battery_runtime", { "1": (this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)) });
       card.classList.add("has-alarm");
     } else {
       warnEl.hidden = true;
@@ -7453,8 +9289,8 @@ class ShcUpsCard extends HTMLElement {
   _graphSeries() {
     const c = this._config;
     return [
-      { entity: c.battery_entity, label: "Batteria", color: "#22c55e" },
-      { entity: c.power_entity || c.load_entity, label: "Carico", color: "#38bdf8" },
+      { entity: c.battery_entity, label: shcT(this._hass, "ups.battery"), color: "#22c55e" },
+      { entity: c.power_entity || c.load_entity, label: shcT(this._hass, "ups.load"), color: "#38bdf8" },
     ];
   }
 
@@ -7494,9 +9330,9 @@ window.customCards.push({
 // altre card della raccolta.
 class ShcGarbageCard extends HTMLElement {
   setConfig(config) {
-    if (!config.entity) throw new Error("entity è obbligatorio");
+    if (!config.entity) throw new Error(shcT(this._hass, "garbage.entity_is_required"));
     this._config = {
-      name: "Raccolta Differenziata",
+      name: shcT(this._hass, "garbagecard.waste_collection"),
       artwork: "garbage",
       state_images: {},
       settings_sections: [],
@@ -7514,9 +9350,9 @@ class ShcGarbageCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-alexa" title="Centro Notifiche" hidden>${ICON_MEGAPHONE}</button>
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-types" title="Tipi di raccolta" hidden>${ICON_TYPES}</button>
+            <button type="button" class="shc-ap-tool shc-ap-alexa" title="${esc(shcT(this._hass, "notifcentercard.notification_center"))}" data-i18n-title="notifcentercard.notification_center" hidden>${ICON_MEGAPHONE}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-types" title="${esc(shcT(this._hass, "garbage.collection_types"))}" data-i18n-title="garbage.collection_types" hidden>${ICON_TYPES}</button>
           </span>
         </div>
         <div class="shc-ap-top-row" style="padding-bottom:10px">
@@ -7527,9 +9363,9 @@ class ShcGarbageCard extends HTMLElement {
           <div class="shc-ap-cycle-side">
             <span class="shc-ap-cycle-cap">Info</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi è</small></span><b class="shc-c-weekday">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Esporre dalle</small></span><b class="shc-c-exposetime">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small>Giorno del ritiro</small></span><b class="shc-c-pickupday">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small data-i18n="garbage.today_is">${esc(shcT(this._hass, "garbage.today_is"))}</small></span><b class="shc-c-weekday">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small data-i18n="garbage.put_out_from">${esc(shcT(this._hass, "garbage.put_out_from"))}</small></span><b class="shc-c-exposetime">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TREND}</span><small data-i18n="garbagecard.collection_day">${esc(shcT(this._hass, "garbagecard.collection_day"))}</small></span><b class="shc-c-pickupday">—</b></div>
             </div>
           </div>
         </div>
@@ -7633,7 +9469,7 @@ class ShcGarbageCard extends HTMLElement {
   _actionRowHtml(row) {
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-entity="${esc(row.entity)}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -7651,13 +9487,13 @@ class ShcGarbageCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${actionsHtml}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -7719,24 +9555,24 @@ class ShcGarbageCard extends HTMLElement {
     const st = hass.states[ent];
     const val = st && !["unknown", "unavailable"].includes(st.state) ? st.state : "";
     const overlay = this._openDialog(
-      "Tipi di raccolta",
+      shcT(this._hass, "garbage.collection_types"),
       `<div class="shc-ap-sec">
-        <div class="shc-ap-sec-cap">Configura la raccolta del tuo comune</div>
-        <p class="shc-gt-help">Scrivi le <b>voci</b> dei rifiuti, separate da virgola. <b>Ogni voce è ciò che viene ritirato in una singola giornata</b>: quando poi imposti i giorni, per ogni giorno scegli <b>una sola voce</b>. Se in un giorno fanno <b>due ritiri insieme</b>, scrivi una voce apposta che li comprende entrambi.</p>
-        <div class="shc-gt-example"><b>Esempio</b><br>Scrivi: <i>Carta, Vetro, Plastica, Organico, Organico e Resto</i><br>• il lunedì scegli <b>Organico</b> (ritirano solo l'organico)<br>• il giovedì scegli <b>Organico e Resto</b> (quel giorno ritirano organico e resto insieme)<br>• il sabato scegli <b>Nulla</b> (nessun ritiro, viene aggiunta da sola)</div>
-        <p class="shc-gt-help" style="margin-top:8px">A ogni voce viene aggiunta un'icona in automatico. Le scelte già fatte per i giorni restano, se la voce esiste ancora.</p>
-        <textarea class="shc-gt-input" rows="3" maxlength="255" placeholder="Carta, Vetro, Plastica, Organico, Organico e Resto">${esc(val)}</textarea>
+        <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "garbage.configure_waste_collection_for"))}</div>
+        <p class="shc-gt-help">${esc(shcT(this._hass, "garbage.write_the"))} <b>${esc(shcT(this._hass, "garbage.items"))}</b> ${esc(shcT(this._hass, "garbage.for_waste_separated_by"))} <b>${esc(shcT(this._hass, "garbage.each_item_is_what"))}</b>${esc(shcT(this._hass, "garbage.when_setting_up_the"))} <b>${esc(shcT(this._hass, "garbage.a_single_item"))}</b>${esc(shcT(this._hass, "garbage.if_on_one_day"))} <b>${esc(shcT(this._hass, "garbage.two_collections_together"))}</b>${esc(shcT(this._hass, "garbage.write_a_dedicated_item"))}</p>
+        <div class="shc-gt-example"><b>${esc(shcT(this._hass, "garbage.example"))}</b><br>${esc(shcT(this._hass, "garbage.write"))} <i>${esc(shcT(this._hass, "garbage.paper_glass_plastic_organic"))}</i><br>${esc(shcT(this._hass, "garbage.on_monday_choose"))} <b>${esc(shcT(this._hass, "garbage.organic"))}</b> ${esc(shcT(this._hass, "garbage.only_organic_is_collected"))}<br>${esc(shcT(this._hass, "garbage.on_thursday_choose"))} <b>${esc(shcT(this._hass, "garbage.organic_and_general_waste"))}</b> ${esc(shcT(this._hass, "garbage.on_that_day_organic"))}<br>${esc(shcT(this._hass, "garbage.on_saturday_choose"))} <b>${esc(shcT(this._hass, "garbage.none"))}</b> ${esc(shcT(this._hass, "garbage.no_collection_added_automatically"))}</div>
+        <p class="shc-gt-help" style="margin-top:8px">${esc(shcT(this._hass, "garbage.an_icon_is_automatically"))}</p>
+        <textarea class="shc-gt-input" rows="3" maxlength="255" placeholder="${esc(shcT(this._hass, "garbage.paper_glass_plastic_organic"))}">${esc(val)}</textarea>
         <div class="shc-gt-count"></div>
-        <div class="shc-ap-sec-cap" style="margin-top:12px">Anteprima dei menu</div>
+        <div class="shc-ap-sec-cap" style="margin-top:12px">${esc(shcT(this._hass, "garbage.menu_preview"))}</div>
         <div class="shc-gt-preview"></div>
-        <button type="button" class="shc-ap-reset-btn shc-gt-save" style="margin-top:12px">Salva elenco</button>
+        <button type="button" class="shc-ap-reset-btn shc-gt-save" style="margin-top:12px">${esc(shcT(this._hass, "garbage.save_list"))}</button>
         <div class="shc-ap-reset-note shc-gt-msg"></div>
       </div>`,
     );
     overlay.querySelector(".shc-ap-dialog").style.maxHeight = "min(92vh, 900px)";
     const input = overlay.querySelector(".shc-gt-input");
     const draw = () => {
-      const items = this._parseTypes(input.value).concat(["\u{1F937} Nulla"]);
+      const items = this._parseTypes(input.value).concat([shcT(this._hass, "garbage.none_2")]);
       overlay.querySelector(".shc-gt-preview").innerHTML = items.map((i) => `<span class="shc-gt-chip">${esc(i)}</span>`).join("");
       overlay.querySelector(".shc-gt-count").textContent = `${input.value.length}/255`;
     };
@@ -7765,6 +9601,7 @@ class ShcGarbageCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -7815,7 +9652,7 @@ class ShcGarbageCard extends HTMLElement {
 
   static getStubConfig(hass) {
     return {
-      name: "Raccolta Differenziata",
+      name: shcT(hass, "garbagecard.waste_collection"),
       artwork: "garbage",
     };
   }
@@ -7855,22 +9692,22 @@ class ShcProxmoxCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-update" title="Aggiornamenti">${ICON_BELL}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "fritz.updates"))}" data-i18n-title="fritz.updates">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "nas.consumption"))}" data-i18n-title="nas.consumption">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Nodo</span>
+            <span class="shc-ap-cycle-cap" data-i18n="proxmox.node">${esc(shcT(this._hass, "proxmox.node"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CUBE}</span><small>Contenitori attivi</small></span><b class="shc-px-ct">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_MONITOR}</span><small>VM attive</small></span><b class="shc-px-vm">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Avviato il</small></span><b class="shc-px-boot">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-px-power-info">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CUBE}</span><small data-i18n="proxmox.active_containers">${esc(shcT(this._hass, "proxmox.active_containers"))}</small></span><b class="shc-px-ct">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_MONITOR}</span><small data-i18n="proxmox.active_vms">${esc(shcT(this._hass, "proxmox.active_vms"))}</small></span><b class="shc-px-vm">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small data-i18n="proxmox.started_on">${esc(shcT(this._hass, "proxmox.started_on"))}</small></span><b class="shc-px-boot">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="nas.consumption_2">${esc(shcT(this._hass, "nas.consumption_2"))}</small></span><b class="shc-px-power-info">\u2014</b></div>
             </div>
           </div>
         </div>
@@ -7890,11 +9727,11 @@ class ShcProxmoxCard extends HTMLElement {
               <div class="shc-ap-bar"><i class="shc-px-ram-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-disk">
-              <div class="shc-ap-meter-row"><span>Disco</span><strong class="shc-px-disk-val">0%</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="proxmox.disk">${esc(shcT(this._hass, "proxmox.disk"))}</span><strong class="shc-px-disk-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-px-disk-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-px-meter-cputemp">
-              <div class="shc-ap-meter-row"><span>Temp CPU</span><strong class="shc-px-cputemp-val">0\u00b0C</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="proxmox.cpu_temp">${esc(shcT(this._hass, "proxmox.cpu_temp"))}</span><strong class="shc-px-cputemp-val">0\u00b0C</strong></div>
               <div class="shc-ap-bar"><i class="shc-px-cputemp-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -8012,7 +9849,7 @@ class ShcProxmoxCard extends HTMLElement {
     const target = row.service ? row.service : row.entity;
     return `<div class="shc-ap-row">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
-      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">Esegui</button>
+      <button type="button" class="shc-ap-action-btn" data-action-target="${esc(target)}" data-action-kind="${row.service ? "service" : "script"}" data-confirm="${esc(row.confirm || "")}">${esc(shcT(this._hass, "fritz.run"))}</button>
     </div>`;
   }
 
@@ -8030,13 +9867,13 @@ class ShcProxmoxCard extends HTMLElement {
     const actions = this._config.actions || [];
     const actionsHtml = actions.length
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Strumenti</div>
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.tools"))}</div>
            ${actions.map((a) => this._actionRowHtml(a)).join("")}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${actionsHtml}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "fritz.no_settings_configured_for"))}</div>`);
 
     overlay.querySelectorAll("[data-entity]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
@@ -8106,7 +9943,7 @@ class ShcProxmoxCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -8171,27 +10008,27 @@ class ShcProxmoxCard extends HTMLElement {
 
     const sistemaHtml = [
       this._statRow("CPU", val(s.cpu, 1)),
-      this._statRow("RAM usata", val(s.ram_used, 1)),
-      this._statRow("RAM libera", val(s.ram_free, 1)),
+      this._statRow(shcT(this._hass, "proxmoxcard.ram_used"), val(s.ram_used, 1)),
+      this._statRow(shcT(this._hass, "proxmoxcard.ram_free"), val(s.ram_free, 1)),
       this._statRow("RAM %", val(s.ram_pct, 1)),
-      this._statRow("Disco %", val(s.disk_pct, 1)),
-      this._statRow("Disco local-lvm %", val(s.disk_lvm_pct, 1)),
-      this._statRow("Contenitori attivi", val(s.containers, 0)),
-      this._statRow("VM attive", val(s.vms, 0)),
-      this._statRow("Avviato il", this._fmtDateTime(hass.states[s.last_boot]?.state)),
+      this._statRow(shcT(this._hass, "server.disk"), val(s.disk_pct, 1)),
+      this._statRow(shcT(this._hass, "proxmox.locallvm_disk"), val(s.disk_lvm_pct, 1)),
+      this._statRow(shcT(this._hass, "proxmox.active_containers"), val(s.containers, 0)),
+      this._statRow(shcT(this._hass, "proxmox.active_vms"), val(s.vms, 0)),
+      this._statRow(shcT(this._hass, "proxmox.started_on"), this._fmtDateTime(hass.states[s.last_boot]?.state)),
     ].join("");
 
     const diskHtml = [
-      this._statRow("Temperatura SSD", val(dh.temp, 0)),
-      this._statRow("Usura SSD", val(dh.wearout, 0)),
-      this._statRow("Ore di accensione", val(dh.power_on_hours, 0)),
-      this._statRow("Cicli di alimentazione", val(dh.power_cycles, 0)),
-      this._statRow("Salute SSD", dh.health ? (hass.states[dh.health]?.state === "on" ? "Problema rilevato" : "OK") : "\u2014"),
+      this._statRow(shcT(this._hass, "proxmox.ssd_temperature"), val(dh.temp, 0)),
+      this._statRow(shcT(this._hass, "proxmox.ssd_wearout"), val(dh.wearout, 0)),
+      this._statRow(shcT(this._hass, "proxmox.poweron_hours"), val(dh.power_on_hours, 0)),
+      this._statRow(shcT(this._hass, "proxmox.power_cycles"), val(dh.power_cycles, 0)),
+      this._statRow(shcT(this._hass, "proxmox.ssd_health"), dh.health ? (hass.states[dh.health]?.state === "on" ? shcT(this._hass, "proxmox.issue_detected") : "OK") : "\u2014"),
     ].join("");
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Sistema</div>${sistemaHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Disco fisico</div>${diskHtml}</div>
+    this._openDialog(shcT(this._hass, "fritz.statistics"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "servercard.system"))}</div>${sistemaHtml}</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "proxmox.physical_disk"))}</div>${diskHtml}</div>
     `);
   }
 
@@ -8206,16 +10043,16 @@ class ShcProxmoxCard extends HTMLElement {
     const val = (id, digits) => this._val(hass, id, digits);
 
     const consumoHtml = [
-      this._statRow("Potenza attuale", val(p.power, 1)),
-      this._statRow("Tensione", val(p.voltage, 0)),
-      this._statRow("Corrente", val(p.current, 2)),
-      this._statRow("Energia oggi", val(p.energy_day, 2)),
-      this._statRow("Energia mese", val(p.energy_month, 1)),
+      this._statRow(shcT(this._hass, "proxmox.current_power"), val(p.power, 1)),
+      this._statRow(shcT(this._hass, "proxmoxcard.voltage"), val(p.voltage, 0)),
+      this._statRow(shcT(this._hass, "proxmoxcard.current"), val(p.current, 2)),
+      this._statRow(shcT(this._hass, "proxmox.energy_today"), val(p.energy_day, 2)),
+      this._statRow(shcT(this._hass, "proxmox.energy_month"), val(p.energy_month, 1)),
     ].join("");
 
     const useAutoStats = !!cfg.energy_stat_entity;
-    this._openDialog("Consumi", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${consumoHtml}</div>
+    this._openDialog(shcT(this._hass, "nas.consumption"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.realtime"))}</div>${consumoHtml}</div>
       ${useAutoStats ? this._autoConsumiHtml() : ""}
       ${this._energyBarsHtml()}
     `);
@@ -8228,8 +10065,8 @@ class ShcProxmoxCard extends HTMLElement {
 
   _autoConsumiHtml() {
     return `<div class="shc-ap-sec">
-      <div class="shc-ap-sec-cap">Consumi per periodo</div>
-      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento\u2026</div></div>
+      <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.consumption_by_period"))}</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">${esc(shcT(this._hass, "nas.loading"))}</div></div>
     </div>`;
   }
 
@@ -8247,21 +10084,21 @@ class ShcProxmoxCard extends HTMLElement {
         return `<div class="shc-ap-week-row">
           <div class="shc-ap-week-day">${esc(def)}</div>
           <div class="shc-ap-week-stats cols2">
-            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
-            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "nas.consumption_2"))}</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "nas.cost"))}</small><b>${cost}</b></div>
           </div>
         </div>`;
       };
-      slot.innerHTML = [row("today", "Oggi"), row("yesterday", "Ieri"), row("month", "Mese"), row("month_prev", "Mese prec."), row("year", "Anno"), row("year_prev", "Anno prec.")].join("") + shcCostNote(this._hass, cfg.cost_entity);
+      slot.innerHTML = [row("today", shcT(this._hass, "nas.today")), row("yesterday", shcT(this._hass, "nas.yesterday")), row("month", shcT(this._hass, "nas.month")), row("month_prev", shcT(this._hass, "nas.prev_month")), row("year", shcT(this._hass, "nas.year")), row("year_prev", shcT(this._hass, "nas.prev_year"))].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
-      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
+      slot.innerHTML = `<div class="shc-ap-row-val">${esc(shcT(this._hass, "nas.statistics_not_currently_available"))}</div>`;
     }
   }
 
   _energyBarsHtml() {
     if (!this._config.energy_stat_entity) return "";
-    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.this_month_kwh_per"))}</div><div class="shc-ap-chart-loading" data-chart="month">${esc(shcT(this._hass, "nas.loading_2"))}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "nas.this_year_kwh_per"))}</div><div class="shc-ap-chart-loading" data-chart="year">${esc(shcT(this._hass, "nas.loading_2"))}</div></div>`;
   }
 
   async _fetchAutoStats(entityId, period, start, end) {
@@ -8277,7 +10114,7 @@ class ShcProxmoxCard extends HTMLElement {
   }
 
   _barChartSvg(bars, color) {
-    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!bars.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "server.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -8317,7 +10154,7 @@ class ShcProxmoxCard extends HTMLElement {
     if (!energyEntity || !overlay) return;
     const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
     const now = new Date();
-    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    const MONTH_ABBR = [shcT(this._hass, "nas.jan"), shcT(this._hass, "nas.feb"), shcT(this._hass, "nas.mar"), shcT(this._hass, "nas.apr"), shcT(this._hass, "nas.may"), shcT(this._hass, "nas.jun"), shcT(this._hass, "nas.jul"), shcT(this._hass, "nas.aug"), shcT(this._hass, "nas.sep"), shcT(this._hass, "nas.oct"), shcT(this._hass, "nas.nov"), shcT(this._hass, "nas.dec")];
     this._fetchAutoStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
       .then((rows) => {
         const el = slot("month");
@@ -8327,7 +10164,7 @@ class ShcProxmoxCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("month");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "nas.data_loading_error");
       });
     this._fetchAutoStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
       .then((rows) => {
@@ -8339,7 +10176,7 @@ class ShcProxmoxCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("year");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "nas.data_loading_error");
       });
   }
 
@@ -8349,18 +10186,19 @@ class ShcProxmoxCard extends HTMLElement {
     const upd = cfg.update ? hass.states[cfg.update] : null;
 
     const aggiornamentiHtml = [
-      this._statRow("Versione installata", upd?.attributes?.installed_version ?? "\u2014"),
-      this._statRow("Versione disponibile", upd?.attributes?.latest_version ?? "\u2014"),
-      this._statRow("Aggiornamento disponibile", upd?.state === "on" ? "S\u00ec" : "No"),
+      this._statRow(shcT(this._hass, "proxmox.installed_version"), upd?.attributes?.installed_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "proxmox.available_version"), upd?.attributes?.latest_version ?? "\u2014"),
+      this._statRow(shcT(this._hass, "fritz.update_available"), upd?.state === "on" ? shcT(this._hass, "proxmox.yes") : "No"),
     ].join("");
 
-    this._openDialog("Aggiornamenti", `
+    this._openDialog(shcT(this._hass, "fritz.updates"), `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Proxmox VE</div>${aggiornamentiHtml}</div>
     `);
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -8421,12 +10259,12 @@ class ShcProxmoxCard extends HTMLElement {
     const diskProblem = dh.health ? hass.states[dh.health]?.state === "on" : false;
     const updAvail = cfg.update ? hass.states[cfg.update]?.state === "on" : false;
     const warnings = [];
-    if (!online) warnings.push("Nodo non raggiungibile");
-    if (cpuVal >= 90) warnings.push(`CPU al ${cpuVal.toFixed(0)}%`);
-    if (ramVal >= 90) warnings.push(`RAM al ${ramVal.toFixed(0)}%`);
-    if (cpuTempVal >= 90) warnings.push(`Temp CPU a ${cpuTempVal.toFixed(0)}\u00b0C`);
-    if (diskProblem) warnings.push("Problema SSD");
-    if (updAvail) warnings.push("Aggiornamento disponibile");
+    if (!online) warnings.push(shcT(this._hass, "proxmox.node_unreachable"));
+    if (cpuVal >= 90) warnings.push(shcT(this._hass, "proxmox.cpu_at", { "1": (cpuVal.toFixed(0)) }));
+    if (ramVal >= 90) warnings.push(shcT(this._hass, "proxmox.ram_at", { "1": (ramVal.toFixed(0)) }));
+    if (cpuTempVal >= 90) warnings.push(shcT(this._hass, "proxmox.cpu_temp_at_c", { "1": (cpuTempVal.toFixed(0)) }));
+    if (diskProblem) warnings.push(shcT(this._hass, "proxmox.ssd_problem"));
+    if (updAvail) warnings.push(shcT(this._hass, "fritz.update_available"));
     if (warnings.length) {
       warnEl.hidden = false;
       warnEl.textContent = "\u26a0 " + warnings.join(" \u00b7 ");
@@ -8442,8 +10280,8 @@ class ShcProxmoxCard extends HTMLElement {
     return [
       { entity: s.cpu, label: "CPU", color: "#38bdf8" },
       { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
-      { entity: s.disk_pct, label: "Disco", color: "#eab308" },
-      { entity: s.cpu_temp, label: "Temp CPU", color: "#ef4444" },
+      { entity: s.disk_pct, label: shcT(this._hass, "proxmox.disk"), color: "#eab308" },
+      { entity: s.cpu_temp, label: shcT(this._hass, "proxmox.cpu_temp"), color: "#ef4444" },
       { entity: s.gpu_pct, label: "GPU", color: "#a855f7" },
     ];
   }
@@ -8488,17 +10326,17 @@ class ShcNotifCenterCard extends HTMLElement {
   // delle altre, e il pulsante "Modifica" per compilarli resta comunque raggiungibile.
   static get REQUIRED_FIELDS() {
     return [
-      ["volume_notifica_entity", "Volume annuncio"],
-      ["volume_ripristino_entity", "Volume ripristino"],
-      ["tempo_messaggio_entity", "Tempo del messaggio"],
-      ["orario_inizio_entity", "Orario inizio"],
-      ["orario_fine_entity", "Orario fine"],
+      ["volume_notifica_entity", shcT(this._hass, "notifcentercard.announcement_volume")],
+      ["volume_ripristino_entity", shcT(this._hass, "notifcentercard.restore_volume")],
+      ["tempo_messaggio_entity", shcT(this._hass, "notifcenter.message_duration")],
+      ["orario_inizio_entity", shcT(this._hass, "notifcentercard.start_time")],
+      ["orario_fine_entity", shcT(this._hass, "notifcentercard.end_time")],
     ];
   }
 
   setConfig(config) {
     this._config = {
-      name: "Centro Notifiche",
+      name: shcT(this._hass, "notifcentercard.notification_center"),
       ...config,
     };
     this._root = this._root || this.attachShadow({ mode: "open" });
@@ -8512,8 +10350,8 @@ class ShcNotifCenterCard extends HTMLElement {
           </div>
           <div class="shc-ap-panel">
             <div class="shc-ap-meters">
-              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
-              <div class="shc-ap-row-val">Apri "Modifica" (⋮ sulla card, in modalità modifica dashboard) e ricompila i campi.</div>
+              <div class="shc-ap-row-val">${shcT(this._hass, "notifcenter.missing_configuration_for", { "1": (missing.map(([, label]) => esc(label)).join(", ")) })}</div>
+              <div class="shc-ap-row-val" data-i18n="notifcenter.open_edit_on_card">${esc(shcT(this._hass, "notifcenter.open_edit_on_card"))}</div>
             </div>
           </div>
         </article>`;
@@ -8535,20 +10373,20 @@ class ShcNotifCenterCard extends HTMLElement {
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Volume annuncio</span><strong class="shc-notif-vol1-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="notifcentercard.announcement_volume">${esc(shcT(this._hass, "notifcentercard.announcement_volume"))}</span><strong class="shc-notif-vol1-val">—</strong></div>
               <input type="range" class="shc-notif-range shc-notif-vol1" min="0" max="100" step="1">
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Volume ripristino</span><strong class="shc-notif-vol2-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="notifcentercard.restore_volume">${esc(shcT(this._hass, "notifcentercard.restore_volume"))}</span><strong class="shc-notif-vol2-val">—</strong></div>
               <input type="range" class="shc-notif-range shc-notif-vol2" min="0" max="100" step="1">
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Tempo del messaggio</span><strong class="shc-notif-tempo-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="notifcenter.message_duration">${esc(shcT(this._hass, "notifcenter.message_duration"))}</span><strong class="shc-notif-tempo-val">—</strong></div>
               <input type="range" class="shc-notif-range shc-notif-tempo" min="0" max="30" step="1">
             </div>
             <div class="shc-ap-meter">
               <div class="shc-ap-meter-row">
-                <span>Orario notifiche</span>
+                <span data-i18n="notifcentercard.notification_schedule">${esc(shcT(this._hass, "notifcentercard.notification_schedule"))}</span>
                 <span class="shc-notif-times">
                   <input type="time" class="shc-notif-time shc-notif-time-start"><b>–</b><input type="time" class="shc-notif-time shc-notif-time-end">
                 </span>
@@ -8592,6 +10430,7 @@ class ShcNotifCenterCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcNotifCenterCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
@@ -8633,7 +10472,7 @@ class ShcNotifCenterCard extends HTMLElement {
 
   static getStubConfig() {
     return {
-      name: "Centro Notifiche",
+      name: shcT(this._hass, "notifcentercard.notification_center"),
       volume_notifica_entity: "",
       volume_ripristino_entity: "",
       tempo_messaggio_entity: "",
@@ -8661,13 +10500,13 @@ window.customCards.push({
 class ShcAlexaTextCard extends HTMLElement {
   static get REQUIRED_FIELDS() {
     return [
-      ["speaker_select_entity", "Selettore speaker"],
-      ["add_script", "Script aggiungi speaker"],
-      ["remove_script", "Script rimuovi speaker"],
-      ["text_entity", "Campo testo"],
+      ["speaker_select_entity", shcT(this._hass, "alexatextcard.speaker_selector")],
+      ["add_script", shcT(this._hass, "alexatext.add_speaker_script")],
+      ["remove_script", shcT(this._hass, "alexatext.remove_speaker_script")],
+      ["text_entity", shcT(this._hass, "alexatextcard.text_field")],
       ["volume_entity", "Volume"],
-      ["play_script", "Script riproduci"],
-      ["group_entity", "Gruppo multiroom"],
+      ["play_script", shcT(this._hass, "alexatextcard.play_script")],
+      ["group_entity", shcT(this._hass, "alexatextcard.multiroom_group")],
     ];
   }
 
@@ -8683,7 +10522,7 @@ class ShcAlexaTextCard extends HTMLElement {
           </div>
           <div class="shc-ap-panel">
             <div class="shc-ap-meters">
-              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+              <div class="shc-ap-row-val">${shcT(this._hass, "notifcenter.missing_configuration_for", { "1": (missing.map(([, label]) => esc(label)).join(", ")) })}</div>
             </div>
           </div>
         </article>`;
@@ -8700,21 +10539,21 @@ class ShcAlexaTextCard extends HTMLElement {
             <div class="shc-ap-meter">
               <div class="shc-ap-meter-row"><span>Speaker</span></div>
               <div class="shc-at-speaker-row">
-                <button type="button" class="shc-at-pm shc-at-minus" title="Rimuovi dal gruppo">−</button>
+                <button type="button" class="shc-at-pm shc-at-minus" title="${esc(shcT(this._hass, "alexatext.remove_from_group"))}" data-i18n-title="alexatext.remove_from_group">−</button>
                 <select class="shc-at-select"></select>
-                <button type="button" class="shc-at-pm shc-at-plus" title="Aggiungi al gruppo">+</button>
+                <button type="button" class="shc-at-pm shc-at-plus" title="${esc(shcT(this._hass, "alexatext.add_to_group"))}" data-i18n-title="alexatext.add_to_group">+</button>
               </div>
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Testo</span></div>
-              <input type="text" class="shc-ed-input shc-at-text" placeholder="Scrivi il messaggio...">
+              <div class="shc-ap-meter-row"><span data-i18n="alexatext.text">${esc(shcT(this._hass, "alexatext.text"))}</span></div>
+              <input type="text" class="shc-ed-input shc-at-text" placeholder="${esc(shcT(this._hass, "alexatext.type_your_message"))}">
             </div>
             <div class="shc-ap-meter">
               <div class="shc-ap-meter-row"><span>Volume</span><strong class="shc-at-vol-val">—</strong></div>
               <input type="range" class="shc-notif-range shc-at-vol" min="0" max="100" step="1">
             </div>
-            <button type="button" class="shc-ap-reset-btn shc-at-play">${ICON_MEGAPHONE} Riproduci</button>
-            <div class="shc-ap-sec-cap">In riproduzione su</div>
+            <button type="button" class="shc-ap-reset-btn shc-at-play">${shcT(this._hass, "alexatext.play", { "1": (ICON_MEGAPHONE) })}</button>
+            <div class="shc-ap-sec-cap" data-i18n="alexatext.playing_on">${esc(shcT(this._hass, "alexatext.playing_on"))}</div>
             <div class="shc-at-active"></div>
           </div>
         </div>
@@ -8754,6 +10593,7 @@ class ShcAlexaTextCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcAlexaTextCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
@@ -8792,7 +10632,7 @@ class ShcAlexaTextCard extends HTMLElement {
               return `<div class="shc-at-active-row"><span>${esc(name)}</span><small>${esc(state)}</small></div>`;
             })
             .join("")
-        : `<div class="shc-ap-row-val">Nessun dispositivo inserito per la riproduzione.</div>`;
+        : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "alexatext.no_devices_added_for"))}</div>`;
     }
   }
 
@@ -8822,17 +10662,17 @@ window.customCards.push({
 class ShcAlexaMemoCard extends HTMLElement {
   static get REQUIRED_FIELDS() {
     return [
-      ["active_entity", "Attivo"],
-      ["text_entity", "Messaggio"],
-      ["repeat_entity", "Ripetizione"],
-      ["date_start_entity", "Data inizio"],
-      ["date_end_entity", "Data fine"],
-      ["time_entity", "Orario"],
-      ["once_datetime_entity", "Data/ora singola"],
-      ["person_entity", "Persona"],
-      ["pending_entity", "In sospeso"],
-      ["retry_delay_entity", "Ritardo rientro"],
-      ["devices_entity", "Dispositivi Alexa"],
+      ["active_entity", shcT(this._hass, "alexamemocard.active")],
+      ["text_entity", shcT(this._hass, "alexamemocard.message")],
+      ["repeat_entity", shcT(this._hass, "alexamemo.repeat")],
+      ["date_start_entity", shcT(this._hass, "alexamemocard.start_date")],
+      ["date_end_entity", shcT(this._hass, "alexamemocard.end_date")],
+      ["time_entity", shcT(this._hass, "alexamemocard.time")],
+      ["once_datetime_entity", shcT(this._hass, "alexamemo.single_datetime")],
+      ["person_entity", shcT(this._hass, "alexamemo.person")],
+      ["pending_entity", shcT(this._hass, "alexamemo.pending")],
+      ["retry_delay_entity", shcT(this._hass, "alexamemo.return_delay")],
+      ["devices_entity", shcT(this._hass, "alexamemo.alexa_devices")],
     ];
   }
 
@@ -8860,11 +10700,11 @@ class ShcAlexaMemoCard extends HTMLElement {
 
   _openInfo() {
     this._openDialog(
-      "Come funziona",
+      shcT(this._hass, "alexamemo.how_it_works"),
       `<div class="shc-am-info-body">
-        <p>Annuncia un messaggio vocale su Alexa a un orario stabilito: ogni giorno per un periodo, oppure una tantum in una data precisa.</p>
-        <p>Se imposti una <b>Persona</b> e all'orario previsto non è in casa, l'annuncio non va perso: viene ripetuto pochi minuti dopo il suo rientro.</p>
-        <p>Il volume, il tempo di attesa e la finestra oraria in cui è permesso annunciare sono <b>condivisi con tutte le notifiche Alexa</b> e si impostano nella card Centro Notifiche qui sopra, valgono anche per questo memo.</p>
+        <p>${esc(shcT(this._hass, "alexamemo.announces_a_voice_message"))}</p>
+        <p>${esc(shcT(this._hass, "alexamemo.if_you_set_a"))} <b>${esc(shcT(this._hass, "alexamemo.person"))}</b> ${esc(shcT(this._hass, "alexamemo.and_they_are_not"))}</p>
+        <p>${esc(shcT(this._hass, "alexamemo.the_volume_waiting_time"))} <b>${esc(shcT(this._hass, "alexamemo.shared_with_all_alexa"))}</b> ${esc(shcT(this._hass, "alexamemo.and_are_configured_in"))}</p>
       </div>`,
     );
   }
@@ -8882,7 +10722,7 @@ class ShcAlexaMemoCard extends HTMLElement {
           </div>
           <div class="shc-ap-panel">
             <div class="shc-ap-meters">
-              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+              <div class="shc-ap-row-val">${shcT(this._hass, "notifcenter.missing_configuration_for", { "1": (missing.map(([, label]) => esc(label)).join(", ")) })}</div>
             </div>
           </div>
         </article>`;
@@ -8891,11 +10731,11 @@ class ShcAlexaMemoCard extends HTMLElement {
     const cfg = this._config;
     const slotsRow = cfg.slot_count_entity
       ? `<div class="shc-ap-row">
-           <span class="shc-ap-row-label">Altri memo attivi</span>
+           <span class="shc-ap-row-label">${esc(shcT(this._hass, "alexamemo.other_active_memos"))}</span>
            <div class="shc-am-slots">
-             <button type="button" class="shc-at-pm shc-am-slots-minus" title="Meno memo">−</button>
+             <button type="button" class="shc-at-pm shc-am-slots-minus" title="${esc(shcT(this._hass, "alexamemo.fewer_memos"))}">−</button>
              <span class="shc-am-slots-val">—</span>
-             <button type="button" class="shc-at-pm shc-am-slots-plus" title="Più memo">+</button>
+             <button type="button" class="shc-at-pm shc-am-slots-plus" title="${esc(shcT(this._hass, "alexamemo.more_memos"))}">+</button>
            </div>
          </div>`
       : "";
@@ -8906,55 +10746,55 @@ class ShcAlexaMemoCard extends HTMLElement {
           <span class="shc-ap-headings"><span class="shc-ap-name">${esc(this._config.name)}</span></span>
           <span class="shc-ap-badge off"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label">OFF</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-am-info" title="Come funziona">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-am-info" title="${esc(shcT(this._hass, "alexamemo.how_it_works"))}" data-i18n-title="alexamemo.how_it_works">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-row">
-              <span class="shc-ap-row-label">Attivo</span>
+              <span class="shc-ap-row-label" data-i18n="alexamemocard.active">${esc(shcT(this._hass, "alexamemocard.active"))}</span>
               <button type="button" class="shc-ap-switch shc-am-active"></button>
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Messaggio</span></div>
-              <input type="text" class="shc-ed-input shc-am-text" placeholder="Scrivi il messaggio...">
+              <div class="shc-ap-meter-row"><span data-i18n="alexamemocard.message">${esc(shcT(this._hass, "alexamemocard.message"))}</span></div>
+              <input type="text" class="shc-ed-input shc-am-text" placeholder="${esc(shcT(this._hass, "alexatext.type_your_message"))}">
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Dispositivi Alexa (vuoto = predefinito)</span></div>
+              <div class="shc-ap-meter-row"><span data-i18n="alexamemo.alexa_devices_empty_default">${esc(shcT(this._hass, "alexamemo.alexa_devices_empty_default"))}</span></div>
               <div class="shc-am-chips">
                 ${shcConfigList(cfg.devices, SHC_ALEXA_DEFAULT_DEVICES).map((d) => `<button type="button" class="shc-am-dev-chip" data-device="${esc(d.entity)}"${d.name ? "" : ` data-autoname="${esc(d.entity)}"`}>${esc(d.name || shcEntityName(this._hass, d.entity))}</button>`).join("")}
               </div>
             </div>
             <div class="shc-ap-row">
-              <span class="shc-ap-row-label">Ripeti ogni giorno nel periodo</span>
+              <span class="shc-ap-row-label" data-i18n="alexamemocard.repeat_daily_in_period">${esc(shcT(this._hass, "alexamemocard.repeat_daily_in_period"))}</span>
               <button type="button" class="shc-ap-switch shc-am-repeat"></button>
             </div>
             <div class="shc-am-block shc-am-repeat-block">
               <div class="shc-ap-meter">
-                <div class="shc-ap-meter-row"><span>Data inizio</span></div>
+                <div class="shc-ap-meter-row"><span data-i18n="alexamemocard.start_date">${esc(shcT(this._hass, "alexamemocard.start_date"))}</span></div>
                 <input type="date" class="shc-ed-input shc-am-date-start">
               </div>
               <div class="shc-ap-meter">
-                <div class="shc-ap-meter-row"><span>Data fine</span></div>
+                <div class="shc-ap-meter-row"><span data-i18n="alexamemocard.end_date">${esc(shcT(this._hass, "alexamemocard.end_date"))}</span></div>
                 <input type="date" class="shc-ed-input shc-am-date-end">
               </div>
               <div class="shc-ap-meter">
-                <div class="shc-ap-meter-row"><span>Orario</span></div>
+                <div class="shc-ap-meter-row"><span data-i18n="alexamemocard.time">${esc(shcT(this._hass, "alexamemocard.time"))}</span></div>
                 <input type="time" class="shc-ed-input shc-am-time">
               </div>
             </div>
             <div class="shc-am-block shc-am-once-block" hidden>
               <div class="shc-ap-meter">
-                <div class="shc-ap-meter-row"><span>Data e ora</span></div>
+                <div class="shc-ap-meter-row"><span data-i18n="alexamemo.date_and_time">${esc(shcT(this._hass, "alexamemo.date_and_time"))}</span></div>
                 <input type="datetime-local" class="shc-ed-input shc-am-once">
               </div>
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Persona (opzionale)</span></div>
+              <div class="shc-ap-meter-row"><span data-i18n="alexamemo.person_optional">${esc(shcT(this._hass, "alexamemo.person_optional"))}</span></div>
               <select class="shc-ap-select shc-am-person" style="max-width:100%;width:100%"></select>
             </div>
             <div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Ritardo dopo il rientro</span><strong class="shc-am-retry-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="alexamemo.delay_after_return">${esc(shcT(this._hass, "alexamemo.delay_after_return"))}</span><strong class="shc-am-retry-val">—</strong></div>
               <input type="range" class="shc-notif-range shc-am-retry" min="0" max="60" step="1">
             </div>
             ${slotsRow}
@@ -9036,6 +10876,7 @@ class ShcAlexaMemoCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcAlexaMemoCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
@@ -9050,7 +10891,7 @@ class ShcAlexaMemoCard extends HTMLElement {
     const badge = this._root.querySelector(".shc-ap-badge");
     const badgeLabel = this._root.querySelector(".shc-ap-badge-label");
     badge.className = "shc-ap-badge " + (pendingOn ? "pending" : activeOn ? "run" : "off");
-    badgeLabel.textContent = pendingOn ? "IN SOSPESO" : activeOn ? "ON" : "OFF";
+    badgeLabel.textContent = pendingOn ? shcT(this._hass, "alexamemo.pending_2") : activeOn ? "ON" : "OFF";
 
     const activeBtn = this._root.querySelector(".shc-am-active");
     activeBtn.classList.toggle("on", activeOn);
@@ -9099,7 +10940,7 @@ class ShcAlexaMemoCard extends HTMLElement {
       const persons = Object.values(hass.states)
         .filter((s) => s.entity_id.startsWith("person."))
         .sort((a, b) => (a.attributes?.friendly_name || a.entity_id).localeCompare(b.attributes?.friendly_name || b.entity_id));
-      const opts = [`<option value=""${!personValid ? " selected" : ""}>Nessuna – annuncia sempre</option>`]
+      const opts = [`<option value=""${!personValid ? " selected" : ""}>${esc(shcT(this._hass, "alexamemo.none_always_announce"))}</option>`]
         .concat(
           persons.map(
             (s) =>
@@ -9122,7 +10963,7 @@ class ShcAlexaMemoCard extends HTMLElement {
       const slotsValEl = this._root.querySelector(".shc-am-slots-val");
       if (slotsValEl) {
         const n = Math.round(Number(hass.states[cfg.slot_count_entity]?.state ?? 1));
-        slotsValEl.textContent = `${n} di 4`;
+        slotsValEl.textContent = shcT(this._hass, "alexamemo.of_4", { "1": (n) });
       }
     }
 
@@ -9131,19 +10972,19 @@ class ShcAlexaMemoCard extends HTMLElement {
       let text = "";
       let warn = false;
       if (!activeOn) {
-        text = "Disattivato.";
+        text = shcT(this._hass, "alexamemo.disabled");
       } else if (pendingOn) {
         const personName = personValid ? hass.states[personId]?.attributes?.friendly_name || personId : "";
-        text = personName ? `⏳ In sospeso — annuncerà al rientro di ${personName}.` : "⏳ In sospeso.";
+        text = personName ? shcT(this._hass, "alexamemo.pending_will_announce_upon", { "1": (personName) }) : shcT(this._hass, "alexamemo.pending_3");
         warn = true;
       } else if (repeatOn) {
         const start = hass.states[cfg.date_start_entity]?.state || "—";
         const end = hass.states[cfg.date_end_entity]?.state || "—";
         const time = (hass.states[cfg.time_entity]?.state || "").slice(0, 5) || "—";
-        text = `Ogni giorno alle ${time}, dal ${start} al ${end}.`;
+        text = shcT(this._hass, "alexamemo.every_day_at_from", { "1": (time), "2": (start), "3": (end) });
       } else {
         const raw = hass.states[cfg.once_datetime_entity]?.state || "";
-        text = raw && !["unknown", "unavailable"].includes(raw) ? `Una tantum: ${raw.slice(0, 16).replace("T", " ")}.` : "Nessuna data impostata.";
+        text = raw && !["unknown", "unavailable"].includes(raw) ? shcT(this._hass, "alexamemo.oneoff", { "1": (raw.slice(0, 16).replace("T", " ")) }) : shcT(this._hass, "alexamemo.no_date_set");
       }
       statusEl.textContent = text;
       statusEl.classList.toggle("warn", warn);
@@ -9176,10 +11017,10 @@ class ShcAlexaWebradioCard extends HTMLElement {
   static get REQUIRED_FIELDS() {
     return [
       ["power_entity", "Radio ON/OFF"],
-      ["station_select_entity", "Selettore stazione"],
-      ["station_sensor_entity", "Sensore stazione"],
+      ["station_select_entity", shcT(this._hass, "alexawebradio.station_selector")],
+      ["station_sensor_entity", shcT(this._hass, "alexawebradio.station_sensor")],
       ["volume_entity", "Volume"],
-      ["group_entity", "Gruppo multiroom"],
+      ["group_entity", shcT(this._hass, "alexatextcard.multiroom_group")],
     ];
   }
 
@@ -9211,11 +11052,11 @@ class ShcAlexaWebradioCard extends HTMLElement {
 
   _openInfo() {
     this._openDialog(
-      "Come funziona",
+      shcT(this._hass, "alexamemo.how_it_works"),
       `<div class="shc-am-info-body">
-        <p>Accende la web radio Alexa sugli speaker selezionati, con la stazione o playlist scelta qui sotto.</p>
-        <p>Gli speaker si aggiungono/rimuovono dal gruppo multiroom toccando i loro chip: quello evidenziato in blu è già acceso.</p>
-        <p>La <b>Sveglia</b> (icona orologio) accende/spegne automaticamente la radio a due orari, nei giorni scelti. Il <b>Volume ridotto</b> (icona restart) abbassa il volume da solo quando la radio si spegne.</p>
+        <p>${esc(shcT(this._hass, "alexawebradio.turns_on_alexa_web"))}</p>
+        <p>${esc(shcT(this._hass, "alexawebradio.speakers_are_addedremoved_from"))}</p>
+        <p>${esc(shcT(this._hass, "alexawebradio.the"))} <b>${esc(shcT(this._hass, "alexawebradio.alarm"))}</b> ${esc(shcT(this._hass, "alexawebradio.clock_icon_automatically_turns"))} <b>${esc(shcT(this._hass, "alexawebradio.reduced_volume"))}</b> ${esc(shcT(this._hass, "alexawebradio.restart_icon_lowers_the"))}</p>
       </div>`,
     );
   }
@@ -9232,26 +11073,26 @@ class ShcAlexaWebradioCard extends HTMLElement {
       )
       .join("");
     const overlay = this._openDialog(
-      "Sveglia Radio",
+      shcT(this._hass, "alexawebradio.radio_alarm"),
       `<div class="shc-ap-row">
-        <span class="shc-ap-row-label">Sveglia attiva</span>
+        <span class="shc-ap-row-label">${esc(shcT(this._hass, "alexawebradiocard.alarm_active"))}</span>
         <button type="button" class="shc-ap-switch shc-wr-alarm-active"></button>
       </div>
       <div>
-        <div class="shc-ap-sec-cap">Orario</div>
+        <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "alexamemocard.time"))}</div>
         <div style="display:flex;gap:10px;">
           <div style="flex:1;">
-            <div class="shc-wr-meter-row" style="margin-bottom:4px;"><span>Accensione</span></div>
+            <div class="shc-wr-meter-row" style="margin-bottom:4px;"><span>${esc(shcT(this._hass, "alexawebradio.turn_on"))}</span></div>
             <input type="time" class="shc-ed-input shc-wr-alarm-on">
           </div>
           <div style="flex:1;">
-            <div class="shc-wr-meter-row" style="margin-bottom:4px;"><span>Spegnimento</span></div>
+            <div class="shc-wr-meter-row" style="margin-bottom:4px;"><span>${esc(shcT(this._hass, "alexawebradio.turn_off"))}</span></div>
             <input type="time" class="shc-ed-input shc-wr-alarm-off">
           </div>
         </div>
       </div>
       <div>
-        <div class="shc-ap-sec-cap">Giorni</div>
+        <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "alexawebradio.days"))}</div>
         <div class="shc-am-chips">${daysHtml}</div>
       </div>`,
     );
@@ -9291,13 +11132,13 @@ class ShcAlexaWebradioCard extends HTMLElement {
     const hass = this._hass;
     const cfg = this._config;
     const overlay = this._openDialog(
-      "Volume Ridotto Automatico",
+      shcT(this._hass, "alexawebradio.automatic_reduced_volume"),
       `<div class="shc-ap-row">
-        <span class="shc-ap-row-label">Attivo allo spegnimento</span>
+        <span class="shc-ap-row-label">${esc(shcT(this._hass, "alexawebradio.active_on_turn_off"))}</span>
         <button type="button" class="shc-ap-switch shc-wr-vo-active"></button>
       </div>
       <div>
-        <div class="shc-wr-meter-row"><span>Volume dopo lo spegnimento</span><strong class="shc-wr-vo-val">—</strong></div>
+        <div class="shc-wr-meter-row"><span>${esc(shcT(this._hass, "alexawebradiocard.volume_after_turnoff"))}</span><strong class="shc-wr-vo-val">—</strong></div>
         <input type="range" class="shc-notif-range shc-wr-vo-range" min="0" max="1" step="0.05">
       </div>`,
     );
@@ -9335,7 +11176,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
           </div>
           <div class="shc-ap-panel">
             <div class="shc-ap-meters">
-              <div class="shc-ap-row-val">⚠️ Manca la configurazione di: ${missing.map(([, label]) => esc(label)).join(", ")}.</div>
+              <div class="shc-ap-row-val">${shcT(this._hass, "notifcenter.missing_configuration_for", { "1": (missing.map(([, label]) => esc(label)).join(", ")) })}</div>
             </div>
           </div>
         </article>`;
@@ -9387,9 +11228,9 @@ class ShcAlexaWebradioCard extends HTMLElement {
           <span class="shc-ap-headings"><span class="shc-ap-name">${esc(cfg.name)}</span></span>
           <span class="shc-ap-badge off"><i class="shc-ap-dot"></i><span class="shc-wr-badge-label">OFF</span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-wr-alarm-tool" title="Sveglia">${ICON_TIMER}</button>
-            <button type="button" class="shc-ap-tool shc-wr-volumeoff-tool" title="Volume ridotto">${ICON_RESTART}</button>
-            <button type="button" class="shc-ap-tool shc-wr-info" title="Come funziona">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-wr-alarm-tool" title="${esc(shcT(this._hass, "alexawebradio.alarm"))}" data-i18n-title="alexawebradio.alarm">${ICON_TIMER}</button>
+            <button type="button" class="shc-ap-tool shc-wr-volumeoff-tool" title="${esc(shcT(this._hass, "alexawebradio.reduced_volume"))}" data-i18n-title="alexawebradio.reduced_volume">${ICON_RESTART}</button>
+            <button type="button" class="shc-ap-tool shc-wr-info" title="${esc(shcT(this._hass, "alexamemo.how_it_works"))}" data-i18n-title="alexamemo.how_it_works">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-panel">
@@ -9403,7 +11244,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
           </div>
 
           <div class="shc-ap-row">
-            <span class="shc-ap-row-label">Radio</span>
+            <span class="shc-ap-row-label" data-i18n="alexawebradio.radio">${esc(shcT(this._hass, "alexawebradio.radio"))}</span>
             <button type="button" class="shc-ap-switch shc-wr-power"></button>
           </div>
 
@@ -9413,7 +11254,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
           </div>
 
           <div>
-            <div class="shc-ap-sec-cap">Speaker multiroom</div>
+            <div class="shc-ap-sec-cap" data-i18n="alexawebradio.multiroom_speakers">${esc(shcT(this._hass, "alexawebradio.multiroom_speakers"))}</div>
             <div class="shc-am-chips">${chipsHtml}</div>
           </div>
 
@@ -9477,6 +11318,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     const cfg = this._config;
     if (!cfg || !this._root) return;
     if (ShcAlexaWebradioCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
@@ -9687,9 +11529,9 @@ function zbJsonList(st) {
 
 class ShcZigbeeCard extends HTMLElement {
   setConfig(config) {
-    if (!config.entity) throw new Error("entity è obbligatorio (sensor.zigbee_dispositivi_offline del package)");
+    if (!config.entity) throw new Error(shcT(this._hass, "zigbee.entity_is_required_package"));
     this._config = {
-      name: "Rete Zigbee",
+      name: shcT(this._hass, "zigbee.zigbee_network"),
       permit_join_entity: "switch.zigbee2mqtt_bridge_permit_join",
       restart_entity: "button.zigbee2mqtt_bridge_restart",
       version_entity: "sensor.zigbee2mqtt_bridge_version",
@@ -9715,22 +11557,22 @@ class ShcZigbeeCard extends HTMLElement {
           </span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Abbinamenti">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Dispositivi">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-zb-signal" title="Segnale e batterie">${ICON_BATTERY}</button>
-            <button type="button" class="shc-ap-tool shc-ap-update" title="Notifiche">${ICON_BELL}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "zigbee.pairing"))}" data-i18n-title="zigbee.pairing">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "zigbee.devices"))}" data-i18n-title="zigbee.devices">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-zb-signal" title="${esc(shcT(this._hass, "zigbee.signal_and_batteries"))}" data-i18n-title="zigbee.signal_and_batteries">${ICON_BATTERY}</button>
+            <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "zigbee.notifications"))}" data-i18n-title="zigbee.notifications">${ICON_BELL}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero"><div class="shc-zb-hero"><span class="shc-zb-wave"></span><span class="shc-zb-wave"></span><span class="shc-zb-wave"></span><ha-icon icon="mdi:zigbee"></ha-icon></div></div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Rete</span>
+            <span class="shc-ap-cycle-cap" data-i18n="server.network">${esc(shcT(this._hass, "server.network"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_ALERT}</span><small>LQI min</small></span><b class="shc-zb-min">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small>A rete</small></span><b class="shc-zb-mains">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small>A batteria</small></span><b class="shc-zb-batt">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b shc-zb-low" hidden><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic" style="color:#ef4444">${ICON_BATTERY}</span><small>Batt. bassa</small></span><b class="shc-zb-lowval">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_ALERT}</span><small data-i18n="zigbee.min_lqi">${esc(shcT(this._hass, "zigbee.min_lqi"))}</small></span><b class="shc-zb-min">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_PLUG}</span><small data-i18n="zigbee.mains_powered">${esc(shcT(this._hass, "zigbee.mains_powered"))}</small></span><b class="shc-zb-mains">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BATTERY}</span><small data-i18n="zigbee.battery_powered">${esc(shcT(this._hass, "zigbee.battery_powered"))}</small></span><b class="shc-zb-batt">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b shc-zb-low" hidden><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic" style="color:#ef4444">${ICON_BATTERY}</span><small data-i18n="zigbee.low_batt">${esc(shcT(this._hass, "zigbee.low_batt"))}</small></span><b class="shc-zb-lowval">—</b></div>
             </div>
           </div>
         </div>
@@ -9738,11 +11580,11 @@ class ShcZigbeeCard extends HTMLElement {
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter shc-c-meter-clickable" data-graph="0">
-              <div class="shc-ap-meter-row"><span>Dispositivi online</span><strong class="shc-zb-online-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="zigbee.online_devices">${esc(shcT(this._hass, "zigbee.online_devices"))}</span><strong class="shc-zb-online-val">—</strong></div>
               <div class="shc-ap-bar"><i class="shc-zb-online-bar" style="width:0%"></i></div>
             </div>
             <div class="shc-ap-meter shc-c-meter-clickable" data-graph="1">
-              <div class="shc-ap-meter-row"><span>Segnale medio</span><strong class="shc-zb-lqi-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="zigbee.average_signal">${esc(shcT(this._hass, "zigbee.average_signal"))}</span><strong class="shc-zb-lqi-val">—</strong></div>
               <div class="shc-ap-bar"><i class="shc-zb-lqi-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -9830,7 +11672,7 @@ class ShcZigbeeCard extends HTMLElement {
   }
 
   _battHtml(d) {
-    if (d.b === -2) return `${ICON_PLUG}<span>a rete</span>`;
+    if (d.b === -2) return `${ICON_PLUG}<span>${esc(shcT(this._hass, "zigbee.mains_powered_2"))}</span>`;
     if (d.b < 0) return `${ICON_BATTERY}<span>?</span>`;
     const col = inverseSeverityColor(d.b);
     return `<span style="color:${col};display:inline-flex">${ICON_BATTERY}</span><span style="color:${col}">${d.b}%</span>`;
@@ -9840,6 +11682,7 @@ class ShcZigbeeCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -9867,12 +11710,12 @@ class ShcZigbeeCard extends HTMLElement {
             if (this._hass) this.hass = this._hass;
             return;
           }
-          this._root.querySelector(".shc-ap-badge-label").textContent = `ABBINAMENTO ${this._cdText(left)}`;
+          this._root.querySelector(".shc-ap-badge-label").textContent = shcT(this._hass, "zigbee.pairing_2", { "1": (this._cdText(left)) });
         }, 1000);
       }
       badge.classList.remove("unavailable");
       badge.classList.add("run");
-      this._root.querySelector(".shc-ap-badge-label").textContent = `ABBINAMENTO ${this._cdText(pairEnd - Date.now())}`;
+      this._root.querySelector(".shc-ap-badge-label").textContent = shcT(this._hass, "zigbee.pairing_2", { "1": (this._cdText(pairEnd - Date.now())) });
     } else this._root.querySelector(".shc-ap-badge-label").textContent = !d.st
       ? "N/D"
       : bridgeDown
@@ -9890,7 +11733,7 @@ class ShcZigbeeCard extends HTMLElement {
     q(".shc-zb-batt").textContent = String(d.battery.length);
     const lowRow = q(".shc-zb-low");
     lowRow.hidden = !d.low.length;
-    q(".shc-zb-lowval").innerHTML = d.low.length ? `<b>${d.low.length}</b> <span style="color:var(--shc-dim)">sotto ${esc(d.soglia)}%</span>` : "";
+    q(".shc-zb-lowval").innerHTML = d.low.length ? `<b>${d.low.length}</b> <span style="color:var(--shc-dim)">${shcT(this._hass, "zigbee.below", { "1": (esc(d.soglia)) })}</span>` : "";
 
     const pct = d.total ? Math.round((d.online / d.total) * 100) : 0;
     q(".shc-zb-online-val").textContent = d.st ? `${d.online}/${d.total}` : "—";
@@ -9905,11 +11748,11 @@ class ShcZigbeeCard extends HTMLElement {
     const warn = q(".shc-ap-warn");
     if (bridgeDown) {
       warn.hidden = false;
-      warn.textContent = "⚠ Zigbee2MQTT non risponde: tutti i dispositivi risultano irraggiungibili";
+      warn.textContent = shcT(this._hass, "zigbee.zigbee2mqtt_is_not_responding");
     } else if (d.offline.length) {
       warn.hidden = false;
       warn.style.cursor = "pointer";
-      warn.textContent = `⚠ Offline: ${d.offline.map((x) => (x.da ? `${x.n} (da ${zbDurata(x.da)})` : x.n)).join(", ")}`;
+      warn.textContent = shcT(this._hass, "zigbee.offline", { "1": (d.offline.map((x) => (x.da ? shcT(this._hass, "zigbee.for", { "1": (x.n), "2": (zbDurata(x.da)) }) : x.n)).join(", ")) });
     } else {
       warn.hidden = true;
     }
@@ -9928,9 +11771,9 @@ class ShcZigbeeCard extends HTMLElement {
   _graphSeries() {
     const g = this._config.graph || {};
     return [
-      { entity: g.online, label: "Dispositivi online", color: "#16a34a" },
-      { entity: g.lqi_avg, label: "LQI medio", color: "#0ea5e9" },
-      { entity: g.lqi_min, label: "LQI minimo", color: "#f97316" },
+      { entity: g.online, label: shcT(this._hass, "zigbee.online_devices"), color: "#16a34a" },
+      { entity: g.lqi_avg, label: shcT(this._hass, "zigbee.average_lqi"), color: "#0ea5e9" },
+      { entity: g.lqi_min, label: shcT(this._hass, "zigbee.minimum_lqi"), color: "#f97316" },
     ];
   }
 
@@ -10049,28 +11892,28 @@ class ShcZigbeeCard extends HTMLElement {
     const pj = hass.states[cfg.permit_join_entity];
     const pjOn = pj?.state === "on";
     const end = this._pairEnd();
-    const sinceTxt = pjOn && pj.last_changed ? new Date(pj.last_changed).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "";
+    const sinceTxt = pjOn && pj.last_changed ? new Date(pj.last_changed).toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }) : "";
     const total = Math.max(1, end - Date.parse(pj?.last_changed || "") || 254000);
     // ripetitori (dispositivi a rete online) attraverso cui forzare l'abbinamento
     const routers = this._data().devices.filter((x) => x.b === -2 && x.on);
     if (this._pairVia && !routers.some((x) => x.n === this._pairVia) && this._pairVia !== "Coordinator") this._pairVia = "";
     const viaOpts = [
-      ["", "Tutta la rete"],
-      ["Coordinator", "Solo coordinatore"],
+      ["", shcT(this._hass, "zigbee.entire_network")],
+      ["Coordinator", shcT(this._hass, "zigbee.coordinator_only")],
       ...routers.map((x) => [x.n, x.n]),
     ]
       .map(([v, l]) => `<option value="${esc(v)}"${v === (this._pairVia || "") ? " selected" : ""}>${esc(l)}</option>`)
       .join("");
     const pairBox = pjOn
       ? `<div class="shc-zb-pair">
-          <small>Abbinamento attivo dalle ${esc(sinceTxt)}</small>
+          <small>${shcT(this._hass, "zigbee.pairing_active_since", { "1": (esc(sinceTxt)) })}</small>
           <span class="shc-zb-cd">${end ? this._cdText(end - Date.now()) : "--:--"}</span>
           <div class="shc-ap-bar"><i class="shc-zb-cd-bar" style="width:${end ? Math.max(0, Math.min(100, ((end - Date.now()) / total) * 100)) : 0}%"></i></div>
-          ${this._pairStartedVia === undefined ? "" : `<span class="shc-zb-pair-via">Tramite: <b>${esc(this._pairStartedVia === "Coordinator" ? "solo coordinatore" : this._pairStartedVia || "tutta la rete")}</b></span>`}
+          ${this._pairStartedVia === undefined ? "" : `<span class="shc-zb-pair-via">${esc(shcT(this._hass, "zigbee.via"))} <b>${esc(this._pairStartedVia === "Coordinator" ? shcT(this._hass, "zigbee.coordinator_only_2") : this._pairStartedVia || shcT(this._hass, "zigbee.entire_network_2"))}</b></span>`}
         </div>
-        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn shc-zb-stop" data-pair="stop">Ferma abbinamento</button></div>`
-      : `${this._row("Abbina tramite", `<select class="shc-ap-select" data-via="1">${viaOpts}</select>`)}
-        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn" data-pair="start">Avvia abbinamento (4 min)</button></div>`;
+        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn shc-zb-stop" data-pair="stop">${esc(shcT(this._hass, "zigbee.stop_pairing"))}</button></div>`
+      : `${this._row(shcT(this._hass, "zigbee.pair_via"), `<select class="shc-ap-select" data-via="1">${viaOpts}</select>`)}
+        <div class="shc-zb-pair-btns"><button type="button" class="shc-ap-action-btn" data-pair="start">${esc(shcT(this._hass, "zigbee.start_pairing_4_min"))}</button></div>`;
     const hist = String(hass.states[cfg.history_entity]?.state || "");
     const histItems = ["", "unknown", "unavailable"].includes(hist) ? [] : hist.split(" | ");
     const ver = hass.states[cfg.version_entity]?.state;
@@ -10080,25 +11923,25 @@ class ShcZigbeeCard extends HTMLElement {
       .map((o) => `<option value="${esc(o)}"${o === log.state ? " selected" : ""}>${esc(o)}</option>`)
       .join("");
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Nuovi dispositivi</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.new_devices"))}</div>
         ${pairBox}
-        <p class="shc-zb-note">Avvia, poi metti il dispositivo in modalità abbinamento. "Abbina tramite" forza l'ingresso da un ripetitore preciso: scegli quello più vicino al punto dove andrà il dispositivo, così si aggancia lì e non a uno lontano. Zigbee2MQTT richiude da solo allo scadere. Quando l'abbinamento riesce arriva l'avviso (nella fascia oraria delle notifiche).</p>
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.start_then_put_the"))}</p>
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultimi abbinati</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.recently_paired"))}</div>
         <div class="shc-zb-history">${
           histItems.length
             ? histItems.map((h) => `<div><small>${esc(h.slice(0, 11))}</small>${esc(h.slice(12))}</div>`).join("")
-            : `<div class="shc-zb-empty">Nessun abbinamento registrato finora</div>`
+            : `<div class="shc-zb-empty">${esc(shcT(this._hass, "zigbee.no_devices_paired_yet"))}</div>`
         }</div>
       </div>
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Zigbee2MQTT</div>
-        ${ver ? this._row("Versione", `<span class="shc-ap-row-val">${esc(ver)}</span>`) : ""}
-        ${bridge ? this._row("Bridge", `<span class="shc-ap-row-val" style="color:${bridge.state === "on" ? "#16a34a" : "#ef4444"};font-weight:800">${bridge.state === "on" ? "Connesso" : "Non connesso"}</span>`) : ""}
-        ${log ? this._row("Livello log", `<select class="shc-ap-select" data-log="1">${logOpts}</select>`) : ""}
-        ${cfg.frontend_url ? this._row("Interfaccia Zigbee2MQTT", `<button type="button" class="shc-ap-action-btn" data-z2m="1">Apri</button>`) : ""}
-        ${hass.states[cfg.restart_entity] ? this._row("Riavvia Zigbee2MQTT", `<button type="button" class="shc-ap-action-btn" data-restart="1">Riavvia</button>`) : ""}
+        ${ver ? this._row(shcT(this._hass, "zigbee.version"), `<span class="shc-ap-row-val">${esc(ver)}</span>`) : ""}
+        ${bridge ? this._row("Bridge", `<span class="shc-ap-row-val" style="color:${bridge.state === "on" ? "#16a34a" : "#ef4444"};font-weight:800">${bridge.state === "on" ? shcT(this._hass, "zigbee.connected") : shcT(this._hass, "zigbee.disconnected")}</span>`) : ""}
+        ${log ? this._row(shcT(this._hass, "zigbee.log_level"), `<select class="shc-ap-select" data-log="1">${logOpts}</select>`) : ""}
+        ${cfg.frontend_url ? this._row(shcT(this._hass, "zigbee.zigbee2mqtt_frontend"), `<button type="button" class="shc-ap-action-btn" data-z2m="1">${esc(shcT(this._hass, "zigbee.open"))}</button>`) : ""}
+        ${hass.states[cfg.restart_entity] ? this._row(shcT(this._hass, "zigbee.restart_zigbee2mqtt"), `<button type="button" class="shc-ap-action-btn" data-restart="1">${esc(shcT(this._hass, "zigbee.restart"))}</button>`) : ""}
       </div>`;
-    const overlay = this._openDialog("Abbinamenti", html, () => this._openPairing());
+    const overlay = this._openDialog(shcT(this._hass, "zigbee.pairing"), html, () => this._openPairing());
     this._bindControls(overlay, () => this._openPairing());
     clearInterval(this._cdTimer);
     if (pjOn && end) {
@@ -10151,11 +11994,11 @@ class ShcZigbeeCard extends HTMLElement {
       batt: d.battery.length,
     };
     const filters = [
-      ["all", "Tutti"],
+      ["all", shcT(this._hass, "zigbee.all")],
       ["on", "Online"],
       ["off", "Offline"],
-      ["mains", "A rete"],
-      ["batt", "A batteria"],
+      ["mains", shcT(this._hass, "zigbee.mains_powered")],
+      ["batt", shcT(this._hass, "zigbee.battery_powered")],
     ];
     const match = (x) => {
       const f = this._filter;
@@ -10166,7 +12009,7 @@ class ShcZigbeeCard extends HTMLElement {
       const s = this._search.trim().toLowerCase();
       return !s || `${x.n} ${x.m} ${x.v || ""}`.toLowerCase().includes(s);
     };
-    const testo = { on: "Online", off: "Offline", escl: "Escluso" };
+    const testo = { on: "Online", off: "Offline", escl: shcT(this._hass, "zigbee.excluded") };
     const items = d.devices.filter(match).map((x) => {
       const st = d.stato(x);
       const t = x.on ? zbTacche(x.q) : 0;
@@ -10178,7 +12021,7 @@ class ShcZigbeeCard extends HTMLElement {
           <span class="shc-zb-nome">${esc(x.n)}</span>
           <span class="shc-zb-riga"><span class="shc-zb-st ${st}">${testo[st]}</span><span class="shc-zb-tacche">${barre}</span>${x.on && x.q >= 0 ? `<span style="color:${col}">LQI ${x.q}</span>` : ""}</span>
           <span class="shc-zb-info">${esc(x.m || "?")} · ${this._battHtml(x)}</span>
-          ${st === "off" && x.da ? `<span class="shc-zb-da">offline da ${esc(zbDurata(x.da))}</span>` : ""}
+          ${st === "off" && x.da ? `<span class="shc-zb-da">${shcT(this._hass, "zigbee.offline_for", { "1": (esc(zbDurata(x.da))) })}</span>` : ""}
         </span>
       </button>`;
     });
@@ -10186,9 +12029,9 @@ class ShcZigbeeCard extends HTMLElement {
       <div class="shc-zb-filters">${filters
         .map(([k, l]) => `<button type="button" class="shc-zb-filter${this._filter === k ? " on" : ""}${k === "off" && cnt.off ? " alarm" : ""}" data-filter="${k}">${l} <b>${cnt[k]}</b></button>`)
         .join("")}</div>
-      <input type="search" class="shc-zb-search" placeholder="Cerca per nome o modello" value="${esc(this._search)}">
-      <div class="shc-zb-grid">${items.join("") || `<div class="shc-zb-empty">Nessun dispositivo</div>`}</div>`;
-    const overlay = this._openDialog(`Dispositivi Zigbee (${d.devices.length})`, html, () => {
+      <input type="search" class="shc-zb-search" placeholder="${esc(shcT(this._hass, "zigbee.search_by_name_or"))}" value="${esc(this._search)}">
+      <div class="shc-zb-grid">${items.join("") || `<div class="shc-zb-empty">${esc(shcT(this._hass, "zigbee.no_devices"))}</div>`}</div>`;
+    const overlay = this._openDialog(shcT(this._hass, "zigbee.zigbee_devices", { "1": (d.devices.length) }), html, () => {
       if (this._root.activeElement?.classList?.contains("shc-zb-search")) return;
       this._openDevices();
     });
@@ -10217,22 +12060,22 @@ class ShcZigbeeCard extends HTMLElement {
     const st = d.stato(x);
     const col = x.on && x.q >= 0 ? zbLqiColor(x.q) : "#94a3b8";
     const escluso = d.excluded.includes(x.n);
-    const stTxt = { on: "Online", off: "Offline", escl: x.on ? "Online (escluso)" : "Offline (escluso)" }[st];
+    const stTxt = { on: "Online", off: "Offline", escl: x.on ? shcT(this._hass, "zigbee.online_excluded") : shcT(this._hass, "zigbee.offline_excluded") }[st];
     const html = `
-      <div class="shc-ap-sub-back" data-back="1">${ICON_BACK} Tutti i dispositivi</div>
+      <div class="shc-ap-sub-back" data-back="1">${shcT(this._hass, "zigbee.all_devices", { "1": (ICON_BACK) })}</div>
       <div class="shc-zb-detail-head">${this._img(x.m)}<div><b>${esc(x.n)}</b><small>${esc([x.v, x.m].filter(Boolean).join(" · "))}</small></div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stato</div>
-        ${this._row("Stato", `<span class="shc-ap-row-val" style="font-weight:800;color:${x.on ? "#16a34a" : "#ef4444"}">${esc(stTxt)}</span>`)}
-        ${!x.on && x.da ? this._row("Offline da", `<span class="shc-ap-row-val">${esc(zbDurata(x.da))}</span>`) : ""}
-        ${this._row("Segnale (LQI)", `<span class="shc-ap-row-val" style="font-weight:800;color:${col}">${x.on && x.q >= 0 ? x.q : "—"}</span>`)}
-        ${this._row("Alimentazione", `<span class="shc-ap-row-val shc-zb-info" style="font-size:14.5px">${this._battHtml(x)}</span>`)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.status"))}</div>
+        ${this._row(shcT(this._hass, "fritz.status"), `<span class="shc-ap-row-val" style="font-weight:800;color:${x.on ? "#16a34a" : "#ef4444"}">${esc(stTxt)}</span>`)}
+        ${!x.on && x.da ? this._row(shcT(this._hass, "zigbee.offline_for_2"), `<span class="shc-ap-row-val">${esc(zbDurata(x.da))}</span>`) : ""}
+        ${this._row(shcT(this._hass, "zigbee.signal_lqi"), `<span class="shc-ap-row-val" style="font-weight:800;color:${col}">${x.on && x.q >= 0 ? x.q : "—"}</span>`)}
+        ${this._row(shcT(this._hass, "zigbee.power_source"), `<span class="shc-ap-row-val shc-zb-info" style="font-size:14.5px">${this._battHtml(x)}</span>`)}
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Gestione</div>
-        ${this._row("Escludi da conteggio e avvisi", `<button type="button" class="shc-ap-switch${escluso ? " on" : ""}" data-escl="1"></button>`)}
-        <p class="shc-zb-note">Utile per un dispositivo che spegni di proposito (es. una presa stagionale): resta in elenco ma non fa scattare il rosso né gli avvisi.</p>
-        ${x.id ? this._row("Scheda del dispositivo in HA", `<button type="button" class="shc-ap-action-btn" data-device="1">Apri</button>`) : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.management"))}</div>
+        ${this._row(shcT(this._hass, "zigbee.exclude_from_count_and"), `<button type="button" class="shc-ap-switch${escluso ? " on" : ""}" data-escl="1"></button>`)}
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.useful_for_a_device"))}</p>
+        ${x.id ? this._row(shcT(this._hass, "zigbee.device_page_in_ha"), `<button type="button" class="shc-ap-action-btn" data-device="1">${esc(shcT(this._hass, "zigbee.open"))}</button>`) : ""}
       </div>`;
-    const overlay = this._openDialog("Dispositivo", html, () => this._openDevice(name));
+    const overlay = this._openDialog(shcT(this._hass, "zigbee.device"), html, () => this._openDevice(name));
     overlay.querySelector("[data-back]").addEventListener("click", () => this._openDevices());
     overlay.querySelector("[data-escl]").addEventListener("click", () => {
       const list = d.excluded.filter((n) => n !== x.n);
@@ -10263,15 +12106,15 @@ class ShcZigbeeCard extends HTMLElement {
         <div class="shc-ap-bar"><i style="width:${pct}%;background:${color}"></i></div>
       </div>`;
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Segnale (dal più debole)</div>
-        ${lqi.length ? lqi.map((x) => rank(x.n, `LQI ${x.q}`, Math.min(100, Math.round((x.q / 255) * 100)), zbLqiColor(x.q))).join("") : `<div class="shc-zb-empty">Nessun valore LQI: abilita le entità *_linkquality</div>`}
-        <p class="shc-zb-note">Sotto 50 il collegamento è debole: avvicina un dispositivo alimentato a rete (fa da ripetitore) o sposta quello in fondo alla lista.</p>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.signal_weakest_first"))}</div>
+        ${lqi.length ? lqi.map((x) => rank(x.n, `LQI ${x.q}`, Math.min(100, Math.round((x.q / 255) * 100)), zbLqiColor(x.q))).join("") : `<div class="shc-zb-empty">${esc(shcT(this._hass, "zigbee.no_lqi_value_enable"))}</div>`}
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.below_50_the_connection"))}</p>
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Batterie (dalla più scarica)</div>
-        ${batt.length ? batt.map((x) => rank(x.n, `${x.b}%`, x.b, inverseSeverityColor(x.b))).join("") : `<div class="shc-zb-empty">Nessun dispositivo a batteria</div>`}
-        ${noBatt.length ? this._row("Livello non disponibile", `<span class="shc-ap-row-val">${esc(noBatt.map((x) => x.n).join(", "))}</span>`) : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.batteries_lowest_first"))}</div>
+        ${batt.length ? batt.map((x) => rank(x.n, `${x.b}%`, x.b, inverseSeverityColor(x.b))).join("") : `<div class="shc-zb-empty">${esc(shcT(this._hass, "zigbee.no_batterypowered_devices"))}</div>`}
+        ${noBatt.length ? this._row(shcT(this._hass, "zigbee.level_unavailable"), `<span class="shc-ap-row-val">${esc(noBatt.map((x) => x.n).join(", "))}</span>`) : ""}
       </div>`;
-    this._openDialog("Segnale e batterie", html, () => this._openSignal());
+    this._openDialog(shcT(this._hass, "zigbee.signal_and_batteries"), html, () => this._openSignal());
   }
 
   // 🔔 Notifiche: tutto quello che riguarda gli avvisi
@@ -10285,32 +12128,32 @@ class ShcZigbeeCard extends HTMLElement {
     const pending = String(hass.states[n.pending]?.state || "");
     const tags = (list, attr) =>
       list.length
-        ? `<div class="shc-zb-tags">${list.map((x) => `<span class="shc-zb-tag">${esc(x)}${attr ? `<button type="button" ${attr}="${esc(x)}" title="Togli">×</button>` : ""}</span>`).join("")}</div>`
-        : `<div class="shc-zb-empty" style="padding:6px">Nessuno</div>`;
+        ? `<div class="shc-zb-tags">${list.map((x) => `<span class="shc-zb-tag">${esc(x)}${attr ? `<button type="button" ${attr}="${esc(x)}" title="${esc(shcT(this._hass, "zigbee.remove"))}">×</button>` : ""}</span>`).join("")}</div>`
+        : `<div class="shc-zb-empty" style="padding:6px">${esc(shcT(this._hass, "zigbee.none"))}</div>`;
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvisi</div>
-        ${this._row("Avvisi offline e nuovi dispositivi", this._switchHtml(n.enabled))}
-        ${this._row("Avviso batteria bassa", this._switchHtml(n.battery_enabled))}
-        ${this._row("Offline da almeno", this._stepperHtml(n.offline_minutes, "min"))}
-        ${this._row("Batteria bassa sotto", this._stepperHtml(n.battery_threshold, "%"))}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.alerts"))}</div>
+        ${this._row(shcT(this._hass, "zigbee.offline_alerts_and_new"), this._switchHtml(n.enabled))}
+        ${this._row(shcT(this._hass, "zigbee.low_battery_alert"), this._switchHtml(n.battery_enabled))}
+        ${this._row(shcT(this._hass, "zigbee.offline_for_at_least"), this._stepperHtml(n.offline_minutes, "min"))}
+        ${this._row(shcT(this._hass, "zigbee.low_battery_below"), this._stepperHtml(n.battery_threshold, "%"))}
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Fascia oraria</div>
-        ${this._row("Dalle", this._timeHtml(n.from))}
-        ${this._row("Fino alle", this._timeHtml(n.to))}
-        <p class="shc-zb-note">Fuori fascia non parte nessuna notifica: quello che succede di notte arriva in un riepilogo all'apertura della fascia.</p>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.time_window"))}</div>
+        ${this._row(shcT(this._hass, "zigbee.from"), this._timeHtml(n.from))}
+        ${this._row(shcT(this._hass, "zigbee.until"), this._timeHtml(n.to))}
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.no_notifications_are_sent"))}</p>
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Già avvisati</div>
-        ${this._row("Offline", `<span class="shc-ap-row-val">${esc(notified.join(", ") || "nessuno")}</span>`)}
-        ${this._row("Batteria bassa", `<span class="shc-ap-row-val">${esc(battNotified.join(", ") || "nessuno")}</span>`)}
-        ${pending && !["unknown", "unavailable"].includes(pending) ? this._row("Nuovi in attesa della fascia", `<span class="shc-ap-row-val">${esc(pending)}</span>`) : ""}
-        <p class="shc-zb-note">Un dispositivo avvisato non viene ripetuto finché non torna online (o la batteria non risale sopra soglia).</p>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.already_alerted"))}</div>
+        ${this._row("Offline", `<span class="shc-ap-row-val">${esc(notified.join(", ") || shcT(this._hass, "zigbee.none").toLowerCase())}</span>`)}
+        ${this._row(shcT(this._hass, "zigbee.low_battery"), `<span class="shc-ap-row-val">${esc(battNotified.join(", ") || shcT(this._hass, "zigbee.none").toLowerCase())}</span>`)}
+        ${pending && !["unknown", "unavailable"].includes(pending) ? this._row(shcT(this._hass, "zigbee.new_waiting_for_time"), `<span class="shc-ap-row-val">${esc(pending)}</span>`) : ""}
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.an_alerted_device_will"))}</p>
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Esclusi da conteggio e avvisi</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.excluded_from_count_and"))}</div>
         ${tags(d.excluded, "data-unexcl")}
-        <p class="shc-zb-note">Per escludere un dispositivo: elenco Dispositivi → tocca il dispositivo.</p>
+        <p class="shc-zb-note">${esc(shcT(this._hass, "zigbee.to_exclude_a_device"))}</p>
       </div>
-      ${hass.states[n.test_script] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Prova</div>${this._row("Invia una notifica di prova", `<button type="button" class="shc-ap-action-btn" data-test="1">Invia</button>`)}</div>` : ""}`;
-    const overlay = this._openDialog("Notifiche", html, () => {
+      ${hass.states[n.test_script] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "zigbee.test"))}</div>${this._row(shcT(this._hass, "zigbee.send_a_test_notification"), `<button type="button" class="shc-ap-action-btn" data-test="1">${esc(shcT(this._hass, "zigbee.send"))}</button>`)}</div>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "zigbee.notifications"), html, () => {
       if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
       this._openNotify();
     });
@@ -10337,42 +12180,42 @@ class ShcZigbeeCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return { name: "Rete Zigbee", entity: "sensor.zigbee_dispositivi_offline" };
+    return { name: shcT(this._hass, "zigbee.zigbee_network"), entity: "sensor.zigbee_dispositivi_offline" };
   }
 }
 
 class ShcZigbeeCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Rete Zigbee" },
-        { key: "entity", label: "Sensore riepilogo del package (sensor.zigbee_dispositivi_offline)", domain: ["sensor"], required: true },
-        { key: "bridge_entity", label: "Stato del bridge Zigbee2MQTT (connessione)", domain: ["binary_sensor"] },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "zigbee.zigbee_network") },
+        { key: "entity", label: shcT(this._hass, "zigbeecard.package_summary_sensor_sensorzigbeedispositivioffline"), domain: ["sensor"], required: true },
+        { key: "bridge_entity", label: shcT(this._hass, "zigbeecard.zigbee2mqtt_bridge_state_connection"), domain: ["binary_sensor"] },
       ]},
       { title: "Zigbee2MQTT", fields: [
-        { key: "permit_join_entity", label: "Permetti abbinamento (permit join)", domain: ["switch"] },
-        { key: "pairing_end_entity", label: "Fine abbinamento (conto alla rovescia)", domain: ["sensor"] },
-        { key: "base_topic", label: "Topic base MQTT di Zigbee2MQTT", kind: "text", placeholder: "zigbee2mqtt" },
-        { key: "restart_entity", label: "Pulsante riavvio", domain: ["button"] },
-        { key: "version_entity", label: "Versione", domain: ["sensor"] },
-        { key: "log_level_entity", label: "Livello log", domain: ["select"] },
-        { key: "frontend_url", label: "Indirizzo interfaccia Zigbee2MQTT", kind: "text", placeholder: "/45df7312_zigbee2mqtt", hint: "Il percorso che vedi nella barra degli indirizzi aprendo Zigbee2MQTT dal menu laterale, oppure un indirizzo http completo." },
-        { key: "image_path", label: "Cartella foto dispositivi", kind: "text", placeholder: "/local/zigbee_img/", hint: "Se una foto manca la card la prende dal sito di Zigbee2MQTT." },
+        { key: "permit_join_entity", label: shcT(this._hass, "zigbeecard.permit_join"), domain: ["switch"] },
+        { key: "pairing_end_entity", label: shcT(this._hass, "zigbeecard.pairing_end_countdown"), domain: ["sensor"] },
+        { key: "base_topic", label: shcT(this._hass, "zigbeecard.zigbee2mqtt_mqtt_base_topic"), kind: "text", placeholder: "zigbee2mqtt" },
+        { key: "restart_entity", label: shcT(this._hass, "zigbeecard.restart_button"), domain: ["button"] },
+        { key: "version_entity", label: shcT(this._hass, "zigbee.version"), domain: ["sensor"] },
+        { key: "log_level_entity", label: shcT(this._hass, "zigbee.log_level"), domain: ["select"] },
+        { key: "frontend_url", label: shcT(this._hass, "zigbeecard.zigbee2mqtt_frontend_url"), kind: "text", placeholder: "/45df7312_zigbee2mqtt", hint: shcT(this._hass, "zigbeecard.the_path_shown_in") },
+        { key: "image_path", label: shcT(this._hass, "zigbeecard.device_images_folder"), kind: "text", placeholder: "/local/zigbee_img/", hint: shcT(this._hass, "zigbeecard.if_an_image_is") },
       ]},
-      { title: "Notifiche (helper del package)", fields: [
-        { key: "notify.enabled", label: "Avvisi attivi", domain: ["input_boolean"] },
-        { key: "notify.battery_enabled", label: "Avviso batteria bassa", domain: ["input_boolean"] },
-        { key: "notify.offline_minutes", label: "Minuti di offline prima dell'avviso", domain: ["input_number"] },
-        { key: "notify.battery_threshold", label: "Soglia batteria bassa", domain: ["input_number"] },
-        { key: "notify.from", label: "Avvisi dalle", domain: ["input_datetime"] },
-        { key: "notify.to", label: "Avvisi fino alle", domain: ["input_datetime"] },
-        { key: "notify.test_script", label: "Script notifica di prova", domain: ["script"] },
+      { title: shcT(this._hass, "zigbeecard.notifications_package_helpers"), fields: [
+        { key: "notify.enabled", label: shcT(this._hass, "zigbeecard.alerts_enabled"), domain: ["input_boolean"] },
+        { key: "notify.battery_enabled", label: shcT(this._hass, "zigbee.low_battery_alert"), domain: ["input_boolean"] },
+        { key: "notify.offline_minutes", label: shcT(this._hass, "zigbeecard.offline_minutes_before_alert"), domain: ["input_number"] },
+        { key: "notify.battery_threshold", label: shcT(this._hass, "zigbeecard.low_battery_threshold"), domain: ["input_number"] },
+        { key: "notify.from", label: shcT(this._hass, "zigbeecard.alerts_from"), domain: ["input_datetime"] },
+        { key: "notify.to", label: shcT(this._hass, "zigbeecard.alerts_until"), domain: ["input_datetime"] },
+        { key: "notify.test_script", label: shcT(this._hass, "zigbeecard.test_notification_script"), domain: ["script"] },
       ]},
-      { title: "Grafici", fields: [
-        { key: "graph.online", label: "Dispositivi online", domain: ["sensor"] },
-        { key: "graph.lqi_avg", label: "LQI medio", domain: ["sensor"] },
-        { key: "graph.lqi_min", label: "LQI minimo", domain: ["sensor"] },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "fritz.graphs"), fields: [
+        { key: "graph.online", label: shcT(this._hass, "zigbee.online_devices"), domain: ["sensor"] },
+        { key: "graph.lqi_avg", label: shcT(this._hass, "zigbee.average_lqi"), domain: ["sensor"] },
+        { key: "graph.lqi_min", label: shcT(this._hass, "zigbee.minimum_lqi"), domain: ["sensor"] },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -10498,18 +12341,18 @@ const CL_STYLE = `
 `;
 
 const CL_MODES = {
-  off: { label: "Spento", icon: "mdi:power" },
-  cool: { label: "Raffresca", icon: "mdi:snowflake" },
-  heat: { label: "Riscalda", icon: "mdi:fire" },
+  off: { get label() { return shcT(null, "clmode.off"); }, icon: "mdi:power" },
+  cool: { get label() { return shcT(null, "clmode.cool"); }, icon: "mdi:snowflake" },
+  heat: { get label() { return shcT(null, "clmode.heat"); }, icon: "mdi:fire" },
   heat_cool: { label: "Auto", icon: "mdi:autorenew" },
   auto: { label: "Auto", icon: "mdi:autorenew" },
-  dry: { label: "Deumidifica", icon: "mdi:water-percent" },
-  fan_only: { label: "Ventilazione", icon: "mdi:fan" },
+  dry: { get label() { return shcT(null, "clmode.dry"); }, icon: "mdi:water-percent" },
+  fan_only: { get label() { return shcT(null, "clmode.fan_only"); }, icon: "mdi:fan" },
 };
 
-const CL_FAN = { auto: "Auto", quiet: "Silenzioso", silence: "Silenzioso", low: "Bassa", medium: "Media", high: "Alta" };
-const CL_SWING = { stop: "Ferme", swing: "Oscillanti", windnice: "Comfort", off: "Ferme", on: "Oscillanti", vertical: "Verticale", horizontal: "Orizzontale", both: "Entrambe" };
-const CL_PRESET = { none: "Normale", away: "Fuori casa", boost: "Boost", eco: "Eco", comfort: "Comfort", sleep: "Notte" };
+const CL_FAN = { auto: "Auto", get quiet() { return shcT(null, "clfan.quiet"); }, get silence() { return shcT(null, "clfan.quiet"); }, get low() { return shcT(null, "clfan.low"); }, get medium() { return shcT(null, "clfan.medium"); }, get high() { return shcT(null, "clfan.high"); } };
+const CL_SWING = { get stop() { return shcT(null, "clswing.fixed"); }, get swing() { return shcT(null, "clswing.swing"); }, get windnice() { return shcT(null, "clswing.comfort"); }, get off() { return shcT(null, "clswing.fixed"); }, get on() { return shcT(null, "clswing.swing"); }, get vertical() { return shcT(null, "clswing.vertical"); }, get horizontal() { return shcT(null, "clswing.horizontal"); }, get both() { return shcT(null, "clswing.both"); } };
+const CL_PRESET = { get none() { return shcT(null, "clpreset.none"); }, get away() { return shcT(null, "clpreset.away"); }, boost: "Boost", eco: "Eco", comfort: "Comfort", get sleep() { return shcT(null, "clpreset.sleep"); } };
 
 const CL_DEFAULT_SCHEDULE = {
   on_enabled: "input_boolean.clima_salone_programmazione_attiva",
@@ -10581,9 +12424,9 @@ function clNum(v, dec = 1) {
 
 class ShcClimateCard extends HTMLElement {
   setConfig(config) {
-    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error(shcT(this._hass, "climate.entity_is_required_climatexxx"));
     this._config = {
-      name: "Climatizzatore",
+      name: shcT(this._hass, "climate.climate"),
       layout: "centrato",
       min: 18,
       max: 32,
@@ -10604,18 +12447,18 @@ class ShcClimateCard extends HTMLElement {
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programmazione">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Consumi">${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-cl-fan" title="Ventola e alette"><ha-icon icon="mdi:fan"></ha-icon></button>
-            <button type="button" class="shc-ap-tool shc-cl-info" title="Stato e diagnostica">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "climate.schedule"))}" data-i18n-title="climate.schedule">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "nas.consumption"))}" data-i18n-title="nas.consumption">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-cl-fan" title="${esc(shcT(this._hass, "climate.fan_and_vanes"))}" data-i18n-title="climate.fan_and_vanes"><ha-icon icon="mdi:fan"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-cl-info" title="${esc(shcT(this._hass, "climate.status_and_diagnostics"))}" data-i18n-title="climate.status_and_diagnostics">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-cl-herocol">
             <div class="shc-ap-hero">${clHeroSvg(this._uid)}</div>
             <div class="shc-cl-gauge"></div>
-            <div class="shc-cl-line" title="Temperatura stanza, impostata e umidità">
+            <div class="shc-cl-line" title="${esc(shcT(this._hass, "climate.room_temperature_target_and"))}" data-i18n-title="climate.room_temperature_target_and">
               <div class="shc-cl-line-head">
                 <span class="shc-cl-line-title"><b class="cl-l-room"></b><small class="cl-l-mode">—</small></span>
                 <span class="shc-cl-line-val"><b class="cl-l-temp">—</b><i>°C</i><span class="cl-l-hum"></span></span>
@@ -10625,29 +12468,29 @@ class ShcClimateCard extends HTMLElement {
                 <div class="shc-cl-lbar main"></div>
                 <div class="shc-cl-lbar inner"></div>
                 <div class="shc-cl-ndl inner" hidden></div>
-                <div class="shc-cl-spt" hidden title="Temperatura impostata"><i></i><b></b></div>
+                <div class="shc-cl-spt" hidden title="${esc(shcT(this._hass, "climate.target_temperature"))}" data-i18n-title="climate.target_temperature"><i></i><b></b></div>
                 <div class="shc-cl-ndl main" hidden></div>
               </div>
               <div class="shc-cl-scale h"></div>
             </div>
           </div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Clima</span>
+            <span class="shc-ap-cycle-cap" data-i18n="climate.climate_2">${esc(shcT(this._hass, "climate.climate_2"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="cl-room">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:target" style="--mdc-icon-size:16px"></ha-icon></span><small>Impostata</small></span><b class="cl-target">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="cl-hum">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:sun-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Esterna</small></span><b class="cl-out">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Potenza</small></span><b class="cl-power">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small>Oggi</small></span><b class="cl-today">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.room">${esc(shcT(this._hass, "climate.room"))}</small></span><b class="cl-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:target" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.target">${esc(shcT(this._hass, "climate.target"))}</small></span><b class="cl-target">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.humidity">${esc(shcT(this._hass, "climate.humidity"))}</small></span><b class="cl-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:sun-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.outdoor">${esc(shcT(this._hass, "climate.outdoor"))}</small></span><b class="cl-out">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="appledit.power">${esc(shcT(this._hass, "appledit.power"))}</small></span><b class="cl-power">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_CALENDAR}</span><small data-i18n="nas.today">${esc(shcT(this._hass, "nas.today"))}</small></span><b class="cl-today">—</b></div>
             </div>
           </div>
         </div>
         <div class="shc-cl-ctrl">
-          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
-          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
-          <div class="shc-cl-set"><span class="cl-set-val">—</span><small>impostata</small></div>
-          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+          <button type="button" class="shc-cl-btn power" title="${esc(shcT(this._hass, "climate.turn_on_off"))}" data-i18n-title="climate.turn_on_off"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="${esc(shcT(this._hass, "climate.minus"))}" data-i18n-title="climate.minus"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small data-i18n="climate.target_2">${esc(shcT(this._hass, "climate.target_2"))}</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="${esc(shcT(this._hass, "climate.plus"))}" data-i18n-title="climate.plus"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="shc-cl-ctrl shc-cl-modes"></div>
         <div class="shc-cl-sched" hidden></div>
@@ -10655,7 +12498,7 @@ class ShcClimateCard extends HTMLElement {
         <div class="shc-ap-panel">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter shc-c-meter-clickable" data-graph="power">
-              <div class="shc-ap-meter-row"><span>Potenza assorbita</span><strong class="cl-power-val">—</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="climate.power_consumption">${esc(shcT(this._hass, "climate.power_consumption"))}</span><strong class="cl-power-val">—</strong></div>
               <div class="shc-ap-bar"><i class="cl-power-bar" style="width:0%"></i></div>
             </div>
           </div>
@@ -10731,7 +12574,7 @@ class ShcClimateCard extends HTMLElement {
     const max = Number(cfg.max);
     const pos = (v, lo, hi) => `${Math.min(100, Math.max(0, ((v - lo) / (hi - lo)) * 100)).toFixed(2)}%`;
     const hasSet = !unav && Number.isFinite(target);
-    q(".cl-l-mode").innerHTML = `${esc(unav ? "Non raggiungibile" : CL_MODES[mode]?.label || mode)}${hasSet ? ` · impostata <em>${esc(clNum(target))}°</em>` : ""}`;
+    q(".cl-l-mode").innerHTML = `${esc(unav ? shcT(this._hass, "climate.unreachable") : CL_MODES[mode]?.label || mode)}${hasSet ? ` · ${esc(shcT(this._hass, "climate.target_2"))} <em>${esc(clNum(target))}°</em>` : ""}`;
     q(".cl-l-temp").textContent = room !== null ? clNum(room) : "—";
     q(".cl-l-hum").textContent = hum !== null ? `${Math.round(hum)}%` : "";
     const nm = q(".shc-cl-ndl.main");
@@ -10755,7 +12598,7 @@ class ShcClimateCard extends HTMLElement {
     const cfg = this._config;
     const e = cfg.entity;
     const hum = cfg.humidity_entity;
-    const modeTpl = `{% set m = states('${e}') %}{% if m == 'heat' %}Riscalda{% elif m == 'cool' %}Raffresca{% elif m == 'dry' %}Deumidifica{% elif m == 'fan_only' %}Ventilazione{% elif m in ['heat_cool','auto'] %}Auto{% elif m == 'off' %}Spento{% else %}Non raggiungibile{% endif %}`;
+    const modeTpl = `{% set m = states('${e}') %}{% if m == 'heat' %}${shcT(this._hass, "clmode.heat")}{% elif m == 'cool' %}${shcT(this._hass, "clmode.cool")}{% elif m == 'dry' %}${shcT(this._hass, "clmode.dry")}{% elif m == 'fan_only' %}${shcT(this._hass, "clmode.fan_only")}{% elif m in ['heat_cool','auto'] %}Auto{% elif m == 'off' %}${shcT(this._hass, "clmode.off")}{% else %}Non raggiungibile{% endif %}`;
     const g = {
       type: "custom:gauge-card-pro",
       entity: e,
@@ -10845,7 +12688,7 @@ class ShcClimateCard extends HTMLElement {
       host.replaceChildren(el);
       this._gauge = el;
     } catch (e) {
-      host.innerHTML = `<div class="shc-cl-note" style="text-align:center;padding:30px 0">Gauge non disponibile</div>`;
+      host.innerHTML = `<div class="shc-cl-note" style="text-align:center;padding:30px 0">${esc(shcT(this._hass, "climate.gauge_unavailable"))}</div>`;
     }
   }
 
@@ -10871,10 +12714,10 @@ class ShcClimateCard extends HTMLElement {
   _graphSeries() {
     const cfg = this._config;
     const s = [];
-    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
-    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: "Temperatura esterna", color: "#eab308" });
-    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
-    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: shcT(this._hass, "climate.room_temperature"), color: "#f97316" });
+    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: shcT(this._hass, "climate.outdoor_temperature"), color: "#eab308" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: shcT(this._hass, "climate.humidity"), color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#16a34a" });
     return s;
   }
 
@@ -10905,6 +12748,7 @@ class ShcClimateCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     if (this._gauge) this._gauge.hass = hass;
     applyLayoutChoice(this._root, this._config, hass);
@@ -10940,8 +12784,8 @@ class ShcClimateCard extends HTMLElement {
     q(".shc-ap-badge-label").textContent = unav
       ? "OFFLINE"
       : mode === "off"
-        ? "SPENTO"
-        : (action === "idle" || pwIdle ? "IN PAUSA" : (CL_MODES[mode]?.label || mode).toUpperCase());
+        ? shcT(this._hass, "climate.off")
+        : (action === "idle" || pwIdle ? shcT(this._hass, "climate.idle") : (CL_MODES[mode]?.label || mode).toUpperCase());
 
     const room = cfg.temperature_entity ? this._val(cfg.temperature_entity) : Number.isFinite(Number(a.current_temperature)) ? Number(a.current_temperature) : null;
     const target = Number(a.temperature);
@@ -10981,7 +12825,7 @@ class ShcClimateCard extends HTMLElement {
           .map((m) => `<button type="button" class="shc-cl-btn m-${esc(m)}${m === mode ? " on" : ""}" data-mode="${esc(m)}" title="${esc(CL_MODES[m]?.label || m)}"${unav ? " disabled" : ""}><ha-icon icon="${CL_MODES[m]?.icon || "mdi:thermostat"}"></ha-icon></button>`)
           .join("") +
         (swingModes.length
-          ? `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn swing${swingOn ? " on" : ""}" data-swing="1" title="Alette: ${esc(CL_SWING[a.swing_mode] || a.swing_mode || "")}"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-up-down"></ha-icon></button>`
+          ? `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn swing${swingOn ? " on" : ""}" data-swing="1" title="${shcT(this._hass, "climate.vanes", { "1": (esc(CL_SWING[a.swing_mode] || a.swing_mode || "")) })}"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-up-down"></ha-icon></button>`
           : "");
       box.querySelectorAll("[data-mode]").forEach((b) =>
         b.addEventListener("click", (e) => {
@@ -11007,15 +12851,15 @@ class ShcClimateCard extends HTMLElement {
     const fa = cfg.fan_auto_entity ? hs[cfg.fan_auto_entity] : null;
     if (fa && !cfg.fan_auto_in_schedule) {
       const fm = a.fan_mode;
-      const fmTxt = fm ? CL_FAN[String(fm).toLowerCase()] || (/^\d+$/.test(fm) ? `velocità ${fm}` : fm) : "";
-      chips.push(`<span data-fanauto="1"><ha-icon icon="${fa.state === "on" ? "mdi:fan-auto" : "mdi:fan"}"></ha-icon>${fa.state === "on" ? "Ventola automatica" : "Ventola manuale"}${fmTxt && !unav && mode !== "off" ? ` · ${esc(fmTxt)}` : ""}</span>`);
+      const fmTxt = fm ? CL_FAN[String(fm).toLowerCase()] || (/^\d+$/.test(fm) ? shcT(this._hass, "climate.speed", { "1": (fm) }) : fm) : "";
+      chips.push(`<span data-fanauto="1"><ha-icon icon="${fa.state === "on" ? "mdi:fan-auto" : "mdi:fan"}"></ha-icon>${fa.state === "on" ? shcT(this._hass, "climate.auto_fan") : shcT(this._hass, "climate.manual_fan")}${fmTxt && !unav && mode !== "off" ? ` · ${esc(fmTxt)}` : ""}</span>`);
     }
     if (hs[sc.on_enabled]?.state === "on") {
       const m = hs[sc.on_mode]?.state;
       const t = hs[sc.on_temperature]?.state;
-      chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>Accensione ${esc(String(hs[sc.on_time]?.state || "").slice(0, 5))}${m && m !== "off" ? ` · ${esc(CL_MODES[m]?.label || m)}${t ? ` ${esc(clNum(t))}°` : ""}` : ""}</span>`);
+      chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>${shcT(this._hass, "climate.turn_on", { "1": (esc(String(hs[sc.on_time]?.state || "").slice(0, 5))), "2": (m && m !== "off" ? ` · ${esc(CL_MODES[m]?.label || m)}${t ? ` ${esc(clNum(t))}°` : ""}` : "") })}</span>`);
     }
-    if (hs[sc.off_enabled]?.state === "on") chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>Spegnimento ${esc(String(hs[sc.off_time]?.state || "").slice(0, 5))}</span>`);
+    if (hs[sc.off_enabled]?.state === "on") chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>${shcT(this._hass, "climate.turn_off", { "1": (esc(String(hs[sc.off_time]?.state || "").slice(0, 5))) })}</span>`);
     // pulsanti Consumi / Programmazione: solo se c'e' qualcosa da mostrare (hide_* forza la scelta)
     const hasConsumi = !cfg.hide_consumi && !!(cfg.power_entity || cfg.energy_entity || Object.values(cfg.consumption || {}).some(Boolean));
     const hasSchedule = !cfg.hide_schedule && ((!!hs[sc.on_enabled] || !!hs[sc.off_enabled]) || (!!cfg.fan_auto_in_schedule && !!fa));
@@ -11039,7 +12883,7 @@ class ShcClimateCard extends HTMLElement {
     const warn = q(".shc-ap-warn");
     if (unav) {
       warn.hidden = false;
-      warn.textContent = "⚠ Climatizzatore non raggiungibile: controlla alimentazione e collegamento al cloud";
+      warn.textContent = shcT(this._hass, "climate.air_conditioner_unreachable_check");
     } else if (errors.length) {
       warn.hidden = false;
       warn.textContent = `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`;
@@ -11114,11 +12958,11 @@ class ShcClimateCard extends HTMLElement {
     // fan_auto_in_schedule: la riga "Ventola automatica" sta qui invece che in card
     const fae = this._config.fan_auto_in_schedule ? this._config.fan_auto_entity : null;
     const fanHtml = has(fae)
-      ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola automatica</div>${this._row("Regola la ventola da sola", this._switchHtml(fae))}
-        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità nel popup Ventola, la ventola automatica si spegne.")}</p></div>`
+      ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.auto_fan"))}</div>${this._row(shcT(this._hass, "climate.adjust_fan_automatically"), this._switchHtml(fae))}
+        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || shcT(this._hass, "climate.the_further_from_the"))}</p></div>`
       : "";
     if (!hasSched && !fanHtml) {
-      this._openDialog("Programmazione", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna programmazione configurata. Copia il package <b>clima.yaml</b> (vedi guida) oppure indica i tuoi helper nell'opzione <code>schedule</code> della card.</p></div>`);
+      this._openDialog(shcT(this._hass, "climate.schedule"), `<div class="shc-ap-sec"><p class="shc-cl-note">${esc(shcT(this._hass, "climate.no_schedule_configured_copy"))} <b>clima.yaml</b> ${esc(shcT(this._hass, "climate.see_guide_or_specify"))} <code>schedule</code> ${esc(shcT(this._hass, "climate.of_the_card"))}</p></div>`);
       return;
     }
     const timeHtml = (e) => (has(e) ? `<input type="time" class="shc-notif-time" data-time="${esc(e)}" value="${esc(String(hs[e].state).slice(0, 5))}">` : `<span class="shc-ap-row-val">n/d</span>`);
@@ -11132,23 +12976,23 @@ class ShcClimateCard extends HTMLElement {
       ? `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-num="-1">−</button><span>${esc(clNum(tSt.state))} °C</span><button type="button" class="shc-at-pm" data-num="1">+</button></span>`
       : `<span class="shc-ap-row-val">n/d</span>`;
     const schedHtml = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Accensione programmata</div>
-        ${this._row("Attiva", this._switchHtml(sc.on_enabled))}
-        ${this._row("Alle", timeHtml(sc.on_time))}
-        ${modeSel ? `${this._row("Modalità", "")}${modeSel}` : ""}
-        ${this._row("Temperatura", tempHtml)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.scheduled_turnon"))}</div>
+        ${this._row(shcT(this._hass, "climate.active"), this._switchHtml(sc.on_enabled))}
+        ${this._row(shcT(this._hass, "climate.at"), timeHtml(sc.on_time))}
+        ${modeSel ? `${this._row(shcT(this._hass, "climate.mode"), "")}${modeSel}` : ""}
+        ${this._row(shcT(this._hass, "nascard.temperature"), tempHtml)}
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Spegnimento programmato</div>
-        ${this._row("Attivo", this._switchHtml(sc.off_enabled))}
-        ${this._row("Alle", timeHtml(sc.off_time))}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.scheduled_turnoff"))}</div>
+        ${this._row(shcT(this._hass, "alexamemocard.active"), this._switchHtml(sc.off_enabled))}
+        ${this._row(shcT(this._hass, "climate.at"), timeHtml(sc.off_time))}
       </div>
-      <p class="shc-cl-note">Programmazioni <b>una tantum</b>: scattano una volta sola all'orario scelto, poi si disattivano da sole. Riaccendile per la volta successiva. Quando sono attive compaiono sotto i comandi della card.</p>`;
+      <p class="shc-cl-note">${esc(shcT(this._hass, "climate.schedules"))} <b>${esc(shcT(this._hass, "climate.oneoff"))}</b>${esc(shcT(this._hass, "climate.triggers_once_at_the"))}</p>`;
     const html = fanHtml + (hasSched ? schedHtml : "");
     const reopen = () => {
       if (this._root.activeElement?.classList?.contains("shc-notif-time")) return;
       this._openSchedule();
     };
-    const overlay = this._openDialog("Programmazione", html, reopen);
+    const overlay = this._openDialog(shcT(this._hass, "climate.schedule"), html, reopen);
     overlay.querySelectorAll("[data-toggle]").forEach((b) =>
       b.addEventListener("click", () => {
         this._call(b.dataset.toggle.split(".")[0], "toggle", { entity_id: b.dataset.toggle });
@@ -11177,10 +13021,10 @@ class ShcClimateCard extends HTMLElement {
     const c = this._config.consumption || {};
     const cfg = this._config;
     const per = [
-      ["Oggi", "cooling_day", "heating_day"],
-      ["Settimana", "cooling_week", "heating_week"],
-      ["Mese", "cooling_month", "heating_month"],
-      ["Anno", "cooling_year", "heating_year"],
+      [shcT(this._hass, "nas.today"), "cooling_day", "heating_day"],
+      [shcT(this._hass, "climate.week"), "cooling_week", "heating_week"],
+      [shcT(this._hass, "nas.month"), "cooling_month", "heating_month"],
+      [shcT(this._hass, "nas.year"), "cooling_year", "heating_year"],
     ].filter(([, a, b]) => c[a] || c[b]);
     const v = (e) => {
       const n = this._val(e);
@@ -11190,19 +13034,19 @@ class ShcClimateCard extends HTMLElement {
     const power = this._val(cfg.power_entity);
     const html = `
       ${per.length
-        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi del climatizzatore</div>
-          <div class="shc-cl-grid"><span></span><span class="h">Freddo</span><span class="h">Caldo</span>
+        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.air_conditioner_consumption"))}</div>
+          <div class="shc-cl-grid"><span></span><span class="h">${esc(shcT(this._hass, "climate.cooling"))}</span><span class="h">${esc(shcT(this._hass, "climate.heating"))}</span>
           ${per.map(([l, a, b]) => `<span>${l}</span><b>${v(c[a])}</b><b>${v(c[b])}</b>`).join("")}</div>
-          <p class="shc-cl-note">Valori dall'integrazione del climatizzatore (si aggiornano qualche volta all'ora).</p></div>`
+          <p class="shc-cl-note">${esc(shcT(this._hass, "climate.values_from_the_air"))}</p></div>`
         : ""}
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Presa / misuratore</div>
-        ${cfg.power_entity ? this._row("Potenza adesso", `<span class="shc-ap-row-val">${power === null ? "—" : `${Math.round(power)} W`}</span>`) : ""}
-        ${cfg.energy_entity ? this._row("Energia totale", `<span class="shc-ap-row-val">${total === null ? "—" : `${clNum(total, 1)} kWh`}</span>`) : ""}
-        ${cfg.price_entity && total !== null && Number.isFinite(shcPrice(this._hass, cfg.price_entity)) ? this._row("Costo totale stimato", `<span class="shc-ap-row-val">${clNum(total * shcPrice(this._hass, cfg.price_entity), 2)} €</span>`) : ""}
-        ${!cfg.power_entity && !cfg.energy_entity ? `<p class="shc-cl-note">Nessun misuratore configurato (power_entity / energy_entity).</p>` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.plug_meter"))}</div>
+        ${cfg.power_entity ? this._row(shcT(this._hass, "climate.current_power"), `<span class="shc-ap-row-val">${power === null ? "—" : `${Math.round(power)} W`}</span>`) : ""}
+        ${cfg.energy_entity ? this._row(shcT(this._hass, "climate.total_energy"), `<span class="shc-ap-row-val">${total === null ? "—" : `${clNum(total, 1)} kWh`}</span>`) : ""}
+        ${cfg.price_entity && total !== null && Number.isFinite(shcPrice(this._hass, cfg.price_entity)) ? this._row(shcT(this._hass, "climate.estimated_total_cost"), `<span class="shc-ap-row-val">${clNum(total * shcPrice(this._hass, cfg.price_entity), 2)} €</span>`) : ""}
+        ${!cfg.power_entity && !cfg.energy_entity ? `<p class="shc-cl-note">${esc(shcT(this._hass, "climate.no_meter_configured_powerentity"))}</p>` : ""}
       </div>
-      ${cfg.power_entity ? `<div class="shc-ap-sec">${this._row("Grafico della potenza", `<button type="button" class="shc-ap-action-btn" data-pg="1">Apri</button>`)}</div>` : ""}`;
-    const overlay = this._openDialog("Consumi", html);
+      ${cfg.power_entity ? `<div class="shc-ap-sec">${this._row(shcT(this._hass, "climate.power_graph"), `<button type="button" class="shc-ap-action-btn" data-pg="1">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}</div>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "nas.consumption"), html);
     overlay.querySelector("[data-pg]")?.addEventListener("click", () => {
       overlay.hidden = true;
       const series = this._graphSeries();
@@ -11217,20 +13061,20 @@ class ShcClimateCard extends HTMLElement {
     const unav = !st || st.state === "unavailable";
     const chips = (list, cur, attr, names) =>
       `<div class="shc-cl-chips">${list
-        .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || names[String(m).toLowerCase()] || (/^\d+$/.test(m) ? `Velocità ${m}` : m))}</button>`)
+        .map((m) => `<button type="button" class="shc-cl-chipbtn${m === cur ? " on" : ""}" ${attr}="${esc(m)}"${unav ? " disabled" : ""}>${esc(names[m] || names[String(m).toLowerCase()] || (/^\d+$/.test(m) ? shcT(this._hass, "climate.speed_2", { "1": (m) }) : m))}</button>`)
         .join("")}</div>`;
     const fae = this._config.fan_auto_entity;
     const faOn = fae && this._hass.states[fae]?.state === "on";
     const html = `
-      ${unav ? `<p class="shc-cl-note">Il climatizzatore non è raggiungibile: i comandi tornano attivi appena si ricollega.</p>` : ""}
-      ${fae && this._hass.states[fae] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola automatica</div>${this._row("Regola la ventola da sola", this._switchHtml(fae))}
-        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || "Più manca alla temperatura impostata, più spinge; raggiunta la temperatura rallenta. Se scegli una velocità qui sotto, la ventola automatica si spegne.")}</p></div>` : ""}
-      ${(a.fan_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventola${faOn ? " (scelta dall'automatica)" : ""}</div>${chips(a.fan_modes, a.fan_mode, "data-fan", CL_FAN)}</div>` : ""}
-      ${(a.swing_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Alette</div>${chips(a.swing_modes, a.swing_mode, "data-swing", CL_SWING)}</div>` : ""}
-      ${(a.preset_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità speciali</div>${chips(a.preset_modes, a.preset_mode, "data-preset", CL_PRESET)}
-        <p class="shc-cl-note">Boost: massima potenza per circa 20 minuti. Fuori casa: mantiene una temperatura di sicurezza.</p></div>` : ""}
-      ${!(a.fan_modes || a.swing_modes || a.preset_modes) ? `<p class="shc-cl-note">Il climatizzatore non espone velocità della ventola, alette o preset.</p>` : ""}`;
-    const overlay = this._openDialog("Ventola e alette", html, () => this._openFan());
+      ${unav ? `<p class="shc-cl-note">${esc(shcT(this._hass, "climate.air_conditioner_unreachable_controls"))}</p>` : ""}
+      ${fae && this._hass.states[fae] ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.auto_fan"))}</div>${this._row(shcT(this._hass, "climate.adjust_fan_automatically"), this._switchHtml(fae))}
+        <p class="shc-cl-note">${esc(this._config.fan_auto_hint || shcT(this._hass, "climate.the_further_from_the_2"))}</p></div>` : ""}
+      ${(a.fan_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${shcT(this._hass, "climate.fan_2", { "1": (faOn ? shcT(this._hass, "climate.selected_by_auto") : "") })}</div>${chips(a.fan_modes, a.fan_mode, "data-fan", CL_FAN)}</div>` : ""}
+      ${(a.swing_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.vanes_2"))}</div>${chips(a.swing_modes, a.swing_mode, "data-swing", CL_SWING)}</div>` : ""}
+      ${(a.preset_modes || []).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.special_modes"))}</div>${chips(a.preset_modes, a.preset_mode, "data-preset", CL_PRESET)}
+        <p class="shc-cl-note">${esc(shcT(this._hass, "climate.boost_maximum_power_for"))}</p></div>` : ""}
+      ${!(a.fan_modes || a.swing_modes || a.preset_modes) ? `<p class="shc-cl-note">${esc(shcT(this._hass, "climate.the_air_conditioner_does"))}</p>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "climate.fan_and_vanes"), html, () => this._openFan());
     const e = this._config.entity;
     overlay.querySelectorAll("[data-fan]").forEach((b) =>
       b.addEventListener("click", () => {
@@ -11252,8 +13096,8 @@ class ShcClimateCard extends HTMLElement {
     const a = st?.attributes || {};
     const fmtState = (s) => {
       if (!s) return "n/d";
-      if (s.state === "unavailable") return "non disponibile";
-      if (s.attributes.device_class && s.entity_id.startsWith("binary_sensor.")) return s.state === "on" ? "SÌ" : "no";
+      if (s.state === "unavailable") return shcT(this._hass, "climate.unavailable");
+      if (s.attributes.device_class && s.entity_id.startsWith("binary_sensor.")) return s.state === "on" ? shcT(this._hass, "climate.yes") : "no";
       return `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
     };
     const rows = (cfg.diagnostics || [])
@@ -11264,16 +13108,16 @@ class ShcClimateCard extends HTMLElement {
       })
       .join("");
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Climatizzatore</div>
-        ${this._row("Stato", `<span class="shc-ap-row-val">${esc(!st || st.state === "unavailable" ? "Non raggiungibile" : CL_MODES[st.state]?.label || st.state)}</span>`)}
-        ${a.hvac_action ? this._row("Sta facendo", `<span class="shc-ap-row-val">${esc({ cooling: "Raffresca", heating: "Riscalda", idle: "In pausa", drying: "Deumidifica", fan: "Ventila", off: "Spento" }[a.hvac_action] || a.hvac_action)}</span>`) : ""}
-        ${st ? this._row("Ultimo cambio", `<span class="shc-ap-row-val">${esc(new Date(st.last_changed).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))}</span>`) : ""}
-        ${a.min_temp !== undefined ? this._row("Intervallo temperatura", `<span class="shc-ap-row-val">${esc(clNum(a.min_temp))} – ${esc(clNum(a.max_temp))} °C, passo ${esc(clNum(a.target_temp_step || 0.5))}</span>`) : ""}
-        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="1">Apri</button>`)}
-        ${cfg.refresh_entity && hs[cfg.refresh_entity] ? this._row("Aggiorna dati dal cloud", `<button type="button" class="shc-ap-action-btn" data-refresh="1">Aggiorna</button>`) : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.climate"))}</div>
+        ${this._row(shcT(this._hass, "fritz.status"), `<span class="shc-ap-row-val">${esc(!st || st.state === "unavailable" ? shcT(this._hass, "climate.unreachable") : CL_MODES[st.state]?.label || st.state)}</span>`)}
+        ${a.hvac_action ? this._row(shcT(this._hass, "climate.currently"), `<span class="shc-ap-row-val">${esc({ cooling: shcT(this._hass, "climate.cooling_2"), heating: shcT(this._hass, "climate.heating_2"), idle: shcT(this._hass, "climate.idle_2"), drying: shcT(this._hass, "climate.drying"), fan: shcT(this._hass, "climate.fan"), off: shcT(this._hass, "climate.off_2") }[a.hvac_action] || a.hvac_action)}</span>`) : ""}
+        ${st ? this._row(shcT(this._hass, "climate.last_changed"), `<span class="shc-ap-row-val">${esc(new Date(st.last_changed).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))}</span>`) : ""}
+        ${a.min_temp !== undefined ? this._row(shcT(this._hass, "climate.temperature_range"), `<span class="shc-ap-row-val">${shcT(this._hass, "climate.c_step", { "1": (esc(clNum(a.min_temp))), "2": (esc(clNum(a.max_temp))), "3": (esc(clNum(a.target_temp_step || 0.5))) })}</span>`) : ""}
+        ${this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="1">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}
+        ${cfg.refresh_entity && hs[cfg.refresh_entity] ? this._row(shcT(this._hass, "climate.update_data_from_cloud"), `<button type="button" class="shc-ap-action-btn" data-refresh="1">${esc(shcT(this._hass, "climate.update"))}</button>`) : ""}
       </div>
-      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Diagnostica</div>${rows}</div>` : ""}`;
-    const overlay = this._openDialog("Stato e diagnostica", html, () => this._openInfo());
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.diagnostics"))}</div>${rows}</div>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "climate.status_and_diagnostics"), html, () => this._openInfo());
     overlay.querySelector("[data-more]").addEventListener("click", () => this._moreInfo(cfg.entity));
     overlay.querySelector("[data-refresh]")?.addEventListener("click", (e) => {
       this._call("button", "press", { entity_id: cfg.refresh_entity });
@@ -11292,47 +13136,47 @@ class ShcClimateCard extends HTMLElement {
 
   static getStubConfig(hass) {
     const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.climatizzatore";
-    return { name: "Climatizzatore", entity: e };
+    return { name: shcT(hass, "climate.climate"), entity: e };
   }
 }
 
 class ShcClimateCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Climatizzatore" },
-        { key: "entity", label: "Climatizzatore", domain: ["climate"], required: true },
-        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Soggiorno" },
-        { key: "hero", label: "In alto: immagine (con barra) oppure gauge", kind: "text", placeholder: "immagine" },
-        { key: "temperature_entity", label: "Sensore temperatura stanza (per il grafico)", domain: ["sensor"] },
-        { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
-        { key: "outdoor_entity", label: "Sensore temperatura esterna", domain: ["sensor"] },
-        { key: "fan_auto_entity", label: "Interruttore ventola automatica (pulsante sulla card)", domain: ["input_boolean", "switch"] },
-        { key: "fan_auto_in_schedule", label: "Ventola automatica solo dentro Programmazione", kind: "bool", hint: "Toglie la pillola dalla card e mette l'interruttore nel popup Programmazione." },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "climate.climate") },
+        { key: "entity", label: shcT(this._hass, "climate.climate"), domain: ["climate"], required: true },
+        { key: "room_name", label: shcT(this._hass, "climatecard.room_name_gauge_title"), kind: "text", placeholder: shcT(this._hass, "climatecard.living_room") },
+        { key: "hero", label: shcT(this._hass, "climatecard.top_image_with_bar"), kind: "text", placeholder: "immagine" },
+        { key: "temperature_entity", label: shcT(this._hass, "climatecard.room_temperature_sensor_for"), domain: ["sensor"] },
+        { key: "humidity_entity", label: shcT(this._hass, "climatecard.room_humidity_sensor"), domain: ["sensor"] },
+        { key: "outdoor_entity", label: shcT(this._hass, "climatecard.outdoor_temperature_sensor"), domain: ["sensor"] },
+        { key: "fan_auto_entity", label: shcT(this._hass, "climatecard.auto_fan_switch_button"), domain: ["input_boolean", "switch"] },
+        { key: "fan_auto_in_schedule", label: shcT(this._hass, "climatecard.auto_fan_only_inside"), kind: "bool", hint: shcT(this._hass, "climatecard.removes_pill_from_card") },
       ]},
-      { title: "Consumi", fields: [
-        { key: "hide_consumi", label: "Nascondi il pulsante Consumi", kind: "bool", hint: "Senza sensori di potenza, energia o consumi il pulsante non compare comunque." },
-        { key: "power_entity", label: "Potenza (W) della presa del clima", domain: ["sensor"] },
-        { key: "energy_entity", label: "Energia totale (kWh)", domain: ["sensor"] },
-        { key: "max_power", label: "Fondo scala potenza (W)", kind: "text", placeholder: "1500" },
-        { key: "hide_power", label: "Nascondi la banda della potenza", kind: "bool", hint: "Senza sensore Watt la banda non compare comunque." },
-        { key: "consumption.cooling_day", label: "Freddo oggi (kWh)", domain: ["sensor"] },
-        { key: "consumption.heating_day", label: "Caldo oggi (kWh)", domain: ["sensor"] },
-        { key: "consumption.cooling_month", label: "Freddo mese (kWh)", domain: ["sensor"] },
-        { key: "consumption.heating_month", label: "Caldo mese (kWh)", domain: ["sensor"] },
+      { title: shcT(this._hass, "nas.consumption"), fields: [
+        { key: "hide_consumi", label: shcT(this._hass, "climatecard.hide_consumption_button"), kind: "bool", hint: shcT(this._hass, "climatecard.without_power_energy_or") },
+        { key: "power_entity", label: shcT(this._hass, "climatecard.power_w_of_ac"), domain: ["sensor"] },
+        { key: "energy_entity", label: shcT(this._hass, "climatecard.total_energy_kwh"), domain: ["sensor"] },
+        { key: "max_power", label: shcT(this._hass, "climatecard.power_scale_max_w"), kind: "text", placeholder: "1500" },
+        { key: "hide_power", label: shcT(this._hass, "appledit.hide_the_power_bar"), kind: "bool", hint: shcT(this._hass, "climatecard.without_watt_sensor_the") },
+        { key: "consumption.cooling_day", label: shcT(this._hass, "climatecard.cooling_today_kwh"), domain: ["sensor"] },
+        { key: "consumption.heating_day", label: shcT(this._hass, "climatecard.heating_today_kwh"), domain: ["sensor"] },
+        { key: "consumption.cooling_month", label: shcT(this._hass, "climatecard.cooling_month_kwh"), domain: ["sensor"] },
+        { key: "consumption.heating_month", label: shcT(this._hass, "climatecard.heating_month_kwh"), domain: ["sensor"] },
       ]},
-      { title: "Programmazione (helper del package clima.yaml)", fields: [
-        { key: "hide_schedule", label: "Nascondi il pulsante Programmazione", kind: "bool", hint: "Senza gli helper di programmazione il pulsante non compare comunque." },
-        { key: "schedule.on_enabled", label: "Accensione programmata attiva", domain: ["input_boolean"] },
-        { key: "schedule.on_time", label: "Orario accensione", domain: ["input_datetime"] },
-        { key: "schedule.on_mode", label: "Modalità accensione", domain: ["input_select"] },
-        { key: "schedule.on_temperature", label: "Temperatura accensione", domain: ["input_number"] },
-        { key: "schedule.off_enabled", label: "Spegnimento programmato attivo", domain: ["input_boolean"] },
-        { key: "schedule.off_time", label: "Orario spegnimento", domain: ["input_datetime"] },
+      { title: shcT(this._hass, "climatecard.schedule_helpers_from_climayaml"), fields: [
+        { key: "hide_schedule", label: shcT(this._hass, "climatecard.hide_schedule_button"), kind: "bool", hint: shcT(this._hass, "climatecard.without_schedule_helpers_the") },
+        { key: "schedule.on_enabled", label: shcT(this._hass, "climatecard.scheduled_turnon_active"), domain: ["input_boolean"] },
+        { key: "schedule.on_time", label: shcT(this._hass, "alexawebradiocard.turnon_time"), domain: ["input_datetime"] },
+        { key: "schedule.on_mode", label: shcT(this._hass, "climatecard.turnon_mode"), domain: ["input_select"] },
+        { key: "schedule.on_temperature", label: shcT(this._hass, "climatecard.turnon_temperature"), domain: ["input_number"] },
+        { key: "schedule.off_enabled", label: shcT(this._hass, "climatecard.scheduled_turnoff_active"), domain: ["input_boolean"] },
+        { key: "schedule.off_time", label: shcT(this._hass, "alexawebradiocard.turnoff_time"), domain: ["input_datetime"] },
       ]},
-      { title: "Altro", fields: [
-        { key: "refresh_entity", label: "Pulsante aggiorna dati (button)", domain: ["button"] },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "refresh_entity", label: shcT(this._hass, "climatecard.refresh_data_button_button"), domain: ["button"] },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -11533,9 +13377,9 @@ class ShcDeviceCardBase extends HTMLElement {
 
   // riga "Nascondi se scollegata" per i popup delle card
   _hidePrefHtml() {
-    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Visualizzazione</div>
-      ${this._row("Nascondi se scollegata", `<button type="button" class="shc-ap-switch${this._hideWhenOffline() ? " on" : ""}" data-hidepref="1"></button>`)}
-      <p class="shc-cl-note shc-dv-hidenote">Quando è scollegata dalla corrente o dal Wi‑Fi resta solo una striscia bassa con il nome e OFFLINE. Toccandola si riapre questo comando.</p>
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "device.display"))}</div>
+      ${this._row(shcT(this._hass, "device.hide_when_disconnected"), `<button type="button" class="shc-ap-switch${this._hideWhenOffline() ? " on" : ""}" data-hidepref="1"></button>`)}
+      <p class="shc-cl-note shc-dv-hidenote">${esc(shcT(this._hass, "device.when_disconnected_from_power"))}</p>
     </div>`;
   }
 
@@ -11585,7 +13429,7 @@ class ShcDeviceCardBase extends HTMLElement {
         <div class="shc-cl-lbar main"></div>
         <div class="shc-cl-lbar inner"></div>
         <div class="shc-cl-ndl inner" hidden></div>
-        <div class="shc-dv-htgt" hidden title="Umidità obiettivo"></div>
+        <div class="shc-dv-htgt" hidden title="${esc(shcT(this._hass, "device.target_humidity"))}"></div>
         <div class="shc-cl-spt" hidden><i></i><b></b></div>
         <div class="shc-cl-ndl main" hidden></div>
       </div>
@@ -11679,11 +13523,11 @@ class ShcDeviceCardBase extends HTMLElement {
     card.classList.toggle("dv-compact", compact);
     if (!compact) return;
     const st = this._st();
-    mini.querySelector("b").textContent = `${this._config.name} offline`;
+    mini.querySelector("b").textContent = shcT(this._hass, "device.offline", { "1": (this._config.name) });
     const since = st?.last_changed ? new Date(st.last_changed) : null;
     mini.querySelector("small").textContent = since && !isNaN(since)
-      ? `Scollegato dal ${since.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
-      : "Scollegato dalla corrente o dal Wi‑Fi";
+      ? shcT(this._hass, "device.disconnected_since", { "1": (since.toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })) })
+      : shcT(this._hass, "device.disconnected_from_power_or");
   }
 
   // preferenza: config della card, oppure scelta fatta dal popup su questo dispositivo
@@ -11744,14 +13588,14 @@ class ShcDeviceCardBase extends HTMLElement {
     const since = st?.last_changed ? new Date(st.last_changed) : null;
     const html = `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(this._config.name)}</div>
-        ${this._row("Stato", `<span class="shc-ap-row-val" style="color:#ef4444;font-weight:800">Non raggiungibile</span>`)}
-        ${since && !isNaN(since) ? this._row("Dal", this._valHtml(since.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }))) : ""}
-        <p class="shc-cl-note">Spegni l'interruttore qui sotto per vedere sempre la card completa, anche quando il dispositivo è scollegato. Quando torna online la card completa ricompare comunque da sola.</p>
+        ${this._row(shcT(this._hass, "fritz.status"), `<span class="shc-ap-row-val" style="color:#ef4444;font-weight:800">${esc(shcT(this._hass, "climate.unreachable"))}</span>`)}
+        ${since && !isNaN(since) ? this._row(shcT(this._hass, "device.since"), this._valHtml(since.toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }))) : ""}
+        <p class="shc-cl-note">${esc(shcT(this._hass, "device.turn_off_the_switch"))}</p>
       </div>
       ${this._hidePrefHtml()}
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Adesso</div>
-        ${this._row("Card completa", `<button type="button" class="shc-ap-action-btn" data-showfull="1">Mostra</button>`)}
-        ${this._row("Scheda dell'entità", `<button type="button" class="shc-ap-action-btn" data-more="${esc(this._config.entity)}">Apri</button>`)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "device.now"))}</div>
+        ${this._row(shcT(this._hass, "device.full_card"), `<button type="button" class="shc-ap-action-btn" data-showfull="1">${esc(shcT(this._hass, "device.show"))}</button>`)}
+        ${this._row(shcT(this._hass, "device.entity_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(this._config.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}
       </div>`;
     const overlay = this._openDialog(this._config.name, html);
     overlay.querySelector("[data-showfull]").addEventListener("click", () => {
@@ -11816,9 +13660,9 @@ function htHeroSvg(id) {
 
 class ShcHeaterCard extends ShcDeviceCardBase {
   setConfig(config) {
-    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error(shcT(this._hass, "climate.entity_is_required_climatexxx"));
     this._config = {
-      name: "Stufetta",
+      name: shcT(this._hass, "heater.heater"),
       layout: "centrato",
       min: 15,
       max: 30,
@@ -11840,34 +13684,34 @@ class ShcHeaterCard extends ShcDeviceCardBase {
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Gestione automatica">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-dv-opts" title="Impostazioni"><ha-icon icon="mdi:tune-variant"></ha-icon></button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "heater.automatic_management"))}" data-i18n-title="heater.automatic_management">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-opts" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings"><ha-icon icon="mdi:tune-variant"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-cl-herocol">
             <div class="shc-ap-hero">${htHeroSvg(this._uid)}</div>
-            ${this._lineHtml("Temperatura e umidità della stanza, soglia")}
+            ${this._lineHtml(shcT(this._hass, "heater.room_temperature_and_humidity"))}
           </div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Stufetta</span>
+            <span class="shc-ap-cycle-cap" data-i18n="heater.heater">${esc(shcT(this._hass, "heater.heater"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="ht-room">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="ht-hum">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire" style="--mdc-icon-size:16px"></ha-icon></span><small>Livello</small></span><b class="ht-lvl">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-high" style="--mdc-icon-size:16px"></ha-icon></span><small>Interna</small></span><b class="ht-int">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-chevron-up" style="--mdc-icon-size:16px"></ha-icon></span><small>Soglia</small></span><b class="ht-thr">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire-off" style="--mdc-icon-size:16px"></ha-icon></span><small>Poi</small></span><b class="ht-red">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.room">${esc(shcT(this._hass, "climate.room"))}</small></span><b class="ht-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.humidity">${esc(shcT(this._hass, "climate.humidity"))}</small></span><b class="ht-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="heater.level">${esc(shcT(this._hass, "heater.level"))}</small></span><b class="ht-lvl">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-high" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="heater.internal">${esc(shcT(this._hass, "heater.internal"))}</small></span><b class="ht-int">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:thermometer-chevron-up" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="heater.threshold">${esc(shcT(this._hass, "heater.threshold"))}</small></span><b class="ht-thr">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fire-off" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="heater.then">${esc(shcT(this._hass, "heater.then"))}</small></span><b class="ht-red">—</b></div>
             </div>
           </div>
         </div>
         <div class="shc-cl-ctrl">
-          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
-          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
-          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="ht-set-cap">soglia</small></div>
-          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+          <button type="button" class="shc-cl-btn power" title="${esc(shcT(this._hass, "climate.turn_on_off"))}" data-i18n-title="climate.turn_on_off"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="${esc(shcT(this._hass, "climate.minus"))}" data-i18n-title="climate.minus"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="ht-set-cap" data-i18n="heater.threshold_2">${esc(shcT(this._hass, "heater.threshold_2"))}</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="${esc(shcT(this._hass, "climate.plus"))}" data-i18n-title="climate.plus"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="shc-cl-ctrl shc-ht-levels"></div>
         <div class="shc-cl-sched" hidden></div>
@@ -11942,14 +13786,15 @@ class ShcHeaterCard extends ShcDeviceCardBase {
   _graphSeries() {
     const cfg = this._config;
     const s = [];
-    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
-    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
-    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: shcT(this._hass, "climate.room_temperature"), color: "#f97316" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: shcT(this._hass, "climate.humidity"), color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#16a34a" });
     return s;
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -11981,27 +13826,27 @@ class ShcHeaterCard extends ShcDeviceCardBase {
     const red = hs[cfg.reduced_level_entity]?.state;
     const auto = this._has(cfg.auto_entity) ? this._on(cfg.auto_entity) : false;
 
-    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : "run", unav ? "OFFLINE" : mode === "off" ? "SPENTA" : mode === "fan_only" ? "VENTILA" : `RISCALDA ${HT_LEVELS[preset] || ""}`.trim());
+    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : "run", unav ? "OFFLINE" : mode === "off" ? shcT(this._hass, "heater.off") : mode === "fan_only" ? shcT(this._hass, "heater.fan") : shcT(this._hass, "heater.heat", { "1": (HT_LEVELS[preset] || "") }).trim());
     const disp = q(".ht-disp");
     disp.textContent = unav ? "--" : mode === "off" ? "OFF" : mode === "fan_only" ? "FAN" : HT_LEVELS[preset] || "ON";
 
     q(".ht-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
     q(".ht-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
-    q(".ht-lvl").textContent = unav ? "—" : mode === "off" ? "Spenta" : mode === "fan_only" ? "Ventila" : HT_LEVELS[preset] || "—";
+    q(".ht-lvl").textContent = unav ? "—" : mode === "off" ? shcT(this._hass, "heater.off_2") : mode === "fan_only" ? shcT(this._hass, "climate.fan") : HT_LEVELS[preset] || "—";
     q(".ht-int").textContent = inner !== null ? `${clNum(inner, 0)} °C` : "—";
     q(".ht-thr").textContent = thr !== null ? `${clNum(thr, 0)} °C` : "—";
-    q(".ht-red").textContent = auto && red ? red : auto ? "—" : "Manuale";
+    q(".ht-red").textContent = auto && red ? red : auto ? "—" : shcT(this._hass, "heater.manual");
     q(".ht-hum").closest(".shc-ap-cycle-row").hidden = !cfg.humidity_entity;
     q(".ht-int").closest(".shc-ap-cycle-row").hidden = inner === null || !cfg.temperature_entity;
     q(".ht-red").closest(".shc-ap-cycle-row").hidden = !this._has(cfg.reduced_level_entity);
 
-    const modeTxt = unav ? "Non raggiungibile" : mode === "off" ? "Spenta" : mode === "fan_only" ? "Ventilazione" : `Riscalda ${HT_LEVELS[preset] || ""}`.trim();
-    const thrTxt = thr !== null ? ` · ${thrE ? "soglia" : "impostata"} <em>${esc(clNum(thr, 0))}°</em>` : "";
+    const modeTxt = unav ? shcT(this._hass, "climate.unreachable") : mode === "off" ? shcT(this._hass, "heater.off_2") : mode === "fan_only" ? shcT(this._hass, "heater.fan_2") : shcT(this._hass, "heater.heat_2", { "1": (HT_LEVELS[preset] || "") }).trim();
+    const thrTxt = thr !== null ? ` · ${thrE ? shcT(this._hass, "ctl.threshold_lc") : shcT(this._hass, "climate.target_2")} <em>${esc(clNum(thr, 0))}°</em>` : "";
     this._lineUpdate({ temp: room, hum, set: this._pending ?? thr, subHtml: `${esc(modeTxt)}${thrTxt}` });
 
     // comandi
     if (this._pending == null) q(".cl-set-val").textContent = thr !== null ? `${clNum(thr, 0)}°` : "—";
-    q(".ht-set-cap").textContent = thrE ? "soglia" : "impostata";
+    q(".ht-set-cap").textContent = thrE ? shcT(this._hass, "ctl.threshold_lc") : shcT(this._hass, "climate.target_2");
     const pw = q(".shc-cl-btn.power");
     pw.classList.toggle("on", !unav && mode !== "off");
     pw.disabled = unav;
@@ -12016,11 +13861,11 @@ class ShcHeaterCard extends ShcDeviceCardBase {
       const box = q(".shc-ht-levels");
       box.innerHTML =
         presets
-          .map((p) => `<button type="button" class="shc-cl-btn lvl${p === "eco" ? " eco" : ""}${mode === "heat" && p === preset ? " on" : ""}" data-level="${esc(p)}" title="${esc(p === "eco" ? "Eco" : `Livello ${p}`)}"${unav ? " disabled" : ""}>${p === "eco" ? `<ha-icon icon="mdi:leaf"></ha-icon>` : `<span class="shc-dv-txt">${esc(p)}</span>`}</button>`)
+          .map((p) => `<button type="button" class="shc-cl-btn lvl${p === "eco" ? " eco" : ""}${mode === "heat" && p === preset ? " on" : ""}" data-level="${esc(p)}" title="${esc(p === "eco" ? "Eco" : shcT(this._hass, "heater.level_2", { "1": (p) }))}"${unav ? " disabled" : ""}>${p === "eco" ? `<ha-icon icon="mdi:leaf"></ha-icon>` : `<span class="shc-dv-txt">${esc(p)}</span>`}</button>`)
           .join("") +
         `<span class="shc-cl-sep"></span>` +
-        (hasFan ? `<button type="button" class="shc-cl-btn fanonly${mode === "fan_only" ? " on" : ""}" data-fanonly="1" title="Solo ventilazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:fan"></ha-icon></button>` : "") +
-        `<button type="button" class="shc-cl-btn osc${oscOn ? " on" : ""}" data-osc="1" title="Oscillazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>`;
+        (hasFan ? `<button type="button" class="shc-cl-btn fanonly${mode === "fan_only" ? " on" : ""}" data-fanonly="1" title="${esc(shcT(this._hass, "heater.fan_only"))}"${unav ? " disabled" : ""}><ha-icon icon="mdi:fan"></ha-icon></button>` : "") +
+        `<button type="button" class="shc-cl-btn osc${oscOn ? " on" : ""}" data-osc="1" title="${esc(shcT(this._hass, "heater.oscillation"))}"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>`;
       box.querySelectorAll("[data-level]").forEach((b) =>
         b.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -12043,14 +13888,14 @@ class ShcHeaterCard extends ShcDeviceCardBase {
     const sched = q(".shc-cl-sched");
     sched.hidden = !this._has(cfg.auto_entity);
     sched.innerHTML = auto
-      ? `<span><ha-icon icon="mdi:radiator"></ha-icon>Automatica: parte in ${esc(cfg.start_level)}${thr !== null ? `, a ${esc(clNum(thr, 0))}° passa a ${esc(red || "—")}` : ""}</span>`
-      : `<span><ha-icon icon="mdi:hand-back-right-outline" style="color:var(--shc-dim)"></ha-icon>Gestione automatica spenta</span>`;
+      ? `<span><ha-icon icon="mdi:radiator"></ha-icon>${shcT(this._hass, "heater.automatic_starts_at", { "1": (esc(cfg.start_level)), "2": (thr !== null ? shcT(this._hass, "heater.at_switches_to", { "1": (esc(clNum(thr, 0))), "2": (esc(red || "—")) }) : "") })}</span>`
+      : `<span><ha-icon icon="mdi:hand-back-right-outline" style="color:var(--shc-dim)"></ha-icon>${esc(shcT(this._hass, "heater.automatic_management_off"))}</span>`;
 
     const errors = cfg.diagnostics.filter((d) => d.alarm && hs[d.entity]?.state === "on");
     card.classList.toggle("has-alarm", errors.length > 0);
     this._setWarn(
       unav
-        ? "⚠ Stufetta non raggiungibile: controlla che sia collegata alla corrente e al Wi‑Fi"
+        ? shcT(this._hass, "heater.heater_unreachable_check_power")
         : errors.length
           ? `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`
           : "",
@@ -12063,19 +13908,19 @@ class ShcHeaterCard extends ShcDeviceCardBase {
     const cfg = this._config;
     const hs = this._hass.states;
     if (!this._has(cfg.auto_entity) && !this._has(cfg.threshold_entity)) {
-      this._openDialog("Gestione automatica", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna gestione automatica configurata. Copia il package <b>stufetta.yaml</b> (vedi guida) oppure indica i tuoi helper nelle opzioni <code>auto_entity</code>, <code>threshold_entity</code>, <code>reduced_level_entity</code>.</p></div>`);
+      this._openDialog(shcT(this._hass, "heater.automatic_management"), `<div class="shc-ap-sec"><p class="shc-cl-note">${esc(shcT(this._hass, "heater.no_automatic_management_configured"))} <b>stufetta.yaml</b> ${esc(shcT(this._hass, "heater.see_guide_or_specify"))} <code>auto_entity</code>, <code>threshold_entity</code>, <code>reduced_level_entity</code>.</p></div>`);
       return;
     }
     const thr = hs[cfg.threshold_entity];
     const sel = hs[cfg.reduced_level_entity];
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Gestione automatica</div>
-        ${this._row("Attiva", this._switchHtml(cfg.auto_entity))}
-        ${thr ? this._row("Soglia della stanza", this._stepperHtml(cfg.threshold_entity, `${clNum(thr.state, 0)} °C`)) : ""}
-        ${sel ? `${this._row("Raggiunta la soglia passa a", "")}${this._chipsHtml((sel.attributes.options || []).map((o) => ({ label: o, on: o === sel.state, attrs: `data-select="${esc(cfg.reduced_level_entity)}" data-option="${esc(o)}"`, icon: "mdi:fire" })))}` : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "heater.automatic_management"))}</div>
+        ${this._row(shcT(this._hass, "climate.active"), this._switchHtml(cfg.auto_entity))}
+        ${thr ? this._row(shcT(this._hass, "heater.room_threshold"), this._stepperHtml(cfg.threshold_entity, `${clNum(thr.state, 0)} °C`)) : ""}
+        ${sel ? `${this._row(shcT(this._hass, "heater.once_threshold_is_reached"), "")}${this._chipsHtml((sel.attributes.options || []).map((o) => ({ label: o, on: o === sel.state, attrs: `data-select="${esc(cfg.reduced_level_entity)}" data-option="${esc(o)}"`, icon: "mdi:fire" })))}` : ""}
       </div>
-      <p class="shc-cl-note">Ogni accensione (dalla card, dall'app o con Alexa) parte in <b>${esc(cfg.start_level)}</b>, il massimo. Quando il sensore della stanza arriva alla soglia la stufetta scende al livello scelto. Per tornare in ${esc(cfg.start_level)} basta spegnerla e riaccenderla, oppure toccare ${esc(cfg.start_level)} sulla card. La temperatura usata è quella del sensore della stanza, non quella interna della stufetta, che vicino alla resistenza legge sempre alta.</p>`;
-    this._openDialog("Gestione automatica", html, this._reopenUnlessTyping(() => this._openAuto()));
+      <p class="shc-cl-note">${esc(shcT(this._hass, "heater.every_turnon_from_card"))} <b>${esc(cfg.start_level)}</b>${shcT(this._hass, "heater.the_maximum_when_the", { "1": (esc(cfg.start_level)), "2": (esc(cfg.start_level)) })}</p>`;
+    this._openDialog(shcT(this._hass, "heater.automatic_management"), html, this._reopenUnlessTyping(() => this._openAuto()));
   }
 
   // 🎛️ Impostazioni: interruttori della stufetta
@@ -12085,13 +13930,13 @@ class ShcHeaterCard extends ShcDeviceCardBase {
     const a = st?.attributes || {};
     const rows = cfg.switches.filter((s) => this._has(s.entity)).map((s) => this._row(s.name || this._hass.states[s.entity].attributes.friendly_name, this._switchHtml(s.entity))).join("");
     const html = `
-      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stufetta</div>${rows}</div>` : ""}
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "heater.heater"))}</div>${rows}</div>` : ""}
       ${Number.isFinite(Number(a.temperature)) && this._setEntity()
-        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Termostato interno</div>${this._row("Temperatura obiettivo", `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-tt="-1">−</button><span>${esc(clNum(a.temperature, 0))} °C</span><button type="button" class="shc-at-pm" data-tt="1">+</button></span>`)}
-          <p class="shc-cl-note">È il termostato della stufetta stessa (sensore interno, legge alto). La gestione automatica usa invece la soglia della stanza.</p></div>`
+        ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "heater.internal_thermostat"))}</div>${this._row(shcT(this._hass, "heater.target_temperature"), `<span class="shc-cl-stepper"><button type="button" class="shc-at-pm" data-tt="-1">−</button><span>${esc(clNum(a.temperature, 0))} °C</span><button type="button" class="shc-at-pm" data-tt="1">+</button></span>`)}
+          <p class="shc-cl-note">${esc(shcT(this._hass, "heater.this_is_the_heaters"))}</p></div>`
         : ""}
-      ${!rows ? `<p class="shc-cl-note">Nessun interruttore configurato: aggiungili nell'opzione <code>switches</code> (oscillazione, blocco bambini, suono…).</p>` : ""}`;
-    const overlay = this._openDialog("Impostazioni", html, () => this._openOptions());
+      ${!rows ? `<p class="shc-cl-note">${esc(shcT(this._hass, "heater.no_switch_configured_add"))} <code>switches</code> ${esc(shcT(this._hass, "heater.oscillation_child_lock_sound"))}</p>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "fritz.settings"), html, () => this._openOptions());
     overlay.querySelectorAll("[data-tt]").forEach((b) =>
       b.addEventListener("click", () => {
         const s = this._st();
@@ -12108,27 +13953,27 @@ class ShcHeaterCard extends ShcDeviceCardBase {
     const hs = this._hass.states;
     const st = this._st();
     const a = st?.attributes || {};
-    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
     const diag = cfg.diagnostics
       .map((d) => {
         const s = hs[d.entity];
-        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? `ultima volta ${fmtTime(s.attributes.last_triggered)}` : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
+        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? shcT(this._hass, "heater.last_time", { "1": (fmtTime(s.attributes.last_triggered)) }) : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
         const bad = d.alarm && s?.state === "on";
         return `<div class="shc-ap-row" data-more="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(d.name || s?.attributes?.friendly_name || d.entity)}</span><span class="shc-ap-row-val" style="${bad ? "color:#ef4444;font-weight:800" : ""}">${esc(val)}</span></div>`;
       })
       .join("");
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Stufetta</div>
-        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : st.state === "off" ? "Spenta" : st.state === "fan_only" ? "Ventilazione" : "Riscalda"))}
-        ${a.preset_mode && a.preset_mode !== "none" ? this._row("Livello", this._valHtml(HT_LEVELS[a.preset_mode] || a.preset_mode)) : ""}
-        ${a.current_temperature !== undefined ? this._row("Temperatura interna", this._valHtml(`${clNum(a.current_temperature, 0)} °C`)) : ""}
-        ${a.model ? this._row("Modello", this._valHtml(a.model)) : ""}
-        ${st ? this._row("Ultimo cambio", this._valHtml(fmtTime(st.last_changed))) : ""}
-        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "heater.heater"))}</div>
+        ${this._row(shcT(this._hass, "fritz.status"), this._valHtml(!st || st.state === "unavailable" ? shcT(this._hass, "climate.unreachable") : st.state === "off" ? shcT(this._hass, "heater.off_2") : st.state === "fan_only" ? shcT(this._hass, "heater.fan_2") : shcT(this._hass, "climate.heating_2")))}
+        ${a.preset_mode && a.preset_mode !== "none" ? this._row(shcT(this._hass, "heater.level"), this._valHtml(HT_LEVELS[a.preset_mode] || a.preset_mode)) : ""}
+        ${a.current_temperature !== undefined ? this._row(shcT(this._hass, "heater.internal_temperature"), this._valHtml(`${clNum(a.current_temperature, 0)} °C`)) : ""}
+        ${a.model ? this._row(shcT(this._hass, "nascard.model"), this._valHtml(a.model)) : ""}
+        ${st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : ""}
+        ${this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}
       </div>
-      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Automazioni e diagnostica</div>${diag}</div>` : ""}
+      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "heater.automations_and_diagnostics"))}</div>${diag}</div>` : ""}
       ${this._hidePrefHtml()}`;
-    this._openDialog("Stato", html, () => this._openInfo());
+    this._openDialog(shcT(this._hass, "fritz.status"), html, () => this._openInfo());
   }
 
   static getConfigElement() {
@@ -12137,35 +13982,35 @@ class ShcHeaterCard extends ShcDeviceCardBase {
 
   static getStubConfig(hass) {
     const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.stufetta";
-    return { name: "Stufetta", entity: e };
+    return { name: shcT(hass, "heater.heater"), entity: e };
   }
 }
 
 class ShcHeaterCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Stufetta" },
-        { key: "entity", label: "Stufetta", domain: ["climate"], required: true },
-        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Bagno" },
-        { key: "temperature_entity", label: "Sensore temperatura stanza", domain: ["sensor"] },
-        { key: "humidity_entity", label: "Sensore umidità stanza", domain: ["sensor"] },
-        { key: "oscillation_entity", label: "Interruttore oscillazione (se separato)", domain: ["switch"] },
-        { key: "power_entity", label: "Potenza (W) della presa", domain: ["sensor"] },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "heater.heater") },
+        { key: "entity", label: shcT(this._hass, "heater.heater"), domain: ["climate"], required: true },
+        { key: "room_name", label: shcT(this._hass, "climatecard.room_name_gauge_title"), kind: "text", placeholder: shcT(this._hass, "heatercard.bathroom") },
+        { key: "temperature_entity", label: shcT(this._hass, "heatercard.room_temperature_sensor"), domain: ["sensor"] },
+        { key: "humidity_entity", label: shcT(this._hass, "climatecard.room_humidity_sensor"), domain: ["sensor"] },
+        { key: "oscillation_entity", label: shcT(this._hass, "heatercard.oscillation_switch_if_separate"), domain: ["switch"] },
+        { key: "power_entity", label: shcT(this._hass, "heatercard.plug_power_w"), domain: ["sensor"] },
       ]},
-      { title: "Gestione automatica (helper del package stufetta.yaml)", fields: [
-        { key: "auto_entity", label: "Gestione automatica attiva", domain: ["input_boolean"] },
-        { key: "threshold_entity", label: "Soglia temperatura stanza", domain: ["input_number"] },
-        { key: "reduced_level_entity", label: "Livello dopo la soglia", domain: ["input_select"] },
-        { key: "start_level", label: "Livello di partenza", kind: "text", placeholder: "H3" },
+      { title: shcT(this._hass, "heatercard.automatic_management_helpers_from"), fields: [
+        { key: "auto_entity", label: shcT(this._hass, "heatercard.automatic_management_active"), domain: ["input_boolean"] },
+        { key: "threshold_entity", label: shcT(this._hass, "heatercard.room_temperature_threshold"), domain: ["input_number"] },
+        { key: "reduced_level_entity", label: shcT(this._hass, "heatercard.level_after_threshold"), domain: ["input_select"] },
+        { key: "start_level", label: shcT(this._hass, "heatercard.start_level"), kind: "text", placeholder: "H3" },
       ]},
-      { title: "Altro", fields: [
-        { key: "switches", label: "Interruttori (popup Impostazioni)", kind: "list", itemFields: [
-          { key: "entity", label: "Interruttore", kind: "entity", domain: ["switch"] },
-          { key: "name", label: "Nome", kind: "text" },
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "switches", label: shcT(this._hass, "heatercard.switches_settings_popup"), kind: "list", itemFields: [
+          { key: "entity", label: shcT(this._hass, "heatercard.switch"), kind: "entity", domain: ["switch"] },
+          { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text" },
         ]},
-        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+        { key: "hide_when_offline", label: shcT(this._hass, "heatercard.hide_when_disconnected_from"), kind: "bool", hint: shcT(this._hass, "heatercard.when_the_card_receives") },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -12192,9 +14037,9 @@ const FN_SEGMENTS = [
 ];
 
 const FN_PRESETS = {
-  normal: { label: "Normale", icon: "mdi:fan" },
-  natural: { label: "Naturale", icon: "mdi:leaf" },
-  sleep: { label: "Notte", icon: "mdi:power-sleep" },
+  normal: { get label() { return shcT(null, "fnpreset.normal"); }, icon: "mdi:fan" },
+  natural: { get label() { return shcT(null, "fnpreset.natural"); }, icon: "mdi:leaf" },
+  sleep: { get label() { return shcT(null, "fnpreset.sleep"); }, icon: "mdi:power-sleep" },
   auto: { label: "Auto", icon: "mdi:fan-auto" },
   turbo: { label: "Turbo", icon: "mdi:fan-plus" },
   eco: { label: "Eco", icon: "mdi:leaf-circle-outline" },
@@ -12240,9 +14085,9 @@ function fnHeroSvg(id) {
 
 class ShcFanCard extends ShcDeviceCardBase {
   setConfig(config) {
-    if (!config.entity || !String(config.entity).startsWith("fan.")) throw new Error("entity è obbligatorio (fan.xxx)");
+    if (!config.entity || !String(config.entity).startsWith("fan.")) throw new Error(shcT(this._hass, "fan.entity_is_required_fanxxx"));
     this._config = {
-      name: "Ventilatore",
+      name: shcT(this._hass, "fan.fan"),
       layout: "centrato",
       min: 15,
       max: 35,
@@ -12260,34 +14105,34 @@ class ShcFanCard extends ShcDeviceCardBase {
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programmazione">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-dv-mist" title="Nebbia e luce"><ha-icon icon="mdi:weather-fog"></ha-icon></button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato e manutenzione">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "climate.schedule"))}" data-i18n-title="climate.schedule">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-mist" title="${esc(shcT(this._hass, "fan.mist_and_light"))}" data-i18n-title="fan.mist_and_light"><ha-icon icon="mdi:weather-fog"></ha-icon></button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "fan.status_and_maintenance"))}" data-i18n-title="fan.status_and_maintenance">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-cl-herocol">
             <div class="shc-ap-hero">${fnHeroSvg(this._uid)}</div>
-            ${this._lineHtml("Temperatura e umidità della stanza, umidità obiettivo")}
+            ${this._lineHtml(shcT(this._hass, "fan.room_temperature_and_humidity"))}
           </div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Ventilatore</span>
+            <span class="shc-ap-cycle-cap" data-i18n="fan.fan">${esc(shcT(this._hass, "fan.fan"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Stanza</small></span><b class="fn-room">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small>Umidità</small></span><b class="fn-hum">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:speedometer" style="--mdc-icon-size:16px"></ha-icon></span><small>Velocità</small></span><b class="fn-speed">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fan" style="--mdc-icon-size:16px"></ha-icon></span><small>Modalità</small></span><b class="fn-preset">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:weather-fog" style="--mdc-icon-size:16px"></ha-icon></span><small>Nebbia</small></span><b class="fn-mistv">—</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:broom" style="--mdc-icon-size:16px"></ha-icon></span><small>Pulizia</small></span><b class="fn-clean">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:home-thermometer" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.room">${esc(shcT(this._hass, "climate.room"))}</small></span><b class="fn-room">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:water-percent" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.humidity">${esc(shcT(this._hass, "climate.humidity"))}</small></span><b class="fn-hum">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:speedometer" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="fan.speed">${esc(shcT(this._hass, "fan.speed"))}</small></span><b class="fn-speed">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:fan" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="climate.mode">${esc(shcT(this._hass, "climate.mode"))}</small></span><b class="fn-preset">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:weather-fog" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="fan.mist">${esc(shcT(this._hass, "fan.mist"))}</small></span><b class="fn-mistv">—</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="mdi:broom" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="fan.cleaning">${esc(shcT(this._hass, "fan.cleaning"))}</small></span><b class="fn-clean">—</b></div>
             </div>
           </div>
         </div>
         <div class="shc-cl-ctrl">
-          <button type="button" class="shc-cl-btn power" title="Accendi / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
-          <button type="button" class="shc-cl-btn" data-step="-1" title="Più lento"><ha-icon icon="mdi:minus"></ha-icon></button>
-          <div class="shc-cl-set"><span class="cl-set-val">—</span><small>velocità</small></div>
-          <button type="button" class="shc-cl-btn" data-step="1" title="Più veloce"><ha-icon icon="mdi:plus"></ha-icon></button>
+          <button type="button" class="shc-cl-btn power" title="${esc(shcT(this._hass, "climate.turn_on_off"))}" data-i18n-title="climate.turn_on_off"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="${esc(shcT(this._hass, "fan.slower"))}" data-i18n-title="fan.slower"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small data-i18n="fan.speed_2">${esc(shcT(this._hass, "fan.speed_2"))}</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="${esc(shcT(this._hass, "fan.faster"))}" data-i18n-title="fan.faster"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="shc-cl-ctrl shc-fn-presets"></div>
         <div class="shc-cl-sched" hidden></div>
@@ -12371,14 +14216,15 @@ class ShcFanCard extends ShcDeviceCardBase {
   _graphSeries() {
     const cfg = this._config;
     const s = [];
-    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura stanza", color: "#f97316" });
-    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: "Umidità", color: "#0ea5e9" });
-    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: "Potenza", color: "#16a34a" });
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: shcT(this._hass, "climate.room_temperature"), color: "#f97316" });
+    if (cfg.humidity_entity) s.push({ key: "humidity", entity: cfg.humidity_entity, label: shcT(this._hass, "climate.humidity"), color: "#0ea5e9" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#16a34a" });
     return s;
   }
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -12414,7 +14260,7 @@ class ShcFanCard extends ShcDeviceCardBase {
 
     const preset = a.preset_mode;
     const pLabel = FN_PRESETS[preset]?.label || preset || "—";
-    this._setBadge(unav ? "unavailable" : on ? "run" : "off", unav ? "OFFLINE" : on ? `${pLabel} ${this._speedText(pct)}`.toUpperCase() : "SPENTO");
+    this._setBadge(unav ? "unavailable" : on ? "run" : "off", unav ? "OFFLINE" : on ? `${pLabel} ${this._speedText(pct)}`.toUpperCase() : shcT(this._hass, "climate.off"));
 
     const room = this._val(cfg.temperature_entity);
     const hum = this._val(cfg.humidity_entity);
@@ -12424,14 +14270,14 @@ class ShcFanCard extends ShcDeviceCardBase {
     q(".fn-hum").textContent = hum !== null ? `${Math.round(hum)} %` : "—";
     q(".fn-speed").textContent = on ? this._speedText(pct) : "—";
     q(".fn-preset").textContent = on ? pLabel : "—";
-    q(".fn-mistv").textContent = unav || !this._has(cfg.mist_entity) ? "—" : mistOn ? `Livello ${mistLvl ?? "—"}` : "Spenta";
+    q(".fn-mistv").textContent = unav || !this._has(cfg.mist_entity) ? "—" : mistOn ? shcT(this._hass, "heater.level_2", { "1": (mistLvl ?? "—") }) : shcT(this._hass, "heater.off_2");
     q(".fn-clean").textContent = cleanH !== null ? `${Math.round(cleanH)} h` : "—";
     q(".fn-clean").style.color = needClean ? "#ef4444" : "";
     q(".fn-mistv").closest(".shc-ap-cycle-row").hidden = !cfg.mist_entity;
     q(".fn-clean").closest(".shc-ap-cycle-row").hidden = !cfg.cleaning_entity;
 
-    const sub = unav ? "Non raggiungibile" : on ? `${pLabel}${a.oscillating ? " · oscilla" : ""}` : "Spento";
-    this._lineUpdate({ temp: room, hum, humTarget: hTarget, subHtml: `${esc(sub)}${hTarget !== null ? ` · obiettivo <em>${Math.round(hTarget)}%</em>` : ""}` });
+    const sub = unav ? shcT(this._hass, "climate.unreachable") : on ? `${pLabel}${a.oscillating ? shcT(this._hass, "fan.oscillates") : ""}` : shcT(this._hass, "climate.off_2");
+    this._lineUpdate({ temp: room, hum, humTarget: hTarget, subHtml: `${esc(sub)}${hTarget !== null ? ` · ${esc(shcT(this._hass, "humid.target_lc"))} <em>${Math.round(hTarget)}%</em>` : ""}` });
 
     if (this._pending == null) q(".cl-set-val").textContent = on ? this._speedText(pct) : unav ? "—" : "OFF";
     const pw = q(".shc-cl-btn.power");
@@ -12448,8 +14294,8 @@ class ShcFanCard extends ShcDeviceCardBase {
         presets
           .map((p) => `<button type="button" class="shc-cl-btn preset${on && p === preset ? " on" : ""}" data-preset="${esc(p)}" title="${esc(FN_PRESETS[p]?.label || p)}"${unav ? " disabled" : ""}><ha-icon icon="${FN_PRESETS[p]?.icon || "mdi:fan"}"></ha-icon></button>`)
           .join("") +
-        `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn osc${on && a.oscillating ? " on" : ""}" data-osc="1" title="Oscillazione"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>` +
-        (cfg.mist_entity ? `<button type="button" class="shc-cl-btn mist${mistOn ? " on" : ""}" data-mist="1" title="Nebulizzatore"${unav ? " disabled" : ""}><ha-icon icon="mdi:weather-fog"></ha-icon></button>` : "");
+        `<span class="shc-cl-sep"></span><button type="button" class="shc-cl-btn osc${on && a.oscillating ? " on" : ""}" data-osc="1" title="${esc(shcT(this._hass, "heater.oscillation"))}"${unav ? " disabled" : ""}><ha-icon icon="mdi:arrow-left-right"></ha-icon></button>` +
+        (cfg.mist_entity ? `<button type="button" class="shc-cl-btn mist${mistOn ? " on" : ""}" data-mist="1" title="${esc(shcT(this._hass, "fan.mister"))}"${unav ? " disabled" : ""}><ha-icon icon="mdi:weather-fog"></ha-icon></button>` : "");
       box.querySelectorAll("[data-preset]").forEach((b) =>
         b.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -12469,22 +14315,22 @@ class ShcFanCard extends ShcDeviceCardBase {
     // programmazione attiva
     const sc = cfg.schedule;
     const chips = [];
-    if (this._on(sc.on_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>Accensione ${esc(String(hs[sc.on_time]?.state || "").slice(0, 5))}</span>`);
-    if (this._on(sc.off_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>Spegnimento ${esc(String(hs[sc.off_time]?.state || "").slice(0, 5))}</span>`);
-    if (this._on(sc.auto_day)) chips.push(`<span><ha-icon icon="mdi:sun-clock"></ha-icon>Giorno/notte automatico</span>`);
+    if (this._on(sc.on_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-start"></ha-icon>${shcT(this._hass, "fan.turn_on", { "1": (esc(String(hs[sc.on_time]?.state || "").slice(0, 5))) })}</span>`);
+    if (this._on(sc.off_enabled)) chips.push(`<span><ha-icon icon="mdi:clock-end"></ha-icon>${shcT(this._hass, "climate.turn_off", { "1": (esc(String(hs[sc.off_time]?.state || "").slice(0, 5))) })}</span>`);
+    if (this._on(sc.auto_day)) chips.push(`<span><ha-icon icon="mdi:sun-clock"></ha-icon>${esc(shcT(this._hass, "fan.auto_daynight"))}</span>`);
     const tOff = this._val(cfg.timer_off_entity);
-    if (on && tOff) chips.push(`<span><ha-icon icon="mdi:timer-off-outline"></ha-icon>Si spegne tra ${tOff >= 60 ? `${Math.floor(tOff / 60)} h ${tOff % 60} min` : `${tOff} min`}</span>`);
+    if (on && tOff) chips.push(`<span><ha-icon icon="mdi:timer-off-outline"></ha-icon>${shcT(this._hass, "fan.turns_off_in", { "1": (tOff >= 60 ? `${Math.floor(tOff / 60)} h ${tOff % 60} min` : `${tOff} min`) })}</span>`);
     const sched = q(".shc-cl-sched");
     sched.hidden = !chips.length;
     sched.innerHTML = chips.join("");
 
     this._setWarn(
       unav
-        ? "⚠ Ventilatore non raggiungibile: controlla che sia collegato alla corrente e al Wi‑Fi"
+        ? shcT(this._hass, "fan.fan_unavailable_check_that")
         : waterEmpty
-          ? "💧 Serbatoio dell'acqua vuoto: riempilo per la nebbia"
+          ? shcT(this._hass, "fan.water_tank_empty_fill")
           : needClean
-            ? `🧽 ${Math.round(cleanH)} ore dall'ultima pulizia: è ora di pulirlo`
+            ? shcT(this._hass, "fan.hours_since_last_cleaning", { "1": (Math.round(cleanH)) })
             : "",
     );
     this._liveRefresh([cfg.entity, cfg.mist_entity, cfg.mist_level_entity, cfg.humidify_entity, cfg.humidity_target_entity, cfg.light_entity, cfg.light_mode_entity, cfg.timer_off_entity, ...Object.values(sc), ...cfg.switches.map((s) => s.entity)].filter(Boolean));
@@ -12497,17 +14343,17 @@ class ShcFanCard extends ShcDeviceCardBase {
     const hs = this._hass.states;
     const any = [sc.on_enabled, sc.off_enabled, sc.auto_day, cfg.timer_off_entity].some((e) => this._has(e));
     if (!any) {
-      this._openDialog("Programmazione", `<div class="shc-ap-sec"><p class="shc-cl-note">Nessuna programmazione configurata. Copia il package <b>ventilatore.yaml</b> (vedi guida) oppure indica i tuoi helper nell'opzione <code>schedule</code> della card.</p></div>`);
+      this._openDialog(shcT(this._hass, "climate.schedule"), `<div class="shc-ap-sec"><p class="shc-cl-note">${esc(shcT(this._hass, "climate.no_schedule_configured_copy"))} <b>ventilatore.yaml</b> ${esc(shcT(this._hass, "climate.see_guide_or_specify"))} <code>schedule</code> ${esc(shcT(this._hass, "climate.of_the_card"))}</p></div>`);
       return;
     }
     const tOff = hs[cfg.timer_off_entity];
     const html = `
-      ${this._has(sc.on_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Accensione programmata</div>${this._row("Attiva", this._switchHtml(sc.on_enabled))}${this._row("Alle", this._timeHtml(sc.on_time))}</div>` : ""}
-      ${this._has(sc.off_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Spegnimento programmato</div>${this._row("Attivo", this._switchHtml(sc.off_enabled))}${this._row("Alle", this._timeHtml(sc.off_time))}</div>` : ""}
-      ${this._has(sc.auto_day) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Setup automatico all'accensione</div>${this._row("Giorno / notte", this._switchHtml(sc.auto_day))}<p class="shc-cl-note">Quando lo accendi sceglie da solo: di giorno modalità Normale, velocità media, nebbia e luce; di notte modalità Notte, velocità minima, nebbia bassa e luce spenta.</p></div>` : ""}
-      ${tOff ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Timer del ventilatore</div>${this._row("Si spegne tra", this._valHtml(Number(tOff.state) ? `${tOff.state} min` : "timer spento"))}${this._chipsHtml([0, 30, 60, 120, 240, 480].map((m) => ({ label: m ? (m >= 60 ? `${m / 60} h` : `${m} min`) : "Spento", on: Number(tOff.state) === m, attrs: `data-numset="${esc(cfg.timer_off_entity)}" data-v="${m}"` })))}</div>` : ""}
-      <p class="shc-cl-note">Accensione e spegnimento programmati sono <b>una tantum</b>: scattano una volta e si disattivano da soli. Quando sono attivi compaiono sotto i comandi della card.</p>`;
-    this._openDialog("Programmazione", html, this._reopenUnlessTyping(() => this._openSchedule()));
+      ${this._has(sc.on_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.scheduled_turnon"))}</div>${this._row(shcT(this._hass, "climate.active"), this._switchHtml(sc.on_enabled))}${this._row(shcT(this._hass, "climate.at"), this._timeHtml(sc.on_time))}</div>` : ""}
+      ${this._has(sc.off_enabled) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.scheduled_turnoff"))}</div>${this._row(shcT(this._hass, "alexamemocard.active"), this._switchHtml(sc.off_enabled))}${this._row(shcT(this._hass, "climate.at"), this._timeHtml(sc.off_time))}</div>` : ""}
+      ${this._has(sc.auto_day) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fan.automatic_setup_on_poweron"))}</div>${this._row(shcT(this._hass, "fan.day_night"), this._switchHtml(sc.auto_day))}<p class="shc-cl-note">${esc(shcT(this._hass, "fan.when_turned_on_it"))}</p></div>` : ""}
+      ${tOff ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fan.fan_timer"))}</div>${this._row(shcT(this._hass, "fan.turns_off_in_2"), this._valHtml(Number(tOff.state) ? `${tOff.state} min` : shcT(this._hass, "fan.timer_off")))}${this._chipsHtml([0, 30, 60, 120, 240, 480].map((m) => ({ label: m ? (m >= 60 ? `${m / 60} h` : `${m} min`) : shcT(this._hass, "climate.off_2"), on: Number(tOff.state) === m, attrs: `data-numset="${esc(cfg.timer_off_entity)}" data-v="${m}"` })))}</div>` : ""}
+      <p class="shc-cl-note">${esc(shcT(this._hass, "fan.scheduled_turnon_and_turnoff"))} <b>${esc(shcT(this._hass, "climate.oneoff"))}</b>${esc(shcT(this._hass, "fan.they_trigger_once_and"))}</p>`;
+    this._openDialog(shcT(this._hass, "climate.schedule"), html, this._reopenUnlessTyping(() => this._openSchedule()));
   }
 
   // 💧 Nebbia e luce
@@ -12518,23 +14364,23 @@ class ShcFanCard extends ShcDeviceCardBase {
     const tgt = hs[cfg.humidity_target_entity];
     const light = hs[cfg.light_entity];
     const lmode = hs[cfg.light_mode_entity];
-    const LM = { humidity: "Segue l'umidità", color: "Colore fisso" };
+    const LM = { humidity: shcT(this._hass, "fan.follows_humidity"), color: shcT(this._hass, "fan.fixed_color") };
     const lvls = [];
     if (lvl) for (let i = Number(lvl.attributes.min) || 1; i <= (Number(lvl.attributes.max) || 4); i++) lvls.push(i);
     const html = `
-      ${cfg.mist_entity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Nebulizzatore</div>
-        ${this._row("Nebbia", this._switchHtml(cfg.mist_entity))}
-        ${lvl ? `${this._row("Intensità", "")}${this._chipsHtml(lvls.map((i) => ({ label: String(i), on: Number(lvl.state) === i, attrs: `data-numset="${esc(cfg.mist_level_entity)}" data-v="${i}"`, icon: "mdi:weather-fog" })))}` : ""}
-        ${cfg.humidify_entity ? this._row("Umidificazione automatica", this._switchHtml(cfg.humidify_entity)) : ""}
-        ${tgt ? this._row("Umidità obiettivo", this._stepperHtml(cfg.humidity_target_entity, `${Math.round(Number(tgt.state)) || "—"} %`, 5)) : ""}
-        <p class="shc-cl-note">Con l'umidificazione automatica la nebbia si ferma quando la stanza arriva all'umidità obiettivo (trattino rosso sotto la barra dell'umidità).</p></div>` : ""}
-      ${light ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Luce ambientale</div>
-        ${this._row("Accesa", this._switchHtml(cfg.light_entity))}
+      ${cfg.mist_entity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fan.mister"))}</div>
+        ${this._row(shcT(this._hass, "fan.mist"), this._switchHtml(cfg.mist_entity))}
+        ${lvl ? `${this._row(shcT(this._hass, "fan.intensity"), "")}${this._chipsHtml(lvls.map((i) => ({ label: String(i), on: Number(lvl.state) === i, attrs: `data-numset="${esc(cfg.mist_level_entity)}" data-v="${i}"`, icon: "mdi:weather-fog" })))}` : ""}
+        ${cfg.humidify_entity ? this._row(shcT(this._hass, "fan.automatic_humidification"), this._switchHtml(cfg.humidify_entity)) : ""}
+        ${tgt ? this._row(shcT(this._hass, "device.target_humidity"), this._stepperHtml(cfg.humidity_target_entity, `${Math.round(Number(tgt.state)) || "—"} %`, 5)) : ""}
+        <p class="shc-cl-note">${esc(shcT(this._hass, "fan.with_automatic_humidification_mist"))}</p></div>` : ""}
+      ${light ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fan.ambient_light"))}</div>
+        ${this._row(shcT(this._hass, "fan.on"), this._switchHtml(cfg.light_entity))}
         ${this._chipsHtml([25, 50, 75, 100].map((b) => ({ label: `${b}%`, on: light.state === "on" && Math.round(((light.attributes.brightness || 0) / 255) * 100) === b, attrs: `data-bri="${b}"` })))}
-        ${lmode ? `${this._row("Colore", "")}${this._chipsHtml((lmode.attributes.options || []).map((o) => ({ label: LM[o] || o, on: o === lmode.state, attrs: `data-select="${esc(cfg.light_mode_entity)}" data-option="${esc(o)}"` })))}` : ""}
+        ${lmode ? `${this._row(shcT(this._hass, "fan.color"), "")}${this._chipsHtml((lmode.attributes.options || []).map((o) => ({ label: LM[o] || o, on: o === lmode.state, attrs: `data-select="${esc(cfg.light_mode_entity)}" data-option="${esc(o)}"` })))}` : ""}
       </div>` : ""}
-      ${!cfg.mist_entity && !light ? `<p class="shc-cl-note">Nebulizzatore e luce non configurati (opzioni <code>mist_entity</code>, <code>light_entity</code>).</p>` : ""}`;
-    const overlay = this._openDialog("Nebbia e luce", html, () => this._openMist());
+      ${!cfg.mist_entity && !light ? `<p class="shc-cl-note">${esc(shcT(this._hass, "fan.mister_and_light_not"))} <code>mist_entity</code>, <code>light_entity</code>).</p>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "fan.mist_and_light"), html, () => this._openMist());
     overlay.querySelectorAll("[data-bri]").forEach((b) =>
       b.addEventListener("click", () => this._call("light", "turn_on", { entity_id: cfg.light_entity, brightness_pct: Number(b.dataset.bri) })),
     );
@@ -12549,18 +14395,18 @@ class ShcFanCard extends ShcDeviceCardBase {
     const cleanH = this._val(cfg.cleaning_entity);
     const rows = cfg.switches.filter((s) => this._has(s.entity)).map((s) => this._row(s.name || hs[s.entity].attributes.friendly_name, this._switchHtml(s.entity))).join("");
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ventilatore</div>
-        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : st.state === "on" ? "Acceso" : "Spento"))}
-        ${st?.state === "on" ? this._row("Modalità e velocità", this._valHtml(`${FN_PRESETS[a.preset_mode]?.label || a.preset_mode || "—"} · ${this._speedText(a.percentage)}`)) : ""}
-        ${cfg.water_entity ? this._row("Serbatoio acqua", `<span class="shc-ap-row-val" style="${this._on(cfg.water_entity) ? "color:#ef4444;font-weight:800" : ""}">${this._on(cfg.water_entity) ? "Vuoto" : hs[cfg.water_entity]?.state === "off" ? "OK" : "n/d"}</span>`) : ""}
-        ${cfg.cleaning_entity ? this._row("Ore dall'ultima pulizia", `<span class="shc-ap-row-val" style="${cleanH !== null && cleanH >= cfg.cleaning_hours ? "color:#ef4444;font-weight:800" : ""}">${cleanH !== null ? `${Math.round(cleanH)} h su ${cfg.cleaning_hours}` : "n/d"}</span>`) : ""}
-        ${st ? this._row("Ultimo cambio", this._valHtml(new Date(st.last_changed).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))) : ""}
-        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fan.fan"))}</div>
+        ${this._row(shcT(this._hass, "fritz.status"), this._valHtml(!st || st.state === "unavailable" ? shcT(this._hass, "climate.unreachable") : st.state === "on" ? shcT(this._hass, "fan.on_2") : shcT(this._hass, "climate.off_2")))}
+        ${st?.state === "on" ? this._row(shcT(this._hass, "fan.mode_and_speed"), this._valHtml(`${FN_PRESETS[a.preset_mode]?.label || a.preset_mode || "—"} · ${this._speedText(a.percentage)}`)) : ""}
+        ${cfg.water_entity ? this._row(shcT(this._hass, "fan.water_tank"), `<span class="shc-ap-row-val" style="${this._on(cfg.water_entity) ? "color:#ef4444;font-weight:800" : ""}">${this._on(cfg.water_entity) ? shcT(this._hass, "fan.empty") : hs[cfg.water_entity]?.state === "off" ? "OK" : "n/d"}</span>`) : ""}
+        ${cfg.cleaning_entity ? this._row(shcT(this._hass, "fan.hours_since_last_cleaning_2"), `<span class="shc-ap-row-val" style="${cleanH !== null && cleanH >= cfg.cleaning_hours ? "color:#ef4444;font-weight:800" : ""}">${cleanH !== null ? shcT(this._hass, "fan.h_of", { "1": (Math.round(cleanH)), "2": (cfg.cleaning_hours) }) : "n/d"}</span>`) : ""}
+        ${st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(new Date(st.last_changed).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }))) : ""}
+        ${this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}
       </div>
-      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Impostazioni</div>${rows}</div>` : ""}
-      ${cfg.cleaning_entity ? `<p class="shc-cl-note">Il contatore della pulizia si azzera dal ventilatore (o dall'app) dopo averlo pulito. Il package avvisa ogni ${esc(cfg.cleaning_hours)} ore di utilizzo.</p>` : ""}
+      ${rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "fritz.settings"))}</div>${rows}</div>` : ""}
+      ${cfg.cleaning_entity ? `<p class="shc-cl-note">${shcT(this._hass, "fan.the_cleaning_counter_is", { "1": (esc(cfg.cleaning_hours)) })}</p>` : ""}
       ${this._hidePrefHtml()}`;
-    this._openDialog("Stato e manutenzione", html, () => this._openInfo());
+    this._openDialog(shcT(this._hass, "fan.status_and_maintenance"), html, () => this._openInfo());
   }
 
   static getConfigElement() {
@@ -12569,54 +14415,54 @@ class ShcFanCard extends ShcDeviceCardBase {
 
   static getStubConfig(hass) {
     const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("fan.")) || "fan.ventilatore";
-    return { name: "Ventilatore", entity: e };
+    return { name: shcT(hass, "fan.fan"), entity: e };
   }
 }
 
 class ShcFanCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Ventilatore" },
-        { key: "entity", label: "Ventilatore", domain: ["fan"], required: true },
-        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Camera" },
-        { key: "temperature_entity", label: "Sensore temperatura", domain: ["sensor"] },
-        { key: "humidity_entity", label: "Sensore umidità", domain: ["sensor"] },
-        { key: "power_entity", label: "Potenza (W) della presa", domain: ["sensor"] },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "fan.fan") },
+        { key: "entity", label: shcT(this._hass, "fan.fan"), domain: ["fan"], required: true },
+        { key: "room_name", label: shcT(this._hass, "climatecard.room_name_gauge_title"), kind: "text", placeholder: shcT(this._hass, "fancard.bedroom") },
+        { key: "temperature_entity", label: shcT(this._hass, "fancard.temperature_sensor"), domain: ["sensor"] },
+        { key: "humidity_entity", label: shcT(this._hass, "fancard.humidity_sensor"), domain: ["sensor"] },
+        { key: "power_entity", label: shcT(this._hass, "heatercard.plug_power_w"), domain: ["sensor"] },
       ]},
-      { title: "Accensione con script (facoltativo)", fields: [
-        { key: "power_script", label: "Script / scena / pulsante di accensione", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Il tasto power della card avvia questo script invece di accendere il ventilatore. Per inviare direttamente un comando (remote.send_command) usa la vista YAML." },
-        { key: "power_script_off", label: "Script di spegnimento (facoltativo)", domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: "Usato quando il ventilatore e' acceso; senza, il tasto lancia sempre lo script di accensione." },
-        { key: "power_script_state", label: "Stato acceso/spento (facoltativo)", hint: "Entita' (input_boolean, switch, binary_sensor...) che dice se il ventilatore e' acceso: la card diventa verde e le pale girano. Senza, la card ricorda l'ultimo comando." },
+      { title: shcT(this._hass, "fancard.turn_on_with_script"), fields: [
+        { key: "power_script", label: shcT(this._hass, "fancard.turnon_script_scene_button"), domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: shcT(this._hass, "fancard.the_cards_power_button") },
+        { key: "power_script_off", label: shcT(this._hass, "fancard.turnoff_script_optional"), domain: ["script", "scene", "button", "input_button", "automation", "switch", "input_boolean"], hint: shcT(this._hass, "fancard.used_when_the_fan") },
+        { key: "power_script_state", label: shcT(this._hass, "fancard.onoff_state_optional"), hint: shcT(this._hass, "fancard.entity_inputboolean_switch_binarysensor") },
       ]},
-      { title: "Nebbia e luce", fields: [
-        { key: "mist_entity", label: "Nebulizzatore", domain: ["switch"] },
-        { key: "mist_level_entity", label: "Livello nebbia", domain: ["number"] },
-        { key: "humidify_entity", label: "Umidificazione automatica", domain: ["switch"] },
-        { key: "humidity_target_entity", label: "Umidità obiettivo", domain: ["number"] },
-        { key: "light_entity", label: "Luce ambientale", domain: ["light"] },
-        { key: "light_mode_entity", label: "Modalità luce", domain: ["select"] },
+      { title: shcT(this._hass, "fan.mist_and_light"), fields: [
+        { key: "mist_entity", label: shcT(this._hass, "fan.mister"), domain: ["switch"] },
+        { key: "mist_level_entity", label: shcT(this._hass, "fancard.mist_level"), domain: ["number"] },
+        { key: "humidify_entity", label: shcT(this._hass, "fan.automatic_humidification"), domain: ["switch"] },
+        { key: "humidity_target_entity", label: shcT(this._hass, "device.target_humidity"), domain: ["number"] },
+        { key: "light_entity", label: shcT(this._hass, "fan.ambient_light"), domain: ["light"] },
+        { key: "light_mode_entity", label: shcT(this._hass, "fancard.light_mode"), domain: ["select"] },
       ]},
-      { title: "Manutenzione e timer", fields: [
-        { key: "water_entity", label: "Serbatoio acqua vuoto (binary_sensor)", domain: ["binary_sensor"] },
-        { key: "cleaning_entity", label: "Ore dall'ultima pulizia", domain: ["sensor"] },
-        { key: "cleaning_hours", label: "Avviso pulizia ogni (ore)", kind: "number", placeholder: "100" },
-        { key: "timer_off_entity", label: "Timer spegnimento del ventilatore (min)", domain: ["number"] },
+      { title: shcT(this._hass, "fancard.maintenance_and_timer"), fields: [
+        { key: "water_entity", label: shcT(this._hass, "fancard.empty_water_tank_binarysensor"), domain: ["binary_sensor"] },
+        { key: "cleaning_entity", label: shcT(this._hass, "fan.hours_since_last_cleaning_2"), domain: ["sensor"] },
+        { key: "cleaning_hours", label: shcT(this._hass, "fancard.cleaning_alert_every_hours"), kind: "number", placeholder: "100" },
+        { key: "timer_off_entity", label: shcT(this._hass, "fancard.fan_turnoff_timer_min"), domain: ["number"] },
       ]},
-      { title: "Programmazione (helper del package ventilatore.yaml)", fields: [
-        { key: "schedule.on_enabled", label: "Accensione programmata attiva", domain: ["input_boolean"] },
-        { key: "schedule.on_time", label: "Orario accensione", domain: ["input_datetime"] },
-        { key: "schedule.off_enabled", label: "Spegnimento programmato attivo", domain: ["input_boolean"] },
-        { key: "schedule.off_time", label: "Orario spegnimento", domain: ["input_datetime"] },
-        { key: "schedule.auto_day", label: "Setup automatico giorno/notte", domain: ["input_boolean"] },
+      { title: shcT(this._hass, "fancard.scheduling_ventilatoreyaml_package_helpers"), fields: [
+        { key: "schedule.on_enabled", label: shcT(this._hass, "climatecard.scheduled_turnon_active"), domain: ["input_boolean"] },
+        { key: "schedule.on_time", label: shcT(this._hass, "alexawebradiocard.turnon_time"), domain: ["input_datetime"] },
+        { key: "schedule.off_enabled", label: shcT(this._hass, "climatecard.scheduled_turnoff_active"), domain: ["input_boolean"] },
+        { key: "schedule.off_time", label: shcT(this._hass, "alexawebradiocard.turnoff_time"), domain: ["input_datetime"] },
+        { key: "schedule.auto_day", label: shcT(this._hass, "fancard.automatic_daynight_setup"), domain: ["input_boolean"] },
       ]},
-      { title: "Altro", fields: [
-        { key: "switches", label: "Interruttori (popup Stato)", kind: "list", itemFields: [
-          { key: "entity", label: "Interruttore", kind: "entity", domain: ["switch"] },
-          { key: "name", label: "Nome", kind: "text" },
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "switches", label: shcT(this._hass, "fancard.switches_status_popup"), kind: "list", itemFields: [
+          { key: "entity", label: shcT(this._hass, "heatercard.switch"), kind: "entity", domain: ["switch"] },
+          { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text" },
         ]},
-        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+        { key: "hide_when_offline", label: shcT(this._hass, "heatercard.hide_when_disconnected_from"), kind: "bool", hint: shcT(this._hass, "heatercard.when_the_card_receives") },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -12747,9 +14593,9 @@ function blHeroSvg(id) {
 
 class ShcBoilerCard extends ShcDeviceCardBase {
   setConfig(config) {
-    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error("entity è obbligatorio (climate.xxx)");
+    if (!config.entity || !String(config.entity).startsWith("climate.")) throw new Error(shcT(this._hass, "climate.entity_is_required_climatexxx"));
     this._config = {
-      name: "Caloriferi",
+      name: shcT(this._hass, "boiler.radiators"),
       layout: "centrato",
       min: 10,
       max: 28,
@@ -12771,34 +14617,34 @@ class ShcBoilerCard extends ShcDeviceCardBase {
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Programma">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-dv-cons" title="Consumi">${ICON_EURO}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-dv-info" title="Stato caldaia">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "boiler.schedule"))}" data-i18n-title="boiler.schedule">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-dv-cons" title="${esc(shcT(this._hass, "nas.consumption"))}" data-i18n-title="nas.consumption">${ICON_EURO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "boiler.boiler_status"))}" data-i18n-title="boiler.boiler_status">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-cl-herocol">
             <div class="shc-ap-hero">${blHeroSvg(this._uid)}</div>
-            ${this._lineHtml("Temperatura della casa e impostata, sotto la pressione dell'impianto")}
+            ${this._lineHtml(shcT(this._hass, "boiler.house_and_set_temperature"))}
           </div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Caldaia</span>
+            <span class="shc-ap-cycle-cap" data-i18n="boiler.boiler">${esc(shcT(this._hass, "boiler.boiler"))}</span>
             <div class="shc-ap-cycle-list">
-              ${row("bl-room", "mdi:home-thermometer", "Casa")}
-              ${row("bl-out", "mdi:thermometer", "Esterna")}
-              ${row("bl-press", "mdi:gauge", "Pressione")}
-              ${row("bl-dhw", "mdi:water-boiler", "Acqua")}
-              ${row("bl-next", "mdi:clock-outline", "Poi")}
-              ${row("bl-gas", "mdi:fire", "Gas oggi")}
+              ${row("bl-room", "mdi:home-thermometer", shcT(this._hass, "boiler.house"))}
+              ${row("bl-out", "mdi:thermometer", shcT(this._hass, "climate.outdoor"))}
+              ${row("bl-press", "mdi:gauge", shcT(this._hass, "boiler.pressure"))}
+              ${row("bl-dhw", "mdi:water-boiler", shcT(this._hass, "boiler.water"))}
+              ${row("bl-next", "mdi:clock-outline", shcT(this._hass, "heater.then"))}
+              ${row("bl-gas", "mdi:fire", shcT(this._hass, "boiler.gas_today"))}
             </div>
           </div>
         </div>
         <div class="shc-cl-ctrl">
-          <button type="button" class="shc-cl-btn power" title="Accendi (programma) / spegni"><ha-icon icon="mdi:power"></ha-icon></button>
-          <button type="button" class="shc-cl-btn" data-step="-1" title="Meno"><ha-icon icon="mdi:minus"></ha-icon></button>
-          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="bl-set-cap">impostata</small></div>
-          <button type="button" class="shc-cl-btn" data-step="1" title="Più"><ha-icon icon="mdi:plus"></ha-icon></button>
+          <button type="button" class="shc-cl-btn power" title="${esc(shcT(this._hass, "boiler.turn_on_schedule_turn"))}" data-i18n-title="boiler.turn_on_schedule_turn"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="${esc(shcT(this._hass, "climate.minus"))}" data-i18n-title="climate.minus"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small class="bl-set-cap" data-i18n="climate.target_2">${esc(shcT(this._hass, "climate.target_2"))}</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="${esc(shcT(this._hass, "climate.plus"))}" data-i18n-title="climate.plus"><ha-icon icon="mdi:plus"></ha-icon></button>
         </div>
         <div class="shc-cl-ctrl shc-bl-modes"></div>
         <div class="shc-cl-sched" hidden></div>
@@ -12856,7 +14702,7 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     q(".shc-cl-scale.h").classList.toggle("dense", st < 0.5);
     // barra dei gradi e barra della pressione staccate di qualche pixel
     q(".shc-cl-track").classList.add("sep");
-    q(".shc-cl-lbar.inner").title = "Pressione impianto";
+    q(".shc-cl-lbar.inner").title = shcT(this._hass, "boiler.system_pressure");
   }
 
   _pressUpdate(press, bad) {
@@ -12945,9 +14791,9 @@ class ShcBoilerCard extends ShcDeviceCardBase {
   _graphSeries() {
     const cfg = this._config;
     const s = [];
-    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: "Temperatura casa", color: "#f97316" });
-    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: "Esterna", color: "#0ea5e9" });
-    if (cfg.pressure_entity) s.push({ key: "press", entity: cfg.pressure_entity, label: "Pressione", color: "#8b5cf6" });
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: shcT(this._hass, "boiler.house_temperature"), color: "#f97316" });
+    if (cfg.outdoor_entity) s.push({ key: "out", entity: cfg.outdoor_entity, label: shcT(this._hass, "climate.outdoor"), color: "#0ea5e9" });
+    if (cfg.pressure_entity) s.push({ key: "press", entity: cfg.pressure_entity, label: shcT(this._hass, "boiler.pressure"), color: "#8b5cf6" });
     return s;
   }
 
@@ -12961,6 +14807,7 @@ class ShcBoilerCard extends ShcDeviceCardBase {
 
   set hass(hass) {
     this._hass = hass;
+    shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
@@ -12990,10 +14837,10 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     const press = this._val(cfg.pressure_entity);
     const pLow = press !== null && press < Number(cfg.pressure_min);
     const pHigh = press !== null && press > Number(cfg.pressure_max);
-    const modeTxt = unav ? "Non raggiungibile" : mode === "off" ? "Spenti (antigelo)" : mode === "heat" ? "Manuale" : `Programma ${prog || ""}`.trim();
-    const actTxt = heating ? "scalda i caloriferi" : dhw ? "fa acqua calda" : mode === "off" ? "" : "in attesa";
+    const modeTxt = unav ? shcT(this._hass, "climate.unreachable") : mode === "off" ? shcT(this._hass, "boiler.off_frost_protection") : mode === "heat" ? shcT(this._hass, "heater.manual") : shcT(this._hass, "boiler.schedule_2", { "1": (prog || "") }).trim();
+    const actTxt = heating ? shcT(this._hass, "boiler.heating_radiators") : dhw ? shcT(this._hass, "boiler.producing_hot_water") : mode === "off" ? "" : shcT(this._hass, "boiler.idle");
 
-    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : heating || dhw ? "run" : "standby", unav ? "OFFLINE" : mode === "off" ? "SPENTI" : heating ? "SCALDA" : dhw ? "ACQUA CALDA" : mode === "heat" ? "MANUALE" : `PROGRAMMA ${prog || ""}`.trim());
+    this._setBadge(unav ? "unavailable" : mode === "off" ? "off" : heating || dhw ? "run" : "standby", unav ? "OFFLINE" : mode === "off" ? shcT(this._hass, "boiler.off") : heating ? shcT(this._hass, "boiler.heating") : dhw ? shcT(this._hass, "boiler.hot_water") : mode === "heat" ? shcT(this._hass, "boiler.manual") : shcT(this._hass, "boiler.schedule_3", { "1": (prog || "") }).trim());
     q(".bl-disp").textContent = unav ? "--" : mode === "off" ? "OFF" : this._target() !== null ? `${clNum(this._target())}°` : "ON";
 
     q(".bl-room").textContent = room !== null ? `${clNum(room)} °C` : "—";
@@ -13001,11 +14848,11 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     q(".bl-press").textContent = press !== null ? `${clNum(press)} bar` : "—";
     q(".bl-press").style.color = pLow || pHigh ? "#ef4444" : "";
     const dhwT = this._val(cfg.hot_water_temperature_entity);
-    q(".bl-dhw").textContent = !cfg.hot_water_status_entity ? "—" : dhw ? (dhwT !== null ? `In uso ${clNum(dhwT, 0)}°` : "In uso") : "Pronta";
+    q(".bl-dhw").textContent = !cfg.hot_water_status_entity ? "—" : dhw ? (dhwT !== null ? shcT(this._hass, "boiler.in_use", { "1": (clNum(dhwT, 0)) }) : shcT(this._hass, "boiler.in_use_2")) : shcT(this._hass, "boiler.ready");
     const nsp = this._val(cfg.next_setpoint_entity);
     const nst = hs[cfg.next_setpoint_time_entity]?.state;
     const nDate = nst && !["unknown", "unavailable"].includes(nst) ? new Date(nst) : null;
-    const nTime = nDate && !isNaN(nDate) ? nDate.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : null;
+    const nTime = nDate && !isNaN(nDate) ? nDate.toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }) : null;
     q(".bl-next").textContent = mode === "auto" && nsp !== null && nTime ? `${clNum(nsp, 0)}° ${nTime}` : "—";
     const gas = this._gasToday();
     q(".bl-gas").textContent = gas !== null ? `${clNum(gas, 2)} m³` : "—";
@@ -13015,12 +14862,12 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     q(".bl-next").closest(".shc-ap-cycle-row").hidden = !cfg.next_setpoint_entity;
     q(".bl-gas").closest(".shc-ap-cycle-row").hidden = gas === null;
 
-    const setTxt = target !== null && !unav ? ` · ${mode === "off" ? "all'accensione" : "impostata"} <em>${esc(clNum(target))}°</em>` : "";
+    const setTxt = target !== null && !unav ? ` · ${mode === "off" ? shcT(this._hass, "boiler.at_turnon") : shcT(this._hass, "climate.target_2")} <em>${esc(clNum(target))}°</em>` : "";
     this._lineUpdate({ temp: room, hum: this._val(cfg.humidity_entity), set: unav ? null : this._pending ?? target, subHtml: `${esc(modeTxt)}${actTxt ? ` · ${esc(actTxt)}` : ""}${setTxt}` });
     this._pressUpdate(press, pLow || pHigh);
 
     if (this._pending == null) q(".cl-set-val").textContent = unav ? "—" : target !== null ? `${clNum(target)}°` : "—";
-    q(".bl-set-cap").textContent = mode === "auto" ? "programma" : mode === "off" ? "all'accensione" : "impostata";
+    q(".bl-set-cap").textContent = mode === "auto" ? shcT(this._hass, "boiler.program_lc") : mode === "off" ? shcT(this._hass, "boiler.at_turnon") : shcT(this._hass, "climate.target_2");
     const pw = q(".shc-cl-btn.power");
     pw.classList.toggle("on", !unav && mode !== "off");
     pw.disabled = unav;
@@ -13032,15 +14879,15 @@ class ShcBoilerCard extends ShcDeviceCardBase {
       const dis = unav ? " disabled" : "";
       const box = q(".shc-bl-modes");
       box.innerHTML =
-        `<button type="button" class="shc-cl-btn mode off${mode === "off" ? " on" : ""}" data-mode="off" title="Spenti (antigelo)"${dis}><ha-icon icon="mdi:snowflake-thermometer"></ha-icon></button>` +
-        `<button type="button" class="shc-cl-btn mode${mode === "heat" ? " on" : ""}" data-mode="heat" title="Manuale"${dis}><ha-icon icon="mdi:hand-back-right-outline"></ha-icon></button>` +
-        `<button type="button" class="shc-cl-btn mode auto${mode === "auto" ? " on" : ""}" data-mode="auto" title="Programma"${dis}><ha-icon icon="mdi:calendar-clock"></ha-icon></button>` +
+        `<button type="button" class="shc-cl-btn mode off${mode === "off" ? " on" : ""}" data-mode="off" title="${esc(shcT(this._hass, "boiler.off_frost_protection"))}"${dis}><ha-icon icon="mdi:snowflake-thermometer"></ha-icon></button>` +
+        `<button type="button" class="shc-cl-btn mode${mode === "heat" ? " on" : ""}" data-mode="heat" title="${esc(shcT(this._hass, "heater.manual"))}"${dis}><ha-icon icon="mdi:hand-back-right-outline"></ha-icon></button>` +
+        `<button type="button" class="shc-cl-btn mode auto${mode === "auto" ? " on" : ""}" data-mode="auto" title="${esc(shcT(this._hass, "boiler.schedule"))}"${dis}><ha-icon icon="mdi:calendar-clock"></ha-icon></button>` +
         `<span class="shc-cl-sep"></span>` +
         (a.preset_modes || [])
           .filter((p) => BL_PROGRAMS[p])
-          .map((p) => `<button type="button" class="shc-cl-btn prog${mode === "auto" && p === a.preset_mode ? " on" : ""}" data-prog="${esc(p)}" title="Programma orario ${esc(BL_PROGRAMS[p])}"${dis}><span class="shc-dv-txt">${esc(BL_PROGRAMS[p])}</span></button>`)
+          .map((p) => `<button type="button" class="shc-cl-btn prog${mode === "auto" && p === a.preset_mode ? " on" : ""}" data-prog="${esc(p)}" title="${shcT(this._hass, "boiler.time_schedule", { "1": (esc(BL_PROGRAMS[p])) })}"${dis}><span class="shc-dv-txt">${esc(BL_PROGRAMS[p])}</span></button>`)
           .join("") +
-        (this._has(cfg.fireplace_entity) ? `<button type="button" class="shc-cl-btn fire${fire ? " on" : ""}" data-fire="1" title="Modalità camino"${dis}><ha-icon icon="mdi:fireplace"></ha-icon></button>` : "");
+        (this._has(cfg.fireplace_entity) ? `<button type="button" class="shc-cl-btn fire${fire ? " on" : ""}" data-fire="1" title="${esc(shcT(this._hass, "boiler.fireplace_mode"))}"${dis}><ha-icon icon="mdi:fireplace"></ha-icon></button>` : "");
       box.querySelectorAll("[data-mode]").forEach((b) =>
         b.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -13060,10 +14907,10 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     }
 
     const chips = [];
-    if (!unav && mode === "auto" && nsp !== null && nTime) chips.push(`<span><ha-icon icon="mdi:calendar-clock"></ha-icon>Programma ${esc(prog || "")}: alle ${esc(nTime)} passa a ${esc(clNum(nsp))}°</span>`);
-    if (!unav && mode === "heat") chips.push(`<span><ha-icon icon="mdi:hand-back-right-outline"></ha-icon>Manuale: tiene ${target !== null ? `${esc(clNum(target))}°` : "la temperatura"} finché non cambi</span>`);
-    if (!unav && mode === "off" && this._preset() !== null) chips.push(`<span><ha-icon icon="mdi:power"></ha-icon>Con il pulsante accensione parte in manuale a ${esc(clNum(this._preset()))}°</span>`);
-    if (fire) chips.push(`<span><ha-icon icon="mdi:fireplace" style="color:#f97316"></ha-icon>Modalità camino attiva</span>`);
+    if (!unav && mode === "auto" && nsp !== null && nTime) chips.push(`<span><ha-icon icon="mdi:calendar-clock"></ha-icon>${shcT(this._hass, "boiler.schedule_at_changes_to", { "1": (esc(prog || "")), "2": (esc(nTime)), "3": (esc(clNum(nsp))) })}</span>`);
+    if (!unav && mode === "heat") chips.push(`<span><ha-icon icon="mdi:hand-back-right-outline"></ha-icon>${shcT(this._hass, "boiler.manual_keeps_until_you", { "1": (target !== null ? `${esc(clNum(target))}°` : shcT(this._hass, "boiler.the_temperature")) })}</span>`);
+    if (!unav && mode === "off" && this._preset() !== null) chips.push(`<span><ha-icon icon="mdi:power"></ha-icon>${shcT(this._hass, "boiler.with_the_power_button", { "1": (esc(clNum(this._preset()))) })}</span>`);
+    if (fire) chips.push(`<span><ha-icon icon="mdi:fireplace" style="color:#f97316"></ha-icon>${esc(shcT(this._hass, "boiler.fireplace_mode_active"))}</span>`);
     const sched = q(".shc-cl-sched");
     sched.hidden = !chips.length;
     sched.innerHTML = chips.join("");
@@ -13072,11 +14919,11 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     if (pLow || pHigh || errors.length) card.classList.add("has-alarm");
     this._setWarn(
       unav
-        ? "⚠ Caldaia non raggiungibile: controlla la corrente e il modulo internet della caldaia"
+        ? shcT(this._hass, "boiler.boiler_unavailable_check_power")
         : pLow
-          ? `🔧 Pressione bassa (${clNum(press)} bar): apri la valvola blu di carico fino a circa 1,5 bar`
+          ? shcT(this._hass, "boiler.low_pressure_bar_open", { "1": (clNum(press)) })
           : pHigh
-            ? `🔧 Pressione alta (${clNum(press)} bar): sfiata un calorifero o chiama il tecnico`
+            ? shcT(this._hass, "boiler.high_pressure_bar_bleed", { "1": (clNum(press)) })
             : errors.length
               ? `⚠ ${errors.map((d) => d.name || hs[d.entity]?.attributes?.friendly_name || d.entity).join(", ")}`
               : "",
@@ -13091,22 +14938,22 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     const st = this._st();
     const a = st?.attributes || {};
     const mode = st?.state;
-    const MODES = { off: "Spenti (antigelo)", heat: "Manuale", auto: "Programma" };
+    const MODES = { off: shcT(this._hass, "boiler.off_frost_protection"), heat: shcT(this._hass, "heater.manual"), auto: shcT(this._hass, "boiler.schedule") };
     const nsp = this._val(cfg.next_setpoint_entity);
     const nst = hs[cfg.next_setpoint_time_entity]?.state;
     const nDate = nst ? new Date(nst) : null;
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità</div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "climate.mode"))}</div>
         ${this._chipsHtml(Object.entries(MODES).map(([m, l]) => ({ label: l, on: mode === m, attrs: `data-hvac="${m}"`, icon: { off: "mdi:snowflake-thermometer", heat: "mdi:hand-back-right-outline", auto: "mdi:calendar-clock" }[m] })))}
       </div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Programma orario</div>
-        ${this._chipsHtml((a.preset_modes || []).filter((p) => BL_PROGRAMS[p]).map((p) => ({ label: `Programma ${BL_PROGRAMS[p].slice(1)}`, on: mode === "auto" && a.preset_mode === p, attrs: `data-prog="${esc(p)}"`, icon: "mdi:calendar-clock" })))}
-        ${this._val(cfg.schedule_setpoint_entity) !== null ? this._row("Temperatura del programma adesso", this._valHtml(`${clNum(this._val(cfg.schedule_setpoint_entity))} °C`)) : ""}
-        ${nsp !== null && nDate && !isNaN(nDate) ? this._row("Prossimo cambio", this._valHtml(`${nDate.toLocaleString("it-IT", { weekday: "short", hour: "2-digit", minute: "2-digit" })} → ${clNum(nsp)} °C`)) : ""}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.time_schedule_2"))}</div>
+        ${this._chipsHtml((a.preset_modes || []).filter((p) => BL_PROGRAMS[p]).map((p) => ({ label: shcT(this._hass, "boiler.schedule_2", { "1": (BL_PROGRAMS[p].slice(1)) }), on: mode === "auto" && a.preset_mode === p, attrs: `data-prog="${esc(p)}"`, icon: "mdi:calendar-clock" })))}
+        ${this._val(cfg.schedule_setpoint_entity) !== null ? this._row(shcT(this._hass, "boiler.current_schedule_temperature"), this._valHtml(`${clNum(this._val(cfg.schedule_setpoint_entity))} °C`)) : ""}
+        ${nsp !== null && nDate && !isNaN(nDate) ? this._row(shcT(this._hass, "boiler.next_change"), this._valHtml(`${nDate.toLocaleString(shcLoc(this._hass), { weekday: "short", hour: "2-digit", minute: "2-digit" })} → ${clNum(nsp)} °C`)) : ""}
       </div>
-      ${this._has(cfg.fireplace_entity) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Modalità camino</div>${this._row("Attiva", this._switchHtml(cfg.fireplace_entity))}<p class="shc-cl-note">Con il camino (o una stufa) acceso nella stanza del termostato, la caldaia continua a scaldare le altre stanze anche se lì fa già caldo.</p></div>` : ""}
-      <p class="shc-cl-note">In <b>Programma</b> i tasti − e + cambiano la temperatura solo fino al prossimo cambio orario, poi torna quella del programma. In <b>Manuale</b> la temperatura resta fissa. <b>Spenti</b> lascia attivo l'antigelo e l'acqua calda. Gli orari dei programmi si cambiano dall'app Baxi.</p>`;
-    const overlay = this._openDialog("Programma", html, () => this._openProgram());
+      ${this._has(cfg.fireplace_entity) ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.fireplace_mode"))}</div>${this._row(shcT(this._hass, "climate.active"), this._switchHtml(cfg.fireplace_entity))}<p class="shc-cl-note">${esc(shcT(this._hass, "boiler.with_the_fireplace_or"))}</p></div>` : ""}
+      <p class="shc-cl-note">In <b>${esc(shcT(this._hass, "boiler.schedule"))}</b> ${esc(shcT(this._hass, "boiler.the_and_buttons_change"))} <b>${esc(shcT(this._hass, "heater.manual"))}</b> ${esc(shcT(this._hass, "boiler.the_temperature_remains_fixed"))} <b>${esc(shcT(this._hass, "boiler.off_2"))}</b> ${esc(shcT(this._hass, "boiler.leaves_frost_protection_and"))}</p>`;
+    const overlay = this._openDialog(shcT(this._hass, "boiler.schedule"), html, () => this._openProgram());
     overlay.querySelectorAll("[data-hvac]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_hvac_mode", { entity_id: cfg.entity, hvac_mode: b.dataset.hvac })));
     overlay.querySelectorAll("[data-prog]").forEach((b) => b.addEventListener("click", () => this._call("climate", "set_preset_mode", { entity_id: cfg.entity, preset_mode: b.dataset.prog })));
   }
@@ -13151,12 +14998,12 @@ class ShcBoilerCard extends ShcDeviceCardBase {
   async _openConsumption() {
     const cfg = this._config;
     if (!cfg.gas_heating_entity && !cfg.gas_hot_water_entity) {
-      this._openDialog("Consumi", `<p class="shc-cl-note">Indica i sensori del gas (opzioni <code>gas_heating_entity</code> e <code>gas_hot_water_entity</code>).</p>`);
+      this._openDialog(shcT(this._hass, "nas.consumption"), `<p class="shc-cl-note">${esc(shcT(this._hass, "boiler.specify_the_gas_sensors"))} <code>gas_heating_entity</code> e <code>gas_hot_water_entity</code>).</p>`);
       return;
     }
     const tab = this._consTab || "day";
-    const TABS = { day: "Giorni", week: "Settimane", month: "Mesi", year: "Anni" };
-    this._openDialog("Consumi gas", `<div class="shc-ap-sec"><p class="shc-cl-note">Carico i consumi…</p></div>`);
+    const TABS = { day: shcT(this._hass, "alexawebradio.days"), week: shcT(this._hass, "boiler.weeks"), month: shcT(this._hass, "boiler.months"), year: shcT(this._hass, "boiler.years") };
+    this._openDialog(shcT(this._hass, "boiler.gas_consumption"), `<div class="shc-ap-sec"><p class="shc-cl-note">${esc(shcT(this._hass, "boiler.loading_consumption"))}</p></div>`);
     const R = this._consRanges();
     const back = new Date(R.day0);
     if (tab === "day") back.setDate(back.getDate() - 13);
@@ -13171,7 +15018,7 @@ class ShcBoilerCard extends ShcDeviceCardBase {
         this._consFetch(back, tab),
       ]);
     } catch (e) {
-      this._openDialog("Consumi gas", `<div class="shc-ap-sec"><p class="shc-cl-note">Non riesco a leggere le statistiche: ${esc(e?.message || e)}</p></div>`);
+      this._openDialog(shcT(this._hass, "boiler.gas_consumption"), `<div class="shc-ap-sec"><p class="shc-cl-note">${shcT(this._hass, "boiler.cannot_read_statistics", { "1": (esc(e?.message || e)) })}</p></div>`);
       return;
     }
     const price = shcNum(cfg.gas_price) || 0;
@@ -13181,9 +15028,9 @@ class ShcBoilerCard extends ShcDeviceCardBase {
       <span><em class="h"></em>${clNum(s.heat, 2)}<em class="w"></em>${clNum(s.water, 2)}</span></div>`;
     const fmt = (t) => {
       const d = new Date(t);
-      if (tab === "day") return d.toLocaleDateString("it-IT", { weekday: "short", day: "2-digit", month: "2-digit" });
-      if (tab === "week") return `dal ${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })}`;
-      if (tab === "month") return d.toLocaleDateString("it-IT", { month: "short", year: "numeric" });
+      if (tab === "day") return d.toLocaleDateString(shcLoc(this._hass), { weekday: "short", day: "2-digit", month: "2-digit" });
+      if (tab === "week") return shcT(this._hass, "boiler.from", { "1": (d.toLocaleDateString(shcLoc(this._hass), { day: "2-digit", month: "2-digit" })) });
+      if (tab === "month") return d.toLocaleDateString(shcLoc(this._hass), { month: "short", year: "numeric" });
       return String(d.getFullYear());
     };
     const max = Math.max(0.0001, ...rows.map((r) => r.heat + r.water));
@@ -13191,33 +15038,33 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     const list = [...rows].reverse();
     const table = list.length
       ? `<table class="shc-bl-tbl">
-          <thead><tr><th>${{ day: "Giorno", week: "Settimana", month: "Mese", year: "Anno" }[tab]}</th><th class="h">Riscald.</th><th class="w">Acqua</th><th>Totale</th></tr></thead>
+          <thead><tr><th>${{ day: shcT(this._hass, "boiler.day"), week: shcT(this._hass, "climate.week"), month: shcT(this._hass, "nas.month"), year: shcT(this._hass, "nas.year") }[tab]}</th><th class="h">${esc(shcT(this._hass, "boiler.heating_2"))}</th><th class="w">${esc(shcT(this._hass, "boiler.water"))}</th><th>${esc(shcT(this._hass, "boiler.total"))}</th></tr></thead>
           <tbody>${list
             .map(
               (r) => `<tr><td>${esc(fmt(r.start))}</td><td>${clNum(r.heat, 2)}</td><td>${clNum(r.water, 2)}</td><td><b>${clNum(r.heat + r.water, 2)}</b>${price ? `<small>${clNum((r.heat + r.water) * price, 2)} €</small>` : ""}</td></tr>
               <tr class="bar"><td colspan="4"><span class="h" style="width:${((r.heat / max) * 100).toFixed(1)}%"></span><span class="w" style="width:${((r.water / max) * 100).toFixed(1)}%"></span></td></tr>`,
             )
             .join("")}</tbody>
-          <tfoot><tr><td>Totale</td><td>${clNum(tot.heat, 2)}</td><td>${clNum(tot.water, 2)}</td><td><b>${clNum(tot.heat + tot.water, 2)}</b>${price ? `<small>${clNum((tot.heat + tot.water) * price, 2)} €</small>` : ""}</td></tr></tfoot>
+          <tfoot><tr><td>${esc(shcT(this._hass, "boiler.total"))}</td><td>${clNum(tot.heat, 2)}</td><td>${clNum(tot.water, 2)}</td><td><b>${clNum(tot.heat + tot.water, 2)}</b>${price ? `<small>${clNum((tot.heat + tot.water) * price, 2)} €</small>` : ""}</td></tr></tfoot>
         </table>`
-      : `<p class="shc-cl-note">Nessun dato in questo periodo.</p>`;
+      : `<p class="shc-cl-note">${esc(shcT(this._hass, "boiler.no_data_for_this"))}</p>`;
     const kwh = (e) => (this._val(e) !== null ? `${clNum(this._val(e), 1)} kWh` : "n/d");
     const today = [
-      [cfg.heating_energy_entity, "Riscaldamento: energia consumata"],
-      [cfg.heating_delivered_entity, "Riscaldamento: calore prodotto"],
-      [cfg.hot_water_energy_entity, "Acqua calda: energia consumata"],
-      [cfg.hot_water_delivered_entity, "Acqua calda: calore prodotto"],
+      [cfg.heating_energy_entity, shcT(this._hass, "boiler.heating_energy_consumed")],
+      [cfg.heating_delivered_entity, shcT(this._hass, "boiler.heating_heat_produced")],
+      [cfg.hot_water_energy_entity, shcT(this._hass, "boiler.hot_water_energy_consumed")],
+      [cfg.hot_water_delivered_entity, shcT(this._hass, "boiler.hot_water_heat_produced")],
     ].filter(([e]) => e);
     const html = `
-      <div class="shc-bl-sum">${box("Oggi", sums[0])}${box("Settimana", sums[1])}${box("Mese", sums[2])}${box("Anno", sums[3])}</div>
-      <div class="shc-bl-legend"><span><em class="h"></em>Riscaldamento</span><span><em class="w"></em>Acqua calda</span><span>m³ di gas stimati</span></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Storico</div>
+      <div class="shc-bl-sum">${box(shcT(this._hass, "nas.today"), sums[0])}${box(shcT(this._hass, "climate.week"), sums[1])}${box(shcT(this._hass, "nas.month"), sums[2])}${box(shcT(this._hass, "nas.year"), sums[3])}</div>
+      <div class="shc-bl-legend"><span><em class="h"></em>${esc(shcT(this._hass, "boiler.heating_3"))}</span><span><em class="w"></em>${esc(shcT(this._hass, "boiler.hot_water_2"))}</span><span>${esc(shcT(this._hass, "boiler.estimated_m_of_gas"))}</span></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.history"))}</div>
         ${this._chipsHtml(Object.entries(TABS).map(([k, l]) => ({ label: l, on: k === tab, attrs: `data-ctab="${k}"` })))}
         ${table}
       </div>
-      ${today.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Oggi dalla caldaia (kWh)</div>${today.map(([e, l]) => `<div class="shc-ap-row" data-more="${esc(e)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(l)}</span>${this._valHtml(kwh(e))}</div>`).join("")}</div>` : ""}
-      <p class="shc-cl-note">Il gas è stimato dai kWh che comunica la caldaia (circa 10,7 kWh per m³ di metano). Lo storico parte da quando esistono i sensori in Home Assistant.${price ? ` Costo calcolato a ${clNum(price, 2)} €/m³.` : " Per vedere anche il costo aggiungi l'opzione <code>gas_price</code> (€/m³)."}</p>`;
-    const overlay = this._openDialog("Consumi gas", html);
+      ${today.length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.today_from_boiler_kwh"))}</div>${today.map(([e, l]) => `<div class="shc-ap-row" data-more="${esc(e)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(l)}</span>${this._valHtml(kwh(e))}</div>`).join("")}</div>` : ""}
+      <p class="shc-cl-note">${shcT(this._hass, "boiler.gas_is_estimated_from", { "1": (price ? shcT(this._hass, "boiler.cost_calculated_at_m", { "1": (clNum(price, 2)) }) : shcT(this._hass, "boiler.to_also_see_the")) })}</p>`;
+    const overlay = this._openDialog(shcT(this._hass, "boiler.gas_consumption"), html);
     overlay.querySelectorAll("[data-ctab]").forEach((b) =>
       b.addEventListener("click", () => {
         this._consTab = b.dataset.ctab;
@@ -13233,29 +15080,29 @@ class ShcBoilerCard extends ShcDeviceCardBase {
     const st = this._st();
     const a = st?.attributes || {};
     const press = this._val(cfg.pressure_entity);
-    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "mai");
     const diag = cfg.diagnostics
       .map((d) => {
         const s = hs[d.entity];
-        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? `ultima volta ${fmtTime(s.attributes.last_triggered)}` : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
+        const val = !s ? "n/d" : d.entity.startsWith("automation.") ? shcT(this._hass, "heater.last_time", { "1": (fmtTime(s.attributes.last_triggered)) }) : `${s.state}${s.attributes.unit_of_measurement ? ` ${s.attributes.unit_of_measurement}` : ""}`;
         return `<div class="shc-ap-row" data-more="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(d.name || s?.attributes?.friendly_name || d.entity)}</span>${this._valHtml(val)}</div>`;
       })
       .join("");
     const pBad = press !== null && (press < cfg.pressure_min || press > cfg.pressure_max);
-    const ACT = { heating: "Scalda", idle: "In attesa", off: "Spenta" };
+    const ACT = { heating: shcT(this._hass, "boiler.heating_4"), idle: shcT(this._hass, "boiler.idle_2"), off: shcT(this._hass, "heater.off_2") };
     const html = `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Caldaia</div>
-        ${this._row("Stato", this._valHtml(!st || st.state === "unavailable" ? "Non raggiungibile" : ACT[a.hvac_action] || a.hvac_action || "—"))}
-        ${cfg.pressure_entity ? `<div class="shc-ap-row" data-more="${esc(cfg.pressure_entity)}" style="cursor:pointer"><span class="shc-ap-row-label">Pressione acqua</span><span class="shc-ap-row-val" style="${pBad ? "color:#ef4444;font-weight:800" : ""}">${press !== null ? `${clNum(press)} bar` : "n/d"}</span></div>` : ""}
-        ${cfg.hot_water_status_entity ? this._row("Acqua calda", this._valHtml(this._on(cfg.hot_water_status_entity) ? "In uso" : "Pronta")) : ""}
-        ${cfg.internet_entity ? this._row("Accesso a internet (router)", this._switchHtml(cfg.internet_entity)) : ""}
-        ${st ? this._row("Ultimo cambio", this._valHtml(fmtTime(st.last_changed))) : ""}
-        ${this._row("Scheda completa", `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">Apri</button>`)}
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.boiler"))}</div>
+        ${this._row(shcT(this._hass, "fritz.status"), this._valHtml(!st || st.state === "unavailable" ? shcT(this._hass, "climate.unreachable") : ACT[a.hvac_action] || a.hvac_action || "—"))}
+        ${cfg.pressure_entity ? `<div class="shc-ap-row" data-more="${esc(cfg.pressure_entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(shcT(this._hass, "boiler.water_pressure"))}</span><span class="shc-ap-row-val" style="${pBad ? "color:#ef4444;font-weight:800" : ""}">${press !== null ? `${clNum(press)} bar` : "n/d"}</span></div>` : ""}
+        ${cfg.hot_water_status_entity ? this._row(shcT(this._hass, "boiler.hot_water_2"), this._valHtml(this._on(cfg.hot_water_status_entity) ? shcT(this._hass, "boiler.in_use_2") : shcT(this._hass, "boiler.ready"))) : ""}
+        ${cfg.internet_entity ? this._row(shcT(this._hass, "boiler.internet_access_router"), this._switchHtml(cfg.internet_entity)) : ""}
+        ${st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : ""}
+        ${this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`)}
       </div>
-      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvisi automatici</div>${diag}</div>` : ""}
-      <p class="shc-cl-note">Pressione giusta a impianto freddo: tra ${clNum(cfg.pressure_min)} e ${clNum(cfg.pressure_max)} bar (ideale circa 1,5). Se scende, apri piano la valvola blu di carico sotto la caldaia e chiudila a 1,5 bar.</p>
+      ${diag ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "boiler.automatic_alerts"))}</div>${diag}</div>` : ""}
+      <p class="shc-cl-note">${shcT(this._hass, "boiler.correct_pressure_with_cold", { "1": (clNum(cfg.pressure_min)), "2": (clNum(cfg.pressure_max)) })}</p>
       ${this._hidePrefHtml()}`;
-    this._openDialog("Stato caldaia", html, () => this._openInfo());
+    this._openDialog(shcT(this._hass, "boiler.boiler_status"), html, () => this._openInfo());
   }
 
   static getConfigElement() {
@@ -13264,47 +15111,47 @@ class ShcBoilerCard extends ShcDeviceCardBase {
 
   static getStubConfig(hass) {
     const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("climate.")) || "climate.caldaia";
-    return { name: "Caloriferi", entity: e };
+    return { name: shcT(hass, "boiler.radiators"), entity: e };
   }
 }
 
 class ShcBoilerCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
     return [
-      { title: "Base", fields: [
-        { key: "name", label: "Nome", kind: "text", placeholder: "Caloriferi" },
-        { key: "entity", label: "Termostato / zona caldaia", domain: ["climate"], required: true },
-        { key: "room_name", label: "Nome stanza (titolo della gauge)", kind: "text", placeholder: "Casa" },
-        { key: "outdoor_entity", label: "Temperatura esterna", domain: ["sensor"] },
-        { key: "humidity_entity", label: "Umidità della casa (facoltativa)", domain: ["sensor"] },
-        { key: "pressure_entity", label: "Pressione acqua impianto (bar)", domain: ["sensor"] },
-        { key: "fireplace_entity", label: "Modalità camino", domain: ["switch"] },
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "boiler.radiators") },
+        { key: "entity", label: shcT(this._hass, "boilercard.thermostat_boiler_zone"), domain: ["climate"], required: true },
+        { key: "room_name", label: shcT(this._hass, "climatecard.room_name_gauge_title"), kind: "text", placeholder: shcT(this._hass, "boiler.house") },
+        { key: "outdoor_entity", label: shcT(this._hass, "climate.outdoor_temperature"), domain: ["sensor"] },
+        { key: "humidity_entity", label: shcT(this._hass, "boilercard.house_humidity_optional"), domain: ["sensor"] },
+        { key: "pressure_entity", label: shcT(this._hass, "boilercard.system_water_pressure_bar"), domain: ["sensor"] },
+        { key: "fireplace_entity", label: shcT(this._hass, "boiler.fireplace_mode"), domain: ["switch"] },
       ]},
-      { title: "Stato e programma", fields: [
-        { key: "heating_status_entity", label: "Caldaia in riscaldamento", domain: ["binary_sensor"] },
-        { key: "hot_water_status_entity", label: "Acqua calda in uso", domain: ["binary_sensor"] },
-        { key: "hot_water_temperature_entity", label: "Temperatura acqua calda", domain: ["sensor"] },
-        { key: "schedule_setpoint_entity", label: "Temperatura del programma adesso", domain: ["sensor"] },
-        { key: "next_setpoint_entity", label: "Prossima temperatura", domain: ["sensor"] },
-        { key: "next_setpoint_time_entity", label: "Ora del prossimo cambio", domain: ["sensor"] },
+      { title: shcT(this._hass, "boilercard.status_and_schedule"), fields: [
+        { key: "heating_status_entity", label: shcT(this._hass, "boilercard.boiler_heating"), domain: ["binary_sensor"] },
+        { key: "hot_water_status_entity", label: shcT(this._hass, "boilercard.hot_water_in_use"), domain: ["binary_sensor"] },
+        { key: "hot_water_temperature_entity", label: shcT(this._hass, "boilercard.hot_water_temperature"), domain: ["sensor"] },
+        { key: "schedule_setpoint_entity", label: shcT(this._hass, "boiler.current_schedule_temperature"), domain: ["sensor"] },
+        { key: "next_setpoint_entity", label: shcT(this._hass, "boilercard.next_temperature"), domain: ["sensor"] },
+        { key: "next_setpoint_time_entity", label: shcT(this._hass, "boilercard.next_change_time"), domain: ["sensor"] },
       ]},
-      { title: "Consumi", fields: [
-        { key: "gas_heating_entity", label: "Gas riscaldamento (m³)", domain: ["sensor"] },
-        { key: "gas_hot_water_entity", label: "Gas acqua calda (m³)", domain: ["sensor"] },
-        { key: "heating_energy_entity", label: "Energia riscaldamento consumata (kWh)", domain: ["sensor"] },
-        { key: "heating_delivered_entity", label: "Calore riscaldamento prodotto (kWh)", domain: ["sensor"] },
-        { key: "hot_water_energy_entity", label: "Energia acqua calda consumata (kWh)", domain: ["sensor"] },
-        { key: "hot_water_delivered_entity", label: "Calore acqua calda prodotto (kWh)", domain: ["sensor"] },
-        { key: "gas_price", label: "Prezzo gas €/m³ (facoltativo)", kind: "number" },
+      { title: shcT(this._hass, "nas.consumption"), fields: [
+        { key: "gas_heating_entity", label: shcT(this._hass, "boilercard.heating_gas_m"), domain: ["sensor"] },
+        { key: "gas_hot_water_entity", label: shcT(this._hass, "boilercard.hot_water_gas_m"), domain: ["sensor"] },
+        { key: "heating_energy_entity", label: shcT(this._hass, "boilercard.heating_energy_consumed_kwh"), domain: ["sensor"] },
+        { key: "heating_delivered_entity", label: shcT(this._hass, "boilercard.heating_heat_produced_kwh"), domain: ["sensor"] },
+        { key: "hot_water_energy_entity", label: shcT(this._hass, "boilercard.hot_water_energy_consumed"), domain: ["sensor"] },
+        { key: "hot_water_delivered_entity", label: shcT(this._hass, "boilercard.hot_water_heat_produced"), domain: ["sensor"] },
+        { key: "gas_price", label: shcT(this._hass, "boilercard.gas_price_m_optional"), kind: "number" },
       ]},
-      { title: "Altro", fields: [
-        { key: "internet_entity", label: "Accesso internet della caldaia (router)", domain: ["switch"] },
-        { key: "diagnostics", label: "Automazioni / sensori (popup Stato)", kind: "list", itemFields: [
-          { key: "entity", label: "Entità", kind: "entity" },
-          { key: "name", label: "Nome", kind: "text" },
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "internet_entity", label: shcT(this._hass, "boilercard.boiler_internet_access_router"), domain: ["switch"] },
+        { key: "diagnostics", label: shcT(this._hass, "boilercard.automations_sensors_status_popup"), kind: "list", itemFields: [
+          { key: "entity", label: shcT(this._hass, "boilercard.entity"), kind: "entity" },
+          { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text" },
         ]},
-        { key: "hide_when_offline", label: "Nascondi se scollegata dalla corrente", kind: "bool", hint: "Quando la card non riceve dati resta solo una striscia bassa con il nome e OFFLINE. Toccala per i dettagli." },
-        { key: "layout_entity", label: "Menu layout (classico/centrato)", domain: ["input_select"] },
+        { key: "hide_when_offline", label: shcT(this._hass, "heatercard.hide_when_disconnected_from"), kind: "bool", hint: shcT(this._hass, "heatercard.when_the_card_receives") },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
