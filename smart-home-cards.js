@@ -550,15 +550,15 @@ const WEEKDAY_FULL_IT = ["Domenica", "Luned\u00ec", "Marted\u00ec", "Mercoled\u0
 const WEEKDAY_ABBR_IT = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
 
 const DEFAULT_STATE_MAP = {
-  run: { mode: "running", label: "IN FUNZIONE" },
-  delayedstart: { mode: "standby", label: "AVVIO RITARDATO" },
-  pause: { mode: "standby", label: "IN PAUSA" },
-  actionrequired: { mode: "standby", label: "AZIONE RICHIESTA" },
-  finished: { mode: "off", label: "TERMINATO" },
-  ready: { mode: "off", label: "PRONTA" },
-  inactive: { mode: "off", label: "SPENTA" },
-  error: { mode: "unavailable", label: "ERRORE" },
-  aborting: { mode: "standby", label: "INTERRUZIONE" },
+  run: { mode: "running", label: "IN FUNZIONE", tk: "state.running" },
+  delayedstart: { mode: "standby", label: "AVVIO RITARDATO", tk: "state.delayedstart" },
+  pause: { mode: "standby", label: "IN PAUSA", tk: "state.pause" },
+  actionrequired: { mode: "standby", label: "AZIONE RICHIESTA", tk: "state.actionrequired" },
+  finished: { mode: "off", label: "TERMINATO", tk: "state.finished" },
+  ready: { mode: "off", label: "PRONTA", tk: "state.ready" },
+  inactive: { mode: "off", label: "SPENTA", tk: "state.inactive" },
+  error: { mode: "unavailable", label: "ERRORE", tk: "state.error" },
+  aborting: { mode: "standby", label: "INTERRUZIONE", tk: "state.aborting" },
 };
 
 const STYLE = `
@@ -920,7 +920,7 @@ const GC_RANGES = [
 function gcFmt(v, unit) {
   if (!Number.isFinite(v)) return "—";
   const a = Math.abs(v);
-  const s = v.toLocaleString("it-IT", { maximumFractionDigits: a >= 100 ? 0 : a >= 10 ? 1 : 2 });
+  const s = v.toLocaleString(shcLoc(), { maximumFractionDigits: a >= 100 ? 0 : a >= 10 ? 1 : 2 });
   return unit ? `${s} ${esc(unit)}` : s;
 }
 
@@ -1096,7 +1096,7 @@ function shcEpgNorm(s) {
   return String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\b(hd|fhd|uhd|4k)\b/g, "").replace(/[^a-z0-9]+/g, "");
 }
 function shcEpgTime(ms) {
-  return new Date(ms).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+  return new Date(ms).toLocaleTimeString(shcLoc(), { hour: "2-digit", minute: "2-digit" });
 }
 // Programma di un canale: kind = current | upcoming | primetime. null se sensore assente o senza dati.
 function shcEpgProg(hass, id, kind) {
@@ -1130,10 +1130,10 @@ function shcEpgPct(p, now) {
 function shcCostNote(hass, entityId) {
   if (Number.isFinite(shcPrice(hass, entityId))) return "";
   let why;
-  if (!entityId) why = "non hai impostato «Costo energia (€/kWh)» nell'editor della card";
-  else if (!hass.states[entityId]) why = `l'entit\u00e0 <code>${esc(entityId)}</code> non esiste (controlla il nome)`;
-  else why = `l'entit\u00e0 <code>${esc(entityId)}</code> non ha un valore numerico (stato: ${esc(hass.states[entityId].state)})`;
-  return `<div class="shc-ap-row-val" style="margin-top:8px;opacity:.8;font-size:12px;white-space:normal">Costo non calcolato: ${why}. Serve un prezzo in €/kWh (es. un helper Numero con 0,25).</div>`;
+  if (!entityId) why = shcT(hass, "cost.why_unset");
+  else if (!hass.states[entityId]) why = shcT(hass, "cost.why_missing", { entity: esc(entityId) });
+  else why = shcT(hass, "cost.why_nonnum", { entity: esc(entityId), state: esc(hass.states[entityId].state) });
+  return `<div class="shc-ap-row-val" style="margin-top:8px;opacity:.8;font-size:12px;white-space:normal">${shcT(hass, "cost.note", { why })}</div>`;
 }
 
 async function shcComputeAutoPeriods(hass, energyEntity, costPerKwh) {
@@ -1206,16 +1206,16 @@ function shcOpenChartPopup(card, opts) {
   ov.className = "shc-ap-overlay shc-gc-ov";
   ov.innerHTML = `<div class="shc-gc-dialog">
     <div class="shc-gc-head"><h3 class="shc-gc-title">${esc(opts.title || series[0].label)}</h3>
-      <button type="button" class="shc-gc-close">✕ Chiudi</button></div>
-    <div class="shc-gc-tabs">${GC_RANGES.map((r) => `<button type="button" class="shc-gc-tab" data-range="${r.key}">${r.label}</button>`).join("")}<button type="button" class="shc-gc-tab" data-range="custom">Da … a</button></div>
+      <button type="button" class="shc-gc-close">✕ ${esc(shcT(card._hass, "chart.close"))}</button></div>
+    <div class="shc-gc-tabs">${GC_RANGES.map((r) => `<button type="button" class="shc-gc-tab" data-range="${r.key}">${esc(r.key === "7d" ? shcT(card._hass, "chart.d7") : r.key === "30d" ? shcT(card._hass, "chart.d30") : r.label)}</button>`).join("")}<button type="button" class="shc-gc-tab" data-range="custom">${esc(shcT(card._hass, "chart.from_to"))}</button></div>
     <div class="shc-gc-custom" hidden>
-      <label><span>Da</span><input type="datetime-local" class="shc-gc-from"></label>
-      <label><span>A</span><input type="datetime-local" class="shc-gc-to"></label>
-      <button type="button" class="shc-gc-apply">Applica</button>
+      <label><span>${esc(shcT(card._hass, "chart.from"))}</span><input type="datetime-local" class="shc-gc-from"></label>
+      <label><span>${esc(shcT(card._hass, "chart.to"))}</span><input type="datetime-local" class="shc-gc-to"></label>
+      <button type="button" class="shc-gc-apply">${esc(shcT(card._hass, "chart.apply"))}</button>
       <small class="shc-gc-msg"></small>
     </div>
     <div class="shc-gc-chips"></div>
-    <div class="shc-gc-plot"><div class="shc-gc-loading">Caricamento…</div><div class="shc-gc-svgwrap"></div><div class="shc-gc-tip" hidden></div></div>
+    <div class="shc-gc-plot"><div class="shc-gc-loading">${esc(shcT(card._hass, "stats.loading"))}</div><div class="shc-gc-svgwrap"></div><div class="shc-gc-tip" hidden></div></div>
     <div class="shc-gc-sum"></div>
   </div>`;
   root.appendChild(ov);
@@ -1257,10 +1257,10 @@ function shcOpenChartPopup(card, opts) {
 
   const fmtX = (ms, span) => {
     const d = new Date(ms);
-    if (span <= 26 * 3600e3) return d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-    if (span <= 4 * 86400e3) return d.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    if (span <= 8 * 86400e3) return d.toLocaleDateString("it-IT", { weekday: "short", day: "numeric" });
-    return d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" });
+    if (span <= 26 * 3600e3) return d.toLocaleTimeString(shcLoc(hass()), { hour: "2-digit", minute: "2-digit" });
+    if (span <= 4 * 86400e3) return d.toLocaleString(shcLoc(hass()), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    if (span <= 8 * 86400e3) return d.toLocaleDateString(shcLoc(hass()), { weekday: "short", day: "numeric" });
+    return d.toLocaleDateString(shcLoc(hass()), { day: "2-digit", month: "2-digit" });
   };
 
   const wrap = q(".shc-gc-svgwrap");
@@ -1273,7 +1273,7 @@ function shcOpenChartPopup(card, opts) {
     const H = W < 520 ? Math.round(Math.min(420, Math.max(290, (window.innerHeight || 700) * 0.42))) : 360;
     const all = act.flatMap((s) => s.pts.map((p) => p.y));
     if (!all.length) {
-      wrap.innerHTML = `<div class="shc-ap-chart-empty" style="height:${H}px;display:grid;place-items:center">Nessun dato nel periodo</div>`;
+      wrap.innerHTML = `<div class="shc-ap-chart-empty" style="height:${H}px;display:grid;place-items:center">${esc(shcT(card._hass, "chart.no_data_period"))}</div>`;
       q(".shc-gc-sum").innerHTML = "";
       geo = null;
       return;
@@ -1345,7 +1345,7 @@ function shcOpenChartPopup(card, opts) {
         const v = s.pts.map((p) => p.y);
         if (!v.length) return "";
         const a = v.reduce((x, y) => x + y, 0) / v.length;
-        return `<span class="shc-gc-sumrow"><b style="color:${esc(s.color)}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>Min <b>${gcFmt(Math.min(...v), s.unit)}</b> · Media <b>${gcFmt(a, s.unit)}</b> · Max <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
+        return `<span class="shc-gc-sumrow"><b style="color:${esc(s.color)}">${act.length > 1 ? esc(s.label) + " · " : ""}</b>${esc(shcT(card._hass, "chart.min"))} <b>${gcFmt(Math.min(...v), s.unit)}</b> · ${esc(shcT(card._hass, "chart.avg"))} <b>${gcFmt(a, s.unit)}</b> · ${esc(shcT(card._hass, "chart.max"))} <b>${gcFmt(Math.max(...v), s.unit)}</b></span>`;
       })
       .join("");
     void avg;
@@ -1389,7 +1389,7 @@ function shcOpenChartPopup(card, opts) {
       c.setAttribute("fill", r.s.color);
       svg.appendChild(c);
     });
-    const when = new Date(tms).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    const when = new Date(tms).toLocaleString(shcLoc(hass()), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     tip.innerHTML = `<div class="shc-gc-tip-t">${when}</div>${rows
       .map((r) => `<div><i style="background:${esc(r.s.color)}"></i>${geo.act.length > 1 ? esc(r.s.label) + ": " : ""}<b>${gcFmt(r.p.y, r.s.unit)}</b></div>`)
       .join("")}`;
@@ -1534,6 +1534,254 @@ function shcPowerCutBlocked(artwork, entity) {
 function shcL(hass, it, en) {
   const l = String(hass?.locale?.language || hass?.language || "it").toLowerCase();
   return l.startsWith("it") ? it : en;
+}
+
+// -----------------------------------------------------------------------
+// Traduzioni / Translations (issue #11). La card segue SOLO la lingua di Home Assistant
+// (hass.locale.language, poi hass.language). Lingua non presente nel dizionario = inglese.
+// CONTRIBUTORS: to add a language, copy the whole "en" block below, rename it with the
+// two-letter code (e.g. nl, de, fr), translate the values (never the keys, keep {value}
+// placeholders). Nothing else to change: shcT() picks it up automatically.
+// Missing keys in a language fall back to English.
+// -----------------------------------------------------------------------
+const SHC_I18N = {
+  it: {
+      "tool.settings": "Impostazioni",
+      "tool.stats": "Statistiche",
+      "tool.graphs": "Grafici",
+      "tool.consumption": "Consumi",
+      "tool.socket": "Presa",
+      "tool.notif_center": "Centro Notifiche",
+      "cycle.last": "Ultimo ciclo",
+      "cycle.end": "Fine",
+      "cycle.duration": "Durata",
+      "cycle.consumption": "Consumo",
+      "cycle.cost": "Costo",
+      "cycle.state": "Stato",
+      "power.current": "Potenza attuale",
+      "power.label": "Potenza",
+      "progress.program": "Avanzamento programma",
+      "period.today": "Oggi",
+      "period.yesterday": "Ieri",
+      "period.month": "Mese",
+      "period.month_prev": "Mese precedente",
+      "period.year": "Anno",
+      "period.year_prev": "Anno precedente",
+      "settings.appearance": "Aspetto",
+      "settings.layout": "Layout",
+      "settings.maintenance": "Manutenzione",
+      "settings.reset_counters": "Reset contatori",
+      "settings.last_reset": "Ultimo reset: {value}",
+      "settings.none": "Nessuna impostazione configurata per questa card (vedi la guida, campo \"settings_sections\").",
+      "stats.cycles": "Cicli",
+      "stats.time": "Tempo",
+      "stats.cost": "Costo",
+      "stats.consumption": "Consumo",
+      "stats.live": "In tempo reale",
+      "stats.by_period": "Consumi per periodo",
+      "stats.last7": "Ultimi 7 giorni",
+      "stats.no_config": "Nessun dato configurato",
+      "stats.loading": "Caricamento…",
+      "stats.unavailable": "Statistiche non disponibili al momento",
+      "stats.this_month_daily": "Questo mese (kWh al giorno)",
+      "stats.this_year_monthly": "Quest'anno (kWh al mese)",
+      "live.appliance_state": "Stato apparecchio",
+      "live.expected_end": "Fine prevista",
+      "live.salt": "Sale",
+      "live.rinse": "Brillantante",
+      "live.low": "In esaurimento",
+      "live.ok": "OK",
+      "live.active": "Attivo",
+      "live.on": "Acceso",
+      "live.off": "Spento",
+      "common.na": "n/d",
+      "chart.power_trend": "Andamento potenza",
+      "chart.last24h": "Ultime 24 ore",
+      "chart.this_month": "Questo mese",
+      "chart.this_year": "Quest'anno",
+      "chart.loading": "Caricamento...",
+      "chart.error": "Errore caricamento dati",
+      "chart.no_data": "Nessun dato",
+      "chart.no_data_period": "Nessun dato nel periodo",
+      "chart.close": "Chiudi",
+      "chart.from_to": "Da … a",
+      "chart.from": "Da",
+      "chart.to": "A",
+      "chart.apply": "Applica",
+      "chart.min": "Min",
+      "chart.avg": "Media",
+      "chart.max": "Max",
+      "state.running": "IN FUNZIONE",
+      "state.delayedstart": "AVVIO RITARDATO",
+      "state.pause": "IN PAUSA",
+      "state.actionrequired": "AZIONE RICHIESTA",
+      "state.finished": "TERMINATO",
+      "state.ready": "PRONTA",
+      "state.inactive": "SPENTA",
+      "state.error": "ERRORE",
+      "state.aborting": "INTERRUZIONE",
+      "state.off": "SPENTO",
+      "state.standby": "STANDBY",
+      "state.na": "N/D",
+      "ctrl.commands": "Comandi",
+      "ctrl.programs": "Programmi",
+      "ctrl.program": "Programma",
+      "ctrl.options": "Opzioni",
+      "ctrl.delayed_start": "Avvio ritardato",
+      "ctrl.start": "Avvia",
+      "ctrl.resume": "Riprendi",
+      "ctrl.pause": "Pausa",
+      "ctrl.stop": "Stop",
+      "ctrl.paused_hint": "In pausa: premi Riprendi per continuare il ciclo.",
+      "ctrl.running_hint": "Ciclo in corso: programma e opzioni si cambiano a macchina ferma.",
+      "ctrl.remote_hint": "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto (Smart Control / Avvio remoto) dal suo pannello.",
+      "ctrl.tap_again": "Tocca ancora",
+      "ctrl.in": "tra {value}",
+      "ctrl.remaining": "manca {value}",
+      "err.need_entity": "serve power_entity (sensore Watt) oppure live.state_entity (stato dell'elettrodomestico)",
+      "cost.why_unset": "non hai impostato «Costo energia (€/kWh)» nell'editor della card",
+    "cost.why_missing": "l'entità <code>{entity}</code> non esiste (controlla il nome)",
+    "cost.why_nonnum": "l'entità <code>{entity}</code> non ha un valore numerico (stato: {state})",
+    "cost.note": "Costo non calcolato: {why}. Serve un prezzo in €/kWh (es. un helper Numero con 0,25).",
+    "cycle.hint": "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo",
+      "name.default": "Elettrodomestico",
+      "chart.d7": "7 gg",
+      "chart.d30": "30 gg"
+    },
+  en: {
+      "tool.settings": "Settings",
+      "tool.stats": "Statistics",
+      "tool.graphs": "Charts",
+      "tool.consumption": "Consumption",
+      "tool.socket": "Socket",
+      "tool.notif_center": "Notification Center",
+      "cycle.last": "Last cycle",
+      "cycle.end": "End",
+      "cycle.duration": "Duration",
+      "cycle.consumption": "Consumption",
+      "cycle.cost": "Cost",
+      "cycle.state": "State",
+      "power.current": "Current power",
+      "power.label": "Power",
+      "progress.program": "Program progress",
+      "period.today": "Today",
+      "period.yesterday": "Yesterday",
+      "period.month": "Month",
+      "period.month_prev": "Previous month",
+      "period.year": "Year",
+      "period.year_prev": "Previous year",
+      "settings.appearance": "Appearance",
+      "settings.layout": "Layout",
+      "settings.maintenance": "Maintenance",
+      "settings.reset_counters": "Reset counters",
+      "settings.last_reset": "Last reset: {value}",
+      "settings.none": "No settings configured for this card (see guide, field \"settings_sections\").",
+      "stats.cycles": "Cycles",
+      "stats.time": "Time",
+      "stats.cost": "Cost",
+      "stats.consumption": "Consumption",
+      "stats.live": "Live",
+      "stats.by_period": "Consumption by period",
+      "stats.last7": "Last 7 days",
+      "stats.no_config": "No data configured",
+      "stats.loading": "Loading…",
+      "stats.unavailable": "Statistics currently unavailable",
+      "stats.this_month_daily": "This month (kWh per day)",
+      "stats.this_year_monthly": "This year (kWh per month)",
+      "live.appliance_state": "Appliance state",
+      "live.expected_end": "Expected end",
+      "live.salt": "Salt",
+      "live.rinse": "Rinse aid",
+      "live.low": "Low",
+      "live.ok": "OK",
+      "live.active": "Active",
+      "live.on": "On",
+      "live.off": "Off",
+      "common.na": "n/a",
+      "chart.power_trend": "Power trend",
+      "chart.last24h": "Last 24 hours",
+      "chart.this_month": "This month",
+      "chart.this_year": "This year",
+      "chart.loading": "Loading...",
+      "chart.error": "Error loading data",
+      "chart.no_data": "No data",
+      "chart.no_data_period": "No data in period",
+      "chart.close": "Close",
+      "chart.from_to": "From … to",
+      "chart.from": "From",
+      "chart.to": "To",
+      "chart.apply": "Apply",
+      "chart.min": "Min",
+      "chart.avg": "Avg",
+      "chart.max": "Max",
+      "state.running": "RUNNING",
+      "state.delayedstart": "DELAYED START",
+      "state.pause": "PAUSED",
+      "state.actionrequired": "ACTION REQUIRED",
+      "state.finished": "FINISHED",
+      "state.ready": "READY",
+      "state.inactive": "INACTIVE",
+      "state.error": "ERROR",
+      "state.aborting": "ABORTING",
+      "state.off": "OFF",
+      "state.standby": "STANDBY",
+      "state.na": "N/A",
+      "ctrl.commands": "Commands",
+      "ctrl.programs": "Programs",
+      "ctrl.program": "Program",
+      "ctrl.options": "Options",
+      "ctrl.delayed_start": "Delayed start",
+      "ctrl.start": "Start",
+      "ctrl.resume": "Resume",
+      "ctrl.pause": "Pause",
+      "ctrl.stop": "Stop",
+      "ctrl.paused_hint": "Paused: press Resume to continue the cycle.",
+      "ctrl.running_hint": "Cycle in progress: program and options can only be changed when the machine is stopped.",
+      "ctrl.remote_hint": "Remote control is disabled on the appliance: enable it (Smart Control / Remote Start) from its panel.",
+      "ctrl.tap_again": "Tap again",
+      "ctrl.in": "in {value}",
+      "ctrl.remaining": "{value} remaining",
+      "err.need_entity": "requires power_entity (Watt sensor) or live.state_entity (appliance state)",
+      "cost.why_unset": "you have not set \"Energy cost (€/kWh)\" in the card editor",
+    "cost.why_missing": "the entity <code>{entity}</code> does not exist (check the name)",
+    "cost.why_nonnum": "the entity <code>{entity}</code> has no numeric value (state: {state})",
+    "cost.note": "Cost not calculated: {why}. A price in €/kWh is required (e.g. a Number helper with 0.25).",
+    "cycle.hint": "Set cycle_sensor and cycle_attrs to show the last cycle",
+      "name.default": "Appliance",
+      "chart.d7": "7 d",
+      "chart.d30": "30 d"
+    },
+};
+let SHC_LANG_LAST = String(document.documentElement?.lang || "").toLowerCase().slice(0, 2);
+function shcLang(hass) {
+  const raw = hass?.locale?.language || hass?.language;
+  if (raw) SHC_LANG_LAST = String(raw).toLowerCase().slice(0, 2);
+  const l = SHC_LANG_LAST;
+  return SHC_I18N[l] ? l : "en";
+}
+// Locale per date/ore: italiano per l'italiano, altrimenti inglese (24 ore, gg/mm).
+function shcLoc(hass) {
+  return shcLang(hass) === "it" ? "it-IT" : "en-GB";
+}
+function shcT(hass, key, vars) {
+  const l = shcLang(hass);
+  let t = SHC_I18N[l]?.[key] ?? SHC_I18N.en[key] ?? key;
+  if (vars) for (const k of Object.keys(vars)) t = t.split("{" + k + "}").join(String(vars[k]));
+  return t;
+}
+function shcMonthAbbr(hass) {
+  const loc = shcLoc(hass);
+  return Array.from({ length: 12 }, (_, m) => {
+    const t = new Date(2024, m, 15).toLocaleDateString(loc, { month: "short" }).replace(/\.$/, "");
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  });
+}
+function shcWeekdayAbbr(hass) {
+  const loc = shcLoc(hass);
+  return Array.from({ length: 7 }, (_, d) => {
+    const t = new Date(2024, 0, 7 + d).toLocaleDateString(loc, { weekday: "short" }).replace(/\.$/, "");
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  });
 }
 
 // -----------------------------------------------------------------------
@@ -1799,9 +2047,9 @@ if (!customElements.get("shc-samsung-remote")) customElements.define("shc-samsun
 
 class ShcApplianceCloneCard extends HTMLElement {
   setConfig(config) {
-    if (!config.power_entity && !config.live?.state_entity) throw new Error("serve power_entity (sensore Watt) oppure live.state_entity (stato dell'elettrodomestico)");
+    if (!config.power_entity && !config.live?.state_entity) throw new Error(shcT(this._hass, "err.need_entity"));
     this._config = {
-      name: "Elettrodomestico",
+      name: shcT(this._hass, "name.default"),
       artwork: "dishwasher",
       threshold_run: 5,
       threshold_standby: 1,
@@ -1810,14 +2058,7 @@ class ShcApplianceCloneCard extends HTMLElement {
       state_map: DEFAULT_STATE_MAP,
       settings_sections: [],
       warn_entities: [],
-      period_labels: {
-        today: "Oggi",
-        yesterday: "Ieri",
-        month: "Mese",
-        month_prev: "Mese Precedente",
-        year: "Anno",
-        year_prev: "Anno Precedente",
-      },
+      period_labels: {},
       ...config,
     };
     this._activePeriod = "today";
@@ -1834,27 +2075,27 @@ class ShcApplianceCloneCard extends HTMLElement {
             <span class="shc-ap-name"></span>
             <span class="shc-ap-room" hidden></span>
           </span>
-          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="Presa"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="${esc(shcT(this._hass, "tool.socket"))}" data-i18n-title="tool.socket"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
           <span class="shc-ap-tools">${this._powerScriptOn() ? `<button type="button" class="shc-ap-tool shc-ap-pscript" title="${esc(shcL(this._hass, "Accendi / spegni", "Turn on / off"))}">${ICON_POWER_CUT}</button>` : ""}
-            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="Centro Notifiche" hidden>${ICON_NOTIFCENTER}</button>
+            <button type="button" class="shc-ap-tool shc-ap-notif-center" title="${esc(shcT(this._hass, "tool.notif_center"))}" data-i18n-title="tool.notif_center" hidden>${ICON_NOTIFCENTER}</button>
             ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" && !this._epgOn() ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
-            <button type="button" class="shc-ap-tool shc-ap-settings" title="Impostazioni">${ICON_GEAR}</button>
-            <button type="button" class="shc-ap-tool shc-ap-stats" title="Statistiche" hidden>${ICON_CHART}</button>
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="Grafici">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-ap-consumi" title="Consumi">${ICON_BOLT}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "tool.settings"))}" data-i18n-title="tool.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "tool.stats"))}" data-i18n-title="tool.stats" hidden>${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "tool.graphs"))}" data-i18n-title="tool.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "tool.consumption"))}" data-i18n-title="tool.consumption">${ICON_BOLT}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
           <div class="shc-ap-hero">${hero}</div>
           <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap">Ultimo ciclo</span>
+            <span class="shc-ap-cycle-cap" data-i18n="cycle.last">${esc(shcT(this._hass, "cycle.last"))}</span>
             <div class="shc-ap-cycle-list">
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_FLAG}</span><small>Fine</small></span><b class="shc-c-end">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small>Durata</small></span><b class="shc-c-duration">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small>Consumo</small></span><b class="shc-c-energy">\u2014</b></div>
-              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small>Costo</small></span><b class="shc-c-cost">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_FLAG}</span><small data-i18n="cycle.end">${esc(shcT(this._hass, "cycle.end"))}</small></span><b class="shc-c-end">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_TIMER}</span><small data-i18n="cycle.duration">${esc(shcT(this._hass, "cycle.duration"))}</small></span><b class="shc-c-duration">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_BOLT}</span><small data-i18n="cycle.consumption">${esc(shcT(this._hass, "cycle.consumption"))}</small></span><b class="shc-c-energy">\u2014</b></div>
+              <div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${ICON_EURO}</span><small data-i18n="cycle.cost">${esc(shcT(this._hass, "cycle.cost"))}</small></span><b class="shc-c-cost">\u2014</b></div>
             </div>
-            <div class="shc-ap-cycle-hint" hidden>${esc(shcL(this._hass, "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo", "Set cycle_sensor and cycle_attrs to show the last cycle"))}</div>
+            <div class="shc-ap-cycle-hint" data-i18n="cycle.hint" hidden>${esc(shcT(this._hass, "cycle.hint"))}</div>
           </div>
         </div>
         <div class="shc-ap-warn" hidden></div>
@@ -1862,13 +2103,13 @@ class ShcApplianceCloneCard extends HTMLElement {
         <div class="shc-ap-panel shc-ap-power-open" role="button" tabindex="0">
           <div class="shc-ap-meters">
             <div class="shc-ap-meter shc-ap-power-meter">
-              <div class="shc-ap-meter-row"><span>${esc(this._config.power_label || "Potenza attuale")}</span><strong class="shc-ap-power-val">0 W</strong></div>
+              <div class="shc-ap-meter-row"><span${this._config.power_label ? "" : ' data-i18n="power.current"'}>${esc(this._config.power_label || shcT(this._hass, "power.current"))}</span><strong class="shc-ap-power-val">0 W</strong></div>
               <div class="shc-ap-bar"><i style="width:0%"></i></div>
             </div>
             ${
               this._config.live?.progress_entity
                 ? `<div class="shc-ap-meter">
-              <div class="shc-ap-meter-row"><span>Avanzamento programma</span><strong class="shc-ap-progress-val">\u2014</strong></div>
+              <div class="shc-ap-meter-row"><span data-i18n="progress.program">${esc(shcT(this._hass, "progress.program"))}</span><strong class="shc-ap-progress-val">\u2014</strong></div>
               <div class="shc-ap-bar"><i class="shc-ap-progress-bar" style="width:0%"></i></div>
             </div>`
                 : ""
@@ -1919,12 +2160,16 @@ class ShcApplianceCloneCard extends HTMLElement {
     // side: rilabel del riquadro "Ultimo ciclo" per dispositivi senza cicli (es. frigo: compressore)
     if (this._config.side) {
       const sd = this._config.side;
-      this._root.querySelector(".shc-ap-cycle-cap").textContent = sd.title || "Stato";
+      const capEl = this._root.querySelector(".shc-ap-cycle-cap");
+      capEl.textContent = sd.title || shcT(this._hass, "cycle.state");
+      if (sd.title) capEl.removeAttribute("data-i18n");
+      else capEl.dataset.i18n = "cycle.state";
       const lbl = this._root.querySelectorAll(".shc-ap-cycle-row .shc-ap-cycle-label");
       const icons = { bolt: ICON_BOLT, flag: ICON_FLAG, timer: ICON_TIMER, euro: ICON_EURO, sun: ICON_SUN, user: ICON_USER, home: ICON_HOME, battery: ICON_BATTERY };
       (sd.rows || []).forEach((r, i) => {
         if (!lbl[i]) return;
         lbl[i].querySelector("small").textContent = r.label || "";
+        lbl[i].querySelector("small").removeAttribute("data-i18n");
         if (r.icon && icons[r.icon]) lbl[i].querySelector(".shc-ap-cycle-ic").innerHTML = icons[r.icon];
       });
     }
@@ -1936,7 +2181,9 @@ class ShcApplianceCloneCard extends HTMLElement {
         const box = this._root.querySelector(".shc-ap-cycle-side");
         if (box) box.style.display = "none";
       } else {
-        this._root.querySelector(".shc-ap-cycle-cap").textContent = "Consumo";
+        const capEl2 = this._root.querySelector(".shc-ap-cycle-cap");
+        capEl2.textContent = shcT(this._hass, "cycle.consumption");
+        capEl2.dataset.i18n = "cycle.consumption";
         [0, 1].forEach((i) => rows[i] && (rows[i].style.display = "none"));
       }
     }
@@ -2224,8 +2471,8 @@ class ShcApplianceCloneCard extends HTMLElement {
     const hass = this._hass;
     // Con layout_entity ma senza sezione "Aspetto" scritta a mano, la riga Layout compare da sola.
     const secList = [...(this._config.settings_sections || [])];
-    if (this._config.layout_entity && hass.states[this._config.layout_entity] && !secList.some((x) => x.title === "Aspetto")) {
-      secList.unshift({ title: "Aspetto", rows: [{ entity: this._config.layout_entity, label: "Layout" }] });
+    if (this._config.layout_entity && hass.states[this._config.layout_entity] && !secList.some((x) => ["Aspetto", shcT(this._hass, "settings.appearance")].includes(x.title))) {
+      secList.unshift({ title: shcT(this._hass, "settings.appearance"), rows: [{ entity: this._config.layout_entity, label: "Layout" }] });
     }
     const sections = secList
       .map(
@@ -2238,14 +2485,14 @@ class ShcApplianceCloneCard extends HTMLElement {
 
     const resetBtn = this._config.reset_script
       ? `<div class="shc-ap-sec">
-           <div class="shc-ap-sec-cap">Manutenzione</div>
-           <button type="button" class="shc-ap-reset-btn" data-reset-script="${esc(this._config.reset_script)}">${ICON_RESTART} Reset contatori</button>
-           ${this._config.reset_date_entity ? `<div class="shc-ap-reset-note">Ultimo reset: ${esc(hass.states[this._config.reset_date_entity]?.state || "\u2014")}</div>` : ""}
+           <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "settings.maintenance"))}</div>
+           <button type="button" class="shc-ap-reset-btn" data-reset-script="${esc(this._config.reset_script)}">${ICON_RESTART} ${esc(shcT(this._hass, "settings.reset_counters"))}</button>
+           ${this._config.reset_date_entity ? `<div class="shc-ap-reset-note">${esc(shcT(this._hass, "settings.last_reset", { value: hass.states[this._config.reset_date_entity]?.state || "\u2014" }))}</div>` : ""}
          </div>`
       : "";
 
     const shcSettingsBody = `${sections}${resetBtn}${this._powerCutHtml()}`;
-    const overlay = this._openDialog("Impostazioni", shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">Nessuna impostazione configurata per questa card (vedi la guida, campo "settings_sections").</div>`);
+    const overlay = this._openDialog(shcT(this._hass, "tool.settings"), shcSettingsBody.trim() ? shcSettingsBody : `<div class="shc-ap-row-val">${esc(shcT(this._hass, "settings.none"))}</div>`);
 
     const cutChk = overlay.querySelector("[data-cut-enable]");
     if (cutChk) {
@@ -2327,13 +2574,13 @@ class ShcApplianceCloneCard extends HTMLElement {
     const time = pAttrs.time ? attrs[pAttrs.time] ?? "\u2014" : "\u2014";
     const cost = pAttrs.cost ? attrs[pAttrs.cost] : null;
     const costTxt = Number.isFinite(shcNum(cost)) ? `${shcNum(cost).toFixed(2)} \u20ac` : "\u2014";
-    const label = cfg.period_labels[periodKey] || periodKey;
+    const label = cfg.period_labels?.[periodKey] || (SHC_I18N.en["period." + periodKey] ? shcT(this._hass, "period." + periodKey) : periodKey);
     return `<div class="shc-ap-week-row">
       <div class="shc-ap-week-day">${esc(label)}</div>
       <div class="shc-ap-week-stats cols3">
-        <div class="shc-ap-week-stat"><small>Cicli</small><b>${esc(cycles)}</b></div>
-        <div class="shc-ap-week-stat"><small>Tempo</small><b>${esc(time)}</b></div>
-        <div class="shc-ap-week-stat"><small>Costo</small><b>${costTxt}</b></div>
+        <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.cycles"))}</small><b>${esc(cycles)}</b></div>
+        <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.time"))}</small><b>${esc(time)}</b></div>
+        <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.cost"))}</small><b>${costTxt}</b></div>
       </div>
     </div>`;
   }
@@ -2346,25 +2593,25 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (live.state_entity) {
       const raw = hass.states[live.state_entity]?.state;
       const mapped = this._config.state_map[raw];
-      liveHtml += this._row("Stato apparecchio", `<span class="shc-ap-row-val">${esc(mapped?.label || raw || "n/d")}</span>`);
+      liveHtml += this._row(shcT(this._hass, "live.appliance_state"), `<span class="shc-ap-row-val">${esc((mapped?.tk ? shcT(this._hass, mapped.tk) : mapped?.label) || raw || shcT(this._hass, "common.na"))}</span>`);
     }
     if (live.progress_entity) {
       const st = hass.states[live.progress_entity];
-      const val = st && st.state !== "unavailable" && st.state !== "unknown" ? `${st.state}%` : "n/d";
-      liveHtml += this._row("Avanzamento programma", `<span class="shc-ap-row-val">${esc(val)}</span>`);
+      const val = st && st.state !== "unavailable" && st.state !== "unknown" ? `${st.state}%` : shcT(this._hass, "common.na");
+      liveHtml += this._row(shcT(this._hass, "progress.program"), `<span class="shc-ap-row-val">${esc(val)}</span>`);
     }
     if (live.remaining_entity) {
       const st = hass.states[live.remaining_entity];
-      const val = st && st.state !== "unavailable" && st.state !== "unknown" ? new Date(st.state).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "n/d";
-      liveHtml += this._row("Fine prevista", `<span class="shc-ap-row-val">${esc(val)}</span>`);
+      const val = st && st.state !== "unavailable" && st.state !== "unknown" ? new Date(st.state).toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }) : shcT(this._hass, "common.na");
+      liveHtml += this._row(shcT(this._hass, "live.expected_end"), `<span class="shc-ap-row-val">${esc(val)}</span>`);
     }
     if (live.salt_entity) {
       const st = hass.states[live.salt_entity]?.state;
-      liveHtml += this._row("Sale", `<span class="shc-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
+      liveHtml += this._row(shcT(this._hass, "live.salt"), `<span class="shc-ap-row-val">${st === "off" ? shcT(this._hass, "live.ok") : shcT(this._hass, "live.low")}</span>`);
     }
     if (live.rinse_entity) {
       const st = hass.states[live.rinse_entity]?.state;
-      liveHtml += this._row("Brillantante", `<span class="shc-ap-row-val">${st === "off" ? "OK" : "In esaurimento"}</span>`);
+      liveHtml += this._row(shcT(this._hass, "live.rinse"), `<span class="shc-ap-row-val">${st === "off" ? shcT(this._hass, "live.ok") : shcT(this._hass, "live.low")}</span>`);
     }
     // Righe extra generiche per apparecchi con sensori/attributi che non
     // rientrano nei campi fissi sopra (es. fase ciclo di un'asciugatrice,
@@ -2382,27 +2629,27 @@ class ShcApplianceCloneCard extends HTMLElement {
           const m = String(raw).match(/^(\d+):(\d+)/);
           if (m) min = Number(m[1]) * 60 + Number(m[2]);
         }
-        val = !Number.isFinite(min) ? "n/d" : min === 0 && row.zero_label ? row.zero_label : min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ""}` : `${min} min`;
+        val = !Number.isFinite(min) ? shcT(this._hass, "common.na") : min === 0 && row.zero_label ? row.zero_label : min >= 60 ? `${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ""}` : `${min} min`;
       } else if (raw === undefined || raw === null || raw === "") {
-        val = "n/d";
+        val = shcT(this._hass, "common.na");
       } else if (row.value_map) {
         val = row.value_map[raw] ?? row.fallback_label ?? raw;
       } else if (row.boolean) {
-        val = raw === (row.on_state ?? "on") ? row.on_label || "Attivo" : row.off_label || "OK";
+        val = raw === (row.on_state ?? "on") ? row.on_label || shcT(this._hass, "live.active") : row.off_label || shcT(this._hass, "live.ok");
       } else if (row.format === "percent") {
         const n = Number(raw);
-        val = Number.isFinite(n) ? `${Math.round(n * 100)}%` : "n/d";
+        val = Number.isFinite(n) ? `${Math.round(n * 100)}%` : shcT(this._hass, "common.na");
       } else if (row.format === "time") {
         const d = new Date(raw);
-        val = Number.isFinite(d.getTime()) ? d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : raw;
+        val = Number.isFinite(d.getTime()) ? d.toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }) : raw;
       } else {
         val = row.unit ? `${raw}${row.unit}` : raw;
       }
       liveHtml += this._row(row.label, `<span class="shc-ap-row-val">${esc(val)}</span>`);
     });
 
-    this._openDialog("Statistiche", `
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">In tempo reale</div>${liveHtml}</div>
+    this._openDialog(shcT(this._hass, "tool.stats"), `
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.live"))}</div>${liveHtml}</div>
     `);
   }
 
@@ -2420,7 +2667,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const hasLegacy = !!(cfgA.period_attrs || cfgA.cycle_sensor || cfgA.week_rows);
     const useAutoStats = !!cfgA.energy_stat_entity && (cfgA.auto_stats === true || (cfgA.auto_stats !== false && !hasLegacy));
 
-    this._openDialog("Consumi", `
+    this._openDialog(shcT(this._hass, "tool.consumption"), `
       ${useAutoStats ? this._autoConsumiHtml() : this._consumiHtml()}
       ${this._energyBarsHtml()}
     `);
@@ -2452,7 +2699,7 @@ class ShcApplianceCloneCard extends HTMLElement {
       if (!row) continue;
       const dd = String(d.getDate()).padStart(2, "0");
       const mm = String(d.getMonth() + 1).padStart(2, "0");
-      ordered.push({ ...row, _label: `${WEEKDAY_ABBR_IT[dow]} ${dd}/${mm}` });
+      ordered.push({ ...row, _label: `${shcWeekdayAbbr(this._hass)[dow]} ${dd}/${mm}` });
     }
     return ordered;
   }
@@ -2476,25 +2723,25 @@ class ShcApplianceCloneCard extends HTMLElement {
         return `<div class="shc-ap-week-row">
           <div class="shc-ap-week-day">${esc(row._label)}</div>
           <div class="shc-ap-week-stats">
-            <div class="shc-ap-week-stat"><small>Cicli</small><b>${esc(cicli)}</b></div>
-            <div class="shc-ap-week-stat"><small>Tempo</small><b>${esc(tempo)}</b></div>
-            <div class="shc-ap-week-stat"><small>Consumo</small><b>${consumo}</b></div>
-            <div class="shc-ap-week-stat"><small>Costo</small><b>${costo}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.cycles"))}</small><b>${esc(cicli)}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.time"))}</small><b>${esc(tempo)}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.consumption"))}</small><b>${consumo}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.cost"))}</small><b>${costo}</b></div>
           </div>
         </div>`;
       })
       .join("");
 
     return `
-      ${periodRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Consumi per periodo</div><div class="shc-ap-week-list">${periodRows}</div></div>` : ""}
+      ${periodRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.by_period"))}</div><div class="shc-ap-week-list">${periodRows}</div></div>` : ""}
       <div class="shc-ap-sec">
-        <div class="shc-ap-sec-cap">Ultimi 7 giorni</div>
-        <div class="shc-ap-week-list">${body || `<div class="shc-ap-row-val">Nessun dato configurato</div>`}</div>
+        <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.last7"))}</div>
+        <div class="shc-ap-week-list">${body || `<div class="shc-ap-row-val">${esc(shcT(this._hass, "stats.no_config"))}</div>`}</div>
       </div>`;
   }
 
   _openWeek() {
-    this._openDialog("Statistiche", this._consumiHtml());
+    this._openDialog(shcT(this._hass, "tool.stats"), this._consumiHtml());
   }
 
   // Versione "storici automatici": stessa presentazione di _consumiHtml() (Oggi/Ieri/Mese/Anno),
@@ -2503,8 +2750,8 @@ class ShcApplianceCloneCard extends HTMLElement {
   // cicli di un elettrodomestico, serve ancora un sensore di stato per quello (facoltativo).
   _autoConsumiHtml() {
     return `<div class="shc-ap-sec">
-      <div class="shc-ap-sec-cap">Consumi per periodo</div>
-      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">Caricamento…</div></div>
+      <div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.by_period"))}</div>
+      <div class="shc-ap-week-list" data-auto-periods><div class="shc-ap-row-val">${esc(shcT(this._hass, "stats.loading"))}</div></div>
     </div>`;
   }
 
@@ -2516,36 +2763,36 @@ class ShcApplianceCloneCard extends HTMLElement {
     try {
       const p = await shcComputeAutoPeriods(this._hass, cfg.energy_stat_entity, costRaw);
       const labels = cfg.period_labels || {};
-      const row = (key, def) => {
+      const row = (key) => {
         const d = p[key];
         const kwh = Number.isFinite(d?.kwh) ? `${d.kwh.toFixed(2)} kWh` : "—";
         const cost = Number.isFinite(d?.cost) ? `${d.cost.toFixed(2)} €` : "—";
         return `<div class="shc-ap-week-row">
-          <div class="shc-ap-week-day">${esc(labels[key] || def)}</div>
+          <div class="shc-ap-week-day">${esc(labels[key] || shcT(this._hass, "period." + key))}</div>
           <div class="shc-ap-week-stats cols2">
-            <div class="shc-ap-week-stat"><small>Consumo</small><b>${kwh}</b></div>
-            <div class="shc-ap-week-stat"><small>Costo</small><b>${cost}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.consumption"))}</small><b>${kwh}</b></div>
+            <div class="shc-ap-week-stat"><small>${esc(shcT(this._hass, "stats.cost"))}</small><b>${cost}</b></div>
           </div>
         </div>`;
       };
       slot.innerHTML = [
-        row("today", "Oggi"),
-        row("yesterday", "Ieri"),
-        row("month", "Mese"),
-        row("month_prev", "Mese prec."),
-        row("year", "Anno"),
-        row("year_prev", "Anno prec."),
+        row("today"),
+        row("yesterday"),
+        row("month"),
+        row("month_prev"),
+        row("year"),
+        row("year_prev"),
       ].join("") + shcCostNote(this._hass, cfg.cost_entity);
     } catch (e) {
-      slot.innerHTML = `<div class="shc-ap-row-val">Statistiche non disponibili al momento</div>`;
+      slot.innerHTML = `<div class="shc-ap-row-val">${esc(shcT(this._hass, "stats.unavailable"))}</div>`;
     }
   }
 
   // Istogrammi del consumo di questo mese (per giorno) e di quest'anno (per mese).
   _energyBarsHtml() {
     if (!this._config.energy_stat_entity) return "";
-    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese (kWh al giorno)</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno (kWh al mese)</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>`;
+    return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.this_month_daily"))}</div><div class="shc-ap-chart-loading" data-chart="month">${esc(shcT(this._hass, "chart.loading"))}</div></div>
+      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "stats.this_year_monthly"))}</div><div class="shc-ap-chart-loading" data-chart="year">${esc(shcT(this._hass, "chart.loading"))}</div></div>`;
   }
 
   _loadEnergyBars(overlay) {
@@ -2553,7 +2800,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (!energyEntity || !overlay) return;
     const slot = (name) => overlay.querySelector(`[data-chart="${name}"]`);
     const now = new Date();
-    const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+    const MONTH_ABBR = shcMonthAbbr(this._hass);
     this._fetchStats(energyEntity, "day", new Date(now.getFullYear(), now.getMonth(), 1), now)
       .then((rows) => {
         const el = slot("month");
@@ -2563,7 +2810,7 @@ class ShcApplianceCloneCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("month");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "chart.error");
       });
     this._fetchStats(energyEntity, "month", new Date(now.getFullYear(), 0, 1), now)
       .then((rows) => {
@@ -2575,7 +2822,7 @@ class ShcApplianceCloneCard extends HTMLElement {
       })
       .catch(() => {
         const el = slot("year");
-        if (el) el.textContent = "Errore caricamento dati";
+        if (el) el.textContent = shcT(this._hass, "chart.error");
       });
   }
 
@@ -2590,7 +2837,7 @@ class ShcApplianceCloneCard extends HTMLElement {
   }
 
   _lineChartSvg(points, color, fixedMax) {
-    if (!points.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!points.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "chart.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     // asse sinistro: riserva spazio per i valori min/max, riferimento comune ai 3 grafici
@@ -2621,7 +2868,7 @@ class ShcApplianceCloneCard extends HTMLElement {
   }
 
   _barChartSvg(bars, color) {
-    if (!bars.length) return `<div class="shc-ap-chart-empty">Nessun dato</div>`;
+    if (!bars.length) return `<div class="shc-ap-chart-empty">${esc(shcT(this._hass, "chart.no_data"))}</div>`;
     const width = 300;
     const height = 90;
     const plotX0 = 36; // spazio per etichette a 4 cifre (prima 24, tagliava es. "2623")
@@ -2708,10 +2955,10 @@ class ShcApplianceCloneCard extends HTMLElement {
     const energyEntity = cfg.energy_stat_entity;
 
     this._openDialog(
-      "Andamento potenza",
-      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Ultime 24 ore</div><div class="shc-ap-chart-loading" data-chart="24h">Caricamento...</div></div>
-       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Questo mese</div><div class="shc-ap-chart-loading" data-chart="month">Caricamento...</div></div>` : ""}
-       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Quest'anno</div><div class="shc-ap-chart-loading" data-chart="year">Caricamento...</div></div>` : ""}`,
+      shcT(this._hass, "chart.power_trend"),
+      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "chart.last24h"))}</div><div class="shc-ap-chart-loading" data-chart="24h">${esc(shcT(this._hass, "chart.loading"))}</div></div>
+       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "chart.this_month"))}</div><div class="shc-ap-chart-loading" data-chart="month">${esc(shcT(this._hass, "chart.loading"))}</div></div>` : ""}
+       ${energyEntity ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "chart.this_year"))}</div><div class="shc-ap-chart-loading" data-chart="year">${esc(shcT(this._hass, "chart.loading"))}</div></div>` : ""}`,
     );
     const overlay = this._root.querySelector(".shc-ap-overlay");
     const slot = (name) => overlay?.querySelector(`[data-chart="${name}"]`);
@@ -2721,7 +2968,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         .then((points) => {
           const el = slot("24h");
           if (!el) return;
-          const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }));
+          const labels = this._labelSpans(points, 7, (p) => p.t.toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" }));
           // Scala fissa sul picco storico (cfg.max_power, un po' sopra il
           // massimo osservato negli ultimi mesi): il rumore di standby resta
           // vicino allo zero e un consumo vero si vede comunque bene, senza
@@ -2730,7 +2977,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         })
         .catch(() => {
           const el = slot("24h");
-          if (el) el.textContent = "Errore caricamento dati";
+          if (el) el.textContent = shcT(this._hass, "chart.error");
         });
     }
 
@@ -2747,11 +2994,11 @@ class ShcApplianceCloneCard extends HTMLElement {
         })
         .catch(() => {
           const el = slot("month");
-          if (el) el.textContent = "Errore caricamento dati";
+          if (el) el.textContent = shcT(this._hass, "chart.error");
         });
 
       const yearStart = new Date(now.getFullYear(), 0, 1);
-      const MONTH_ABBR = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+      const MONTH_ABBR = shcMonthAbbr(this._hass);
       this._fetchStats(energyEntity, "month", yearStart, now)
         .then((rows) => {
           const el = slot("year");
@@ -2762,7 +3009,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         })
         .catch(() => {
           const el = slot("year");
-          if (el) el.textContent = "Errore caricamento dati";
+          if (el) el.textContent = shcT(this._hass, "chart.error");
         });
     }
   }
@@ -2966,9 +3213,18 @@ class ShcApplianceCloneCard extends HTMLElement {
     } else if (ch.id) h += `<small class="shc-epg-nx">${esc(L("Guida non disponibile", "Guide not available"))}</small>`;
     return h;
   }
+  _applyI18n() {
+    const lang = shcLang(this._hass);
+    if (this._i18nLang === lang) return;
+    this._i18nLang = lang;
+    this._root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = shcT(this._hass, el.dataset.i18n); });
+    this._root.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = shcT(this._hass, el.dataset.i18nTitle); });
+  }
+
   set hass(hass) {
     this._hass = hass;
     if (!this._config) return;
+    this._applyI18n();
     if (this._samsungEl) this._samsungEl.hass = hass;
     if (this._epgOn()) this._epgRender();
     applyLayoutChoice(this._root, this._config, hass);
@@ -2992,28 +3248,28 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._root.querySelector(".shc-ap-power-open").hidden = !showPower && !cfg.live?.progress_entity;
 
     let mode = "off";
-    let label = "SPENTO";
+    let label = shcT(hass, "state.off");
     const liveStateEntity = cfg.live?.state_entity;
     const rawState = liveStateEntity ? hass.states[liveStateEntity]?.state : null;
     const mapped = rawState && cfg.state_map[rawState];
     if (mapped) {
       mode = mapped.mode;
-      label = mapped.label;
+      label = mapped.tk ? shcT(hass, mapped.tk) : mapped.label;
     } else if (!cfg.power_entity) {
       // Senza sensore Watt lo stato viene solo da live.state_entity (valori fuori da state_map = spento).
       if (!rawState || ["unavailable", "unknown"].includes(rawState)) {
         mode = "unavailable";
-        label = "N/D";
+        label = shcT(hass, "state.na");
       }
     } else if (powerUnavailable) {
       mode = "unavailable";
-      label = "N/D";
+      label = shcT(hass, "state.na");
     } else if (watts >= cfg.threshold_run) {
       mode = "running";
-      label = "IN FUNZIONE";
+      label = shcT(hass, "state.running");
     } else if (watts >= cfg.threshold_standby) {
       mode = "standby";
-      label = "STANDBY";
+      label = shcT(hass, "state.standby");
     }
 
     const card = this._root.querySelector(".shc-ap-card");
@@ -3056,7 +3312,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         if (Number.isFinite(diffMin) && diffMin > 0) {
           const h = Math.floor(diffMin / 60);
           const m = diffMin % 60;
-          valText += ` \u00b7 manca ${h > 0 ? `${h}h ${m}m` : `${m} min`}`;
+          valText += ` \u00b7 ${shcT(hass, "ctrl.remaining", { value: h > 0 ? `${h}h ${m}m` : `${m} min` })}`;
         }
       }
       this._root.querySelector(".shc-ap-progress-val").textContent = valText;
@@ -3079,11 +3335,11 @@ class ShcApplianceCloneCard extends HTMLElement {
           case "hours": return Number.isFinite(n) ? `${Math.floor(n)} h ${Math.round((n - Math.floor(n)) * 60)} min` : "\u2014";
           case "since": {
             const d = new Date(st.last_changed);
-            const hm = d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
-            return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })} ${hm}`;
+            const hm = d.toLocaleTimeString(shcLoc(this._hass), { hour: "2-digit", minute: "2-digit" });
+            return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString(shcLoc(this._hass), { day: "2-digit", month: "2-digit" })} ${hm}`;
           }
           case "ratio": return Number.isFinite(n) ? `${n.toFixed(0)} / ${r.max ?? 100}` : "\u2014";
-          case "onoff": return st.state === "on" ? (r.on_label || "Acceso") : (r.off_label || "Spento");
+          case "onoff": return st.state === "on" ? (r.on_label || shcT(this._hass, "live.on")) : (r.off_label || shcT(this._hass, "live.off"));
           default: return st.state + (st.attributes?.unit_of_measurement ? ` ${st.attributes.unit_of_measurement}` : "");
         }
       };
@@ -3202,25 +3458,25 @@ class ShcApplianceCloneCard extends HTMLElement {
       const dStart = !remote || state === "run" ? " disabled" : "";
       const dPause = !remote || state !== "run" || !c.pause_button ? " disabled" : "";
       const dStop = !remote || state === "stop" ? " disabled" : "";
-      btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dStart}>\u25b6 ${state === "pause" ? "Riprendi" : "Avvia"}</button>`);
-      if (c.pause_button) btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dPause}>\u275a\u275a Pausa</button>`);
+      btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dStart}>\u25b6 ${state === "pause" ? shcT(this._hass, "ctrl.resume") : shcT(this._hass, "ctrl.start")}</button>`);
+      if (c.pause_button) btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dPause}>\u275a\u275a ${esc(shcT(this._hass, "ctrl.pause"))}</button>`);
       if (c.stop_button) btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dStop}>\u25a0 Stop</button>`);
     } else if (c.machine_select) {
-      if (state === "run") btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dis}>\u275a\u275a Pausa</button>`);
-      else btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dis}>\u25b6 ${state === "pause" ? "Riprendi" : "Avvia"}</button>`);
+      if (state === "run") btns.push(`<button type="button" class="shc-ap-cbtn pause" data-cact="pause"${dis}>\u275a\u275a ${esc(shcT(this._hass, "ctrl.pause"))}</button>`);
+      else btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="run"${dis}>\u25b6 ${state === "pause" ? shcT(this._hass, "ctrl.resume") : shcT(this._hass, "ctrl.start")}</button>`);
       if (state !== "stop") btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
     } else if (c.start_select) {
-      if (state === "stop") btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="start"${dis}>\u25b6 Avvia</button>`);
+      if (state === "stop") btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="start"${dis}>\u25b6 ${esc(shcT(this._hass, "ctrl.start"))}</button>`);
       else if (c.stop_button) btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
     }
-    if (c.program_select) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="programs">Programmi</button>`);
+    if (c.program_select) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="programs">${esc(shcT(this._hass, "ctrl.programs"))}</button>`);
     const prog = c.program_select ? this._programLabel(hass.states[c.program_select]?.state) : "";
     const delay = (c.delay_entity ? Number(hass.states[c.delay_entity]?.state) : 0) * (c.delay_unit === "h" ? 3600 : 1);
-    const progTxt = prog && (state === "stop" || c.start_button) ? `${prog}${delay > 0 ? ` \u00b7 tra ${this._fmtDelay(delay)}` : ""}` : "";
+    const progTxt = prog && (state === "stop" || c.start_button) ? `${prog}${delay > 0 ? ` \u00b7 ${shcT(this._hass, "ctrl.in", { value: this._fmtDelay(delay) })}` : ""}` : "";
     let note = "";
-    if (!remote) note = `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto (Smart Control / Avvio remoto) dal suo pannello.")}</div>`;
-    else if (state === "pause" && c.machine_select) note = `<div class="shc-ap-ctrl-note">In pausa: premi Riprendi per continuare il ciclo.</div>`;
-    const html = `<div class="shc-ap-ctrl-head"><span>Comandi</span>${progTxt ? `<span class="shc-ap-ctrl-prog" data-cact="programs">${esc(progTxt)}</span>` : ""}</div>
+    if (!remote) note = `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || shcT(this._hass, "ctrl.remote_hint"))}</div>`;
+    else if (state === "pause" && c.machine_select) note = `<div class="shc-ap-ctrl-note">${esc(shcT(this._hass, "ctrl.paused_hint"))}</div>`;
+    const html = `<div class="shc-ap-ctrl-head"><span>${esc(shcT(this._hass, "ctrl.commands"))}</span>${progTxt ? `<span class="shc-ap-ctrl-prog" data-cact="programs">${esc(progTxt)}</span>` : ""}</div>
       <div class="shc-ap-ctrl-btns">${btns.join("")}</div>${note}`;
     if (html === this._ctrlHtml) return;
     this._ctrlHtml = html;
@@ -3249,7 +3505,7 @@ class ShcApplianceCloneCard extends HTMLElement {
       // Fermare un ciclo non si annulla: serve un secondo tocco entro 4 secondi.
       if (!btn.classList.contains("armed")) {
         btn.classList.add("armed");
-        btn.textContent = "Tocca ancora";
+        btn.textContent = shcT(this._hass, "ctrl.tap_again");
         clearTimeout(this._stopTimer);
         this._stopTimer = setTimeout(() => {
           this._ctrlHtml = null;
@@ -3314,14 +3570,14 @@ class ShcApplianceCloneCard extends HTMLElement {
       .join("");
     const state = this._ctrlRunning(hass);
     const remote = this._remoteAllowed(hass);
-    const body = `${opts ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Programma</div><div class="shc-ap-chips">${opts}</div></div>` : ""}
+    const body = `${opts ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ctrl.program"))}</div><div class="shc-ap-chips">${opts}</div></div>` : ""}
       ${selHtml}
-      ${optRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Opzioni</div>${optRows}</div>` : ""}
-      ${delayChips ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">Avvio ritardato</div><div class="shc-ap-chips">${delayChips}</div></div>` : ""}
-      ${c.start_select && state === "stop" ? `<button type="button" class="shc-ap-reset-btn" data-pstart${remote ? "" : " disabled"}>\u25b6 Avvia ${esc(this._programLabel(cur))}</button>` : ""}
-      ${remote ? "" : `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || "Comandi a distanza disattivati sull'elettrodomestico: attiva il controllo remoto dal suo pannello.")}</div>`}
-      ${state !== "stop" && !c.edit_while_running ? `<div class="shc-ap-ctrl-note">Ciclo in corso: programma e opzioni si cambiano a macchina ferma.</div>` : ""}`;
-    const overlay = this._openDialog("Programmi", body);
+      ${optRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ctrl.options"))}</div>${optRows}</div>` : ""}
+      ${delayChips ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "ctrl.delayed_start"))}</div><div class="shc-ap-chips">${delayChips}</div></div>` : ""}
+      ${c.start_select && state === "stop" ? `<button type="button" class="shc-ap-reset-btn" data-pstart${remote ? "" : " disabled"}>\u25b6 ${esc(shcT(this._hass, "ctrl.start"))} ${esc(this._programLabel(cur))}</button>` : ""}
+      ${remote ? "" : `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || shcT(this._hass, "ctrl.remote_hint"))}</div>`}
+      ${state !== "stop" && !c.edit_while_running ? `<div class="shc-ap-ctrl-note">${esc(shcT(this._hass, "ctrl.running_hint"))}</div>` : ""}`;
+    const overlay = this._openDialog(shcT(this._hass, "ctrl.programs"), body);
     const reopen = () => setTimeout(() => this._openPrograms(), 700);
     overlay.querySelectorAll("[data-prog]").forEach((b) =>
       b.addEventListener("click", () => {
@@ -3358,7 +3614,7 @@ class ShcApplianceCloneCard extends HTMLElement {
   _graphSeries() {
     const c = this._config;
     const e = c.power_history_entity || c.power_entity;
-    return e ? [{ entity: e, label: "Potenza", color: "#0ea5e9" }] : [];
+    return e ? [{ entity: e, label: shcT(this._hass, "power.label"), color: "#0ea5e9" }] : [];
   }
 
   getCardSize() {
@@ -3371,7 +3627,7 @@ class ShcApplianceCloneCard extends HTMLElement {
 
   static getStubConfig(hass) {
     return {
-      name: "Elettrodomestico",
+      name: shcT(this._hass, "name.default"),
       artwork: "dishwasher",
       power_entity: "",
       threshold_run: 5,

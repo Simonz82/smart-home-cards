@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-06 — 1.18.0: translations (issue #11), phase 1 = Appliance card
+
+- The Appliance card (`shc-appliance-clone-card`: labels, states, buttons, Settings / Consumption / Statistics / Charts popups, tooltips, chart popup, cost note) now follows the language of Home Assistant (`hass.locale.language`, fallback `hass.language`). Dictionaries: `it` and `en`; any other language falls back to English.
+- **Note:** if your Home Assistant is in English (or any language other than Italian) the card now appears in English; with Home Assistant in Italian nothing changes.
+- No language menu, no new YAML option, no localStorage: only the HA language is used.
+- Dates, times and month/weekday names follow the same rule (Italian format for `it`, English otherwise).
+- Config keys, HA state values and your own labels (`state_map`, `period_labels`, `on_label`, ...) are never translated.
+- Other cards (Energy, NAS, Proxmox, Zigbee, Climate...) are still Italian: they come in a next phase.
+- To add a language (e.g. `nl`): copy the `en` block inside `SHC_I18N` (near `shcT`, top of `smart-home-cards.js`) and translate the values. See README, "Translations".
+
 ## 2026-11-06 — 1.17.2: suggerimento "Ultimo ciclo" (issue #12)
 
 - Card Elettrodomestici: senza `cycle_sensor` (e senza `side`) il riquadro "Ultimo ciclo" mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" / "Set cycle_sensor and cycle_attrs to show the last cycle" al posto dei trattini. Frigo senza `side` ancora nascosto; configurazioni con `cycle_sensor` o `side` invariate.
