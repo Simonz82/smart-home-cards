@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-08 — 1.20.1: console with real photos, new README
+
+- **Appliance card, `artwork: console`**: real cut-out photos (WebP embedded as data URIs) for `ps3`, `ps4`, `ps5` (default), `xbox` and `switch`, with a glow that follows the state (on/off), instead of the 1.20.0 vector drawing. No option changes. Photo credits and licenses in [CREDITS.md](CREDITS.md).
+- **README rewritten** (English + Italian): gallery of all cards, Marketplace/manual install, first card, FAQ, support. Long guides moved to `docs/` (`tv.md`, `frigo-tablet.md`, `lingue.md`).
+
 ## 2026-11-08 — 1.20.0: water heater card, UPS automations, TV pop-ups, 8 new animated artworks
 
 - **New card `shc-water-heater-card`** (issue #15): water heaters and heat-pump water heaters (`water_heater.*` entities, e.g. Midea Eco Master). Animated drawing, current and target temperature, +/- buttons, operation modes, away mode, power on/off, optional power and energy sensors, charts, visual editor, it/en/nl. **New and so far tested only with simulated states: feedback welcome.** Guide with YAML example: [docs/scaldacqua.md](docs/scaldacqua.md).

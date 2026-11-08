@@ -822,7 +822,7 @@ level_entity: sensor.batteria_carica
   </tr>
   <tr>
     <td align="center" width="33%"><img src="screenshot/elettrodomestici-albero-natale.png" width="260" alt="Albero di Natale"><br><sub><code>xmastree</code></sub></td>
-    <td></td>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-console.png" width="260" alt="Console"><br><sub><code>console</code> (foto reali, <a href="../CREDITS.md">crediti</a>)</sub></td>
     <td></td>
   </tr>
 </table>
