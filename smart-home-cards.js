@@ -422,6 +422,200 @@ const HERO_BUILDERS = {
     <rect x="170" y="204" width="10" height="16" rx="3" fill="#9fadbc"/>
     <rect x="52" y="216" width="136" height="10" rx="5" fill="#78899b"/>
   </svg>`,
+  pellet: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-iron-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3b4452"/><stop offset=".5" stop-color="#5b6677"/><stop offset="1" stop-color="#2f3744"/></linearGradient>
+      <radialGradient id="shch-fire-${id}" cx=".5" cy=".85" r=".8"><stop offset="0" stop-color="#fff7d6"/><stop offset=".4" stop-color="#fb923c"/><stop offset="1" stop-color="#7c1d0b"/></radialGradient>
+      <clipPath id="shch-glass-${id}"><rect x="78" y="94" width="84" height="84" rx="8"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="226" rx="64" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="66" y="18" width="108" height="32" rx="8" fill="#7c5a3a"/>
+    <g fill="#a47a52"><circle cx="86" cy="30" r="4"/><circle cx="100" cy="26" r="4"/><circle cx="116" cy="31" r="4"/><circle cx="132" cy="27" r="4"/><circle cx="148" cy="31" r="4"/><circle cx="160" cy="27" r="3.5"/><circle cx="92" cy="40" r="4"/><circle cx="108" cy="42" r="4"/><circle cx="124" cy="40" r="4"/><circle cx="140" cy="42" r="4"/></g>
+    <rect x="56" y="46" width="128" height="170" rx="14" fill="url(#shch-iron-${id})" stroke="#1e2530" stroke-width="1.5"/>
+    <rect x="66" y="56" width="108" height="26" rx="7" fill="#0b1526"/>
+    <rect x="72" y="62" width="40" height="14" rx="3" fill="#052e1b"/><text x="92" y="73" font-size="10" font-family="monospace" fill="#4ade80" text-anchor="middle" class="shch-glow">21°</text>
+    <circle cx="135" cy="69" r="3" fill="#22c55e" class="shch-glow"/><circle cx="148" cy="69" r="3" fill="#475569"/><circle cx="161" cy="69" r="3" fill="#475569"/>
+    <rect x="72" y="90" width="96" height="92" rx="11" fill="#1c222c" stroke="#0b0f16" stroke-width="2"/>
+    <rect x="78" y="94" width="84" height="84" rx="8" fill="#150a05"/>
+    <g clip-path="url(#shch-glass-${id})">
+      <rect x="78" y="94" width="84" height="84" fill="url(#shch-fire-${id})" class="shch-a-fireglow" opacity=".0"/>
+      <g class="shch-a-flames">
+        <path class="shch-a-fl shch-a-fl1" d="M104 178c-12-14-6-28 2-38 2 8 8 10 10 16 4-10 2-20-4-28 16 8 24 30 14 50z" fill="#f97316"/>
+        <path class="shch-a-fl shch-a-fl2" d="M128 178c-14-12-8-30 0-42 3 8 9 11 11 18 5-9 3-18-1-24 14 8 22 28 14 48z" fill="#fb923c"/>
+        <path class="shch-a-fl shch-a-fl3" d="M116 178c-8-8-6-20 1-28 2 6 6 8 7 12 3-6 2-12-1-17 10 6 14 20 9 33z" fill="#fde68a"/>
+      </g>
+      <rect x="78" y="168" width="84" height="10" fill="#3a2a20"/>
+    </g>
+    <rect x="78" y="94" width="84" height="84" rx="8" fill="none" stroke="#8fa0b3" stroke-opacity=".5" stroke-width="1.5"/>
+    <path d="M84 100l34 0-34 30z" fill="#fff" opacity=".07"/>
+    <rect x="96" y="188" width="48" height="14" rx="5" fill="#2a313c"/>
+    <rect x="62" y="214" width="14" height="10" rx="3" fill="#1e2530"/><rect x="164" y="214" width="14" height="10" rx="3" fill="#1e2530"/>
+    <g class="shch-a-smoke" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" opacity="0"><path d="M120 16c-8-6 8-10 0-16"/><path d="M104 16c-6-5 6-8 0-13"/></g>
+  </svg>`,
+  printer3d: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-obj-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#ea580c"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="224" rx="78" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="40" y="206" width="160" height="14" rx="6" fill="#334155"/>
+    <rect x="46" y="30" width="12" height="178" rx="4" fill="#475569"/><rect x="182" y="30" width="12" height="178" rx="4" fill="#475569"/>
+    <rect x="42" y="22" width="156" height="14" rx="6" fill="#64748b"/>
+    <rect x="58" y="62" width="124" height="8" rx="3" fill="#94a3b8" stroke="#64748b"/>
+    <g class="shch-a-head">
+      <rect x="92" y="54" width="34" height="26" rx="5" fill="#0f2942"/>
+      <rect x="98" y="58" width="22" height="6" rx="2" fill="#38bdf8" class="shch-glow"/>
+      <path d="M104 80h10l-3 12h-4z" fill="#cbd5e1"/><rect x="106" y="90" width="6" height="4" fill="#fb923c" class="shch-glow"/>
+    </g>
+    <rect x="62" y="176" width="116" height="10" rx="3" fill="#1e293b"/>
+    <rect x="58" y="186" width="124" height="14" rx="4" fill="#475569"/>
+    <g class="shch-a-part" transform="translate(0 0)">
+      <rect class="shch-a-grow" x="96" y="116" width="48" height="60" rx="3" fill="url(#shch-obj-${id})"/>
+      <g class="shch-a-layers" stroke="#7c2d12" stroke-opacity=".35" stroke-width="1"><path d="M96 126h48M96 136h48M96 146h48M96 156h48M96 166h48"/></g>
+    </g>
+    <circle cx="170" cy="46" r="3" fill="#22c55e" class="shch-glow"/>
+  </svg>`,
+  battery: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-lvl-${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+      <linearGradient id="shch-case-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8edf3"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#c9d3df"/></linearGradient>
+      <clipPath id="shch-bclip-${id}"><rect x="84" y="48" width="72" height="140" rx="9"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="224" rx="62" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="66" y="26" width="108" height="192" rx="16" fill="url(#shch-case-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="104" y="14" width="32" height="14" rx="4" fill="#64748b"/>
+    <rect x="84" y="48" width="72" height="140" rx="9" fill="#0f1b2d"/>
+    <g clip-path="url(#shch-bclip-${id})">
+      <rect class="shch-a-level" x="84" y="48" width="72" height="140" fill="url(#shch-lvl-${id})"/>
+      <g class="shch-a-wave" opacity=".35" fill="#fff"><path d="M84 60q9-6 18 0t18 0 18 0 18 0v8H84z"/></g>
+    </g>
+    <g class="shch-a-bolt"><path d="M124 78l-22 40h16l-4 32 26-46h-17z" fill="#fff" stroke="#0f2942" stroke-opacity=".35" stroke-width="1.5" stroke-linejoin="round"/></g>
+    <g class="shch-a-arrows" fill="none" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0"><path d="M120 176v-30M110 156l10-10 10 10"/></g>
+    <rect x="90" y="196" width="60" height="12" rx="4" fill="#0f2942"/><circle cx="102" cy="202" r="2.6" fill="#22c55e" class="shch-glow"/><rect x="112" y="200" width="30" height="4" rx="2" fill="#38bdf8" opacity=".8"/>
+  </svg>`,
+  watermeter: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-brass-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fcd9a0"/><stop offset=".5" stop-color="#d89a3c"/><stop offset="1" stop-color="#8a5a16"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="222" rx="80" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="20" y="96" width="34" height="34" rx="6" fill="url(#shch-brass-${id})" stroke="#8a5a16"/><rect x="186" y="96" width="34" height="34" rx="6" fill="url(#shch-brass-${id})" stroke="#8a5a16"/>
+    <rect x="50" y="104" width="22" height="18" fill="#b7791f"/><rect x="168" y="104" width="22" height="18" fill="#b7791f"/>
+    <circle cx="120" cy="113" r="64" fill="url(#shch-brass-${id})" stroke="#8a5a16" stroke-width="2"/>
+    <circle cx="120" cy="113" r="54" fill="#f8fafc" stroke="#8a5a16" stroke-opacity=".6" stroke-width="2"/>
+    <rect x="86" y="82" width="68" height="20" rx="4" fill="#0f172a"/>
+    <g font-family="monospace" font-size="14" font-weight="700" fill="#f8fafc" text-anchor="middle"><text x="95" y="97">0</text><text x="108" y="97">1</text><text x="121" y="97">2</text><text x="134" y="97" class="shch-a-digit">7</text><text x="147" y="97" fill="#f87171">3</text></g>
+    <g stroke="#94a3b8" stroke-width="2">
+      <path d="M120 66v6M120 154v6M73 113h6M161 113h6M86 79l4 4M154 79l-4 4M86 147l4-4M154 147l-4-4"/>
+    </g>
+    <g class="shch-a-wm-needle"><path d="M120 113V74" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/><circle cx="120" cy="113" r="4" fill="#ef4444"/></g>
+    <g class="shch-a-wm-wheel"><circle cx="120" cy="135" r="12" fill="none" stroke="#38bdf8" stroke-width="2"/><path d="M120 123v24M108 135h24M111.5 126.5l17 17M128.5 126.5l-17 17" stroke="#38bdf8" stroke-width="1.6"/></g>
+    <path d="M96 190q24 22 48 0" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    <g class="shch-a-drops" fill="#38bdf8"><path d="M32 150c-5 7-7 10-7 13a7 7 0 0 0 14 0c0-3-2-6-7-13z"/><path d="M208 150c-5 7-7 10-7 13a7 7 0 0 0 14 0c0-3-2-6-7-13z"/></g>
+  </svg>`,
+  pool: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-pbody-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="224" rx="84" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="14" y="116" width="62" height="18" rx="4" fill="#e2e8f0" stroke="#94a3b8"/><rect x="164" y="76" width="62" height="18" rx="4" fill="#e2e8f0" stroke="#94a3b8"/>
+    <rect x="212" y="76" width="14" height="76" fill="#e2e8f0" stroke="#94a3b8"/>
+    <path class="shch-a-flow" d="M16 125H72M168 85H222M219 85V150" fill="none" stroke="#38bdf8" stroke-width="5" stroke-dasharray="3 12" stroke-linecap="round" opacity=".85"/>
+    <rect x="76" y="82" width="86" height="122" rx="18" fill="url(#shch-pbody-${id})" stroke="#1e3a8a" stroke-width="2"/>
+    <circle cx="119" cy="132" r="38" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3"/>
+    <circle cx="119" cy="132" r="30" fill="#0f2942"/>
+    <g class="shch-a-impeller"><path d="M119 132L119 106a26 26 0 0 1 22 14zM119 132L141 145a26 26 0 0 1-30 10zM119 132L97 145a26 26 0 0 1 4-34z" fill="#38bdf8" opacity=".9"/><circle cx="119" cy="132" r="5" fill="#f8fafc"/></g>
+    <rect x="94" y="62" width="50" height="26" rx="8" fill="#1e3a8a"/><rect x="100" y="68" width="38" height="14" rx="4" fill="#0b1526"/><circle cx="108" cy="75" r="3" fill="#22c55e" class="shch-glow"/>
+    <rect x="86" y="200" width="66" height="12" rx="4" fill="#475569"/>
+    <g class="shch-a-bubbles" fill="#e0f2fe" opacity="0"><circle cx="22" cy="104" r="3"/><circle cx="40" cy="98" r="2.2"/><circle cx="58" cy="106" r="2.6"/></g>
+    <path d="M10 214q12-8 24 0t24 0 24 0 24 0 24 0 24 0 24 0 24 0" fill="none" stroke="#38bdf8" stroke-width="3" opacity=".5" class="shch-a-pwave"/>
+  </svg>`,
+  blind: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-sky-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient>
+      <linearGradient id="shch-slat-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f5f9"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient>
+      <pattern id="shch-slp-${id}" width="10" height="12" patternUnits="userSpaceOnUse"><rect width="10" height="10" y="0" fill="url(#shch-slat-${id})"/><rect width="10" height="2" y="10" fill="#94a3b8"/></pattern>
+      <clipPath id="shch-win-${id}"><rect x="62" y="56" width="116" height="140" rx="3"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="226" rx="72" ry="8" fill="#0f172a" opacity=".14" filter="url(#shch-blur-${id})"/>
+    <rect x="48" y="20" width="144" height="24" rx="8" fill="#94a3b8" stroke="#64748b"/>
+    <rect x="54" y="26" width="132" height="12" rx="5" fill="#cbd5e1"/>
+    <rect x="56" y="48" width="128" height="156" rx="6" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="62" y="56" width="116" height="140" rx="3" fill="url(#shch-sky-${id})"/>
+    <circle cx="150" cy="86" r="14" fill="#fde047" opacity=".9" class="shch-glow"/>
+    <path d="M62 196l36-52 26 30 20-22 34 44z" fill="#86efac" opacity=".8"/>
+    <g clip-path="url(#shch-win-${id})">
+      <g class="shch-a-slats"><rect x="62" y="56" width="116" height="140" fill="url(#shch-slp-${id})"/><rect x="62" y="190" width="116" height="7" fill="#64748b"/></g>
+    </g>
+    <path d="M120 44v10" stroke="#64748b" stroke-width="2"/>
+    <rect x="50" y="200" width="140" height="10" rx="4" fill="#cbd5e1" stroke="#94a3b8"/>
+  </svg>`,
+  xmastree: (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shch-tree-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="224" rx="60" ry="8" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <rect x="108" y="190" width="24" height="26" rx="3" fill="#7c4a24"/>
+    <path d="M120 70L62 132h116z" fill="url(#shch-tree-${id})" stroke="#14532d" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M120 104L50 170h140z" fill="url(#shch-tree-${id})" stroke="#14532d" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M120 140L40 202h160z" fill="url(#shch-tree-${id})" stroke="#14532d" stroke-width="1.5" stroke-linejoin="round"/>
+    <path class="shch-a-garland" d="M82 112q38 16 76 0M72 150q48 22 96 0M62 190q58 24 116 0" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="1 5" stroke-linecap="round"/>
+    <g class="shch-a-lights">
+      <circle class="shch-a-l1" cx="104" cy="104" r="5" fill="#ef4444"/><circle class="shch-a-l2" cx="138" cy="114" r="5" fill="#fde047"/>
+      <circle class="shch-a-l3" cx="92" cy="148" r="5" fill="#38bdf8"/><circle class="shch-a-l1" cx="122" cy="146" r="5" fill="#fde047"/><circle class="shch-a-l2" cx="152" cy="152" r="5" fill="#ef4444"/>
+      <circle class="shch-a-l2" cx="74" cy="184" r="5" fill="#fde047"/><circle class="shch-a-l3" cx="106" cy="186" r="5" fill="#ef4444"/><circle class="shch-a-l1" cx="138" cy="184" r="5" fill="#38bdf8"/><circle class="shch-a-l3" cx="168" cy="188" r="5" fill="#fde047"/>
+    </g>
+    <g class="shch-a-star"><path d="M120 40l5.6 11.6 12.7 1.7-9.3 8.8 2.4 12.6L120 68.6 108.6 74.7l2.4-12.6-9.3-8.8 12.7-1.7z" fill="#fde047" stroke="#ca8a04" stroke-width="1.5" stroke-linejoin="round"/></g>
+  </svg>`,
+  console: (id, cfg) => {
+    const m = String((cfg && cfg.console_model) || "ps5").toLowerCase();
+    const head = `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true"><defs><filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter><linearGradient id="shch-cg-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b4350"/><stop offset="1" stop-color="#0f141c"/></linearGradient><linearGradient id="shch-cw-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e5eaf0"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient><linearGradient id="shch-cscr-${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs><ellipse cx="120" cy="226" rx="74" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>`;
+    const pad = (x, y, c) => `<g transform="translate(${x} ${y})"><path d="M0 12C0 4 6 0 16 0h38c10 0 16 4 16 12 0 14-6 26-14 26-6 0-8-6-14-6H28c-6 0-8 6-14 6C6 38 0 26 0 12z" fill="${c}" stroke="#0f141c" stroke-opacity=".5" stroke-width="1.5"/><circle cx="18" cy="14" r="5" fill="#0f141c" opacity=".7"/><circle cx="52" cy="14" r="5" fill="#0f141c" opacity=".7"/></g>`;
+    let b = "";
+    if (m === "ps3") {
+      b = `<g transform="translate(-12 -26) scale(1.1)"><rect x="38" y="104" width="164" height="84" rx="22" fill="url(#shch-cg-${id})" stroke="#050a12" stroke-width="2"/>
+        <path d="M52 112h136" stroke="#fff" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>
+        <rect x="60" y="136" width="120" height="6" rx="3" fill="#050a12"/><rect x="60" y="148" width="56" height="4" rx="2" fill="#94a3b8" opacity=".5"/>
+        <circle cx="168" cy="164" r="4" fill="#38bdf8" class="shch-glow"/><circle cx="154" cy="164" r="4" fill="#22c55e" class="shch-glow"/>
+        <rect x="46" y="188" width="14" height="8" rx="3" fill="#0f141c"/><rect x="180" y="188" width="14" height="8" rx="3" fill="#0f141c"/></g>`;
+    } else if (m === "ps4") {
+      b = `<g transform="translate(-22 -44) scale(1.18)"><path d="M44 150L176 104l22 20-132 50z" fill="#3b4350" stroke="#050a12" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M66 174L198 124v20l-132 50z" fill="url(#shch-cg-${id})" stroke="#050a12" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M44 150l22 24v20L44 170z" fill="#1c222c" stroke="#050a12" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M70 160l124-44" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" class="shch-glow"/>
+        <path d="M88 182l100-38" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/></g>`;
+    } else if (m === "xbox") {
+      b = `<rect x="76" y="34" width="88" height="172" rx="10" fill="url(#shch-cg-${id})" stroke="#050a12" stroke-width="2"/>
+        <circle cx="120" cy="66" r="26" fill="#050a12"/>
+        <g fill="#1f2937"><circle cx="108" cy="58" r="2.6"/><circle cx="120" cy="54" r="2.6"/><circle cx="132" cy="58" r="2.6"/><circle cx="104" cy="68" r="2.6"/><circle cx="116" cy="66" r="2.6"/><circle cx="128" cy="66" r="2.6"/><circle cx="140" cy="68" r="2.6"/><circle cx="108" cy="78" r="2.6"/><circle cx="120" cy="78" r="2.6"/><circle cx="132" cy="78" r="2.6"/></g>
+        <circle cx="120" cy="66" r="26" fill="none" stroke="#22c55e" stroke-width="3" class="shch-glow"/>
+        <circle cx="120" cy="66" r="14" fill="#22c55e" opacity=".18" class="shch-glow"/>
+        <rect x="90" y="128" width="60" height="6" rx="3" fill="#050a12"/><rect x="90" y="142" width="40" height="4" rx="2" fill="#475569"/>
+        <circle cx="140" cy="186" r="5" fill="#22c55e" class="shch-glow"/>`;
+    } else if (m === "switch") {
+      b = `<rect x="34" y="72" width="34" height="100" rx="14" fill="#22d3ee" stroke="#0e7490" stroke-width="2"/>
+        <rect x="172" y="72" width="34" height="100" rx="14" fill="#fb7185" stroke="#be123c" stroke-width="2"/>
+        <rect x="64" y="66" width="112" height="112" rx="10" fill="#0b1220" stroke="#050a12" stroke-width="2"/>
+        <rect x="72" y="76" width="96" height="92" rx="4" fill="url(#shch-cscr-${id})" class="shch-a-screen"/>
+        <g class="shch-a-game"><rect x="84" y="140" width="22" height="18" rx="3" fill="#fde047"/><rect x="116" y="118" width="14" height="40" rx="3" fill="#4ade80"/><rect x="140" y="130" width="18" height="28" rx="3" fill="#f472b6"/></g>
+        <circle cx="51" cy="98" r="9" fill="#0e7490"/><circle cx="51" cy="98" r="5" fill="#0b2a33"/><circle cx="189" cy="146" r="9" fill="#be123c"/><circle cx="189" cy="146" r="5" fill="#2a0b14"/>
+        <circle cx="189" cy="100" r="3" fill="#7f1d1d"/><circle cx="181" cy="108" r="3" fill="#7f1d1d"/><circle cx="197" cy="108" r="3" fill="#7f1d1d"/><circle cx="189" cy="116" r="3" fill="#7f1d1d"/>
+        <rect x="46" y="134" width="12" height="4" rx="2" fill="#0e7490"/><rect x="49" y="130" width="4" height="12" rx="2" fill="#0e7490"/>`;
+    } else {
+      b = `<path d="M100 28c-10 0-14 10-14 22v132c0 14 6 24 18 24h6V28z" fill="url(#shch-cw-${id})" stroke="#94a3b8" stroke-width="1.5"/>
+        <path d="M140 28c10 0 14 10 14 22v132c0 14-6 24-18 24h-6V28z" fill="url(#shch-cw-${id})" stroke="#94a3b8" stroke-width="1.5"/>
+        <rect x="110" y="26" width="20" height="180" rx="4" fill="#0f141c"/>
+        <rect x="118" y="40" width="4" height="150" rx="2" fill="#38bdf8" class="shch-glow"/>
+        <rect x="112" y="204" width="16" height="10" rx="3" fill="#475569"/>
+        <rect x="106" y="40" width="3" height="70" rx="1.5" fill="#6366f1" opacity=".4"/>`;
+    }
+    return head + b + `</svg>`;
+  },
 };
 
 const CHIP_SVGS = {
@@ -461,6 +655,22 @@ const CHIP_SVGS = {
     '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="24" y="8" width="48" height="80" rx="8" fill="#0f2942"/><rect x="34" y="20" width="28" height="46" rx="4" fill="none" stroke="#8be2ff" stroke-width="3"/><rect x="38" y="26" width="20" height="34" rx="2" fill="#38bdf8"/><circle cx="48" cy="76" r="3" fill="#22c55e"/></svg>',
   garbage:
     '<svg viewBox="0 0 96 96" width="27" height="27"><path fill="#0f2942" d="M30 30h36l-4 50a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6l-4-50z"/><rect x="26" y="22" width="44" height="8" rx="3" fill="#0f2942"/><rect x="40" y="12" width="16" height="8" rx="2" fill="#0f2942"/><path fill="#22c55e" d="M48 38c-5 4-8 8-8 12a8 8 0 0 0 16 0c0-2-.5-4-1.5-6 0 2-1.5 3.5-3 3-1.5-.5-1.5-3.5-.5-5.5-2 .5-3 1.5-3 1.5z"/></svg>',
+  pellet:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="22" y="8" width="52" height="80" rx="9" fill="#0f2942"/><rect x="29" y="40" width="38" height="34" rx="5" fill="#150a05"/><path d="M48 72c-9-7-5-15 0-22 1 4 4 5 5 8 3-4 2-8 0-11 7 4 10 14 3 25z" fill="#fb923c"/><rect x="29" y="16" width="38" height="12" rx="3" fill="#a47a52"/></svg>',
+  printer3d:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="10" width="68" height="78" rx="8" fill="#0f2942"/><rect x="20" y="24" width="56" height="5" rx="2" fill="#94a3b8"/><rect x="38" y="20" width="16" height="12" rx="3" fill="#38bdf8"/><rect x="38" y="58" width="22" height="22" rx="2" fill="#f59e0b"/><rect x="20" y="80" width="56" height="5" rx="2" fill="#64748b"/></svg>',
+  battery:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="26" y="12" width="44" height="76" rx="9" fill="#0f2942"/><rect x="40" y="6" width="16" height="8" rx="2" fill="#0f2942"/><rect x="32" y="40" width="32" height="42" rx="3" fill="#4ade80"/><path d="M52 24 40 50h9l-2 16 12-22h-9z" fill="#f8fafc"/></svg>',
+  watermeter:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="4" y="38" width="12" height="16" rx="3" fill="#0f2942"/><rect x="80" y="38" width="12" height="16" rx="3" fill="#0f2942"/><circle cx="48" cy="46" r="32" fill="#0f2942"/><circle cx="48" cy="46" r="24" fill="#f8fafc"/><path d="M48 46V28" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><path d="M48 66c-5 6-6 8-6 10a6 6 0 0 0 12 0c0-2-1-4-6-10z" fill="#38bdf8"/></svg>',
+  pool:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="28" y="12" width="40" height="64" rx="12" fill="#0f2942"/><circle cx="48" cy="48" r="16" fill="#e2e8f0"/><path d="M48 48V36a12 12 0 0 1 10 6zM48 48l10 6a12 12 0 0 1-14 4zM48 48l-10 6a12 12 0 0 1 2-16z" fill="#38bdf8"/><path d="M8 84q10-7 20 0t20 0 20 0 20 0" fill="none" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/></svg>',
+  blind:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="14" y="8" width="68" height="12" rx="4" fill="#0f2942"/><rect x="18" y="22" width="60" height="64" rx="3" fill="#8be2ff"/><g fill="#f1f5f9" stroke="#0f2942" stroke-width="2"><rect x="18" y="22" width="60" height="9"/><rect x="18" y="33" width="60" height="9"/><rect x="18" y="44" width="60" height="9"/></g></svg>',
+  xmastree:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="42" y="76" width="12" height="14" rx="2" fill="#0f2942"/><path d="M48 14 22 44h52zM48 30 16 64h64zM48 48 10 82h76z" fill="#0f2942"/><circle cx="44" cy="40" r="3" fill="#ef4444"/><circle cx="54" cy="58" r="3" fill="#fde047"/><circle cx="36" cy="70" r="3" fill="#38bdf8"/><path d="m48 4 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#fde047"/></svg>',
+  console:
+    '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="10" y="30" width="76" height="36" rx="18" fill="#0f2942"/><circle cx="31" cy="48" r="6" fill="#8be2ff"/><path d="M58 40v16M50 48h16" stroke="#8be2ff" stroke-width="4" stroke-linecap="round"/></svg>',
 };
 
 const ICON_GEAR =
@@ -640,6 +850,60 @@ const STYLE = `
 .shc-ap-card.is-run .shch-spin-spit{animation:shch-spin 3.4s linear infinite}
 .shc-ap-card.is-run .shch-glow{animation:shch-glow 1.7s ease-in-out infinite}
 .shc-ap-card.is-run .shch-flicker{animation:shch-flicker 1.5s ease-in-out infinite}
+/* artwork animate (stufa, stampante 3D, batteria, contatore, pompa, tapparella, albero, console): is-run = acceso, --shch-level = 0..1 */
+@keyframes shch-a-fl{0%,100%{transform:scale(1,1) skewX(0)}30%{transform:scale(.92,1.15) skewX(4deg)}60%{transform:scale(1.05,.9) skewX(-4deg)}}
+@keyframes shch-a-rise{0%{transform:translateY(0);opacity:0}30%{opacity:.6}100%{transform:translateY(-16px);opacity:0}}
+@keyframes shch-a-head{from{transform:translateX(-30px)}to{transform:translateX(34px)}}
+@keyframes shch-a-up{0%{transform:translateY(12px);opacity:0}40%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+@keyframes shch-a-down{0%{transform:translateY(-14px) rotate(180deg);opacity:0}40%{opacity:1}100%{transform:translateY(12px) rotate(180deg);opacity:0}}
+@keyframes shch-a-drip{0%{transform:translateY(-6px);opacity:0}30%{opacity:1}100%{transform:translateY(14px);opacity:0}}
+@keyframes shch-a-dash{to{stroke-dashoffset:-15}}
+@keyframes shch-a-bub{0%{transform:translateY(8px);opacity:0}40%{opacity:.9}100%{transform:translateY(-14px);opacity:0}}
+@keyframes shch-a-wv{from{transform:translateX(-12px)}to{transform:translateX(12px)}}
+@keyframes shch-a-blink{0%,100%{opacity:1;filter:drop-shadow(0 0 4px currentColor)}50%{opacity:.25;filter:none}}
+@keyframes shch-a-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.shch-a-flames{opacity:0;transition:opacity .5s}
+.shch-a-fl{transform-box:fill-box;transform-origin:50% 100%}
+.shc-ap-card.is-standby .shch-a-flames{opacity:.45}
+.shc-ap-card.is-run .shch-a-flames{opacity:1}
+.shc-ap-card.is-run .shch-a-fl1{animation:shch-a-fl 1.1s ease-in-out infinite}
+.shc-ap-card.is-run .shch-a-fl2{animation:shch-a-fl .9s ease-in-out .2s infinite}
+.shc-ap-card.is-run .shch-a-fl3{animation:shch-a-fl .7s ease-in-out .1s infinite}
+.shc-ap-card.is-run .shch-a-fireglow{opacity:.55;animation:shch-glow 1.6s ease-in-out infinite}
+.shc-ap-card.is-run .shch-a-smoke path{animation:shch-a-rise 2.4s ease-out infinite}
+.shc-ap-card.is-run .shch-a-smoke{opacity:1}
+.shc-ap-card.is-run .shch-a-head{animation:shch-a-head 2.2s ease-in-out infinite alternate}
+.shch-a-part{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(var(--shch-level,1));transition:transform .8s}
+.shch-a-level{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(var(--shch-level,0));transition:transform .8s}
+.shch-a-wave{transform:translateY(calc((1 - var(--shch-level,0)) * 140px));transition:transform .8s;opacity:calc(var(--shch-level,0) * 5)}
+.shc-ap-card.lv-mid .shch-a-level{fill:#f59e0b}
+.shc-ap-card.lv-low .shch-a-level{fill:#ef4444}
+.shc-ap-card.is-run .shch-a-bolt{animation:shch-glow 1.4s ease-in-out infinite}
+.shc-ap-card.art-charge .shch-a-arrows{animation:shch-a-up 1.3s linear infinite}
+.shc-ap-card.art-discharge .shch-a-arrows{animation:shch-a-down 1.3s linear infinite}
+.shch-a-wm-needle,.shch-a-wm-wheel{transform-box:view-box}
+.shch-a-wm-needle{transform-origin:120px 113px}
+.shch-a-wm-wheel{transform-origin:120px 135px}
+.shc-ap-card.is-run .shch-a-wm-needle{animation:shch-spin linear infinite;animation-duration:calc(5s - 4.2s * var(--shch-level,0))}
+.shc-ap-card.is-run .shch-a-wm-wheel{animation:shch-spin linear infinite;animation-duration:calc(3s - 2.4s * var(--shch-level,0))}
+.shc-ap-card.is-run .shch-a-digit{animation:shch-flicker 1s linear infinite}
+.shch-a-drops{opacity:0}
+.shc-ap-card.is-run .shch-a-drops{opacity:1;animation:shch-a-drip 1.5s ease-in infinite}
+.shch-a-impeller{transform-box:view-box;transform-origin:119px 132px}
+.shc-ap-card.is-run .shch-a-impeller{animation:shch-spin .8s linear infinite}
+.shch-a-flow{opacity:.12}
+.shc-ap-card.is-run .shch-a-flow{opacity:.9;animation:shch-a-dash .7s linear infinite}
+.shc-ap-card.is-run .shch-a-bubbles{animation:shch-a-bub 1.8s ease-out infinite;opacity:1}
+.shc-ap-card.is-run .shch-a-pwave{animation:shch-a-wv 2s ease-in-out infinite alternate}
+.shch-a-slats{transform:translateY(calc(var(--shch-level,0) * -134px));transition:transform .9s ease}
+.shch-a-lights circle{opacity:.3;filter:saturate(.35)}
+.shc-ap-card.is-run .shch-a-l1{animation:shch-a-blink 1s ease-in-out infinite}
+.shc-ap-card.is-run .shch-a-l2{animation:shch-a-blink 1.3s ease-in-out .35s infinite}
+.shc-ap-card.is-run .shch-a-l3{animation:shch-a-blink .8s ease-in-out .6s infinite}
+.shch-a-star{transform-box:fill-box;transform-origin:50% 50%}
+.shc-ap-card.is-run .shch-a-star{animation:shch-glow 1.2s ease-in-out infinite}
+.shc-ap-card.is-run .shch-a-screen{animation:shch-glow 2.4s ease-in-out infinite}
+.shc-ap-card.is-run .shch-a-game{animation:shch-a-bob 1.1s ease-in-out infinite}
 .shc-ap-cycle-side{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;padding:11px 13px;border-radius:16px;background:var(--shc-soft)}
 .shc-ap-cycle-cap{display:flex;align-items:center;gap:6px;margin-top:-3px;margin-bottom:15px;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--shc-dim)}
 .shc-ap-cycle-list{display:flex;flex-direction:column;flex:1;justify-content:flex-start;gap:4px}
@@ -672,6 +936,7 @@ const STYLE = `
 .shc-epg-lg img{max-width:100%;max-height:100%;object-fit:contain;padding:2px;box-sizing:border-box}
 .shc-epg-nm{display:flex;align-items:center;gap:8px;min-width:0}
 .shc-epg-btns{display:flex;gap:8px}
+.shc-epg-btns[hidden]{display:none}
 .shc-epg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:38px;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);font-weight:800;font-size:13px;cursor:pointer}
 .shc-epg-btn.on{color:var(--primary-color,#03a9f4);border-color:var(--primary-color,#03a9f4)}
 .shc-epg-pane[hidden]{display:none}
@@ -730,6 +995,10 @@ const STYLE = `
 
 .shc-ap-overlay{position:fixed;inset:0;z-index:2147483000;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(6px)}
 .shc-ap-overlay[hidden]{display:none}
+.shc-tv-pop .shc-ap-dialog{width:min(480px,100%)}
+.shc-tv-pop .shc-ap-dialog-body{padding:10px 12px 16px}
+.shc-tv-pop .shc-epg-list{max-height:none;overflow:visible}
+.shc-tv-hold{display:none}
 .shc-ap-dialog{width:min(440px,100%);max-height:min(84vh,720px);overflow:auto;background:var(--shc-card);color:var(--shc-text);border:1px solid var(--shc-border);border-radius:22px;box-shadow:0 24px 70px rgba(15,23,42,.3)}
 .shc-ap-dialog-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 16px 10px;background:var(--shc-card);border-bottom:1px solid var(--shc-border);z-index:1}
 .shc-ap-dialog-head h3{margin:0;font-size:17px;font-weight:900}
@@ -1644,6 +1913,13 @@ const SHC_I18N = {
     "cost.note": "Costo non calcolato: {why}. Serve un prezzo in €/kWh (es. un helper Numero con 0,25).",
     "cycle.hint": "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo",
       "name.default": "Elettrodomestico",
+      "tv.remote": "Telecomando",
+      "tv.guide": "Guida TV",
+      "tv.epg": "EPG",
+      "tv.mode_popup": "Pop-up",
+      "tv.mode_inline": "Sotto la card",
+      "tv.remote_mode": "Apertura del telecomando",
+      "tv.epg_mode": "Apertura della guida TV",
       "chart.d7": "7 gg",
       "chart.d30": "30 gg",
       "helper.unable_to_create_helper": "Impossibile creare l'helper ({1}).",
@@ -1961,6 +2237,8 @@ const SHC_I18N = {
       "ups.load": "Carico",
       "ups.battery": "Batteria",
       "ups.power_outage_notifications": "Notifiche caduta corrente",
+      "upscard.more_automations": "Altre automazioni (interruttori nelle Impostazioni)",
+      "upscard.automation": "Automazione",
       "ups.automations": "Automazioni",
       "ups.no_settings": "Nessuna impostazione",
       "ups.status_code": "Codice stato",
@@ -2304,6 +2582,42 @@ const SHC_I18N = {
       "device.show": "Mostra",
       "device.entity_card": "Scheda dell'entità",
       "heater.heater": "Stufetta",
+      "wh.name": "Scaldacqua",
+      "wh.entity_required": "Serve un'entità water_heater.xxx",
+      "wh.line_title": "Temperatura dell'acqua e target",
+      "wh.current": "Attuale",
+      "wh.target": "Target",
+      "wh.target_lc": "target",
+      "wh.mode": "Modalità",
+      "wh.away": "Fuori casa",
+      "wh.energy": "Energia",
+      "wh.water_temperature": "Temperatura acqua",
+      "wh.off": "SPENTO",
+      "wh.heating": "SCALDA",
+      "wh.ready": "PRONTO",
+      "wh.off_2": "Spento",
+      "wh.on": "Attivo",
+      "wh.heating_2": "In riscaldamento",
+      "wh.ready_2": "Acqua in temperatura",
+      "wh.unreachable": "Scaldacqua non raggiungibile",
+      "wh.range": "Intervallo",
+      "wh.ed_entity": "Scaldacqua (water_heater)",
+      "wh.ed_icon": "Icona (facoltativa)",
+      "wh.ed_temp": "Sensore temperatura acqua (facoltativo, per i grafici)",
+      "wh.ed_power": "Potenza (W, facoltativo)",
+      "wh.ed_energy": "Energia (kWh, facoltativo)",
+      "wh.ed_min": "Temperatura minima scala (vuoto = dall'entità)",
+      "wh.ed_max": "Temperatura massima scala (vuoto = dall'entità)",
+      "wh.mode_off": "Spento",
+      "wh.mode_eco": "Eco",
+      "wh.mode_performance": "Prestazioni",
+      "wh.mode_heat_pump": "Pompa di calore",
+      "wh.mode_electric": "Elettrico",
+      "wh.mode_high_demand": "Alta richiesta",
+      "wh.mode_gas": "Gas",
+      "wh.mode_hybrid": "Ibrido",
+      "wh.mode_vacation": "Vacanza",
+      "wh.mode_boost": "Boost",
       "heater.automatic_management": "Gestione automatica",
       "heater.room_temperature_and_humidity": "Temperatura e umidità della stanza, soglia",
       "heater.level": "Livello",
@@ -2541,6 +2855,25 @@ const SHC_I18N = {
       "apptype.microwave": "Microonde",
       "apptype.griddle_grill": "Piastra / bistecchiera",
       "apptype.induction_hob": "Piano a induzione",
+      "apptype.pellet_stove": "Stufa a pellet",
+      "apptype.printer_3d": "Stampante 3D",
+      "apptype.battery": "Batteria fotovoltaico",
+      "apptype.water_meter": "Contatore acqua",
+      "apptype.pool_pump": "Pompa piscina",
+      "apptype.blind": "Tapparella",
+      "apptype.xmas_tree": "Albero di Natale",
+      "apptype.console": "Console",
+      "art.level_section": "Livello (animazione)",
+      "art.level_entity": "Entità del livello (facoltativa)",
+      "art.level_attribute": "Attributo (es. current_position, vuoto = stato)",
+      "art.level_invert": "Inverti il livello",
+      "art.level_hint": "Senza entità usa il sensore di potenza/valore (valore / fondo scala). Tapparella: cover con attributo current_position (100 = aperta). Stampante 3D: avanzamento %.",
+      "art.console_model": "Modello console",
+      "art.model_ps3": "PS3",
+      "art.model_ps4": "PS4",
+      "art.model_ps5": "PS5",
+      "art.model_xbox": "Xbox",
+      "art.model_switch": "Switch",
       "wrday.lunedi": "Lunedì",
       "wrday.martedi": "Martedì",
       "wrday.mercoledi": "Mercoledì",
@@ -2653,6 +2986,13 @@ const SHC_I18N = {
     "cost.note": "Cost not calculated: {why}. A price in €/kWh is required (e.g. a Number helper with 0.25).",
     "cycle.hint": "Set cycle_sensor and cycle_attrs to show the last cycle",
       "name.default": "Appliance",
+      "tv.remote": "Remote",
+      "tv.guide": "TV guide",
+      "tv.epg": "EPG",
+      "tv.mode_popup": "Pop-up",
+      "tv.mode_inline": "Below the card",
+      "tv.remote_mode": "How the remote opens",
+      "tv.epg_mode": "How the TV guide opens",
       "chart.d7": "7 d",
       "chart.d30": "30 d",
       "helper.unable_to_create_helper": "Unable to create helper ({1}).",
@@ -2970,6 +3310,8 @@ const SHC_I18N = {
       "ups.load": "Load",
       "ups.battery": "Battery",
       "ups.power_outage_notifications": "Power outage notifications",
+      "upscard.more_automations": "More automations (switches in Settings)",
+      "upscard.automation": "Automation",
       "ups.automations": "Automations",
       "ups.no_settings": "No settings",
       "ups.status_code": "Status code",
@@ -3313,6 +3655,42 @@ const SHC_I18N = {
       "device.show": "Show",
       "device.entity_card": "Entity card",
       "heater.heater": "Heater",
+      "wh.name": "Water heater",
+      "wh.entity_required": "A water_heater.xxx entity is required",
+      "wh.line_title": "Water temperature and target",
+      "wh.current": "Current",
+      "wh.target": "Target",
+      "wh.target_lc": "target",
+      "wh.mode": "Mode",
+      "wh.away": "Away",
+      "wh.energy": "Energy",
+      "wh.water_temperature": "Water temperature",
+      "wh.off": "OFF",
+      "wh.heating": "HEATING",
+      "wh.ready": "READY",
+      "wh.off_2": "Off",
+      "wh.on": "On",
+      "wh.heating_2": "Heating",
+      "wh.ready_2": "Water at temperature",
+      "wh.unreachable": "Water heater unreachable",
+      "wh.range": "Range",
+      "wh.ed_entity": "Water heater (water_heater)",
+      "wh.ed_icon": "Icon (optional)",
+      "wh.ed_temp": "Water temperature sensor (optional, for graphs)",
+      "wh.ed_power": "Power (W, optional)",
+      "wh.ed_energy": "Energy (kWh, optional)",
+      "wh.ed_min": "Scale minimum temperature (empty = from entity)",
+      "wh.ed_max": "Scale maximum temperature (empty = from entity)",
+      "wh.mode_off": "Off",
+      "wh.mode_eco": "Eco",
+      "wh.mode_performance": "Performance",
+      "wh.mode_heat_pump": "Heat pump",
+      "wh.mode_electric": "Electric",
+      "wh.mode_high_demand": "High demand",
+      "wh.mode_gas": "Gas",
+      "wh.mode_hybrid": "Hybrid",
+      "wh.mode_vacation": "Vacation",
+      "wh.mode_boost": "Boost",
       "heater.automatic_management": "Automatic management",
       "heater.room_temperature_and_humidity": "Room temperature and humidity, threshold",
       "heater.level": "Level",
@@ -3550,6 +3928,25 @@ const SHC_I18N = {
       "apptype.microwave": "Microwave",
       "apptype.griddle_grill": "Griddle / grill",
       "apptype.induction_hob": "Induction hob",
+      "apptype.pellet_stove": "Pellet stove",
+      "apptype.printer_3d": "3D printer",
+      "apptype.battery": "Solar battery",
+      "apptype.water_meter": "Water meter",
+      "apptype.pool_pump": "Pool pump",
+      "apptype.blind": "Roller blind",
+      "apptype.xmas_tree": "Christmas tree",
+      "apptype.console": "Game console",
+      "art.level_section": "Level (animation)",
+      "art.level_entity": "Level entity (optional)",
+      "art.level_attribute": "Attribute (e.g. current_position, empty = state)",
+      "art.level_invert": "Invert level",
+      "art.level_hint": "Without an entity the power/value sensor is used (value / full scale). Blind: a cover with current_position (100 = open). 3D printer: progress %.",
+      "art.console_model": "Console model",
+      "art.model_ps3": "PS3",
+      "art.model_ps4": "PS4",
+      "art.model_ps5": "PS5",
+      "art.model_xbox": "Xbox",
+      "art.model_switch": "Switch",
       "wrday.lunedi": "Monday",
       "wrday.martedi": "Tuesday",
       "wrday.mercoledi": "Wednesday",
@@ -3663,6 +4060,13 @@ const SHC_I18N = {
       "cost.note": "Kosten niet berekend: {why}. Er is een prijs in €/kWh nodig (bijv. een Nummer-helper met 0,25).",
       "cycle.hint": "Stel cycle_sensor en cycle_attrs in om de laatste cyclus te tonen",
       "name.default": "Apparaat",
+      "tv.remote": "Afstandsbediening",
+      "tv.guide": "TV-gids",
+      "tv.epg": "EPG",
+      "tv.mode_popup": "Pop-up",
+      "tv.mode_inline": "Onder de kaart",
+      "tv.remote_mode": "Hoe de afstandsbediening opent",
+      "tv.epg_mode": "Hoe de TV-gids opent",
       "chart.d7": "7 d",
       "chart.d30": "30 d",
       "helper.unable_to_create_helper": "Kan helper niet aanmaken ({1}).",
@@ -3980,6 +4384,8 @@ const SHC_I18N = {
       "ups.load": "Belasting",
       "ups.battery": "Batterij",
       "ups.power_outage_notifications": "Meldingen stroomuitval",
+      "upscard.more_automations": "Meer automatiseringen (schakelaars in Instellingen)",
+      "upscard.automation": "Automatisering",
       "ups.automations": "Automatiseringen",
       "ups.no_settings": "Geen instellingen",
       "ups.status_code": "Statuscode",
@@ -4323,6 +4729,42 @@ const SHC_I18N = {
       "device.show": "Tonen",
       "device.entity_card": "Entiteitskaart",
       "heater.heater": "Kachel",
+      "wh.name": "Boiler",
+      "wh.entity_required": "Een water_heater.xxx entiteit is vereist",
+      "wh.line_title": "Watertemperatuur en doel",
+      "wh.current": "Huidig",
+      "wh.target": "Doel",
+      "wh.target_lc": "doel",
+      "wh.mode": "Modus",
+      "wh.away": "Afwezig",
+      "wh.energy": "Energie",
+      "wh.water_temperature": "Watertemperatuur",
+      "wh.off": "UIT",
+      "wh.heating": "VERWARMT",
+      "wh.ready": "KLAAR",
+      "wh.off_2": "Uit",
+      "wh.on": "Aan",
+      "wh.heating_2": "Verwarmt",
+      "wh.ready_2": "Water op temperatuur",
+      "wh.unreachable": "Boiler niet bereikbaar",
+      "wh.range": "Bereik",
+      "wh.ed_entity": "Boiler (water_heater)",
+      "wh.ed_icon": "Pictogram (optioneel)",
+      "wh.ed_temp": "Watertemperatuursensor (optioneel, voor grafieken)",
+      "wh.ed_power": "Vermogen (W, optioneel)",
+      "wh.ed_energy": "Energie (kWh, optioneel)",
+      "wh.ed_min": "Minimale schaaltemperatuur (leeg = van entiteit)",
+      "wh.ed_max": "Maximale schaaltemperatuur (leeg = van entiteit)",
+      "wh.mode_off": "Uit",
+      "wh.mode_eco": "Eco",
+      "wh.mode_performance": "Prestaties",
+      "wh.mode_heat_pump": "Warmtepomp",
+      "wh.mode_electric": "Elektrisch",
+      "wh.mode_high_demand": "Hoge vraag",
+      "wh.mode_gas": "Gas",
+      "wh.mode_hybrid": "Hybride",
+      "wh.mode_vacation": "Vakantie",
+      "wh.mode_boost": "Boost",
       "heater.automatic_management": "Automatisch beheer",
       "heater.room_temperature_and_humidity": "Kamertemperatuur en luchtvochtigheid, drempel",
       "heater.level": "Stand",
@@ -4560,6 +5002,25 @@ const SHC_I18N = {
       "apptype.microwave": "Magnetron",
       "apptype.griddle_grill": "Bakplaat / grill",
       "apptype.induction_hob": "Inductiekookplaat",
+      "apptype.pellet_stove": "Pelletkachel",
+      "apptype.printer_3d": "3D-printer",
+      "apptype.battery": "Zonnebatterij",
+      "apptype.water_meter": "Watermeter",
+      "apptype.pool_pump": "Zwembadpomp",
+      "apptype.blind": "Rolluik",
+      "apptype.xmas_tree": "Kerstboom",
+      "apptype.console": "Spelconsole",
+      "art.level_section": "Niveau (animatie)",
+      "art.level_entity": "Niveau-entiteit (optioneel)",
+      "art.level_attribute": "Attribuut (bijv. current_position, leeg = status)",
+      "art.level_invert": "Niveau omkeren",
+      "art.level_hint": "Zonder entiteit wordt de vermogens-/waardesensor gebruikt (waarde / maximum). Rolluik: een cover met current_position (100 = open). 3D-printer: voortgang %.",
+      "art.console_model": "Consolemodel",
+      "art.model_ps3": "PS3",
+      "art.model_ps4": "PS4",
+      "art.model_ps5": "PS5",
+      "art.model_xbox": "Xbox",
+      "art.model_switch": "Switch",
       "wrday.lunedi": "Maandag",
       "wrday.martedi": "Dinsdag",
       "wrday.mercoledi": "Woensdag",
@@ -4883,6 +5344,8 @@ class ShcSamsungRemote extends HTMLElement {
 if (!customElements.get("shc-samsung-remote")) customElements.define("shc-samsung-remote", ShcSamsungRemote);
 
 class ShcApplianceCloneCard extends HTMLElement {
+  disconnectedCallback() { if (this._root) this._root.querySelectorAll(".shc-tv-pop").forEach((n) => n._close && n._close()); }
+
   setConfig(config) {
     if (!config.power_entity && !config.live?.state_entity) throw new Error(shcT(this._hass, "err.need_entity"));
     this._autoName = !config.name;
@@ -4902,7 +5365,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._activePeriod = "today";
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "dw" + Math.random().toString(36).slice(2, 8);
-    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.dishwasher)(this._heroId), this._config.image);
+    const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.dishwasher)(this._heroId, this._config), this._config.image);
     const chip = CHIP_SVGS[this._config.artwork] || CHIP_SVGS.dishwasher;
     this._root.innerHTML = `<style>${STYLE}</style>
       <article class="shc-ap-card">
@@ -4916,7 +5379,8 @@ class ShcApplianceCloneCard extends HTMLElement {
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>${this._socketStateOn() ? `<button type="button" class="shc-ap-sock" title="${esc(shcT(this._hass, "tool.socket"))}" data-i18n-title="tool.socket"><i class="shc-ap-sock-dot"></i><span class="shc-ap-sock-label"></span></button>` : ""}
           <span class="shc-ap-tools">${this._powerScriptOn() ? `<button type="button" class="shc-ap-tool shc-ap-pscript" title="${esc(shcL(this._hass, "Accendi / spegni", "Turn on / off"))}">${ICON_POWER_CUT}</button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-notif-center" title="${esc(shcT(this._hass, "tool.notif_center"))}" data-i18n-title="tool.notif_center" hidden>${ICON_NOTIFCENTER}</button>
-            ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" && !this._epgOn() ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
+            ${this._remotePopup() && !this._epgOn() ? `<button type="button" class="shc-ap-tool shc-ap-sremote-pop" title="${esc(shcT(this._hass, "tv.remote"))}" data-i18n-title="tv.remote"><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
+            ${this._config.artwork === "tv" && this._config.show_samsung_remote === true && this._config.samsung_remote_position === "button" && !this._epgOn() && !this._remotePopup() ? `<button type="button" class="shc-ap-tool shc-ap-sremote" title="${esc(shcL(this._hass, "Telecomando", "Remote"))}" hidden><ha-icon icon="mdi:remote-tv" style="--mdc-icon-size:16px;display:flex"></ha-icon></button>` : ""}
             <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "tool.settings"))}" data-i18n-title="tool.settings">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "tool.stats"))}" data-i18n-title="tool.stats" hidden>${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "tool.graphs"))}" data-i18n-title="tool.graphs">${ICON_GRAPH}</button>
@@ -4955,9 +5419,12 @@ class ShcApplianceCloneCard extends HTMLElement {
           </div>
         </div>
         ${this._epgOn() ? this._epgHtml() : ""}
+        <div class="shc-tv-hold" hidden></div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
     this._epgInit();
+    const pr = this._root.querySelector(".shc-ap-sremote-pop");
+    if (pr) pr.addEventListener("click", (e) => { e.stopPropagation(); this._tvPopup("rem"); });
     // Telecomando Samsung sotto la card TV: solo artwork "tv" + show_samsung_remote: true (opt-in).
     this._samsungEl = null;
     if (this._config.artwork === "tv" && this._config.show_samsung_remote === true) {
@@ -4972,8 +5439,11 @@ class ShcApplianceCloneCard extends HTMLElement {
           if (this._config[from] !== undefined && this._config[from] !== "") sCfg[to] = this._config[from];
         });
         sEl.setConfig(sCfg);
-        const epgRem = this._epgOn() ? this._root.querySelector(".shc-epg-rem") : null;
-        if (epgRem) {
+        const epgRem = this._epgOn() && !this._remotePopup() ? this._root.querySelector(".shc-epg-rem") : null;
+        if (this._remotePopup()) {
+          sEl.style.marginTop = "0";
+          this._root.querySelector(".shc-tv-hold").appendChild(sEl);
+        } else if (epgRem) {
           sEl.style.marginTop = "0";
           sEl.style.display = "block";
           epgRem.appendChild(sEl);
@@ -4982,7 +5452,7 @@ class ShcApplianceCloneCard extends HTMLElement {
         if (this._hass) sEl.hass = this._hass;
         // samsung_remote_position: "button" = telecomando chiuso, si apre dal pulsante mdi:remote-tv
         // accanto all'ingranaggio; "below" (default) = sempre sotto la card.
-        const rBtn = this._epgOn() ? null : this._root.querySelector(".shc-ap-sremote");
+        const rBtn = this._epgOn() || this._remotePopup() ? null : this._root.querySelector(".shc-ap-sremote");
         if (rBtn) {
           sEl.style.display = "none";
           rBtn.hidden = false;
@@ -5932,7 +6402,67 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._epgSig = "";
     if (this._hass) this._epgRender();
   }
+  _remotePopup() {
+    const c = this._config;
+    return !!c && c.artwork === "tv" && c.show_samsung_remote === true && c.remote_mode === "popup";
+  }
+  _epgPopup() {
+    return !!this._config && this._epgOn() && this._config.epg_mode === "popup";
+  }
+  // Pop-up (telecomando o guida TV): sposta l'elemento gia' costruito nel dialog e lo rimette a posto alla chiusura.
+  _tvPopup(kind) {
+    const root = this._root;
+    const isRem = kind === "rem";
+    const el = isRem ? this._samsungEl : root.querySelector(".shc-epg-guide");
+    if (!el) return;
+    root.querySelectorAll(".shc-tv-pop").forEach((n) => n._close && n._close());
+    const ov = document.createElement("div");
+    ov.className = "shc-ap-overlay shc-tv-pop";
+    ov.innerHTML = `<div class="shc-ap-dialog" role="dialog" aria-modal="true">
+      <div class="shc-ap-dialog-head"><h3>${esc(shcT(this._hass, isRem ? "tv.remote" : "tv.guide"))}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
+      <div class="shc-ap-dialog-body"></div>
+    </div>`;
+    const home = el.parentNode, next = el.nextSibling;
+    ov.querySelector(".shc-ap-dialog-body").appendChild(el);
+    if (isRem) el.style.display = "block";
+    else el.hidden = false;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      close();
+    };
+    const close = () => {
+      document.removeEventListener("keydown", onKey, true);
+      ov._close = null;
+      if (home) home.insertBefore(el, next && next.parentNode === home ? next : null);
+      if (!isRem) {
+        el.hidden = true;
+        this._epgPane = "";
+      }
+      this._epgSig = "";
+      ov.remove();
+    };
+    ov._close = close;
+    ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+    ov.querySelector(".shc-ap-dialog-close").addEventListener("click", close);
+    document.addEventListener("keydown", onKey, true);
+    root.appendChild(ov);
+    if (!isRem) {
+      this._epgPane = "epg";
+      this._epgSig = "";
+      if (this._hass) this._epgRender();
+    }
+  }
   _epgSetPane(p) {
+    if (p === "epg" && this._epgPopup()) {
+      this._tvPopup("epg");
+      return;
+    }
+    if (p === "rem" && this._remotePopup()) {
+      this._tvPopup("rem");
+      return;
+    }
     this._epgPane = p;
     const r = this._root;
     r.querySelectorAll(".shc-epg-btn").forEach((b) => b.classList.toggle("on", b.dataset.pane === p));
@@ -6138,6 +6668,22 @@ class ShcApplianceCloneCard extends HTMLElement {
     }
     this._root.querySelector(".shc-ap-bar i").style.width =
       `${Math.min(100, Math.round((powerVal / cfg.max_power) * 100))}%`;
+    // Artwork animate: livello 0..1 (batteria, tapparella, stampante 3D, contatore) e direzione carica/scarica.
+    {
+      let lvl = powerVal / (cfg.max_power || 100);
+      if (cfg.level_entity) {
+        const ls = hass.states[cfg.level_entity];
+        const lv = ls ? Number(cfg.level_attribute ? ls.attributes?.[cfg.level_attribute] : ls.state) : NaN;
+        lvl = Number.isFinite(lv) ? lv / (cfg.level_max || 100) : 0;
+      }
+      lvl = Math.max(0, Math.min(1, lvl));
+      if (cfg.level_invert) lvl = 1 - lvl;
+      card.style.setProperty("--shch-level", lvl.toFixed(3));
+      card.classList.toggle("lv-low", lvl < 0.2);
+      card.classList.toggle("lv-mid", lvl >= 0.2 && lvl < 0.5);
+      card.classList.toggle("art-charge", rawState === "charging");
+      card.classList.toggle("art-discharge", rawState === "discharging");
+    }
     // bar_color: colore fisso della barra principale (es. batteria: verde invece del gradiente carico)
     if (cfg.bar_color) this._root.querySelector(".shc-ap-bar i").style.background = cfg.bar_color;
 
@@ -6503,6 +7049,14 @@ const SHC_APPLIANCE_TYPES = [
   { value: "microwave", get label() { return shcT(null, "apptype.microwave"); }, domotico: false },
   { value: "griddle", get label() { return shcT(null, "apptype.griddle_grill"); }, domotico: false },
   { value: "induction", get label() { return shcT(null, "apptype.induction_hob"); }, domotico: false },
+  { value: "pellet", get label() { return shcT(null, "apptype.pellet_stove"); }, domotico: false },
+  { value: "printer3d", get label() { return shcT(null, "apptype.printer_3d"); }, domotico: false },
+  { value: "battery", get label() { return shcT(null, "apptype.battery"); }, domotico: false },
+  { value: "watermeter", get label() { return shcT(null, "apptype.water_meter"); }, domotico: false },
+  { value: "pool", get label() { return shcT(null, "apptype.pool_pump"); }, domotico: false },
+  { value: "blind", get label() { return shcT(null, "apptype.blind"); }, domotico: false },
+  { value: "xmastree", get label() { return shcT(null, "apptype.xmas_tree"); }, domotico: false },
+  { value: "console", get label() { return shcT(null, "apptype.console"); }, domotico: false },
 ];
 
 const SHC_EDITOR_STYLE = `
@@ -6520,8 +7074,8 @@ const SHC_EDITOR_STYLE = `
   .shc-ed-choice-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:12px 10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
   .shc-ed-choice-btn small{display:block;font-size:11px;font-weight:500;color:var(--secondary-text-color);margin-top:3px}
   .shc-ed-choice-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
-  .shc-ed-lay-btn,.shc-ed-rpos-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
-  .shc-ed-lay-btn.on,.shc-ed-rpos-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
+  .shc-ed-lay-btn,.shc-ed-rpos-btn,.shc-ed-rmode-btn,.shc-ed-emode-btn,.shc-ed-cmodel-btn{flex:1;border:1px solid var(--divider-color,#e0e0e0);border-radius:12px;background:var(--card-background-color,#fff);color:var(--primary-text-color);padding:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+  .shc-ed-lay-btn.on,.shc-ed-rpos-btn.on,.shc-ed-rmode-btn.on,.shc-ed-emode-btn.on,.shc-ed-cmodel-btn.on{border-color:var(--primary-color,#03a9f4);background:rgba(3,169,244,.12)}
   .shc-ed-sec{margin:18px 0 10px;padding-top:12px;border-top:1px solid var(--divider-color,#e0e0e0);font-size:11.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--secondary-text-color)}
   .shc-ed-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   ha-entity-picker{width:100%}
@@ -6931,6 +7485,10 @@ class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
         { key: "input_voltage_entity", label: shcT(this._hass, "upscard.input_voltage"), domain: ["sensor"] },
         { key: "runtime_low_entity", label: shcT(this._hass, "upscard.low_battery_warning"), domain: ["binary_sensor"] },
         { key: "automation_entity", label: shcT(this._hass, "upscard.power_outage_notification_automation"), domain: ["automation"] },
+        { key: "automation_entities", label: shcT(this._hass, "upscard.more_automations"), kind: "list", itemFields: [
+          { key: "entity", label: shcT(this._hass, "upscard.automation"), kind: "entity", domain: ["automation"] },
+          { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text" },
+        ]},
         { key: "rated_watts", label: shcT(this._hass, "upscard.rated_power_w"), kind: "number", placeholder: "450" },
         { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
@@ -7307,7 +7865,12 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         </label>
         ${
           cfg.show_samsung_remote === true
-            ? `<span class="shc-ed-label">${esc(L("Dove mostrare il telecomando", "Where to show the remote"))}</span>
+            ? `<span class="shc-ed-label">${esc(shcT(this._hass, "tv.remote_mode"))}</span>
+        <div class="shc-ed-choice">
+          <button type="button" class="shc-ed-rmode-btn${cfg.remote_mode === "popup" ? " on" : ""}" data-rmode="popup">${esc(shcT(this._hass, "tv.mode_popup"))}</button>
+          <button type="button" class="shc-ed-rmode-btn${cfg.remote_mode === "popup" ? "" : " on"}" data-rmode="inline">${esc(shcT(this._hass, "tv.mode_inline"))}</button>
+        </div>
+        <span class="shc-ed-label">${esc(L("Dove mostrare il telecomando", "Where to show the remote"))}</span>
         <div class="shc-ed-choice">
           <button type="button" class="shc-ed-rpos-btn${cfg.samsung_remote_position === "button" ? "" : " on"}" data-rpos="below">${esc(L("Sotto la card", "Below the card"))}</button>
           <button type="button" class="shc-ed-rpos-btn${cfg.samsung_remote_position === "button" ? " on" : ""}" data-rpos="button">${esc(L("Pulsante (mdi:remote-tv)", "Button (mdi:remote-tv)"))}</button>
@@ -7332,8 +7895,32 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         <ha-entity-picker class="shc-ed-ch-name" include-domains='["sensor","input_text"]' allow-custom-entity></ha-entity-picker>
         <span class="shc-ed-label">${esc(L("Elenco canali (una riga per canale: numero, nome, id sensori EPG)", "Channel list (one line per channel: number, name, EPG sensor id)"))}</span>
         <textarea class="shc-ed-ch-list" rows="6" spellcheck="false" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:12px" placeholder="1, Rai 1, rai_1&#10;29, La7 Cinema, -">${esc((cfg.epg_channels || []).map((c) => c.number + ", " + c.name + ", " + (c.id || "-")).join("\n"))}</textarea>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "tv.epg_mode"))}</span>
+        <div class="shc-ed-choice">
+          <button type="button" class="shc-ed-emode-btn${cfg.epg_mode === "popup" ? " on" : ""}" data-emode="popup">${esc(shcT(this._hass, "tv.mode_popup"))}</button>
+          <button type="button" class="shc-ed-emode-btn${cfg.epg_mode === "popup" ? "" : " on"}" data-emode="inline">${esc(shcT(this._hass, "tv.mode_inline"))}</button>
+        </div>
         <p class="shc-ed-hint">${esc(L("Id = parte centrale di sensor.<id>_program_current; \"-\" = canale senza guida. Accetta anche le righe del file YAML epg_channels. Senza elenco la card resta come prima.", "Id = middle part of sensor.<id>_program_current; \"-\" = channel without guide. YAML epg_channels lines are accepted too. Without a list the card is unchanged."))}</p>
       </div>`
+          : ""
+      }
+      ${
+        ["printer3d", "battery", "blind", "watermeter"].includes(cfg.artwork)
+          ? `<div class="shc-ed-sec">${esc(shcT(this._hass, "art.level_section"))}</div>
+      <div class="shc-ed-row">
+        <span class="shc-ed-label">${esc(shcT(this._hass, "art.level_entity"))}</span>
+        <ha-entity-picker class="shc-ed-level-ent" allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(shcT(this._hass, "art.level_attribute"))}</span>
+        <input type="text" class="shc-ed-level-attr" value="${esc(cfg.level_attribute || "")}" placeholder="current_position" style="width:100%;box-sizing:border-box;padding:9px;border-radius:8px;border:1px solid var(--divider-color,#ccc);background:var(--card-background-color);color:var(--primary-text-color)">
+        <label class="shc-ed-checkrow"><input type="checkbox" class="shc-ed-level-inv" ${cfg.level_invert === true ? "checked" : ""}><span>${esc(shcT(this._hass, "art.level_invert"))}</span></label>
+        <p class="shc-ed-hint">${esc(shcT(this._hass, "art.level_hint"))}</p>
+      </div>`
+          : ""
+      }
+      ${
+        cfg.artwork === "console"
+          ? `<div class="shc-ed-sec">${esc(shcT(this._hass, "art.console_model"))}</div>
+      <div class="shc-ed-row"><div class="shc-ed-choice" style="flex-wrap:wrap">${["ps3", "ps4", "ps5", "xbox", "switch"].map((m) => `<button type="button" class="shc-ed-cmodel-btn${(cfg.console_model || "ps5") === m ? " on" : ""}" data-cmodel="${m}">${esc(shcT(this._hass, "art.model_" + m))}</button>`).join("")}</div></div>`
           : ""
       }
       ${
@@ -7481,6 +8068,17 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-pscript-state", cfg.power_script_state, null, "power_script_state");
     wirePicker(".shc-ed-pscript-off", typeof cfg.power_script_off === "string" ? cfg.power_script_off : "", null, "power_script_off");
     wirePicker(".shc-ed-zones", cfg.zones_entity, null, "zones_entity");
+    wirePicker(".shc-ed-level-ent", cfg.level_entity, null, "level_entity");
+    const lvA = body.querySelector(".shc-ed-level-attr");
+    if (lvA) lvA.addEventListener("change", () => this._set("level_attribute", lvA.value.trim() || undefined));
+    const lvI = body.querySelector(".shc-ed-level-inv");
+    if (lvI) lvI.addEventListener("change", () => this._set("level_invert", lvI.checked ? true : undefined));
+    body.querySelectorAll(".shc-ed-cmodel-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._set("console_model", btn.dataset.cmodel === "ps5" ? undefined : btn.dataset.cmodel);
+        body.querySelectorAll(".shc-ed-cmodel-btn").forEach((b) => b.classList.toggle("on", b === btn));
+      });
+    });
     wirePicker(".shc-ed-sremote-ent", cfg.samsung_entity || cfg.live?.state_entity, null, "samsung_entity");
     wirePicker(".shc-ed-sremote-rem", cfg.samsung_remote_entity, null, "samsung_remote_entity");
     wirePicker(".shc-ed-ch-ent", cfg.channel_entity, null, "channel_entity");
@@ -7498,8 +8096,20 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
           const id = m[3] && !["null", "-", "none"].includes(m[3].toLowerCase()) ? m[3] : null;
           out.push({ number: +m[1], name: m[2].trim(), id });
         });
+        if (out.length && !this._config.epg_mode && !(this._config.epg_channels || []).length) {
+          this._set("epg_mode", "popup");
+          body.querySelectorAll(".shc-ed-emode-btn").forEach((b) => b.classList.toggle("on", b.dataset.emode === "popup"));
+        }
         this._set("epg_channels", out.length ? out : undefined);
       });
+    [["rmode", "remote_mode"], ["emode", "epg_mode"]].forEach(([k, key]) => {
+      body.querySelectorAll(".shc-ed-" + k + "-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          this._set(key, btn.dataset[k] === "popup" ? "popup" : undefined);
+          body.querySelectorAll(".shc-ed-" + k + "-btn").forEach((b) => b.classList.toggle("on", b === btn));
+        });
+      });
+    });
     body.querySelectorAll(".shc-ed-rpos-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
         this._set("samsung_remote_position", btn.dataset.rpos === "button" ? "button" : undefined);
@@ -7510,6 +8120,7 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     if (sremCb)
       sremCb.addEventListener("change", () => {
         this._set("show_samsung_remote", sremCb.checked ? true : undefined);
+        if (sremCb.checked && !this._config.remote_mode) this._set("remote_mode", "popup");
         this._render();
       });
     // Togli corrente: nessun suggerimento automatico (opt-in esplicito), blocco frigo/relè cucina.
@@ -10053,9 +10664,19 @@ class ShcUpsCard extends HTMLElement {
     const hass = this._hass;
     const cfg = this._config;
     const rows = [];
+    // automation_entity (singola, resta valida) + automation_entities (lista, stringhe o {entity, name}), senza doppioni
+    const seenAut = new Set();
     if (cfg.automation_entity) {
+      seenAut.add(cfg.automation_entity);
       rows.push(this._settingsRowHtml(hass, { entity: cfg.automation_entity, label: shcT(this._hass, "ups.power_outage_notifications") }));
     }
+    (Array.isArray(cfg.automation_entities) ? cfg.automation_entities : []).forEach((it) => {
+      const id = typeof it === "string" ? it : it?.entity;
+      if (!id || seenAut.has(id)) return;
+      seenAut.add(id);
+      const nm = (it && typeof it === "object" && it.name) || hass.states[id]?.attributes?.friendly_name || id;
+      rows.push(this._settingsRowHtml(hass, { entity: id, label: nm }));
+    });
     // Sezione "Aspetto" (scelta del layout) a parte, in cima; le altre righe restano sotto "Automazioni".
     const aspettoHtml = (cfg.settings_sections || [])
       .filter((sec) => sec.title === "Aspetto")
@@ -16173,5 +16794,390 @@ window.customCards.push({
   type: "shc-boiler-card",
   name: "Caldaia e caloriferi",
   description: "Caldaia animata (fiamma, caloriferi, acqua calda) con gauge dritta, modalità, programmi orari, pressione e consumi gas",
+  author: "Simonz82",
+});
+
+// --- Scaldacqua a pompa di calore (water_heater) --------------------------------
+
+const WH_SEGMENTS = [
+  { from: 20, color: "#1565c0" },
+  { from: 35, color: "#039be5" },
+  { from: 45, color: "#00c853" },
+  { from: 55, color: "#fb8c00" },
+  { from: 65, color: "#f4511e" },
+  { from: 75, color: "#d32f2f" },
+];
+
+// bit di supported_features di water_heater
+const WH_F_AWAY = 4;
+const WH_F_ONOFF = 8;
+
+const WH_MODE_ICONS = {
+  off: "mdi:power",
+  eco: "mdi:leaf",
+  performance: "mdi:rocket-launch-outline",
+  heat_pump: "mdi:heat-pump-outline",
+  electric: "mdi:flash",
+  high_demand: "mdi:fire-circle",
+  gas: "mdi:fire",
+  hybrid: "mdi:autorenew",
+  vacation: "mdi:beach",
+  boost: "mdi:rocket-launch-outline",
+};
+
+const WH_STYLE = `
+@keyframes shc-wh-spin{to{transform:rotate(360deg)}}
+@keyframes shc-wh-bub{0%{transform:translateY(0);opacity:0}20%{opacity:.9}100%{transform:translateY(-34px);opacity:0}}
+@keyframes shc-wh-coil{0%,100%{opacity:.55}50%{opacity:1}}
+.wh-fanb{transform-box:fill-box;transform-origin:50% 50%}
+.shc-ap-card.wh-heat .wh-fanb{animation:shc-wh-spin 1s linear infinite}
+.wh-hot{opacity:0;transition:opacity .8s}
+.shc-ap-card.is-run .wh-hot{opacity:calc(.15 + var(--wh-hot,.4) * .6)}
+.wh-coil{fill:none;stroke:#fb923c;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.25;transition:opacity .6s}
+.shc-ap-card.wh-heat .wh-coil{stroke:#f97316;animation:shc-wh-coil 1.6s ease-in-out infinite}
+.wh-bub{fill:#bae6fd;stroke:#7dd3fc;stroke-width:.6;opacity:0;transform-box:fill-box}
+.shc-ap-card.wh-heat .wh-bub{animation:shc-wh-bub 2.4s ease-in infinite}
+.wh-air{fill:none;stroke:#7dd3fc;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:6 8;opacity:0;transition:opacity .6s}
+.shc-ap-card.wh-heat .wh-air{opacity:.9;animation:shc-dv-flow 1.1s linear infinite}
+.wh-pipe{fill:none;stroke-width:4;stroke-linecap:round;stroke:#94a3b8;transition:stroke .6s}
+.wh-flow{fill:none;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:4 8;opacity:0}
+.shc-ap-card.wh-heat .wh-pipe.hot{stroke:#ef4444}
+.shc-ap-card.is-run .wh-pipe.cold{stroke:#3b82f6}
+.shc-ap-card.wh-heat .wh-flow{opacity:.95;animation:shc-dv-flow 1.2s linear infinite}
+.wh-flow.cold{stroke:#bfdbfe}
+.wh-flow.hot{stroke:#fecaca}
+.wh-disp{font:900 11px/1 system-ui,sans-serif;fill:#38bdf8;letter-spacing:.02em}
+.shc-ap-card.wh-heat .wh-disp{fill:#fb923c}
+.shc-ap-card.is-off .wh-disp,.shc-ap-card.is-unavailable .wh-disp{fill:#94a3b8}
+.wh-led{fill:#94a3b8}
+.shc-ap-card.is-run .wh-led{fill:#22c55e}
+.shc-ap-card.wh-heat .wh-led{fill:#f97316}
+.shc-ap-card.wh-heat .shc-cl-chip ha-icon{color:#f97316}
+.shc-cl-btn.whmode.on{background:rgba(249,115,22,.18);color:#ea580c}
+.shc-cl-btn.whmode.off.on{background:rgba(100,116,139,.2);color:#475569}
+.shc-cl-btn.whmode.eco.on{background:rgba(34,197,94,.18);color:#16a34a}
+.shc-cl-btn.whaway.on{background:rgba(139,92,246,.2);color:#7c3aed}
+`;
+
+function whHeroSvg(id) {
+  const bub = [[104, 134, 0], [116, 138, 0.7], [128, 132, 1.4], [138, 136, 0.35], [110, 126, 1.9]];
+  const blade = (r) => `<path transform="rotate(${r} 106 27)" d="M106 27c-5-6-5-13 0-17c5 4 5 11 0 17z"/>`;
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shwh-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shwh-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c7d1dd"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#eef2f6"/><stop offset="1" stop-color="#b9c4d1"/></linearGradient>
+      <linearGradient id="shwh-water-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#0369a1"/></linearGradient>
+      <linearGradient id="shwh-hot-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fdba74"/><stop offset="1" stop-color="#dc2626"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="152" rx="50" ry="6" fill="#0f172a" opacity=".16" filter="url(#shwh-blur-${id})"/>
+    <path class="wh-pipe cold" d="M34 132H90"/>
+    <path class="wh-flow cold" d="M34 132H90"/>
+    <path class="wh-pipe hot" d="M150 58H204"/>
+    <path class="wh-flow hot" d="M150 58H204"/>
+    <g>${[[70, 0], [86, 0.4]].map(([y, d]) => `<path class="wh-air" style="animation-delay:${d}s" d="M80 ${y - 40}c-8-5-16 5-24 0s-14-4-20 0"/>`).join("")}</g>
+    <rect x="90" y="40" width="60" height="106" rx="14" fill="url(#shwh-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="99" y="62" width="42" height="74" rx="9" fill="#1f2937"/>
+    <rect x="99" y="62" width="42" height="74" rx="9" fill="url(#shwh-water-${id})" opacity=".85"/>
+    <rect class="wh-hot" x="99" y="62" width="42" height="74" rx="9" fill="url(#shwh-hot-${id})"/>
+    <path class="wh-coil" d="M106 76h28M134 76c5 0 5 8 0 8h-28c-5 0-5 8 0 8h28c5 0 5 8 0 8h-28c-5 0-5 8 0 8h28"/>
+    <g>${bub.map(([x, y, d]) => `<circle class="wh-bub" style="animation-delay:${d}s" cx="${x}" cy="${y}" r="2.2"/>`).join("")}</g>
+    <rect x="82" y="8" width="76" height="36" rx="10" fill="url(#shwh-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <circle cx="106" cy="27" r="14" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2"/>
+    <g class="wh-fanb" fill="#94a3b8" fill-opacity=".9" stroke="#64748b" stroke-width=".6">${blade(0)}${blade(120)}${blade(240)}</g>
+    <circle cx="106" cy="27" r="2.6" fill="#64748b"/>
+    <rect x="124" y="16" width="28" height="16" rx="5" fill="#0f172a" opacity=".9"/>
+    <text class="wh-disp" x="138" y="27.5" text-anchor="middle">--</text>
+    <circle class="wh-led" cx="146" cy="38" r="1.7"/>
+    <rect x="98" y="144" width="8" height="6" rx="2" fill="#64748b"/><rect x="134" y="144" width="8" height="6" rx="2" fill="#64748b"/>
+  </svg>`;
+}
+
+class ShcWaterHeaterCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || !String(config.entity).startsWith("water_heater.")) throw new Error(shcT(this._hass, "wh.entity_required"));
+    this._userMin = config.min ? Number(config.min) : null;
+    this._userMax = config.max ? Number(config.max) : null;
+    this._config = {
+      name: shcT(this._hass, "wh.name"),
+      layout: "centrato",
+      scale_step: 5,
+      ...config,
+      min: this._userMin ?? 30,
+      max: this._userMax ?? 75,
+    };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    const row = (cls, icon, key) =>
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(shcT(this._hass, key))}</small></span><b class="${cls}">—</b></div>`;
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${WH_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-wh-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || "mdi:water-boiler")}"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${whHeroSvg(this._uid)}</div>
+            ${this._lineHtml(shcT(this._hass, "wh.line_title"))}
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap" data-i18n="wh.name">${esc(shcT(this._hass, "wh.name"))}</span>
+            <div class="shc-ap-cycle-list">
+              ${row("wh-cur", "mdi:thermometer", "wh.current")}
+              ${row("wh-tgt", "mdi:thermometer-chevron-up", "wh.target")}
+              ${row("wh-mode", "mdi:tune-variant", "wh.mode")}
+              ${row("wh-away", "mdi:airplane", "wh.away")}
+              ${row("wh-pow", "mdi:flash", "appledit.power")}
+              ${row("wh-en", "mdi:lightning-bolt-circle", "wh.energy")}
+            </div>
+          </div>
+        </div>
+        <div class="shc-cl-ctrl">
+          <button type="button" class="shc-cl-btn power" title="${esc(shcT(this._hass, "climate.turn_on_off"))}" data-i18n-title="climate.turn_on_off"><ha-icon icon="mdi:power"></ha-icon></button>
+          <button type="button" class="shc-cl-btn" data-step="-1" title="${esc(shcT(this._hass, "climate.minus"))}" data-i18n-title="climate.minus"><ha-icon icon="mdi:minus"></ha-icon></button>
+          <div class="shc-cl-set"><span class="cl-set-val">—</span><small data-i18n="wh.target_lc">${esc(shcT(this._hass, "wh.target_lc"))}</small></div>
+          <button type="button" class="shc-cl-btn" data-step="1" title="${esc(shcT(this._hass, "climate.plus"))}" data-i18n-title="climate.plus"><ha-icon icon="mdi:plus"></ha-icon></button>
+        </div>
+        <div class="shc-cl-ctrl shc-wh-modes"></div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._lineBuild(WH_SEGMENTS);
+    this._root.querySelector(".shc-cl-track").classList.toggle("sep", this._config.bar_gap !== false);
+    const bind = this._commonBind();
+    bind(".shc-dv-info", () => this._openInfo());
+    bind(".shc-cl-btn.power", () => {
+      const st = this._st();
+      if (!st || ["unavailable", "unknown"].includes(st.state)) return;
+      this._call("water_heater", st.state === "off" ? "turn_on" : "turn_off", { entity_id: this._config.entity });
+    });
+    bind(".shc-cl-ctrl [data-step]", (e, b) => this._stepSet(Number(b.dataset.step)));
+  }
+
+  _modeLabel(m) {
+    const key = `wh.mode_${m}`;
+    const t = shcT(this._hass, key);
+    if (t !== key) return t;
+    const s = String(m).replace(/_/g, " ");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  _stepSet(dir) {
+    const st = this._st();
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return;
+    const a = st.attributes;
+    const step = Number(a.target_temp_step) || Number(this._config.step) || 1;
+    const lo = this._userMin ?? (Number(a.min_temp) || this._config.min);
+    const hi = this._userMax ?? (Number(a.max_temp) || this._config.max);
+    const base = this._pending ?? Number(a.temperature);
+    if (!Number.isFinite(base)) return;
+    const t = Math.min(hi, Math.max(lo, Math.round((base + dir * step) / step) * step));
+    this._pending = t;
+    this._root.querySelector(".cl-set-val").textContent = `${clNum(t, step < 1 ? 1 : 0)}°`;
+    const sp = this._root.querySelector(".shc-cl-spt");
+    sp.hidden = false;
+    sp.style.left = `${Math.min(100, Math.max(0, ((t - this._config.min) / (this._config.max - this._config.min)) * 100)).toFixed(2)}%`;
+    clearTimeout(this._stepTimer);
+    clearTimeout(this._pendingReset);
+    this._stepTimer = setTimeout(() => {
+      this._call("water_heater", "set_temperature", { entity_id: this._config.entity, temperature: t });
+      this._pendingReset = setTimeout(() => (this._pending = null), 2500);
+    }, 700);
+  }
+
+  _setMode(mode) {
+    const st = this._st();
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return;
+    this._call("water_heater", "set_operation_mode", { entity_id: this._config.entity, operation_mode: mode });
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.temperature_entity) s.push({ key: "temp", entity: cfg.temperature_entity, label: shcT(this._hass, "wh.water_temperature"), color: "#f97316" });
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#16a34a" });
+    if (cfg.energy_entity) s.push({ key: "energy", entity: cfg.energy_entity, label: shcT(this._hass, "wh.energy"), color: "#0ea5e9" });
+    return s;
+  }
+
+  // la scaldacqua sta scaldando: hvac_action/action se presente, altrimenti acceso e acqua sotto il target
+  _isHeating(st) {
+    if (!st || ["unavailable", "unknown", "off"].includes(st.state)) return false;
+    const a = st.attributes || {};
+    const act = a.hvac_action ?? a.action;
+    if (act !== undefined && act !== null) return ["heating", "heat", "on"].includes(String(act).toLowerCase());
+    const cur = Number(a.current_temperature);
+    const tgt = Number(a.temperature);
+    return Number.isFinite(cur) && Number.isFinite(tgt) && a.current_temperature !== null && a.temperature !== null && cur < tgt;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const q = (sel) => this._root.querySelector(sel);
+    const st = this._st();
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const a = st?.attributes || {};
+    const sf = Number(a.supported_features) || 0;
+    const off = !unav && st.state === "off";
+    const heating = this._isHeating(st);
+
+    // scala: min/max dell'entita' se non impostati nella card
+    const lo = this._userMin ?? (Number(a.min_temp) || 30);
+    const hi = this._userMax ?? (Number(a.max_temp) || 75);
+    if (lo !== cfg.min || hi !== cfg.max) {
+      cfg.min = lo;
+      cfg.max = hi;
+      this._lineBuild(WH_SEGMENTS);
+    }
+
+    this._applyCompact(unav);
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "wh-heat", "cl-off");
+    card.classList.add(unav ? "is-unavailable" : off ? "is-off" : "is-run");
+    if (heating) card.classList.add("wh-heat");
+    if (off || unav) card.classList.add("cl-off");
+
+    const cur = this._val(cfg.temperature_entity) ?? (Number.isFinite(Number(a.current_temperature)) && a.current_temperature !== null ? Number(a.current_temperature) : null);
+    const tgt = Number.isFinite(Number(a.temperature)) && a.temperature !== null ? Number(a.temperature) : null;
+    card.style.setProperty("--wh-hot", cur !== null ? Math.min(1, Math.max(0, (cur - lo) / (hi - lo))).toFixed(2) : ".4");
+    const mode = a.operation_mode ?? (unav ? null : st.state);
+    const away = a.away_mode === "on" || a.away_mode === true;
+    const awaySup = !unav && (a.away_mode !== undefined || (sf & WH_F_AWAY) > 0);
+
+    this._setBadge(unav ? "unavailable" : off ? "off" : heating ? "run" : "standby", unav ? "OFFLINE" : off ? shcT(this._hass, "wh.off") : heating ? shcT(this._hass, "wh.heating") : shcT(this._hass, "wh.ready"));
+    q(".wh-disp").textContent = unav ? "--" : off ? "OFF" : cur !== null ? `${clNum(cur, 0)}°` : tgt !== null ? `${clNum(tgt, 0)}°` : "ON";
+
+    q(".wh-cur").textContent = cur !== null ? `${clNum(cur)} °C` : "—";
+    q(".wh-tgt").textContent = tgt !== null ? `${clNum(tgt)} °C` : "—";
+    q(".wh-mode").textContent = unav || !mode ? "—" : this._modeLabel(mode);
+    q(".wh-away").textContent = away ? shcT(this._hass, "wh.on") : shcT(this._hass, "wh.off_2");
+    q(".wh-away").closest(".shc-ap-cycle-row").hidden = !awaySup;
+    const pw = this._val(cfg.power_entity);
+    const en = this._val(cfg.energy_entity);
+    q(".wh-pow").textContent = pw !== null ? `${clNum(pw, 0)} W` : "—";
+    q(".wh-en").textContent = en !== null ? `${clNum(en, 1)} kWh` : "—";
+    q(".wh-pow").closest(".shc-ap-cycle-row").hidden = !cfg.power_entity;
+    q(".wh-en").closest(".shc-ap-cycle-row").hidden = !cfg.energy_entity;
+
+    const sub = unav ? shcT(this._hass, "climate.unreachable") : off ? shcT(this._hass, "wh.off_2") : heating ? shcT(this._hass, "wh.heating_2") : shcT(this._hass, "wh.ready_2");
+    const tgtTxt = tgt !== null && !off ? ` · ${shcT(this._hass, "wh.target_lc")} <em>${esc(clNum(tgt, 0))}°</em>` : "";
+    this._lineUpdate({ temp: cur, hum: null, set: off ? null : this._pending ?? tgt, subHtml: `${esc(sub)}${tgtTxt}` });
+
+    // comandi
+    const canSet = !unav && !off && tgt !== null;
+    if (this._pending == null) q(".cl-set-val").textContent = tgt !== null ? `${clNum(tgt, 0)}°` : "—";
+    this._root.querySelectorAll(".shc-cl-ctrl [data-step]").forEach((b) => (b.disabled = !canSet));
+    const hasOnOff = (sf & WH_F_ONOFF) > 0;
+    const pbtn = q(".shc-cl-btn.power");
+    pbtn.style.display = hasOnOff ? "" : "none";
+    pbtn.classList.toggle("on", !unav && !off);
+    pbtn.disabled = unav;
+
+    // modalita' (operation_list) + fuori casa
+    const modes = Array.isArray(a.operation_list) ? a.operation_list.filter((m) => hasOnOff ? m !== "off" : true) : [];
+    const key = `${modes.join()}|${mode}|${away}|${awaySup}|${unav}`;
+    if (key !== this._modesKey) {
+      this._modesKey = key;
+      const box = q(".shc-wh-modes");
+      box.hidden = !modes.length && !awaySup;
+      box.innerHTML =
+        modes
+          .map((m) => {
+            const ic = WH_MODE_ICONS[m];
+            return `<button type="button" class="shc-cl-btn whmode ${esc(m)}${m === mode ? " on" : ""}" data-mode="${esc(m)}" title="${esc(this._modeLabel(m))}"${unav ? " disabled" : ""}>${ic ? `<ha-icon icon="${ic}"></ha-icon>` : `<span class="shc-dv-txt">${esc(this._modeLabel(m).slice(0, 3))}</span>`}</button>`;
+          })
+          .join("") +
+        (awaySup ? `${modes.length ? `<span class="shc-cl-sep"></span>` : ""}<button type="button" class="shc-cl-btn whaway${away ? " on" : ""}" data-away="1" title="${esc(shcT(this._hass, "wh.away"))}"${unav ? " disabled" : ""}><ha-icon icon="mdi:airplane"></ha-icon></button>` : "");
+      box.querySelectorAll("[data-mode]").forEach((b) =>
+        b.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._setMode(b.dataset.mode);
+        }),
+      );
+      box.querySelector("[data-away]")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const s = this._st();
+        const on = s?.attributes?.away_mode === "on" || s?.attributes?.away_mode === true;
+        this._call("water_heater", "set_away_mode", { entity_id: cfg.entity, away_mode: !on });
+      });
+    }
+
+    q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
+    this._setWarn(unav ? shcT(this._hass, "wh.unreachable") : "");
+    this._liveRefresh([cfg.entity, cfg.power_entity, cfg.energy_entity, cfg.temperature_entity]);
+  }
+
+  // ℹ️ Stato
+  _openInfo() {
+    const cfg = this._config;
+    const st = this._st();
+    const a = st?.attributes || {};
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—");
+    const num = (v, u) => (v !== undefined && v !== null && Number.isFinite(Number(v)) ? this._valHtml(`${clNum(v)} ${u}`) : null);
+    const away = a.away_mode === "on" || a.away_mode === true;
+    const rows = [
+      this._row(shcT(this._hass, "fritz.status"), this._valHtml(unav ? shcT(this._hass, "climate.unreachable") : st.state === "off" ? shcT(this._hass, "wh.off_2") : this._isHeating(st) ? shcT(this._hass, "wh.heating_2") : shcT(this._hass, "wh.ready_2"))),
+      !unav && (a.operation_mode ?? st.state) ? this._row(shcT(this._hass, "wh.mode"), this._valHtml(this._modeLabel(a.operation_mode ?? st.state))) : "",
+      num(a.current_temperature, "°C") ? this._row(shcT(this._hass, "wh.current"), num(a.current_temperature, "°C")) : "",
+      num(a.temperature, "°C") ? this._row(shcT(this._hass, "wh.target"), num(a.temperature, "°C")) : "",
+      num(a.min_temp, "°C") && num(a.max_temp, "°C") ? this._row(shcT(this._hass, "wh.range"), this._valHtml(`${clNum(a.min_temp, 0)} – ${clNum(a.max_temp, 0)} °C`)) : "",
+      a.away_mode !== undefined ? this._row(shcT(this._hass, "wh.away"), this._valHtml(away ? shcT(this._hass, "wh.on") : shcT(this._hass, "wh.off_2"))) : "",
+      cfg.power_entity && this._has(cfg.power_entity) ? `<div class="shc-ap-row" data-more="${esc(cfg.power_entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(shcT(this._hass, "appledit.power"))}</span>${this._valHtml(this._val(cfg.power_entity) !== null ? `${clNum(this._val(cfg.power_entity), 0)} W` : "n/d")}</div>` : "",
+      cfg.energy_entity && this._has(cfg.energy_entity) ? `<div class="shc-ap-row" data-more="${esc(cfg.energy_entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(shcT(this._hass, "wh.energy"))}</span>${this._valHtml(this._val(cfg.energy_entity) !== null ? `${clNum(this._val(cfg.energy_entity), 1)} kWh` : "n/d")}</div>` : "",
+      st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
+      this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`),
+    ].join("");
+    const html = `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "wh.name"))}</div>${rows}</div>${this._hidePrefHtml()}`;
+    this._openDialog(shcT(this._hass, "fritz.status"), html, () => this._openInfo());
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-water-heater-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("water_heater.")) || "water_heater.scaldacqua";
+    return { name: shcT(hass, "wh.name"), entity: e };
+  }
+}
+
+class ShcWaterHeaterCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "wh.name") },
+        { key: "entity", label: shcT(this._hass, "wh.ed_entity"), domain: ["water_heater"], required: true },
+        { key: "icon", label: shcT(this._hass, "wh.ed_icon"), kind: "text", placeholder: "mdi:water-boiler" },
+        { key: "temperature_entity", label: shcT(this._hass, "wh.ed_temp"), domain: ["sensor"] },
+      ]},
+      { title: shcT(this._hass, "nas.consumption"), fields: [
+        { key: "power_entity", label: shcT(this._hass, "wh.ed_power"), domain: ["sensor"] },
+        { key: "energy_entity", label: shcT(this._hass, "wh.ed_energy"), domain: ["sensor"] },
+      ]},
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "min", label: shcT(this._hass, "wh.ed_min"), kind: "number" },
+        { key: "max", label: shcT(this._hass, "wh.ed_max"), kind: "number" },
+        { key: "hide_when_offline", label: shcT(this._hass, "heatercard.hide_when_disconnected_from"), kind: "bool", hint: shcT(this._hass, "heatercard.when_the_card_receives") },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-water-heater-card-editor", ShcWaterHeaterCardEditor);
+customElements.define("shc-water-heater-card", ShcWaterHeaterCard);
+window.customCards.push({
+  type: "shc-water-heater-card",
+  name: "Scaldacqua a pompa di calore",
+  description: "Scaldacqua / boiler a pompa di calore (water_heater) animato con gauge dritta, target +/-, modalità, fuori casa, potenza ed energia",
   author: "Simonz82",
 });

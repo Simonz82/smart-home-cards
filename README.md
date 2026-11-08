@@ -4,7 +4,7 @@
 
 Card Lovelace personalizzate per Home Assistant, pensate per essere "belle e complete" senza impilare 4-5 card diverse (HACS) una dentro l'altra. Ogni card è un unico file JavaScript, gira su qualunque dashboard (anche sul cellulare), ha un popup Impostazioni e uno Statistiche integrati, e un **editor visuale nativo** (niente YAML obbligatorio: "Aggiungi card" → cerchi il nome → compili i campi).
 
-**Repository unico**: le 17 card (elettrodomestici, energia, climatizzatore, stufetta, ventilatore, caldaia e caloriferi, FritzBox, rete Zigbee, server HA, NAS, Proxmox, UPS, raccolta differenziata, centro notifiche, annuncio testo Alexa, memo Alexa, webradio Alexa) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
+**Repository unico**: le 18 card (elettrodomestici, energia, climatizzatore, stufetta, ventilatore, caldaia e caloriferi, FritzBox, rete Zigbee, server HA, NAS, Proxmox, UPS, raccolta differenziata, centro notifiche, annuncio testo Alexa, memo Alexa, webradio Alexa) sono tutte in **un solo file** (`smart-home-cards.js`) e documentate tutte qui sotto, nessun altro repository da installare a parte questo. *(In passato Energia Casa e Raccolta Differenziata avevano un repo a parte ciascuna — sono confluite qui per avere un unico posto da cui partire; quei due repo restano online per chi li aveva già installati, ma segnalano di passare a questo.)*
 
 **Non serve programmare nulla**: si installa il file, si aggiunge la card alla dashboard, si scrivono i nomi delle proprie entità al posto di quelle di esempio. Tutte le istruzioni qui sotto sono scritte per chi non ha mai installato una card personalizzata prima.
 
@@ -66,7 +66,42 @@ Le GIF mostrano le card **accese e in funzione**: cestello che gira, aria del cl
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-memo.png" width="260" alt="🔊 Alexa Memo"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">🔊 Alexa Memo</a></b></td>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/alexa-webradio.png" width="260" alt="📻 Alexa WebRadio"></a><br><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md">📻 Alexa WebRadio</a></b></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/scaldacqua.md">🚿<br><b>Scaldacqua / pompa di calore</b><br><sub>nuova in 1.20.0 (<code>shc-water-heater-card</code>)</sub></a></td>
+    <td align="center" valign="top" width="33%"><a href="#-nuovi-disegni-animati-novità-1200">🔥 🖨️ 🔋 💧<br><b>Pellet, stampante 3D, batteria, contatore acqua</b><br><sub>nuovi disegni (<code>artwork</code>)</sub></a></td>
+    <td align="center" valign="top" width="33%"><a href="#-nuovi-disegni-animati-novità-1200">🏊 🪟 🎄 🎮<br><b>Pompa piscina, tapparella, albero di Natale, console</b><br><sub>nuovi disegni (<code>artwork</code>)</sub></a></td>
+  </tr>
 </table>
+
+## 🆕 Novità 1.20.0
+
+### 🚿 Scaldacqua a pompa di calore (`shc-water-heater-card`) - nuova, feedback benvenuto
+Card per entità `water_heater.*` (scaldacqua elettrici e a pompa di calore, es. Midea, Ariston, Atlantic): disegno animato, temperatura attuale e target, modalità operative, "fuori casa", potenza ed energia, grafici. **È nuova e finora provata solo con stati simulati**: se la usi con il tuo scaldacqua, scrivimi com'è andata (issue o discussione). Guida con esempio YAML: [docs/scaldacqua.md](docs/scaldacqua.md).
+
+### 🔋 UPS: più automazioni (`automation_entities`)
+Nella card UPS puoi indicare un elenco di automazioni, ognuna con il suo interruttore nelle impostazioni (oltre al singolo `automation_entity` che continua a funzionare). Vedi [docs/ups.md](docs/ups.md).
+
+### 📺 TV: telecomando ed EPG in pop-up
+Con `remote_mode: popup` e/o `epg_mode: popup` i pulsanti grandi **Telecomando** ed **EPG** aprono un pop-up invece di allungare la card. Vedi la tabella delle opzioni TV più sotto.
+
+### 🎨 Nuovi disegni animati (novità 1.20.0)
+Otto nuovi valori per `artwork` nella card Elettrodomestici: `pellet`, `printer3d`, `battery`, `watermeter`, `pool`, `blind`, `xmastree`, `console`. Opzioni correlate:
+
+| Opzione | Cosa fa |
+|---|---|
+| `level_entity` | sensore con il livello (0-100) che anima `printer3d` (avanzamento), `battery` (carica), `blind` (posizione), `watermeter` (portata); se manca si usa la potenza rispetto a `max_power` |
+| `level_attribute` | attributo di `level_entity` da leggere al posto dello stato (es. `current_position`) |
+| `level_max` | fondo scala del livello (predefinito 100) |
+| `level_invert` | `true` inverte il livello (es. tapparella: 100 = chiusa) |
+| `console_model` | con `artwork: console`: `ps3`, `ps4`, `ps5` (predefinito), `xbox`, `switch` |
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Batteria fotovoltaico
+artwork: battery
+power_entity: sensor.batteria_potenza
+level_entity: sensor.batteria_carica
+```
 
 ## 🍳 Friggitrice, microonde, piastra e piano a induzione (novità 1.15.0)
 
@@ -166,6 +201,7 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 | `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
 | `epg_channels` | Elenco canali per la guida TV (EPG): `[{number, name, id}]`, `id: null` = canale senza guida. Con l'elenco la card mostra sotto la barra della potenza la riga del canale in onda e i pulsanti Telecomando / EPG (con `epg_channels` `samsung_remote_position` non serve: il telecomando si apre dal pulsante). Senza elenco la card resta identica. Sensori attesi: `sensor.<id>_program_current`, `_upcoming` e, se presente, `_primetime` (scheda "Prima serata"). Logo: automatico da `image.<id>_icon` (opzione "enable_channel_icons" dell'integrazione XMLTV EPG) oppure campo facoltativo `logo` (URL) per canale; senza logo resta il numero |
 | `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
+| `remote_mode`, `epg_mode` | `inline` (predefinito: sotto la card) oppure `popup` (novità 1.20.0: il telecomando / la guida EPG si aprono in un pop-up dai pulsanti grandi **Telecomando** ed **EPG**, la card non si allunga) |
 | `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
 | `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
 | `samsung_turn_on_script` | script da lanciare per accendere (utile se la TV non si accende da sola, es. con Wake-on-LAN o presa) |
@@ -301,6 +337,7 @@ settings_sections: []
 | [🖥️ Server Home Assistant](https://github.com/Simonz82/smart-home-cards/blob/main/docs/homeassistant-server.md) | CPU/RAM/disco del server, aggiornamenti, backup, riavvii programmati | Qualsiasi installazione Home Assistant (OS/Supervised/Container) |
 | [💾 NAS Synology](https://github.com/Simonz82/smart-home-cards/blob/main/docs/nas-synology.md) | CPU/RAM/volumi/dischi, stato sicurezza, consumo, riavvio/spegnimento | NAS Synology con integrazione DSM |
 | [🖧 Proxmox](https://github.com/Simonz82/smart-home-cards/blob/main/docs/proxmox.md) | Stato nodo, CPU/RAM/disco, VM/container attivi, salute SSD | Host Proxmox VE con un'integrazione che esponga questi sensori |
+| [🚿 Scaldacqua](https://github.com/Simonz82/smart-home-cards/blob/main/docs/scaldacqua.md) | Scaldacqua / pompa di calore animato, temperatura attuale e target, modalità, fuori casa, potenza ed energia (nuova, feedback benvenuto) | Un'entità `water_heater` (Midea, Ariston, Atlantic...) |
 | [🔋 UPS](https://github.com/Simonz82/smart-home-cards/blob/main/docs/ups.md) | Stato, carica batteria, carico, autonomia residua | Gruppo di continuità (es. tramite NUT/apcupsd) |
 | [♻️ Raccolta Differenziata](https://github.com/Simonz82/smart-home-cards/blob/main/docs/differenziata.md) | Rifiuto del giorno, giorno del ritiro, orario di esposizione, tipi di raccolta scritti a mano | Nessun hardware, solo un `input_text` |
 | [🔔 Centro Notifiche](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md) | Volumi e finestra oraria degli annunci Alexa condivisi da tutte le altre card, in un'unica card di impostazioni | Il package `centro_notifiche_alexa.yaml` + integrazione Alexa Media Player |

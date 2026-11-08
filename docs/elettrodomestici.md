@@ -82,7 +82,7 @@ Per un tipo **domotico** (es. TV) compaiono anche i campi di stato/programma nat
 |---|---|---|---|
 | `power_entity` | **Sì**, se manca `live.state_entity` | — | `sensor` in Watt che misura l'assorbimento attuale. Se è vuoto o l'entità non esiste, la banda della potenza non compare e lo stato viene solo da `live.state_entity` |
 | `name` | No | `"Elettrodomestico"` | Nome mostrato in alto |
-| `artwork` | No | `"dishwasher"` | Disegno: `dishwasher`, `washer`, `dryer`, `oven`, `tv`, `fridge`, `boiler` (anche `fritzbox`/`server`/`proxmox`/`nas`/`energy`/`ups`, condivisi con le altre card) |
+| `artwork` | No | `"dishwasher"` | Disegno (novità 1.20.0: `pellet`, `printer3d`, `battery`, `watermeter`, `pool`, `blind`, `xmastree`, `console`, vedi README): `dishwasher`, `washer`, `dryer`, `oven`, `tv`, `fridge`, `boiler` (anche `fritzbox`/`server`/`proxmox`/`nas`/`energy`/`ups`, condivisi con le altre card) |
 | `threshold_run` | No | `5` | Soglia in Watt sopra cui è "in funzione" |
 | `threshold_standby` | No | `1` | Soglia in Watt sopra cui è "in standby" (sotto è "spenta") |
 | `max_power` | No | `2200` | Fondo scala della barra di potenza |

@@ -58,6 +58,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"UPS"** �
 | `input_voltage_entity` | No | — | `sensor` tensione di rete in ingresso |
 | `power_entity` | No | — | `sensor` in Watt, se hai anche una presa smart che misura il consumo reale collegato all'UPS (più preciso della sola percentuale di carico) |
 | `automation_entity` | No | — | Un'automazione che gestisci tu (es. "spegni i servizi non critici sotto il 20% di batteria") — mostrata come riga informativa/attivabile |
+| `automation_entities` | No | `[]` | Elenco di automazioni (novità 1.20.0), ognuna con il suo interruttore nelle impostazioni: `- automation.xxx` oppure `- entity: automation.xxx` + `name: Etichetta`. Si somma a `automation_entity`; i doppioni sono ignorati. Esempio sotto |
 | `actions` | No | `[]` | Pulsanti extra con conferma, stesso formato delle altre card — vedi [fritzbox.md](fritzbox.md#actions--pulsanti-con-conferma) per un esempio |
 | `settings_sections` | No | `[]` | Vedi [settings-sections.md](settings-sections.md) |
 
@@ -116,3 +117,14 @@ Tutti i popup della card, con i dati sensibili (indirizzi IP, nomi, ecc.) oscura
 | Chiaro | Scuro |
 |---|---|
 | ![](screenshot/popup/ups-statistiche-light.png) | ![](screenshot/popup/ups-statistiche-dark.png) |
+
+### Più automazioni nelle impostazioni (1.20.0)
+
+```yaml
+type: custom:shc-ups-card
+status_entity: sensor.ups_stato
+automation_entities:
+  - automation.ups_notifica_blackout
+  - entity: automation.ups_spegni_servizi
+    name: Spegni servizi sotto il 20%
+```

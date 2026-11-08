@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-08 — 1.20.0: water heater card, UPS automations, TV pop-ups, 8 new animated artworks
+
+- **New card `shc-water-heater-card`** (issue #15): water heaters and heat-pump water heaters (`water_heater.*` entities, e.g. Midea Eco Master). Animated drawing, current and target temperature, +/- buttons, operation modes, away mode, power on/off, optional power and energy sensors, charts, visual editor, it/en/nl. **New and so far tested only with simulated states: feedback welcome.** Guide with YAML example: [docs/scaldacqua.md](docs/scaldacqua.md).
+- **UPS card: more automations** (discussion #13): new `automation_entities` list (strings or `{entity, name}`), each with its own switch in the settings; works together with the existing `automation_entity`, duplicates ignored. The visual editor can add several.
+- **TV card: remote and TV guide in a pop-up** (discussion #9): `remote_mode: popup` and `epg_mode: popup` open the Samsung remote / the EPG guide in a pop-up from the large inline **Remote** and **EPG** buttons, so the card no longer grows. Default `inline` (unchanged). Esc, the close button or a click outside close it; the pop-up is also closed if the card is removed from the page.
+- **8 new animated artworks** for the Appliance card (`artwork`): `pellet`, `printer3d`, `battery`, `watermeter`, `pool`, `blind`, `xmastree`, `console`. New options: `level_entity`, `level_attribute`, `level_max`, `level_invert` (level 0-100 that drives printer progress, battery charge, blind position, water flow) and `console_model` (`ps3`, `ps4`, `ps5`, `xbox`, `switch`). Without `level_entity` the level follows the power against `max_power`.
+- New texts translated in it, en and nl.
+
 ## 2026-11-06 — 1.19.1: Dutch (nl)
 
 - New language: **Dutch (nl)**, all texts of every card and visual editor, contributed by @hartliefHA (PR #14). With Home Assistant in Dutch the cards now appear in Dutch.
