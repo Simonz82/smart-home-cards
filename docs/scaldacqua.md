@@ -2,6 +2,8 @@
 
 > **Nuova in 1.20.0 - feedback benvenuto.** Finora provata solo con stati simulati: se la usi con il tuo scaldacqua scrivimi com'è andata (issue o discussione su GitHub).
 
+<p align="center"><img src="screenshot/scaldacqua.png" width="360" alt="Card scaldacqua"></p>
+
 Per le entità `water_heater.*` di Home Assistant: scaldacqua elettrici e a pompa di calore (Midea Eco Master, Ariston, Atlantic, Haier...). Disegno animato (ventola, serpentina, bolle, flussi caldo/freddo), temperatura attuale e target con barra graduata, pulsanti +/- per il target, modalità operative, "fuori casa", accensione/spegnimento, potenza ed energia, grafici storici. Stesso stile e stessi due layout (classico / centrato) delle altre card.
 
 ## Cosa ti serve

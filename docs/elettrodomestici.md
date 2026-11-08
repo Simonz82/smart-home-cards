@@ -152,7 +152,7 @@ Quando una di queste entità è nello stato indicato, la card mostra la relativa
 
 ### Riepilogo ciclo, storico e costi (opzionale, avanzato)
 
-> **1.17.2:** senza `cycle_sensor` (e senza `side`) il riquadro "Ultimo ciclo" mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" invece dei trattini. Esempio completo col forno nel [README](../README.md).
+> **1.17.2:** senza `cycle_sensor` (e senza `side`) il riquadro "Ultimo ciclo" mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" invece dei trattini. Esempio completo col forno più sotto in questa pagina ("Esempio: riquadro Ultimo ciclo del forno").
 
 Questi campi mostrano l'ultimo ciclo (fine/durata/consumo/costo), i costi per periodo (oggi/ieri/mese/anno) e i cicli contati. **Non sono entità singole**: sono i **nomi degli attributi** che la card legge da un unico sensore "riepilogo", che indichi con `cycle_sensor`:
 
@@ -573,6 +573,8 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 | `show_samsung_remote: true` | mostra il telecomando sotto la card (solo con `artwork: tv`) |
 | `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
 | `epg_channels` | Elenco canali per la guida TV (EPG): `[{number, name, id}]`, `id: null` = canale senza guida. Con l'elenco la card mostra sotto la barra della potenza la riga del canale in onda e i pulsanti Telecomando / EPG (con `epg_channels` `samsung_remote_position` non serve: il telecomando si apre dal pulsante). Senza elenco la card resta identica. Sensori attesi: `sensor.<id>_program_current`, `_upcoming` e, se presente, `_primetime` (scheda "Prima serata"). Logo: automatico da `image.<id>_icon` (opzione "enable_channel_icons" dell'integrazione XMLTV EPG) oppure campo facoltativo `logo` (URL) per canale; senza logo resta il numero |
+| `remote_mode` | Con `popup` il telecomando (con `show_samsung_remote: true`) si apre in un pop-up invece di allungare la card (1.20.0) |
+| `epg_mode` | Con `popup` la guida TV (con `epg_channels`) si apre in un pop-up invece di allungare la card (1.20.0) |
 | `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
 | `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
 | `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
@@ -761,6 +763,71 @@ I due popup hanno ognuno un solo scopo: **Statistiche** (barrette, solo sugli ap
 | Chiaro | Scuro |
 |---|---|
 | ![Grafico, chiaro](screenshot/grafici/lavastoviglie-grafico-24h-light.png) | ![Grafico, scuro](screenshot/grafici/lavastoviglie-grafico-24h-dark.png) |
+
+### ⏱️ Esempio: riquadro "Ultimo ciclo" del forno (1.17.2)
+
+Nelle card **Elettrodomestici** il riquadro "Ultimo ciclo" (fine, durata, consumo, costo) non indovina nulla da solo: legge gli **attributi di un unico sensore** che indichi tu.
+
+- `cycle_sensor`: l'entità "riepilogo" (di solito un template sensor).
+- `cycle_attrs`: il **nome degli attributi** di quel sensore, uno per riga del riquadro: `end` (fine), `duration` (durata), `energy` (consumo), `cost` (costo).
+
+Se manca `cycle_sensor` (e non usi `side`), dalla 1.17.2 il riquadro mostra il suggerimento "Imposta cycle_sensor e cycle_attrs per vedere l'ultimo ciclo" invece dei trattini. Il frigo senza `side` continua a nascondere il riquadro. Le card già configurate non cambiano.
+
+Esempio (forno): il sensore `sensor.time_on_elettrodomestici_2` ha gli attributi `terminato`, `tempo_ciclo_elettrodomestici_2`, `consumo_ciclo_elettrodomestici_2`, `costo_ciclo_elettrodomestici_2`:
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Forno
+cycle_sensor: sensor.time_on_elettrodomestici_2
+cycle_attrs:
+  end: terminato
+  duration: tempo_ciclo_elettrodomestici_2
+  energy: consumo_ciclo_elettrodomestici_2
+  cost: costo_ciclo_elettrodomestici_2
+```
+
+Tutti i nomi sono esempi: usa quelli degli attributi del tuo sensore. Dettagli e campi opzionali (periodi, cicli contati) in [docs/elettrodomestici.md](docs/elettrodomestici.md).
+
+**EN:** the "Last cycle" box reads the attributes of one summary sensor. Set `cycle_sensor` (the entity) and `cycle_attrs` (attribute names for `end`, `duration`, `energy`, `cost`). Without `cycle_sensor` (and without `side`) the box now shows a hint instead of dashes (1.17.2). The fridge without `side` still hides the box; existing setups are unchanged.
+
+## 🎨 Nuovi disegni animati (1.20.0)
+Otto nuovi valori per `artwork` nella card Elettrodomestici: `pellet`, `printer3d`, `battery`, `watermeter`, `pool`, `blind`, `xmastree`, `console`. Opzioni correlate:
+
+| Opzione | Cosa fa |
+|---|---|
+| `level_entity` | sensore con il livello (0-100) che anima `printer3d` (avanzamento), `battery` (carica), `blind` (posizione), `watermeter` (portata); se manca si usa la potenza rispetto a `max_power` |
+| `level_attribute` | attributo di `level_entity` da leggere al posto dello stato (es. `current_position`) |
+| `level_max` | fondo scala del livello (predefinito 100) |
+| `level_invert` | `true` inverte il livello (es. tapparella: 100 = chiusa) |
+| `console_model` | con `artwork: console`: `ps3`, `ps4`, `ps5` (predefinito), `xbox`, `switch` |
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Batteria fotovoltaico
+artwork: battery
+power_entity: sensor.batteria_potenza
+level_entity: sensor.batteria_carica
+```
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-pellet.png" width="260" alt="Stufa a pellet"><br><sub><code>pellet</code></sub></td>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-stampante3d.png" width="260" alt="Stampante 3D"><br><sub><code>printer3d</code></sub></td>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-batteria.png" width="260" alt="Batteria"><br><sub><code>battery</code></sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-contatore-acqua.png" width="260" alt="Contatore acqua"><br><sub><code>watermeter</code></sub></td>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-piscina.png" width="260" alt="Pompa piscina"><br><sub><code>pool</code></sub></td>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-tapparella.png" width="260" alt="Tapparella"><br><sub><code>blind</code></sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="screenshot/elettrodomestici-albero-natale.png" width="260" alt="Albero di Natale"><br><sub><code>xmastree</code></sub></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<sub>Immagini con dati di esempio.</sub>
 
 ## 🖼️ Tutte le schermate
 
