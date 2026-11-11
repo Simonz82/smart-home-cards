@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-11 — 1.21.0: speaker card, TV guide warning
+
+- **New card `shc-speaker-card`** (Echo / Alexa and other speakers, any `media_player`): photo of the model (cut-out Wikimedia Commons photos, credits in [CREDITS.md](CREDITS.md); drawings for models without a free photo), animated ring while playing, title, artist and progress bar, volume slider and buttons, power, source, optional power and energy tiles, next alarm / timer / reminder and do-not-disturb / shuffle / repeat found automatically from the same device, quick text-to-speech field, visual editor, it/en/nl. Guide: [docs/altoparlante.md](docs/altoparlante.md).
+- **TV card, TV guide (EPG)**: when the guide sensors of all channels with an `id` are `unavailable`/`unknown` (or the sensor of the current channel is missing), the card now shows a clear message (“TV guide not available: check the XMLTV EPG integration”, it/en/nl) instead of silent grey rows. Nothing changes while the guide works.
+- **TV card, channel**: the current channel is now also shown when the TV reports `app_id: TV/HDMI` (it was treated as an app and `channel_entity` / `channel_name_entity` were ignored).
+- **README**: speaker card in the gallery (animated), gallery table rebuilt with three equal columns so it fits phone screens without side scrolling.
+
 ## 2026-11-08 — 1.20.1: console with real photos, new README
 
 - **Appliance card, `artwork: console`**: real cut-out photos (WebP embedded as data URIs) for `ps3`, `ps4`, `ps5` (default), `xbox` and `switch`, with a glow that follows the state (on/off), instead of the 1.20.0 vector drawing. No option changes. Photo credits and licenses in [CREDITS.md](CREDITS.md).

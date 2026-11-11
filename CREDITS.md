@@ -17,3 +17,24 @@ Le foto con licenza CC BY-SA 4.0 (`ps5`) e CC BY 4.0 (`xbox`) restano sotto la l
 *The CC BY-SA 4.0 (`ps5`) and CC BY 4.0 (`xbox`) photos stay under their original license; the derived WebP of `ps5` remains CC BY-SA 4.0. The rest of the project is MIT ([LICENSE](LICENSE)).*
 
 Marchi (PlayStation, Xbox, Nintendo Switch) di proprieta' dei rispettivi titolari. / Trademarks belong to their respective owners.
+
+## Foto degli altoparlanti (`shc-speaker-card`) / Speaker photos
+
+Foto da Wikimedia Commons, ritagliate con maschera (sfondo trasparente), ridimensionate a max 400 px, convertite in WebP e incorporate nel file JS come data URI. Modifiche: ritaglio, scontorno, ridimensionamento, conversione.
+*Photos from Wikimedia Commons, masked (transparent background), resized to max 400 px, converted to WebP and embedded in the JS file as data URIs. Changes: crop, cut-out, resize, conversion.*
+
+| `speaker_model` | File Commons / Commons file | Autore / Author | Licenza / License |
+|---|---|---|---|
+| `echo_dot` | [Echo_Dot_(3rd_Gen)_01.jpg](https://commons.wikimedia.org/wiki/File:Echo_Dot_(3rd_Gen)_01.jpg) | Samuel Wiki | CC0 |
+| `echo_dot_clock` | [Amazon_Echo_Dot_5th_Generation_With_Clock.jpg](https://commons.wikimedia.org/wiki/File:Amazon_Echo_Dot_5th_Generation_With_Clock.jpg) | TaurusEmerald | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| `echo_studio` | [Amazon_Echo_Studio.jpg](https://commons.wikimedia.org/wiki/File:Amazon_Echo_Studio.jpg) | TaurusEmerald | CC BY-SA 4.0 |
+| `echo_show` | [Amazon_Echo_Show_in_white.jpg](https://commons.wikimedia.org/wiki/File:Amazon_Echo_Show_in_white.jpg) | Daylen | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) |
+| `echo_spot` | [Amazon_Echo_Spot.jpg](https://commons.wikimedia.org/wiki/File:Amazon_Echo_Spot.jpg) | TaurusEmerald | CC BY-SA 4.0 |
+| `nest_mini` | [Nest_Mini_Charcoal-colored_(2nd_generation)_2019.jpg](https://commons.wikimedia.org/wiki/File:Nest_Mini_Charcoal-colored_(2nd_generation)_2019.jpg) | Natixd123 | CC BY-SA 4.0 |
+| `nest_audio` | [Google_Nest_Audio.jpg](https://commons.wikimedia.org/wiki/File:Google_Nest_Audio.jpg) | TaurusEmerald | CC BY-SA 4.0 |
+| `sonos_one` | [Sonos_One_SL_Speaker.jpg](https://commons.wikimedia.org/wiki/File:Sonos_One_SL_Speaker.jpg) | TaurusEmerald | CC BY-SA 4.0 |
+| `homepod_mini` | [Apple_HomePod_mini.jpg](https://commons.wikimedia.org/wiki/File:Apple_HomePod_mini.jpg) | Arne Müseler | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/) |
+
+Le foto CC BY-SA restano CC BY-SA nella versione derivata, quelle CC BY restano CC BY; il resto del progetto e' MIT. / *CC BY-SA photos stay CC BY-SA in the derived version, CC BY ones stay CC BY; the rest of the project is MIT.*
+
+Marchi (Amazon Echo, Google Nest, Sonos, Apple HomePod) di proprieta' dei rispettivi titolari. / Trademarks belong to their respective owners.

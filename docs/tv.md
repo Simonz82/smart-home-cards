@@ -6,6 +6,8 @@ Guide per la card TV (`custom:shc-appliance-clone-card` con `artwork: tv`). Tutt
 
 Con `epg_channels` la card TV mostra sotto la barra della potenza il canale in onda (logo, titolo, avanzamento, cosa c'è dopo) e i pulsanti **Telecomando** ed **EPG**. Il pannello EPG elenca i canali con adesso/dopo, la scheda **Prima serata** mostra la serata di tutti i canali, e toccando un canale la TV ci va da sola (SamsungTV Smart). Dati dall'integrazione [XMLTV EPG](https://github.com/shadow578/homeassistant_xmltv-epg); opzioni `epg_channels`, `channel_entity`, `channel_name_entity` nella tabella del telecomando qui sotto.
 
+Se la guida è ferma (tutti i sensori dei canali con `id` sono `unavailable`/`unknown`, o manca il sensore del canale corrente) la card mostra il messaggio «Guida TV non disponibile: controlla l'integrazione XMLTV EPG» (it/en/nl) invece di righe grigie senza spiegazione (novità 1.21.0).
+
 <table>
   <tr>
     <td align="center" valign="top" width="33%"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/elettrodomestici-tv-epg.png" width="260" alt="Card TV con canale in onda"><br><sub>Canale in onda</sub></td>
