@@ -134,7 +134,7 @@ type: custom:shc-alexa-webradio-card
 name: Radio Alexa
 power_entity: input_boolean.web_radio_alexa
 station_select_entity: input_select.stazioni_radio_alexa
-station_sensor_entity: sensor.template_radio_alexa
+station_sensor_entity: sensor.radio_alexa
 volume_entity: input_number.volume_radio_alexa
 group_entity: group.multiroom_alexa
 speaker_list_entity: input_select.list_alexa_speaker_multiroom
@@ -194,6 +194,43 @@ alarm_days:
 ```
 
 Gli stessi elenchi si modificano anche dall'editor visuale (sezioni Multiroom, Stazioni e playlist, Sveglia): ogni elenco si apre con "mostra/modifica" e ha i pulsanti Aggiungi e Rimuovi.
+
+### Speaker personalizzati (i chip non compaiono o non rispondono)
+
+I chip degli speaker vengono dall'opzione `speakers` **della card**, non dal package. Se non la imposti, la card mostra i 4 Alexa di default (`media_player.alexa_salone`, `alexa_bagno`, `alexa_cameretta`, `alexa_camera`): se i tuoi media player hanno un altro nome, i chip non funzionano. Imposta i tuoi (editor visuale, sezione Multiroom, oppure YAML):
+
+```yaml
+speakers:
+  - entity: media_player.il_mio_echo_cucina   # il tuo media_player Alexa
+    name: Cucina                               # testo sul chip
+    option: "Echo Cucina"                      # IDENTICO a una voce di input_select.list_alexa_speaker_multiroom
+```
+
+Nel package `input_select.list_alexa_speaker_multiroom` deve elencare i **friendly name** dei tuoi media_player; `option` deve essere uguale (maiuscole comprese) alla voce corrispondente. Toccando il chip la card seleziona quella voce e lancia `script.add_alexa` / `script.remove_alexa`.
+
+### Aggiungere una playlist (Amazon Music, Spotify, Deezer) o una radio
+
+Non serve nessun URL: Alexa riceve il **nome** della playlist/radio e il **servizio**. Passi, tutti e tre necessari:
+
+1. In `input_select.stazioni_radio_alexa` (package) aggiungi la voce, es. `MIA PLAYLIST`.
+2. Nel template sensor `Radio Alexa` (entity `sensor.radio_alexa`) aggiungi un ramo per la voce in tutti e tre gli attributi: `select` (il nome esatto da cercare su Alexa, come nell'app), `servizi` (`TUNEIN`, `SPOTIFY`, `AMAZON_MUSIC` o `DEEZER`) ed `entity_picture` (logo). Copia un ramo esistente e cambia i valori.
+3. Nella card aggiungi la voce a `stations`:
+
+```yaml
+stations:
+  - option: MIA PLAYLIST      # uguale alla voce dell'input_select
+    name: La mia playlist
+    image: amazon.jpg
+    group: Amazon Music
+```
+
+Riavvia (o ricarica template e input_select) e prova.
+
+### Non parte nulla?
+
+- Il sensore delle stazioni si chiama `sensor.radio_alexa` (dalla 1.21.1 package e documentazione lo usano; prima c'era `sensor.template_radio_alexa`, che esiste solo se importato da una vecchia installazione). Nell'automazione `Multiroom Alexa` del package l'id deve essere quello che esiste davvero nel tuo HA (Strumenti per sviluppatori > Stati). La card prova da sola entrambi gli id.
+- Guarda la traccia dell'automazione `Multiroom Alexa` quando tocchi una stazione: se `media_content_type`/`media_content_id` sono vuoti, il sensore non esiste o ha un altro id.
+- Serve Alexa Media Player funzionante e il servizio (Spotify/Amazon Music/Deezer) collegato nell'app Alexa.
 
 ## 🖊️ Editor visuale (senza YAML)
 

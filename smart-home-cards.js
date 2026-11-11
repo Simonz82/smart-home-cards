@@ -12956,7 +12956,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
     badgeLabel.textContent = powerOn ? "ON" : "OFF";
     this._root.querySelector(".shc-wr-power").classList.toggle("on", powerOn);
 
-    const sensor = hass.states[cfg.station_sensor_entity];
+    const sensor = hass.states[cfg.station_sensor_entity] || hass.states["sensor.radio_alexa"] || hass.states["sensor.template_radio_alexa"];
     const nowImg = this._root.querySelector(".shc-wr-now-img");
     const nowName = this._root.querySelector(".shc-wr-now-name");
     const nowTag = this._root.querySelector(".shc-wr-now-tag");
@@ -12998,7 +12998,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
       name: "Radio Alexa",
       power_entity: "input_boolean.web_radio_alexa",
       station_select_entity: "input_select.stazioni_radio_alexa",
-      station_sensor_entity: "sensor.template_radio_alexa",
+      station_sensor_entity: "sensor.radio_alexa",
       volume_entity: "input_number.volume_radio_alexa",
       volume_off_entity: "input_number.volume_radio_off_alexa",
       volume_off_automation: "automation.radio_off_volume_alexa",

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-11 — 1.21.1: Alexa WebRadio, sensor id fix (#18)
+
+- **Alexa WebRadio**: the package `packages/alexa_webradio.yaml` and the docs referred to `sensor.template_radio_alexa`, but the template sensor "Radio Alexa" creates `sensor.radio_alexa` on a new install, so the "Multiroom Alexa" automation got empty data and nothing played. Package and docs now use `sensor.radio_alexa`. The card default is `sensor.radio_alexa` and, if that entity does not exist, it falls back to the old `sensor.template_radio_alexa` (existing setups keep working untouched). If you copied the package before, replace `sensor.template_radio_alexa` with your real sensor id in the automation "Multiroom Alexa" (trigger and the two `play_media` templates).
+- **Docs** (`docs/alexa.md`): new sections on custom speakers (`speakers`, `option` = entry of `input_select.list_alexa_speaker_multiroom`), adding Amazon Music / Spotify / Deezer playlists (no URL needed) and troubleshooting when nothing plays.
+
 ## 2026-11-11 — 1.21.0: speaker card, TV guide warning
 
 - **New card `shc-speaker-card`** (Echo / Alexa and other speakers, any `media_player`): photo of the model (cut-out Wikimedia Commons photos, credits in [CREDITS.md](CREDITS.md); drawings for models without a free photo), animated ring while playing, title, artist and progress bar, volume slider and buttons, power, source, optional power and energy tiles, next alarm / timer / reminder and do-not-disturb / shuffle / repeat found automatically from the same device, quick text-to-speech field, visual editor, it/en/nl. Guide: [docs/altoparlante.md](docs/altoparlante.md).

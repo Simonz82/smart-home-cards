@@ -431,7 +431,7 @@ automation:
         entity_id:
           - input_boolean.web_radio_alexa
           - group.multiroom_alexa
-          - sensor.template_radio_alexa
+          - sensor.radio_alexa
     condition: []
     action:
       - choose:
@@ -448,9 +448,9 @@ automation:
               - action: media_player.play_media
                 data:
                   entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
-                  media_content_type: "{{ state_attr('sensor.template_radio_alexa', 'servizi') }}"
+                  media_content_type: "{{ state_attr('sensor.radio_alexa', 'servizi') }}"
                   media_content_id: >
-                    {{ state_attr('sensor.template_radio_alexa', 'select') }}
+                    {{ state_attr('sensor.radio_alexa', 'select') }}
 
           - conditions:
               - condition: state
