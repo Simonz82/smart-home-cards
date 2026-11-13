@@ -1,0 +1,33 @@
+# Package per la card shc-coffee-card (Smart Home Cards): notifica "caffe' pronto".
+# Cosa cambiare: sensor.macchina_caffe_potenza (potenza in W della presa smart),
+# switch.macchina_caffe (la presa) e notify.mobile_app_il_tuo_telefono.
+#
+# Logica: un picco di potenza che dura piu' di 75 s e' il riscaldamento (un caffe' dura
+# meno). Quando la potenza torna sotto soglia per 5 s la macchina e' pronta e arriva la
+# notifica. Se usi soglie diverse nella card (active_w) cambia 300 qui.
+
+automation:
+  - id: coffee_machine_ready_notify
+    alias: Macchina del caffè pronta
+    mode: single
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.macchina_caffe_potenza
+        above: 300
+        for: "00:01:15"
+    conditions:
+      - condition: state
+        entity_id: switch.macchina_caffe
+        state: "on"
+    actions:
+      - wait_for_trigger:
+          - trigger: numeric_state
+            entity_id: sensor.macchina_caffe_potenza
+            below: 300
+            for: "00:00:05"
+        timeout: "00:10:00"
+        continue_on_timeout: false
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: Macchina del caffè
+          message: Il caffè è pronto!

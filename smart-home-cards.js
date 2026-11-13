@@ -2594,6 +2594,47 @@ const SHC_I18N = {
       "wh.ed_temp": "Sensore temperatura acqua (facoltativo, per i grafici)",
       "wh.ed_power": "Potenza (W, facoltativo)",
       "wh.ed_energy": "Energia (kWh, facoltativo)",
+      "cf.name": "Macchina del caffè",
+      "cf.entity_required": "Imposta entity con la presa (switch) della macchina del caffè",
+      "cf.st_off": "Spenta",
+      "cf.st_standby": "Standby",
+      "cf.st_heating": "Riscaldamento",
+      "cf.st_brewing": "Erogazione",
+      "cf.st_ready": "Pronta",
+      "cf.state": "Stato",
+      "cf.cups_today": "Caffè oggi",
+      "cf.water": "Acqua",
+      "cf.descale": "Decalcificazione",
+      "cf.machine": "Stato macchina",
+      "cf.ok": "Ok",
+      "cf.water_refill": "Da riempire",
+      "cf.water_refill_warn": "Serbatoio dell'acqua da riempire",
+      "cf.descale_due_short": "Necessaria",
+      "cf.descale_due": "Decalcificazione necessaria",
+      "cf.ready_now": "Pronta!",
+      "cf.unreachable": "Presa della macchina non raggiungibile",
+      "cf.cups_hint": "Caffè stimati dai picchi di potenza di oggi",
+      "cf.thresholds": "Soglie standby / attiva / erogazione",
+      "cf.ed_entity": "Presa smart (switch)",
+      "cf.ed_power": "Potenza della presa (W)",
+      "cf.sec_thresholds": "Soglie di potenza e avviso",
+      "cf.ed_standby_w": "Standby fino a (W)",
+      "cf.ed_standby_hint": "Con la presa accesa, sotto questa potenza la macchina è in standby (o pronta se si è appena scaldata).",
+      "cf.ed_active_w": "Riscaldamento/erogazione da (W)",
+      "cf.ed_active_hint": "Sopra questa potenza la macchina scalda o eroga. Tra le due soglie è pronta.",
+      "cf.ed_brew_w": "Erogazione da (W, facoltativo)",
+      "cf.ed_brew_hint": "0 = distingue riscaldamento ed erogazione dalla durata del picco e dal fatto che la macchina fosse già calda.",
+      "cf.ed_min_brew": "Durata minima di un caffè (s)",
+      "cf.ed_max_brew": "Durata massima di un caffè (s)",
+      "cf.ed_ready_min": "Minuti di \"pronta\" dopo l'ultimo uso",
+      "cf.ed_ready_alert": "Evidenzia quando è pronta",
+      "cf.ed_ready_alert_hint": "Al termine del riscaldamento la card lampeggia per qualche secondo. Per la notifica sul telefono usa l'automazione in packages/coffee_pronta.yaml.",
+      "cf.sec_machine": "Macchina smart (facoltativo)",
+      "cf.ed_state": "Stato della macchina",
+      "cf.ed_cups": "Contatore caffè di oggi",
+      "cf.ed_water": "Livello acqua (% o serbatoio vuoto)",
+      "cf.ed_water_low": "Acqua bassa sotto (%)",
+      "cf.ed_descale": "Decalcificazione (necessaria o caffè mancanti)",
       "wh.ed_min": "Temperatura minima scala (vuoto = dall'entità)",
       "wh.ed_max": "Temperatura massima scala (vuoto = dall'entità)",
       "wh.mode_off": "Spento",
@@ -3668,6 +3709,47 @@ const SHC_I18N = {
       "wh.ed_temp": "Water temperature sensor (optional, for graphs)",
       "wh.ed_power": "Power (W, optional)",
       "wh.ed_energy": "Energy (kWh, optional)",
+      "cf.name": "Coffee machine",
+      "cf.entity_required": "Set entity to the coffee machine smart plug (switch)",
+      "cf.st_off": "Off",
+      "cf.st_standby": "Standby",
+      "cf.st_heating": "Heating up",
+      "cf.st_brewing": "Brewing",
+      "cf.st_ready": "Ready",
+      "cf.state": "Status",
+      "cf.cups_today": "Coffees today",
+      "cf.water": "Water",
+      "cf.descale": "Descaling",
+      "cf.machine": "Machine status",
+      "cf.ok": "OK",
+      "cf.water_refill": "Refill",
+      "cf.water_refill_warn": "Water tank needs refilling",
+      "cf.descale_due_short": "Needed",
+      "cf.descale_due": "Descaling needed",
+      "cf.ready_now": "Ready!",
+      "cf.unreachable": "Machine socket unreachable",
+      "cf.cups_hint": "Coffees estimated from today's power peaks",
+      "cf.thresholds": "Standby / active / brewing thresholds",
+      "cf.ed_entity": "Smart plug (switch)",
+      "cf.ed_power": "Plug power (W)",
+      "cf.sec_thresholds": "Power thresholds and alert",
+      "cf.ed_standby_w": "Standby up to (W)",
+      "cf.ed_standby_hint": "With the plug on, below this power the machine is in standby (or ready if it just heated up).",
+      "cf.ed_active_w": "Heating/brewing from (W)",
+      "cf.ed_active_hint": "Above this power the machine heats or brews. Between the two thresholds it is ready.",
+      "cf.ed_brew_w": "Brewing from (W, optional)",
+      "cf.ed_brew_hint": "0 = tells heating from brewing by the peak length and by whether the machine was already hot.",
+      "cf.ed_min_brew": "Minimum coffee duration (s)",
+      "cf.ed_max_brew": "Maximum coffee duration (s)",
+      "cf.ed_ready_min": "Minutes of \"ready\" after last use",
+      "cf.ed_ready_alert": "Highlight when ready",
+      "cf.ed_ready_alert_hint": "When heating ends the card pulses for a few seconds. For a phone notification use the automation in packages/coffee_pronta.yaml.",
+      "cf.sec_machine": "Smart machine (optional)",
+      "cf.ed_state": "Machine status",
+      "cf.ed_cups": "Coffees counter for today",
+      "cf.ed_water": "Water level (% or tank empty)",
+      "cf.ed_water_low": "Water low below (%)",
+      "cf.ed_descale": "Descaling (needed or coffees left)",
       "wh.ed_min": "Scale minimum temperature (empty = from entity)",
       "wh.ed_max": "Scale maximum temperature (empty = from entity)",
       "wh.mode_off": "Off",
@@ -4743,6 +4825,47 @@ const SHC_I18N = {
       "wh.ed_temp": "Watertemperatuursensor (optioneel, voor grafieken)",
       "wh.ed_power": "Vermogen (W, optioneel)",
       "wh.ed_energy": "Energie (kWh, optioneel)",
+      "cf.name": "Koffiemachine",
+      "cf.entity_required": "Stel entity in op het slimme stopcontact (switch) van de koffiemachine",
+      "cf.st_off": "Uit",
+      "cf.st_standby": "Stand-by",
+      "cf.st_heating": "Opwarmen",
+      "cf.st_brewing": "Zetten",
+      "cf.st_ready": "Klaar",
+      "cf.state": "Status",
+      "cf.cups_today": "Koffies vandaag",
+      "cf.water": "Water",
+      "cf.descale": "Ontkalken",
+      "cf.machine": "Status machine",
+      "cf.ok": "OK",
+      "cf.water_refill": "Bijvullen",
+      "cf.water_refill_warn": "Watertank moet bijgevuld worden",
+      "cf.descale_due_short": "Nodig",
+      "cf.descale_due": "Ontkalken nodig",
+      "cf.ready_now": "Klaar!",
+      "cf.unreachable": "Stopcontact van de machine niet bereikbaar",
+      "cf.cups_hint": "Koffies geschat op basis van de vermogenspieken van vandaag",
+      "cf.thresholds": "Drempels stand-by / actief / zetten",
+      "cf.ed_entity": "Slim stopcontact (switch)",
+      "cf.ed_power": "Vermogen stopcontact (W)",
+      "cf.sec_thresholds": "Vermogensdrempels en melding",
+      "cf.ed_standby_w": "Stand-by tot (W)",
+      "cf.ed_standby_hint": "Bij ingeschakeld stopcontact is de machine onder dit vermogen in stand-by (of klaar als hij net is opgewarmd).",
+      "cf.ed_active_w": "Opwarmen/zetten vanaf (W)",
+      "cf.ed_active_hint": "Boven dit vermogen warmt de machine op of zet hij koffie. Tussen de twee drempels is hij klaar.",
+      "cf.ed_brew_w": "Zetten vanaf (W, optioneel)",
+      "cf.ed_brew_hint": "0 = onderscheidt opwarmen en zetten aan de hand van de piekduur en of de machine al warm was.",
+      "cf.ed_min_brew": "Minimale duur van een koffie (s)",
+      "cf.ed_max_brew": "Maximale duur van een koffie (s)",
+      "cf.ed_ready_min": "Minuten \"klaar\" na laatste gebruik",
+      "cf.ed_ready_alert": "Markeer wanneer klaar",
+      "cf.ed_ready_alert_hint": "Na het opwarmen knippert de kaart enkele seconden. Voor een telefoonmelding gebruik je de automatisering in packages/coffee_pronta.yaml.",
+      "cf.sec_machine": "Slimme machine (optioneel)",
+      "cf.ed_state": "Status van de machine",
+      "cf.ed_cups": "Teller koffies van vandaag",
+      "cf.ed_water": "Waterniveau (% of tank leeg)",
+      "cf.ed_water_low": "Water laag onder (%)",
+      "cf.ed_descale": "Ontkalken (nodig of resterende koffies)",
       "wh.ed_min": "Minimale schaaltemperatuur (leeg = van entiteit)",
       "wh.ed_max": "Maximale schaaltemperatuur (leeg = van entiteit)",
       "wh.mode_off": "Uit",
@@ -10715,9 +10838,18 @@ class ShcUpsCard extends HTMLElement {
     return `${num}${unit ? " " + unit : ""}`;
   }
 
-  _fmtMinutes(seconds) {
-    const n = Number(seconds);
+  _fmtMinutes(input) {
+    // input: oggetto stato HA (usa unit_of_measurement) oppure valore in secondi
+    const isObj = input && typeof input === "object";
+    let n = Number(isObj ? input.state : input);
     if (!Number.isFinite(n)) return "\u2014";
+    if (isObj) {
+      const u = String(input.attributes?.unit_of_measurement || "").toLowerCase();
+      if (u === "min" || u === "mins" || u === "minutes") n *= 60;
+      else if (u === "h" || u === "hr" || u === "hours") n *= 3600;
+      else if (u === "ms") n /= 1000;
+      else if (u === "d" || u === "days") n *= 86400;
+    }
     const min = Math.round(n / 60);
     if (min < 60) return `${min} min`;
     const h = Math.floor(min / 60);
@@ -10818,8 +10950,8 @@ class ShcUpsCard extends HTMLElement {
 
     const batteriaHtml = [
       this._statRow(shcT(this._hass, "ups.charge"), val(cfg.battery_entity, 0)),
-      this._statRow(shcT(this._hass, "upscard.remaining_runtime"), this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)),
-      this._statRow(shcT(this._hass, "ups.low_battery_threshold"), this._fmtMinutes(hass.states[cfg.runtime_low_entity]?.state)),
+      this._statRow(shcT(this._hass, "upscard.remaining_runtime"), this._fmtMinutes(hass.states[cfg.runtime_entity])),
+      this._statRow(shcT(this._hass, "ups.low_battery_threshold"), this._fmtMinutes(hass.states[cfg.runtime_low_entity])),
     ].join("");
 
     const reteHtml = [
@@ -10849,7 +10981,7 @@ class ShcUpsCard extends HTMLElement {
     const statusSt = cfg.status_entity ? hass.states[cfg.status_entity] : null;
     const statusRaw = statusSt?.state ?? "\u2014";
     this._root.querySelector(".shc-u-status").textContent = statusRaw;
-    this._root.querySelector(".shc-u-runtime").textContent = this._fmtMinutes(hass.states[cfg.runtime_entity]?.state);
+    this._root.querySelector(".shc-u-runtime").textContent = this._fmtMinutes(hass.states[cfg.runtime_entity]);
     this._root.querySelector(".shc-u-voltage").textContent = this._val(hass, cfg.input_voltage_entity, 0);
 
     const powerW = cfg.power_entity ? Number(hass.states[cfg.power_entity]?.state) : NaN;
@@ -10903,7 +11035,7 @@ class ShcUpsCard extends HTMLElement {
     const card = this._root.querySelector(".shc-ap-card");
     if (onBattery) {
       warnEl.hidden = false;
-      warnEl.textContent = shcT(this._hass, "ups.running_on_battery_runtime", { "1": (this._fmtMinutes(hass.states[cfg.runtime_entity]?.state)) });
+      warnEl.textContent = shcT(this._hass, "ups.running_on_battery_runtime", { "1": (this._fmtMinutes(hass.states[cfg.runtime_entity])) });
       card.classList.add("has-alarm");
     } else {
       warnEl.hidden = true;
@@ -17172,6 +17304,503 @@ window.customCards.push({
   type: "shc-water-heater-card",
   name: "Scaldacqua a pompa di calore",
   description: "Scaldacqua / boiler a pompa di calore (water_heater) animato con gauge dritta, target +/-, modalità, fuori casa, potenza ed energia",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// shc-coffee-card: macchina del caffe' su presa smart (switch + potenza). Stati dalla potenza con
+// soglie configurabili (spenta / standby / riscaldamento / erogazione / pronta), caffe' del giorno
+// stimati dai picchi se non c'e' un contatore, entita' facoltative di macchine smart.
+// -----------------------------------------------------------------------
+
+// Macchina a stati: stessa logica per la storia di oggi (replay) e per i dati in diretta.
+class ShcCoffeeTracker {
+  constructor(cfg) {
+    this.cfg = cfg;
+    this.state = "off";
+    this.hot = false;
+    this.count = 0;
+    this.runStart = null;
+    this.runBrew = false;
+    this.lastActive = null;
+    this.dayKey = null;
+  }
+
+  level(pw) {
+    const c = this.cfg;
+    if (pw === null || pw === undefined) return "mid";
+    if (pw <= c.standby_w) return "low";
+    if (pw < c.active_w) return "mid";
+    return "high";
+  }
+
+  _endRun(t) {
+    if (this.runStart === null) return;
+    const dur = (t - this.runStart) / 1000;
+    if (this.runBrew && dur >= this.cfg.min_brew_s && dur <= this.cfg.max_brew_s) this.count++;
+    this.runStart = null;
+    this.lastActive = t;
+  }
+
+  step(t, on, pw) {
+    const c = this.cfg;
+    const key = new Date(t).toDateString();
+    if (this.dayKey && key !== this.dayKey) this.count = 0;
+    this.dayKey = key;
+    if (!on) {
+      this._endRun(t);
+      this.state = "off";
+      this.hot = false;
+      return this.state;
+    }
+    const lv = this.level(pw);
+    if (lv === "high") {
+      if (this.runStart === null) {
+        this.runStart = t;
+        this.runBrew = false;
+      }
+      if (this.hot || (c.brew_w > 0 && pw >= c.brew_w)) this.runBrew = true;
+      const dur = (t - this.runStart) / 1000;
+      this.state = this.runBrew && dur <= c.max_brew_s ? "brewing" : "heating";
+      return this.state;
+    }
+    this._endRun(t);
+    if (lv === "mid") {
+      this.hot = true;
+      this.lastActive = t;
+      this.state = "ready";
+    } else if (this.hot && this.lastActive !== null && t - this.lastActive < c.ready_min * 60000) {
+      this.state = "ready";
+    } else {
+      this.hot = false;
+      this.state = "standby";
+    }
+    return this.state;
+  }
+
+  // ms mancanti al prossimo cambio di stato che dipende solo dal tempo (null = nessuno)
+  nextTimeout(t) {
+    if (this.state === "ready" && this.hot && this.lastActive !== null && this.level(this._lastPw) === "low") {
+      return Math.max(300, this.cfg.ready_min * 60000 - (t - this.lastActive) + 300);
+    }
+    return null;
+  }
+}
+
+const CF_STYLE = `
+@keyframes shc-cf-steam{0%{transform:translateY(2px) scaleX(1);opacity:0}25%{opacity:.8}100%{transform:translateY(-14px) scaleX(1.3);opacity:0}}
+@keyframes shc-cf-pour{to{stroke-dashoffset:-14}}
+@keyframes shc-cf-fill{0%{transform:scaleY(.08)}100%{transform:scaleY(1)}}
+@keyframes shc-cf-glow{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes shc-cf-needle{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(35deg)}}
+@keyframes shc-cf-pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}50%{box-shadow:0 0 0 5px rgba(34,197,94,.38)}}
+@keyframes shc-cf-led{0%,100%{opacity:.35}50%{opacity:1}}
+.cf-steam{fill:none;stroke:#cbd5e1;stroke-width:2.4;stroke-linecap:round;opacity:0;transform-box:fill-box}
+.shc-ap-card.cf-ready .cf-steam,.shc-ap-card.cf-heating .cf-steam{animation:shc-cf-steam 2.6s ease-out infinite}
+.shc-ap-card.cf-heating .cf-steam{animation-duration:1.7s}
+.cf-stream{fill:none;stroke:#6b3f1d;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:5 4;opacity:0;transition:opacity .3s}
+.shc-ap-card.cf-brewing .cf-stream{opacity:1;animation:shc-cf-pour .5s linear infinite}
+.cf-coffee{fill:#5b3314;opacity:0;transform-box:fill-box;transform-origin:50% 100%}
+.shc-ap-card.cf-brewing .cf-coffee{opacity:1;animation:shc-cf-fill 4.5s ease-out infinite}
+.cf-boiler{fill:#fb923c;opacity:0;transition:opacity .6s}
+.shc-ap-card.cf-ready .cf-boiler{opacity:.35}
+.shc-ap-card.cf-brewing .cf-boiler{opacity:.55}
+.shc-ap-card.cf-heating .cf-boiler{opacity:1;animation:shc-cf-glow 1.4s ease-in-out infinite}
+.cf-needle{stroke:#ef4444;stroke-width:1.8;stroke-linecap:round;transform-origin:84px 55px;transform:rotate(-50deg);transition:transform .9s}
+.shc-ap-card.cf-standby .cf-needle{transform:rotate(-40deg)}
+.shc-ap-card.cf-ready .cf-needle{transform:rotate(5deg)}
+.shc-ap-card.cf-brewing .cf-needle{transform:rotate(40deg)}
+.shc-ap-card.cf-heating .cf-needle{animation:shc-cf-needle 2.2s ease-in-out infinite}
+.cf-disp{font:900 10.5px/1 system-ui,sans-serif;fill:#38bdf8;letter-spacing:.02em}
+.shc-ap-card.cf-heating .cf-disp{fill:#fb923c}
+.shc-ap-card.cf-brewing .cf-disp{fill:#fbbf24}
+.shc-ap-card.cf-ready .cf-disp{fill:#4ade80}
+.shc-ap-card.is-off .cf-disp,.shc-ap-card.is-unavailable .cf-disp{fill:#94a3b8}
+.cf-led{fill:#94a3b8}
+.shc-ap-card.cf-standby .cf-led{fill:#eab308;animation:shc-cf-led 2.4s ease-in-out infinite}
+.shc-ap-card.cf-ready .cf-led{fill:#22c55e}
+.shc-ap-card.cf-heating .cf-led{fill:#f97316}
+.shc-ap-card.cf-brewing .cf-led{fill:#0ea5e9}
+.shc-ap-card.cf-heating .shc-cl-chip ha-icon{color:#f97316}
+.shc-ap-card.cf-brewing .shc-cl-chip ha-icon{color:#b45309}
+.shc-ap-card.cf-ready .shc-cl-chip ha-icon{color:#16a34a}
+.shc-ap-card.cf-standby .shc-cl-chip ha-icon{color:#ca8a04}
+.shc-ap-card.cf-alert{animation:shc-cf-pulse 1.1s ease-in-out infinite}
+.cf-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:4px}
+.cf-step{padding:3px 8px;border-radius:999px;background:var(--shc-soft);color:var(--shc-dim);font-size:10.5px;font-weight:800;opacity:.7;white-space:nowrap}
+.cf-step.on{opacity:1;color:#fff}
+.cf-step.on[data-s=off]{background:#94a3b8}
+.cf-step.on[data-s=standby]{background:#ca8a04}
+.cf-step.on[data-s=heating]{background:#f97316}
+.cf-step.on[data-s=brewing]{background:#b45309}
+.cf-step.on[data-s=ready]{background:#16a34a}
+`;
+
+function cfHeroSvg(id) {
+  const steam = [[102, 0], [120, 0.8], [138, 1.5]];
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shcf-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shcf-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c7d1dd"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#eef2f6"/><stop offset="1" stop-color="#b9c4d1"/></linearGradient>
+      <clipPath id="shcf-cup-${id}"><path d="M105 108h30v8a12 12 0 0 1-12 12h-6a12 12 0 0 1-12-12z"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="150" rx="72" ry="6" fill="#0f172a" opacity=".16" filter="url(#shcf-blur-${id})"/>
+    <g>${steam.map(([x, d]) => `<path class="cf-steam" style="animation-delay:${d}s" d="M${x} 20c-5-4 5-8 0-12"/>`).join("")}</g>
+    <rect x="62" y="20" width="116" height="12" rx="6" fill="url(#shcf-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.2"/>
+    <rect x="56" y="30" width="128" height="98" rx="12" fill="url(#shcf-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="66" y="37" width="108" height="38" rx="8" fill="#1f2937"/>
+    <rect x="116" y="43" width="50" height="17" rx="4" fill="#0f172a" opacity=".95"/>
+    <text class="cf-disp" x="141" y="54.5" text-anchor="middle">--</text>
+    <circle cx="84" cy="55" r="13" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2"/>
+    <line class="cf-needle" x1="84" y1="55" x2="84" y2="46"/>
+    <circle cx="84" cy="55" r="2.2" fill="#475569"/>
+    <circle class="cf-led" cx="158" cy="67" r="2.2"/>
+    <rect x="68" y="82" width="24" height="36" rx="6" fill="#111827"/>
+    <rect class="cf-boiler" x="68" y="82" width="24" height="36" rx="6"/>
+    <path d="M73 92h14M87 92c4 0 4 7 0 7H73c-4 0-4 7 0 7h14" fill="none" stroke="#fdba74" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>
+    <rect x="102" y="78" width="36" height="13" rx="4" fill="#94a3b8" stroke="#64748b" stroke-width=".8"/>
+    <rect x="112" y="91" width="4" height="6" rx="1.5" fill="#64748b"/><rect x="124" y="91" width="4" height="6" rx="1.5" fill="#64748b"/>
+    <path class="cf-stream" d="M114 97V112"/><path class="cf-stream" style="animation-delay:.15s" d="M126 97V112"/>
+    <path d="M170 82v26l5 6" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+    <rect x="62" y="126" width="116" height="10" rx="3" fill="#64748b"/>
+    <path d="M70 131h100" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="6 3" opacity=".7"/>
+    <path d="M135 111h3a5 5 0 0 1 0 10h-3" fill="none" stroke="#e2e8f0" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M105 108h30v8a12 12 0 0 1-12 12h-6a12 12 0 0 1-12-12z" fill="#f8fafc" stroke="#94a3b8" stroke-width="1"/>
+    <rect class="cf-coffee" x="105" y="108" width="30" height="20" clip-path="url(#shcf-cup-${id})"/>
+    <rect x="70" y="136" width="10" height="6" rx="2" fill="#475569"/><rect x="160" y="136" width="10" height="6" rx="2" fill="#475569"/>
+  </svg>`;
+}
+
+const CF_STATES = ["off", "standby", "heating", "brewing", "ready"];
+
+class ShcCoffeeCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "cf.entity_required"));
+    this._config = {
+      name: shcT(this._hass, "cf.name"),
+      layout: "centrato",
+      standby_w: 10,
+      active_w: 300,
+      brew_w: 0,
+      min_brew_s: 8,
+      max_brew_s: 70,
+      ready_min: 20,
+      water_low: 15,
+      ready_alert: false,
+      ...config,
+    };
+    for (const k of ["standby_w", "active_w", "brew_w", "min_brew_s", "max_brew_s", "ready_min", "water_low"]) {
+      const n = Number(this._config[k]);
+      this._config[k] = Number.isFinite(n) ? n : 0;
+    }
+    this._cf = new ShcCoffeeTracker(this._config);
+    this._seededDay = null;
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    const row = (cls, icon, key) =>
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(shcT(this._hass, key))}</small></span><b class="${cls}">—</b></div>`;
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${CF_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-cf-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || "mdi:coffee-maker")}"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${cfHeroSvg(this._uid)}</div>
+            <div class="cf-steps">${CF_STATES.map((s) => `<span class="cf-step" data-s="${s}" data-i18n="cf.st_${s}">${esc(shcT(this._hass, "cf.st_" + s))}</span>`).join("")}</div>
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap" data-i18n="cf.name">${esc(shcT(this._hass, "cf.name"))}</span>
+            <div class="shc-ap-cycle-list">
+              ${row("cf-r-state", "mdi:coffee-maker-outline", "cf.state")}
+              ${row("cf-r-pow", "mdi:flash", "appledit.power")}
+              ${row("cf-r-cups", "mdi:coffee", "cf.cups_today")}
+              ${row("cf-r-water", "mdi:water", "cf.water")}
+              ${row("cf-r-desc", "mdi:spray-bottle", "cf.descale")}
+              ${row("cf-r-machine", "mdi:information-outline", "cf.machine")}
+              ${row("cf-r-en", "mdi:lightning-bolt-circle", "wh.energy")}
+            </div>
+          </div>
+        </div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    const bind = this._commonBind();
+    bind(".shc-dv-info", () => this._openInfo());
+  }
+
+  disconnectedCallback() {
+    clearTimeout(this._tick);
+    clearTimeout(this._alertT);
+  }
+
+  _graphSeries() {
+    const cfg = this._config;
+    const s = [];
+    if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f97316" });
+    if (cfg.energy_entity) s.push({ key: "energy", entity: cfg.energy_entity, label: shcT(this._hass, "wh.energy"), color: "#0ea5e9" });
+    return s;
+  }
+
+  // storia di oggi (presa + potenza) rigiocata nella stessa macchina a stati: caffe' del giorno e stato corrente
+  async _seed() {
+    const cfg = this._config;
+    const day = new Date().toDateString();
+    if (this._seeding || this._seededDay === day) return;
+    this._seeding = true;
+    try {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      const ids = [cfg.entity, cfg.power_entity].filter(Boolean);
+      const res = await this._hass.connection.sendMessagePromise({
+        type: "history/history_during_period",
+        start_time: start.toISOString(),
+        end_time: new Date().toISOString(),
+        entity_ids: ids,
+        minimal_response: true,
+        no_attributes: true,
+        significant_changes_only: false,
+      });
+      const ev = [];
+      for (const id of ids) {
+        for (const r of res?.[id] || []) {
+          const ts = r.lu ?? r.last_updated_ts ?? (r.last_updated ? Date.parse(r.last_updated) / 1000 : null);
+          if (ts === null || ts === undefined) continue;
+          ev.push({ t: Math.max(ts * 1000, start.getTime()), sw: id === cfg.entity, v: r.s ?? r.state });
+        }
+      }
+      ev.sort((a, b) => a.t - b.t);
+      // buchi di potenza piu' brevi di 4 s tra due picchi non chiudono l'erogazione
+      const tr = new ShcCoffeeTracker(this._config);
+      let on = null;
+      let pw = null;
+      const isHigh = (v) => v !== null && v >= cfg.active_w;
+      for (let i = 0; i < ev.length; i++) {
+        const e = ev[i];
+        if (e.sw) on = e.v === "on" ? true : e.v === "off" ? false : on;
+        else {
+          const n = Number(e.v);
+          const v = e.v === "unavailable" || e.v === "unknown" || !Number.isFinite(n) ? null : n;
+          if (isHigh(pw) && !isHigh(v)) {
+            const nxt = ev.slice(i + 1).find((x) => !x.sw && isHigh(Number(x.v)));
+            if (nxt && nxt.t - e.t < 4000) continue;
+          }
+          pw = v;
+        }
+        if (on === null && !cfg.power_entity) continue;
+        tr.step(e.t, on === null ? true : on, pw);
+      }
+      tr._lastPw = pw;
+      this._cf = tr;
+      this._seededDay = day;
+    } catch (err) {
+      this._seededDay = day;
+    }
+    this._seeding = false;
+    if (this._hass) this.hass = this._hass;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const q = (sel) => this._root.querySelector(sel);
+    const st = this._st();
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const now = Date.now();
+    if (!unav && this._seededDay !== new Date(now).toDateString() && !this._seeding && hass.connection?.sendMessagePromise) this._seed();
+
+    const pw = this._val(cfg.power_entity);
+    const tr = this._cf;
+    const prev = tr.state;
+    const lv = tr.level(pw);
+    if (!unav) {
+      // un calo di potenza sotto soglia breve (< 4 s) non chiude subito l'erogazione/riscaldamento
+      if (tr.runStart !== null && lv !== "high" && st.state === "on" && now - (this._lastHigh || 0) < 4000) {
+        clearTimeout(this._tick);
+        this._tick = setTimeout(() => this._hass && (this.hass = this._hass), 4200 - (now - this._lastHigh));
+      } else {
+        if (lv === "high") this._lastHigh = now;
+        tr._lastPw = pw;
+        tr.step(now, st.state === "on", pw);
+        const wait = tr.nextTimeout(now);
+        clearTimeout(this._tick);
+        if (wait) this._tick = setTimeout(() => this._hass && (this.hass = this._hass), wait);
+      }
+    }
+    const s = unav ? "unavailable" : tr.state;
+    if (!unav && prev === "heating" && s === "ready" && cfg.ready_alert && this._seededDay) {
+      this._alertUntil = now + 10000;
+      clearTimeout(this._alertT);
+      this._alertT = setTimeout(() => this._hass && (this.hass = this._hass), 10200);
+    }
+    const alert = !unav && s === "ready" && (this._alertUntil || 0) > now;
+
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "cf-off", "cf-standby", "cf-heating", "cf-brewing", "cf-ready", "cf-alert");
+    card.classList.add(unav ? "is-unavailable" : s === "off" ? "is-off" : "is-run");
+    if (!unav) card.classList.add("cf-" + s);
+    if (alert) card.classList.add("cf-alert");
+
+    const label = (x) => shcT(this._hass, "cf.st_" + x);
+    this._setBadge(unav ? "unavailable" : s === "off" ? "off" : s === "standby" ? "standby" : "run", unav ? "OFFLINE" : alert ? shcT(this._hass, "cf.ready_now") : label(s));
+    const watts = pw === null ? null : pw >= 1000 ? `${clNum(pw / 1000, 1)}kW` : `${clNum(pw, 0)}W`;
+    q(".cf-disp").textContent = unav ? "--" : s === "off" ? "OFF" : watts ?? "ON";
+    this._root.querySelectorAll(".cf-step").forEach((el) => el.classList.toggle("on", !unav && el.dataset.s === s));
+
+    q(".cf-r-state").textContent = unav ? "—" : label(s);
+    q(".cf-r-pow").textContent = pw !== null ? `${clNum(pw, 0)} W` : "—";
+    q(".cf-r-pow").closest(".shc-ap-cycle-row").hidden = !cfg.power_entity;
+
+    // caffe' di oggi: contatore dell'entita' se c'e', altrimenti stima dai picchi di potenza
+    let cups = "—";
+    if (cfg.cups_entity && this._has(cfg.cups_entity)) {
+      const cv = this._val(cfg.cups_entity);
+      cups = cv !== null ? clNum(cv, 0) : "—";
+    } else if (cfg.power_entity) {
+      cups = this._seededDay ? `~${tr.count}` : "…";
+    }
+    q(".cf-r-cups").textContent = cups;
+    q(".cf-r-cups").closest(".shc-ap-cycle-row").hidden = !cfg.cups_entity && !cfg.power_entity;
+
+    // acqua e decalcificazione (facoltativi)
+    const lowWater = this._waterLow();
+    const water = cfg.water_entity ? hass.states[cfg.water_entity] : null;
+    const wn = this._val(cfg.water_entity);
+    q(".cf-r-water").textContent = !water ? "—" : wn !== null ? `${clNum(wn, 0)}${water.attributes?.unit_of_measurement ? " " + water.attributes.unit_of_measurement : ""}` : lowWater ? shcT(this._hass, "cf.water_refill") : shcT(this._hass, "cf.ok");
+    q(".cf-r-water").closest(".shc-ap-cycle-row").hidden = !cfg.water_entity || !water;
+    const desc = cfg.descale_entity ? hass.states[cfg.descale_entity] : null;
+    const descDue = this._descaleDue();
+    q(".cf-r-desc").textContent = !desc ? "—" : this._isNum(desc.state) ? `${clNum(Number(desc.state), 0)}${desc.attributes?.unit_of_measurement ? " " + desc.attributes.unit_of_measurement : ""}` : descDue ? shcT(this._hass, "cf.descale_due_short") : shcT(this._hass, "cf.ok");
+    q(".cf-r-desc").closest(".shc-ap-cycle-row").hidden = !cfg.descale_entity || !desc;
+    const ms = cfg.state_entity ? hass.states[cfg.state_entity] : null;
+    q(".cf-r-machine").textContent = ms && !["unknown", "unavailable"].includes(ms.state) ? this._pretty(ms.state) : "—";
+    q(".cf-r-machine").closest(".shc-ap-cycle-row").hidden = !cfg.state_entity || !ms;
+    const en = this._val(cfg.energy_entity);
+    q(".cf-r-en").textContent = en !== null ? `${clNum(en, 1)} kWh` : "—";
+    q(".cf-r-en").closest(".shc-ap-cycle-row").hidden = !cfg.energy_entity;
+
+    q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
+    this._setWarn(unav ? shcT(this._hass, "cf.unreachable") : lowWater ? shcT(this._hass, "cf.water_refill_warn") : descDue ? shcT(this._hass, "cf.descale_due") : "");
+    this._liveRefresh([cfg.entity, cfg.power_entity, cfg.energy_entity, cfg.cups_entity, cfg.water_entity, cfg.descale_entity, cfg.state_entity]);
+  }
+
+  _isNum(v) {
+    return v !== "" && v !== null && v !== undefined && Number.isFinite(Number(v));
+  }
+
+  _pretty(v) {
+    const s = String(v).replace(/_/g, " ");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  _onLike(v) {
+    return ["on", "true", "needed", "required", "due", "low", "empty"].includes(String(v).toLowerCase());
+  }
+
+  _waterLow() {
+    const cfg = this._config;
+    const w = cfg.water_entity ? this._hass?.states[cfg.water_entity] : null;
+    if (!w || ["unknown", "unavailable"].includes(w.state)) return false;
+    if (this._isNum(w.state)) return Number(w.state) <= cfg.water_low;
+    return this._onLike(w.state);
+  }
+
+  _descaleDue() {
+    const cfg = this._config;
+    const d = cfg.descale_entity ? this._hass?.states[cfg.descale_entity] : null;
+    if (!d || ["unknown", "unavailable"].includes(d.state) || this._isNum(d.state)) return false;
+    return this._onLike(d.state);
+  }
+
+  // Stato
+  _openInfo() {
+    const cfg = this._config;
+    const st = this._st();
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const s = unav ? null : this._cf.state;
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—");
+    const more = (label, entity, text) =>
+      entity && this._has(entity) ? `<div class="shc-ap-row" data-more="${esc(entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(label)}</span>${this._valHtml(text)}</div>` : "";
+    const stOf = (e) => this._hass.states[e];
+    const withUnit = (e) => (stOf(e) ? `${stOf(e).state}${stOf(e).attributes?.unit_of_measurement ? " " + stOf(e).attributes.unit_of_measurement : ""}` : "");
+    const rows = [
+      this._row(shcT(this._hass, "fritz.status"), this._valHtml(unav ? shcT(this._hass, "cf.unreachable") : shcT(this._hass, "cf.st_" + s))),
+      more(shcT(this._hass, "appledit.power"), cfg.power_entity, withUnit(cfg.power_entity)),
+      cfg.cups_entity && this._has(cfg.cups_entity)
+        ? more(shcT(this._hass, "cf.cups_today"), cfg.cups_entity, withUnit(cfg.cups_entity))
+        : cfg.power_entity
+          ? this._row(shcT(this._hass, "cf.cups_today"), this._valHtml(`~${this._cf.count}`))
+          : "",
+      cfg.power_entity && !cfg.cups_entity ? `<div class="shc-ap-row"><span class="shc-ap-row-label" style="font-weight:600;font-size:12px;opacity:.75">${esc(shcT(this._hass, "cf.cups_hint"))}</span></div>` : "",
+      more(shcT(this._hass, "cf.water"), cfg.water_entity, withUnit(cfg.water_entity)),
+      more(shcT(this._hass, "cf.descale"), cfg.descale_entity, withUnit(cfg.descale_entity)),
+      more(shcT(this._hass, "cf.machine"), cfg.state_entity, stOf(cfg.state_entity) ? this._pretty(stOf(cfg.state_entity).state) : ""),
+      more(shcT(this._hass, "wh.energy"), cfg.energy_entity, withUnit(cfg.energy_entity)),
+      this._row(shcT(this._hass, "cf.thresholds"), this._valHtml(`${cfg.standby_w} / ${cfg.active_w}${cfg.brew_w > 0 ? " / " + cfg.brew_w : ""} W`)),
+      st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
+      this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`),
+    ].join("");
+    const html = `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "cf.name"))}</div>${rows}</div>`;
+    this._openDialog(shcT(this._hass, "fritz.status"), html, () => this._openInfo());
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-coffee-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("switch.")) || "switch.macchina_caffe";
+    return { name: shcT(hass, "cf.name"), entity: e, power_entity: "sensor.macchina_caffe_potenza" };
+  }
+}
+
+class ShcCoffeeCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    return [
+      { title: shcT(this._hass, "fritzcard.basic"), fields: [
+        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "cf.name") },
+        { key: "entity", label: shcT(this._hass, "cf.ed_entity"), domain: ["switch", "input_boolean"], required: true },
+        { key: "power_entity", label: shcT(this._hass, "cf.ed_power"), domain: ["sensor"] },
+        { key: "energy_entity", label: shcT(this._hass, "wh.ed_energy"), domain: ["sensor"] },
+        { key: "icon", label: shcT(this._hass, "wh.ed_icon"), kind: "text", placeholder: "mdi:coffee-maker" },
+      ]},
+      { title: shcT(this._hass, "cf.sec_thresholds"), fields: [
+        { key: "standby_w", label: shcT(this._hass, "cf.ed_standby_w"), kind: "number", hint: shcT(this._hass, "cf.ed_standby_hint") },
+        { key: "active_w", label: shcT(this._hass, "cf.ed_active_w"), kind: "number", hint: shcT(this._hass, "cf.ed_active_hint") },
+        { key: "brew_w", label: shcT(this._hass, "cf.ed_brew_w"), kind: "number", hint: shcT(this._hass, "cf.ed_brew_hint") },
+        { key: "min_brew_s", label: shcT(this._hass, "cf.ed_min_brew"), kind: "number" },
+        { key: "max_brew_s", label: shcT(this._hass, "cf.ed_max_brew"), kind: "number" },
+        { key: "ready_min", label: shcT(this._hass, "cf.ed_ready_min"), kind: "number" },
+        { key: "ready_alert", label: shcT(this._hass, "cf.ed_ready_alert"), kind: "bool", hint: shcT(this._hass, "cf.ed_ready_alert_hint") },
+      ]},
+      { title: shcT(this._hass, "cf.sec_machine"), fields: [
+        { key: "state_entity", label: shcT(this._hass, "cf.ed_state"), domain: ["sensor", "select", "binary_sensor"] },
+        { key: "cups_entity", label: shcT(this._hass, "cf.ed_cups"), domain: ["sensor", "counter", "input_number"] },
+        { key: "water_entity", label: shcT(this._hass, "cf.ed_water"), domain: ["sensor", "binary_sensor"] },
+        { key: "water_low", label: shcT(this._hass, "cf.ed_water_low"), kind: "number" },
+        { key: "descale_entity", label: shcT(this._hass, "cf.ed_descale"), domain: ["sensor", "binary_sensor"] },
+      ]},
+      { title: shcT(this._hass, "climatecard.other"), fields: [
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-coffee-card-editor", ShcCoffeeCardEditor);
+customElements.define("shc-coffee-card", ShcCoffeeCard);
+window.customCards.push({
+  type: "shc-coffee-card",
+  name: "Macchina del caffè",
+  description: "Macchina del caffè su presa smart: stato dalla potenza (spenta, standby, riscaldamento, erogazione, pronta), caffè del giorno stimati, acqua e decalcificazione se disponibili",
   author: "Simonz82",
 });
 

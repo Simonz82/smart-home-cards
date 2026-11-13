@@ -53,7 +53,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"UPS"** �
 | `status_code_entity` | No | — | Codice di stato grezzo, se la tua integrazione lo espone separatamente dal testo |
 | `battery_entity` | No | — | `sensor` percentuale di carica batteria |
 | `load_entity` | No | — | `sensor` percentuale di carico attuale |
-| `runtime_entity` | No | — | `sensor` autonomia residua stimata (minuti) |
+| `runtime_entity` | No | — | `sensor` autonomia residua stimata (secondi, minuti o ore: la card legge l'unità di misura del sensore; senza unità si considerano secondi) |
 | `runtime_low_entity` | No | — | Soglia di autonomia minima configurata sull'UPS stesso, se esposta |
 | `input_voltage_entity` | No | — | `sensor` tensione di rete in ingresso |
 | `power_entity` | No | — | `sensor` in Watt, se hai anche una presa smart che misura il consumo reale collegato all'UPS (più preciso della sola percentuale di carico) |

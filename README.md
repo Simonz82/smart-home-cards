@@ -19,7 +19,7 @@
 ## 🇬🇧 English
 
 ### What is it?
-Beautiful, complete Lovelace cards for Home Assistant. One JavaScript file, 19 cards, a built-in visual editor (no YAML needed), a settings pop-up and a statistics pop-up on every card. Works on desktop and phone.
+Beautiful, complete Lovelace cards for Home Assistant. One JavaScript file, 20 cards, a built-in visual editor (no YAML needed), a settings pop-up and a statistics pop-up on every card. Works on desktop and phone.
 
 Tap a card to open its guide.
 
@@ -89,6 +89,11 @@ Tap a card to open its guide.
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/tv-telecomando.gif" width="100%" alt="📺 TV + Samsung remote"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md">📺 TV + Samsung remote</a></b></sub></td>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/tv-epg.gif" width="100%" alt="📺 TV + TV guide (EPG)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md">📺 TV + TV guide (EPG)</a></b></sub></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/macchina-caffe.gif" width="100%" alt="☕ Coffee machine"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md">☕ Coffee machine</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>All previews are animated and show the cards switched on, with sample data.</sub>
@@ -139,6 +144,18 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Notification center](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md)
 - [Alexa (text, memo, web radio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Speaker (Echo / Alexa and other speakers)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
+- [Coffee machine (smart plug: off, standby, heating, brewing, ready)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+
+Example, coffee machine on a smart plug (states from the power draw, thresholds in W):
+
+```yaml
+type: custom:shc-coffee-card
+entity: switch.coffee_machine
+power_entity: sensor.coffee_machine_power
+standby_w: 10
+active_w: 300
+ready_alert: true
+```
 
 Also: [layouts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [charts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [custom notifications](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [TV guide and remote](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
 
@@ -166,7 +183,7 @@ All cards and their editors follow the language of Home Assistant: **Italian, En
 ## 🇮🇹 Italiano
 
 ### Che cos'è?
-Card Lovelace belle e complete per Home Assistant. Un solo file JavaScript, 19 card, editor visuale integrato (niente YAML obbligatorio), popup Impostazioni e Statistiche su ogni card. Funziona su PC e cellulare.
+Card Lovelace belle e complete per Home Assistant. Un solo file JavaScript, 20 card, editor visuale integrato (niente YAML obbligatorio), popup Impostazioni e Statistiche su ogni card. Funziona su PC e cellulare.
 
 Tocca una card per aprire la sua guida.
 
@@ -236,6 +253,11 @@ Tocca una card per aprire la sua guida.
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/tv-telecomando.gif" width="100%" alt="📺 TV + telecomando Samsung"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md">📺 TV + telecomando Samsung</a></b></sub></td>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/tv-epg.gif" width="100%" alt="📺 TV + guida TV (EPG)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md">📺 TV + guida TV (EPG)</a></b></sub></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/macchina-caffe.gif" width="100%" alt="☕ Macchina del caffè"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md">☕ Macchina del caffè</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>Tutte le anteprime sono animate e mostrano le card accese, con dati di esempio.</sub>
@@ -286,6 +308,18 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Centro notifiche](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md)
 - [Alexa (testo, memo, webradio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Altoparlante (Echo / Alexa e altri altoparlanti)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
+- [Macchina del caffè (presa smart: spenta, standby, riscaldamento, erogazione, pronta)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+
+Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W):
+
+```yaml
+type: custom:shc-coffee-card
+entity: switch.macchina_caffe
+power_entity: sensor.macchina_caffe_potenza
+standby_w: 10
+active_w: 300
+ready_alert: true
+```
 
 Anche: [layout](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [grafici](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [notifiche personalizzate](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [guida TV e telecomando](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **New card `shc-coffee-card`** (coffee machine on a smart plug): states from the power draw with configurable thresholds (off / standby / heating / brewing / ready), animated drawing, today's coffees estimated from the power peaks (or the counter entity), optional water level, descaling, machine status and energy, optional "ready" highlight. No control buttons. Docs: [docs/macchina-caffe.md](docs/macchina-caffe.md), example automation `packages/coffee_pronta.yaml`. Texts in it, en and nl.
+- **UPS card** (#23): the remaining runtime now follows the `unit_of_measurement` of the sensor (`s`, `min`, `h`, `ms`, `d`); before it always assumed seconds, so a NUT sensor in minutes showed "2 min" instead of 87.
+
 ## 2026-11-11 — 1.21.1: Alexa WebRadio, sensor id fix (#18)
 
 - **Alexa WebRadio**: the package `packages/alexa_webradio.yaml` and the docs referred to `sensor.template_radio_alexa`, but the template sensor "Radio Alexa" creates `sensor.radio_alexa` on a new install, so the "Multiroom Alexa" automation got empty data and nothing played. Package and docs now use `sensor.radio_alexa`. The card default is `sensor.radio_alexa` and, if that entity does not exist, it falls back to the old `sensor.template_radio_alexa` (existing setups keep working untouched). If you copied the package before, replace `sensor.template_radio_alexa` with your real sensor id in the automation "Multiroom Alexa" (trigger and the two `play_media` templates).
