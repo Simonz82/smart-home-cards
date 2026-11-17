@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2026-11-17 — 1.22.0: purifier, dehumidifier, printer and coffee cards, server CPU temperature, UPS runtime fix (#17, #19, #21, #23)
 
 - **New card `shc-purifier-card`** (air purifier, `fan.*`): animated drawing (spinning fan, particles coloured by air quality, clean air going out), on/off, speed slider and preset-mode chips, optional PM2.5, air quality, filter life, humidity, temperature and power, warnings for low filter and high PM2.5. Docs: [docs/purificatore.md](docs/purificatore.md). Requested in #17.
 - **New card `shc-dehumidifier-card`** (`humidifier.*`, or a plain switch with separate entities such as Tuya devices): on/off, target humidity -/+, mode and fan-speed chips (`select` entities or the humidifier modes), full-tank warning, current humidity, power and energy. Docs: [docs/deumidificatore.md](docs/deumidificatore.md). Requested in #17.
