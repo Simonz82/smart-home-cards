@@ -57,7 +57,11 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 | `show_samsung_remote: true` | mostra il telecomando sotto la card (solo con `artwork: tv`) |
 | `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
 | `epg_channels` | Elenco canali per la guida TV (EPG): `[{number, name, id}]`, `id: null` = canale senza guida. Con l'elenco la card mostra sotto la barra della potenza la riga del canale in onda e i pulsanti Telecomando / EPG (con `epg_channels` `samsung_remote_position` non serve: il telecomando si apre dal pulsante). Senza elenco la card resta identica. Sensori attesi: `sensor.<id>_program_current`, `_upcoming` e, se presente, `_primetime` (scheda "Prima serata"). Logo: automatico da `image.<id>_icon` (opzione "enable_channel_icons" dell'integrazione XMLTV EPG) oppure campo facoltativo `logo` (URL) per canale; senza logo resta il numero |
-| `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
+| `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa `shared_channel_entity` (se impostato) e poi l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
+| `shared_channel_entity` | `input_text` / `input_number` (anche `text` / `number`) dove la card scrive l'ultimo canale scelto (tocco nell'EPG o tasti numerici del telecomando); tutti i dispositivi lo leggono e mostrano lo stesso canale. **Consigliato con SamsungTV Smart**, dove non c'è un sensore del canale. Il canale rilevato da `channel_entity` / `channel_name_entity` ha sempre la precedenza; senza questa opzione resta il ricordo nel browser (1.23.0) |
+| `epg_dtv_source` | Nome della sorgente TV digitale (es. `TV`, `TV Digitale`). Se è impostata, toccando un canale nell'EPG la card, quando la TV sta usando un'app o un'altra sorgente, fa prima `select_source`, attende il cambio e poi invia il canale. A TV spenta non fa nulla (la card non accende mai la TV) (1.23.0) |
+| `epg_source_delay` | Millisecondi di attesa dopo il cambio sorgente prima di inviare il canale (default `1500`). La card aspetta che l'attributo `source` cambi (massimo 4 s); se l'integrazione non lo aggiorna invia comunque (1.23.0) |
+| `epg_dtv_aliases` | Altri nomi che la tua TV usa per la sorgente digitale (es. `["TV Digitale", "DTV"]`). Si sommano a quelli predefiniti (`TV`, `Digital TV`, `Live TV`, `TV/HDMI`) e a `epg_dtv_source` (1.23.0) |
 | `remote_mode`, `epg_mode` | `inline` (predefinito: sotto la card) oppure `popup` (novità 1.20.0: il telecomando / la guida EPG si aprono in un pop-up dai pulsanti grandi **Telecomando** ed **EPG**, la card non si allunga) |
 | `samsung_entity` | `media_player` della TV, se diverso da `live.state_entity` (se manca si usa quello) |
 | `samsung_remote_entity` | entità `remote` per inviare i tasti con `remote.send_command` invece di `play_media` |
@@ -103,3 +107,26 @@ show_samsung_remote: true
 ### Telecomando ed EPG in pop-up (1.20.0)
 
 Con `remote_mode: popup` e/o `epg_mode: popup` i pulsanti grandi **Telecomando** ed **EPG** aprono un pop-up invece di allungare la card.
+
+### SamsungTV Smart senza SmartThings, canale condiviso e cambio sorgente (1.23.0)
+
+SamsungTV Smart non espone il canale in onda e SmartThings sta per diventare a pagamento: la configurazione consigliata **non usa** `channel_entity` / `channel_name_entity` ma un helper condiviso. Crea un `input_text` (Impostazioni → Dispositivi e servizi → Helper → Testo, lunghezza massima 10) e indicalo nella card:
+
+```yaml
+type: custom:shc-appliance-clone-card
+artwork: tv
+name: TV
+samsung_entity: media_player.tv
+shared_channel_entity: input_text.tv_canale_condiviso   # consigliato: stesso canale su tutti i telefoni
+epg_dtv_source: TV                                      # sorgente del digitale terrestre (come in source_list)
+epg_source_delay: 1500                                  # ms dopo il cambio sorgente
+epg_dtv_aliases: ["TV Digitale"]                        # altri nomi della sorgente digitale (facoltativo)
+epg_channels:
+  - { number: 1, name: Rai 1, id: rai_1 }
+  - { number: 5, name: Canale 5, id: canale_5 }
+```
+
+- **Canale condiviso**: ogni volta che scegli un canale dall'EPG o digiti il numero sul telecomando della card, il valore viene scritto nell'helper; gli altri dispositivi lo mostrano subito. Se cambi canale con il telecomando fisico la card non può saperlo (la TV non lo comunica), quindi mostra l'ultimo canale scelto dalla dashboard.
+- **Cambio sorgente**: con `epg_dtv_source` impostato, un canale scelto mentre guardi Netflix, Prime o un ingresso HDMI porta prima la TV sul digitale e poi invia il canale. Se la TV è spenta non viene inviato nulla. I nomi delle sorgenti sono quelli dell'attributo `source_list` del tuo `media_player`.
+- **Pannello sotto la card**: mostra *TV spenta* quando la TV è spenta, *Stato della TV non disponibile* se l'entità non risponde, e con un'app attiva il nome dell'app con il titolo e l'immagine se l'integrazione li espone (se non li espone, solo il nome). Per sorgenti non riconosciute mostra il nome della sorgente invece di informazioni inventate.
+- Tutte le opzioni sono nell'editor visuale (sezione Guida TV / EPG) e opzionali: senza, non cambia nulla.

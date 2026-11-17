@@ -915,6 +915,7 @@ const STYLE = `
 .shc-epg-lg.ph{visibility:hidden}
 .shc-epg-lg img{max-width:100%;max-height:100%;object-fit:contain;padding:2px;box-sizing:border-box}
 .shc-epg-nm{display:flex;align-items:center;gap:8px;min-width:0}
+.shc-epg-apic{width:28px;height:28px;border-radius:6px;object-fit:cover;flex:0 0 auto}
 .shc-epg-btns{display:flex;gap:8px}
 .shc-epg-btns[hidden]{display:none}
 .shc-epg-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;height:38px;border:1px solid var(--shc-border);border-radius:11px;background:var(--shc-card);color:var(--shc-dim);font-weight:800;font-size:13px;cursor:pointer}
@@ -1904,6 +1905,8 @@ const SHC_I18N = {
       "tv.guide": "Guida TV",
       "tv.epg": "EPG",
       "tv.epg_down": "Guida TV non disponibile: controlla l'integrazione XMLTV EPG",
+      "tv.epg_off": "TV spenta",
+      "tv.epg_unknown": "Stato della TV non disponibile",
       "tv.mode_popup": "Pop-up",
       "tv.mode_inline": "Sotto la card",
       "tv.remote_mode": "Apertura del telecomando",
@@ -3019,6 +3022,8 @@ const SHC_I18N = {
       "tv.guide": "TV guide",
       "tv.epg": "EPG",
       "tv.epg_down": "TV guide not available: check the XMLTV EPG integration",
+      "tv.epg_off": "TV off",
+      "tv.epg_unknown": "TV status not available",
       "tv.mode_popup": "Pop-up",
       "tv.mode_inline": "Below the card",
       "tv.remote_mode": "How the remote opens",
@@ -4135,6 +4140,8 @@ const SHC_I18N = {
       "tv.guide": "TV-gids",
       "tv.epg": "EPG",
       "tv.epg_down": "TV-gids niet beschikbaar: controleer de XMLTV EPG-integratie",
+      "tv.epg_off": "TV uit",
+      "tv.epg_unknown": "TV-status niet beschikbaar",
       "tv.mode_popup": "Pop-up",
       "tv.mode_inline": "Onder de kaart",
       "tv.remote_mode": "Hoe de afstandsbediening opent",
@@ -6510,7 +6517,20 @@ class ShcApplianceCloneCard extends HTMLElement {
   _epgKey() {
     return "shc_epg_last_" + (this._epgMp() || this._config.channel_entity || "tv");
   }
+  // Canale condiviso tra dispositivi (opzionale): input_text / text / input_number / number scritto dalla card
+  _epgShared(num) {
+    const id = this._config.shared_channel_entity;
+    const st = id && this._hass ? this._hass.states[id] : null;
+    if (!st || String(st.state) === String(num)) return;
+    const dom = id.split(".")[0];
+    if (!["input_text", "text", "input_number", "number"].includes(dom)) return;
+    const numeric = dom === "input_number" || dom === "number";
+    try {
+      this._hass.callService(dom, "set_value", { entity_id: id, value: numeric ? Number(num) : String(num) });
+    } catch (_) {}
+  }
   _epgSave(num) {
+    this._epgShared(num);
     try { localStorage.setItem(this._epgKey(), String(num)); } catch (_) {}
     this._epgSig = "";
     if (this._hass) this._epgRender();
@@ -6585,23 +6605,70 @@ class ShcApplianceCloneCard extends HTMLElement {
     this._epgSig = "";
     if (p === "epg") this._epgRender();
   }
+  // Nomi che indicano "sto guardando la TV / il digitale terrestre": predefiniti + epg_dtv_source + epg_dtv_aliases
+  _epgIsDtv(name) {
+    const k = (v) => String(v || "").toLowerCase().replace(/\s+/g, "");
+    const c = this._config;
+    const list = ["tv", "digitaltv", "livetv", "tv/hdmi"].concat(c.epg_dtv_source ? [c.epg_dtv_source] : [], Array.isArray(c.epg_dtv_aliases) ? c.epg_dtv_aliases : []);
+    const n = k(name);
+    return !!n && list.some((x) => k(x) === n);
+  }
+  _epgAppName(a) {
+    const app = a.app_name || a.app_id;
+    return app && String(app).trim() && !this._epgIsDtv(app) ? String(app).trim() : "";
+  }
   _epgPlay(num) {
     const mp = this._epgMp();
     if (!mp || !this._hass) return;
     if (navigator.vibrate) navigator.vibrate(8);
-    this._hass.callService("media_player", "play_media", { entity_id: mp, media_content_type: "channel", media_content_id: String(num) });
+    const c = this._config;
+    const send = () => this._hass.callService("media_player", "play_media", { entity_id: mp, media_content_type: "channel", media_content_id: String(num) });
+    const st = this._hass.states[mp];
+    // senza epg_dtv_source: comportamento di sempre
+    if (!c.epg_dtv_source || !st) {
+      send();
+      this._epgSave(num);
+      return;
+    }
+    // TV spenta o non raggiungibile: nessun comando (la card non accende mai la TV)
+    if (["off", "unavailable", "unknown"].includes(st.state)) return;
     this._epgSave(num);
+    const tok = (this._epgPlayTok = (this._epgPlayTok || 0) + 1);
+    const onDtv = () => {
+      const a = this._hass.states[mp]?.attributes || {};
+      return !this._epgAppName(a) && (!a.source || this._epgIsDtv(a.source));
+    };
+    if (onDtv()) {
+      send();
+      return;
+    }
+    this._hass.callService("media_player", "select_source", { entity_id: mp, source: c.epg_dtv_source });
+    const delay = Number.isFinite(Number(c.epg_source_delay)) ? Math.max(0, Number(c.epg_source_delay)) : 1500;
+    const t0 = Date.now();
+    const maxWait = Math.max(4000, delay * 3);
+    const step = () => {
+      if (tok !== this._epgPlayTok || !this._hass) return; // un tocco piu' recente ha preso il posto
+      const state = this._hass.states[mp]?.state;
+      if (["off", "unavailable", "unknown"].includes(state)) return;
+      if (onDtv()) setTimeout(() => tok === this._epgPlayTok && send(), delay); // sorgente cambiata: lascia assestare la TV
+      else if (Date.now() - t0 >= maxWait) send(); // l'integrazione non aggiorna la sorgente: invia comunque
+      else setTimeout(step, 250);
+    };
+    setTimeout(step, 250);
   }
   // Che cosa guarda la TV: app/sorgente, canale noto, nome canale non in lista o nulla.
   _epgCurrent(hass) {
     const c = this._config, list = c.epg_channels;
     const mp = hass.states[this._epgMp()];
     const a = (mp && mp.attributes) || {};
-    const appName = a.app_name || a.app_id;
-    if (appName && String(appName).trim() && !/^(tv|digitaltv|live ?tv|tv\/hdmi)$/i.test(String(appName).trim())) return { kind: "app", name: String(a.app_name || a.app_id) };
+    if (mp && mp.state === "off") return { kind: "off" };
+    if (mp && ["unavailable", "unknown"].includes(mp.state)) return { kind: "unknown" };
+    const appName = this._epgAppName(a);
+    const detail = { title: a.media_title && String(a.media_title).trim() !== appName ? String(a.media_title).trim() : "", pic: a.entity_picture || "" };
+    if (appName) return { kind: "app", name: appName, ...detail };
     const src = a.source ? String(a.source).trim() : "";
-    const tvSrc = !src || /^(tv|digitaltv|live ?tv|tv\/hdmi)$/i.test(src);
-    if (!tvSrc) return { kind: "app", name: src };
+    const tvSrc = !src || this._epgIsDtv(src);
+    if (!tvSrc) return { kind: "app", name: src, ...detail };
     const val = (id) => {
       const st = id ? hass.states[id] : null;
       return st && !["unavailable", "unknown", "none", ""].includes(String(st.state).toLowerCase()) ? String(st.state).trim() : "";
@@ -6618,6 +6685,13 @@ class ShcApplianceCloneCard extends HTMLElement {
       return { kind: "name", name: nm };
     }
     if (n) return { kind: "name", name: n };
+    // canale condiviso tra dispositivi (shared_channel_entity): vale su tutti i telefoni, prima del ricordo del browser
+    const sh = val(c.shared_channel_entity);
+    if (sh) {
+      const shn = Number.isFinite(Number(sh)) ? String(+sh) : sh;
+      const ch = list.find((x) => String(x.number) === shn);
+      if (ch) return { kind: "ch", ch, fallback: true };
+    }
     let last = "";
     try { last = localStorage.getItem(this._epgKey()) || ""; } catch (_) {}
     const ch = last && list.find((x) => String(x.number) === last);
@@ -6631,7 +6705,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const cur = this._epgCurrent(hass);
     const minute = Math.floor(now / 60000);
     // firma: rirender solo se cambia qualcosa (hass arriva molto spesso)
-    const sigParts = [cur.kind, cur.name || "", cur.ch ? cur.ch.number : "", minute, this._epgPane, this._epgTab];
+    const sigParts = [cur.kind, cur.name || "", cur.title || "", cur.pic || "", cur.ch ? cur.ch.number : "", minute, this._epgPane, this._epgTab];
     if (cur.ch && cur.ch.id) sigParts.push(hass.states["sensor." + cur.ch.id + "_program_current"]?.state, hass.states["sensor." + cur.ch.id + "_program_upcoming"]?.state);
     if (this._epgPane === "epg") list.forEach((c) => { if (c.id) sigParts.push(hass.states["sensor." + c.id + "_program_current"]?.state, hass.states["sensor." + c.id + "_program_" + (this._epgTab === "prime" ? "primetime" : "upcoming")]?.state); });
     const down = shcEpgDown(hass, list, cur.ch);
@@ -6645,8 +6719,12 @@ class ShcApplianceCloneCard extends HTMLElement {
     const L = (it, en) => shcL(hass, it, en);
     // riga canale
     const now$ = r.querySelector(".shc-epg-now");
-    if (cur.kind === "app") {
-      now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(cur.name)}</b></div>`;
+    if (cur.kind === "off") {
+      now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(shcT(hass, "tv.epg_off"))}</b></div>`;
+    } else if (cur.kind === "unknown") {
+      now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(shcT(hass, "tv.epg_unknown"))}</b></div>`;
+    } else if (cur.kind === "app") {
+      now$.innerHTML = `<div class="shc-epg-l1"><span class="shc-epg-nm">${cur.pic ? `<img class="shc-epg-apic" src="${esc(cur.pic)}" alt="">` : ""}<b>${esc(cur.name)}</b></span></div>${cur.title ? `<div class="shc-epg-t">${esc(cur.title)}</div>` : ""}`;
     } else if (cur.kind === "name") {
       now$.innerHTML = `<div class="shc-epg-l1"><b>${esc(cur.name)}</b></div>`;
     } else if (cur.kind === "none") {
@@ -6654,7 +6732,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     } else {
       now$.innerHTML = this._epgNowHtml(hass, cur.ch, now);
     }
-    if (down && cur.kind !== "app") now$.insertAdjacentHTML("beforeend", `<small class="shc-epg-nx shc-epg-down" style="white-space:normal">${esc(shcT(hass, "tv.epg_down"))}</small>`);
+    if (down && !["app", "off", "unknown"].includes(cur.kind)) now$.insertAdjacentHTML("beforeend", `<small class="shc-epg-nx shc-epg-down" style="white-space:normal">${esc(shcT(hass, "tv.epg_down"))}</small>`);
     // lista EPG
     const g = r.querySelector(".shc-epg-guide");
     if (this._epgPane !== "epg") return;
@@ -8010,6 +8088,14 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
         <ha-entity-picker class="shc-ed-ch-ent" include-domains='["sensor","input_number","input_text"]' allow-custom-entity></ha-entity-picker>
         <span class="shc-ed-label">${esc(L("Sensore nome canale", "Channel name sensor"))}</span>
         <ha-entity-picker class="shc-ed-ch-name" include-domains='["sensor","input_text"]' allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(L("Canale condiviso tra dispositivi (consigliato con SamsungTV Smart)", "Channel shared between devices (recommended with SamsungTV Smart)"))}</span>
+        <ha-entity-picker class="shc-ed-ch-shared" include-domains='["input_text","input_number","text","number"]' allow-custom-entity></ha-entity-picker>
+        <span class="shc-ed-label">${esc(L("Sorgente TV digitale da selezionare prima del canale (es. TV Digitale)", "Digital TV source to select before the channel (e.g. TV Digitale)"))}</span>
+        <input class="shc-ed-input shc-ed-dtv-src" type="text" placeholder="TV Digitale" value="${esc(cfg.epg_dtv_source || "")}">
+        <span class="shc-ed-label">${esc(L("Attesa dopo il cambio sorgente (ms)", "Wait after the source change (ms)"))}</span>
+        <input class="shc-ed-input shc-ed-dtv-delay" type="number" min="0" step="100" placeholder="1500" value="${esc(cfg.epg_source_delay ?? "")}">
+        <span class="shc-ed-label">${esc(L("Altri nomi della sorgente TV (separati da virgola)", "Other names of the TV source (comma separated)"))}</span>
+        <input class="shc-ed-input shc-ed-dtv-alias" type="text" placeholder="TV Digitale, DTV" value="${esc((cfg.epg_dtv_aliases || []).join(", "))}">
         <span class="shc-ed-label">${esc(L("Elenco canali (una riga per canale: numero, nome, id sensori EPG)", "Channel list (one line per channel: number, name, EPG sensor id)"))}</span>
         <textarea class="shc-ed-ch-list" rows="6" spellcheck="false" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:12px" placeholder="1, Rai 1, rai_1&#10;29, La7 Cinema, -">${esc((cfg.epg_channels || []).map((c) => c.number + ", " + c.name + ", " + (c.id || "-")).join("\n"))}</textarea>
         <span class="shc-ed-label">${esc(shcT(this._hass, "tv.epg_mode"))}</span>
@@ -8200,6 +8286,13 @@ class ShcApplianceCloneCardEditor extends HTMLElement {
     wirePicker(".shc-ed-sremote-rem", cfg.samsung_remote_entity, null, "samsung_remote_entity");
     wirePicker(".shc-ed-ch-ent", cfg.channel_entity, null, "channel_entity");
     wirePicker(".shc-ed-ch-name", cfg.channel_name_entity, null, "channel_name_entity");
+    wirePicker(".shc-ed-ch-shared", cfg.shared_channel_entity, null, "shared_channel_entity");
+    const dSrc = body.querySelector(".shc-ed-dtv-src");
+    if (dSrc) dSrc.addEventListener("change", () => this._set("epg_dtv_source", dSrc.value.trim() || undefined));
+    const dDel = body.querySelector(".shc-ed-dtv-delay");
+    if (dDel) dDel.addEventListener("change", () => this._set("epg_source_delay", dDel.value !== "" && Number.isFinite(Number(dDel.value)) ? Number(dDel.value) : undefined));
+    const dAli = body.querySelector(".shc-ed-dtv-alias");
+    if (dAli) dAli.addEventListener("change", () => { const l = dAli.value.split(",").map((x) => x.trim()).filter(Boolean); this._set("epg_dtv_aliases", l.length ? l : undefined); });
     const chTa = body.querySelector(".shc-ed-ch-list");
     if (chTa)
       chTa.addEventListener("change", () => {

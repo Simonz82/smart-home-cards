@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **TV card, EPG (#24)**: new optional settings. `shared_channel_entity` (an `input_text` / `input_number`): the card writes the last channel chosen from the guide or the remote keys there and every device reads it, so all phones show the same channel (recommended with SamsungTV Smart, which has no channel sensor, and for setups that no longer use SmartThings); a channel detected by `channel_entity` / `channel_name_entity` still wins. `epg_dtv_source` + `epg_source_delay`: choosing a channel while an app or another source is active first selects the digital TV source, waits for the change and then sends the channel; nothing is sent when the TV is off. `epg_dtv_aliases`: extra names for the digital TV source (added to the built-in ones). The panel now shows "TV off", a generic message when the TV state is unavailable and, for apps, the title and picture when the media player provides them. Visual editor and it/en/nl texts; guide in [docs/tv.md](docs/tv.md).
+
 ## 2026-11-17 — 1.22.0: purifier, dehumidifier, printer and coffee cards, server CPU temperature, UPS runtime fix (#17, #19, #21, #23)
 
 - **New card `shc-purifier-card`** (air purifier, `fan.*`): animated drawing (spinning fan, particles coloured by air quality, clean air going out), on/off, speed slider and preset-mode chips, optional PM2.5, air quality, filter life, humidity, temperature and power, warnings for low filter and high PM2.5. Docs: [docs/purificatore.md](docs/purificatore.md). Requested in #17.
