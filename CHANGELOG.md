@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **New card `shc-purifier-card`** (air purifier, `fan.*`): animated drawing (spinning fan, particles coloured by air quality, clean air going out), on/off, speed slider and preset-mode chips, optional PM2.5, air quality, filter life, humidity, temperature and power, warnings for low filter and high PM2.5. Docs: [docs/purificatore.md](docs/purificatore.md). Requested in #17.
+- **New card `shc-dehumidifier-card`** (`humidifier.*`, or a plain switch with separate entities such as Tuya devices): on/off, target humidity -/+, mode and fan-speed chips (`select` entities or the humidifier modes), full-tank warning, current humidity, power and energy. Docs: [docs/deumidificatore.md](docs/deumidificatore.md). Requested in #17.
+- **New card `shc-printer-card`** (printers with the standard IPP integration): status (idle / printing / stopped), ink / toner levels as coloured bars (list of entities, colour guessed from the name or set per entry), page counter, low-ink warning. Docs: [docs/stampante.md](docs/stampante.md). Requested in discussion #21.
+- **Server card**: optional CPU temperature (`sensors.temperature`): the row, the graph and the details line only appear when the sensor is set (discussion #19). Texts of all new cards in it, en and nl.
 - **New card `shc-coffee-card`** (coffee machine on a smart plug): states from the power draw with configurable thresholds (off / standby / heating / brewing / ready), animated drawing, today's coffees estimated from the power peaks (or the counter entity), optional water level, descaling, machine status and energy, optional "ready" highlight. No control buttons. Docs: [docs/macchina-caffe.md](docs/macchina-caffe.md), example automation `packages/coffee_pronta.yaml`. Texts in it, en and nl.
 - **UPS card** (#23): the remaining runtime now follows the `unit_of_measurement` of the sensor (`s`, `min`, `h`, `ms`, `d`); before it always assumed seconds, so a NUT sensor in minutes showed "2 min" instead of 87.
 

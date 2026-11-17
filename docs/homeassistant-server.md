@@ -40,6 +40,7 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"Server Ho
 ```yaml
 sensors:
   cpu: sensor.processor_use
+  temperature: sensor.processor_temperature   # facoltativo: temperatura CPU (riga, grafico e dettaglio compaiono solo se la imposti)
   cpu_speed: sensor.cpu_speed
   ram_pct: sensor.memory_use_percent
   ram_used: sensor.memory_use

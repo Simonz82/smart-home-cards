@@ -7501,6 +7501,7 @@ class ShcServerCardEditor extends ShcSimpleCardEditorBase {
       ]},
       { title: shcT(this._hass, "servercard.system"), fields: [
         { key: "sensors.cpu", label: "CPU (%)", domain: ["sensor"] },
+        { key: "sensors.temperature", label: shcT(this._hass, "server.cpu_temp"), domain: ["sensor"], hint: shcT(this._hass, "server.cpu_temp_hint") },
         { key: "sensors.ram_pct", label: "RAM (%)", domain: ["sensor"] },
         { key: "sensors.disk_pct", label: shcT(this._hass, "servercard.disk"), domain: ["sensor"] },
       ]},
@@ -8814,6 +8815,10 @@ class ShcServerCard extends HTMLElement {
               <div class="shc-ap-meter-row"><span>CPU</span><strong class="shc-c-cpu-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-cpu-bar" style="width:0%"></i></div>
             </div>
+            <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-temp" hidden>
+              <div class="shc-ap-meter-row"><span data-i18n="server.cpu_temp">${esc(shcT(this._hass, "server.cpu_temp"))}</span><strong class="shc-c-temp-val">0</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-temp-bar" style="width:0%"></i></div>
+            </div>
             <div class="shc-ap-meter shc-c-meter-clickable shc-c-meter-ram">
               <div class="shc-ap-meter-row"><span>RAM</span><strong class="shc-c-ram-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-ram-bar" style="width:0%"></i></div>
@@ -8855,6 +8860,10 @@ class ShcServerCard extends HTMLElement {
     this._root.querySelector(".shc-c-meter-cpu").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openMeterChart(this._config.sensors?.cpu, "CPU", "#38bdf8");
+    });
+    this._root.querySelector(".shc-c-meter-temp").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openMeterChart(this._config.sensors?.temperature, shcT(this._hass, "server.cpu_temp"), "#f97316");
     });
     this._root.querySelector(".shc-c-meter-ram").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -9213,6 +9222,7 @@ class ShcServerCard extends HTMLElement {
 
     const sistemaHtml = [
       this._statRow("CPU", val(s.cpu, 0)),
+      s.temperature ? this._statRow(shcT(this._hass, "server.cpu_temp"), val(s.temperature, 1)) : "",
       this._statRow(shcT(this._hass, "server.cpu_speed"), val(s.cpu_speed, 1)),
       this._statRow(shcT(this._hass, "proxmoxcard.ram_used"), val(s.ram_used, 0)),
       this._statRow(shcT(this._hass, "server.total_ram"), val(s.ram_total, 0)),
@@ -9297,6 +9307,21 @@ class ShcServerCard extends HTMLElement {
     cpuBar.style.width = `${Math.min(100, Math.max(0, cpuVal))}%`;
     cpuBar.style.background = meterSeverityColor(cpuVal);
 
+    // Temperatura CPU: facoltativa, la riga compare solo se sensors.temperature esiste in HA
+    const tEnt = s.temperature ? hass.states[s.temperature] : null;
+    const tMeter = this._root.querySelector(".shc-c-meter-temp");
+    const tNum = tEnt ? Number(tEnt.state) : NaN;
+    tMeter.hidden = !tEnt;
+    if (tEnt) {
+      const tUnit = tEnt.attributes?.unit_of_measurement || "\u00b0C";
+      const tC = Number.isFinite(tNum) ? (/F/.test(tUnit) ? ((tNum - 32) * 5) / 9 : tNum) : 0;
+      this._root.querySelector(".shc-c-temp-val").textContent = Number.isFinite(tNum) ? `${tNum.toFixed(tNum % 1 ? 1 : 0)}${tUnit}` : "\u2014";
+      const tBar = this._root.querySelector(".shc-c-temp-bar");
+      tBar.style.width = `${Math.min(100, Math.max(0, tC))}%`;
+      tBar.style.background = meterSeverityColor(tC);
+    }
+
+
     const ram = s.ram_pct ? Number(hass.states[s.ram_pct]?.state) : NaN;
     const ramVal = Number.isFinite(ram) ? ram : 0;
     this._root.querySelector(".shc-c-ram-val").textContent = `${ramVal.toFixed(0)}%`;
@@ -9336,6 +9361,7 @@ class ShcServerCard extends HTMLElement {
     const s = this._config.sensors || {};
     return [
       { entity: s.cpu, label: "CPU", color: "#38bdf8" },
+      ...(s.temperature ? [{ entity: s.temperature, label: shcT(this._hass, "server.cpu_temp"), color: "#f97316" }] : []),
       { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
       { entity: s.disk_pct, label: shcT(this._hass, "server.ha_disk"), color: "#eab308" },
     ];
@@ -18224,5 +18250,898 @@ window.customCards.push({
   type: "shc-speaker-card",
   name: "Altoparlante / Echo / Alexa",
   description: "Altoparlante smart con foto reale, anello luminoso animato, copertina, avanzamento, volume, comandi, chip dell'Echo e annuncio rapido",
+  author: "Simonz82",
+});
+
+// -----------------------------------------------------------------------
+// shc-purifier-card (purificatore d'aria), shc-dehumidifier-card (deumidificatore), shc-printer-card (stampante IPP).
+// Stesso stile delle altre card di dispositivo (ShcDeviceCardBase), artwork SVG animato originale quando e' acceso.
+// Tutte le entita' sono configurabili e facoltative tranne quella principale.
+// -----------------------------------------------------------------------
+const XA_STYLE = `
+@keyframes xa-spin{to{transform:rotate(360deg)}}
+@keyframes xa-in{0%{transform:translate(var(--dx,-16px),var(--dy,0));opacity:0}20%{opacity:.9}100%{transform:translate(0,0) scale(.3);opacity:0}}
+@keyframes xa-out{0%{transform:translateY(8px);opacity:0}30%{opacity:.85}100%{transform:translateY(-18px);opacity:0}}
+@keyframes xa-drop{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(26px);opacity:0}}
+@keyframes xa-paper{0%{transform:translateY(0)}70%,100%{transform:translateY(13px)}}
+@keyframes xa-blink{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes xa-pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 0 5px rgba(239,68,68,.35)}}
+@keyframes xa-wave{0%{transform:translateY(0)}50%{transform:translateY(-1.6px)}100%{transform:translateY(0)}}
+.xa-blades{transform-box:fill-box;transform-origin:center}
+.shc-ap-card.xa-run .xa-blades{animation:xa-spin var(--xa-dur,1.2s) linear infinite}
+.xa-p{fill:#94a3b8;opacity:0;transform-box:fill-box}
+.shc-ap-card.xa-run .xa-p{animation:xa-in 2.4s ease-in infinite}
+.shc-ap-card.xa-q-good .xa-p{fill:#22c55e}.shc-ap-card.xa-q-mid .xa-p{fill:#eab308}.shc-ap-card.xa-q-bad .xa-p{fill:#ef4444}
+.xa-air{fill:none;stroke:#7dd3fc;stroke-width:2.2;stroke-linecap:round;opacity:0}
+.shc-ap-card.xa-run .xa-air{animation:xa-out 2.4s ease-out infinite}
+.xa-glow{opacity:0;transition:opacity .6s}
+.shc-ap-card.xa-run .xa-glow{opacity:.5}
+.xa-led{fill:#94a3b8}
+.shc-ap-card.xa-run .xa-led{fill:#22c55e}
+.shc-ap-card.xa-q-mid .xa-led{fill:#eab308}.shc-ap-card.xa-q-bad .xa-led{fill:#ef4444;animation:xa-blink 1s ease-in-out infinite}
+.xa-disp{font:900 11px/1 system-ui,sans-serif;fill:#38bdf8;letter-spacing:.02em}
+.shc-ap-card.is-off .xa-disp,.shc-ap-card.is-unavailable .xa-disp{fill:#94a3b8}
+.xa-drop{fill:#38bdf8;opacity:0;transform-box:fill-box}
+.shc-ap-card.xa-run .xa-drop{animation:xa-drop 1.2s ease-in infinite}
+.xa-water{fill:#38bdf8;opacity:.75;transform-box:fill-box;transform-origin:50% 100%;transition:transform .8s}
+.shc-ap-card.xa-tankfull .xa-water{fill:#ef4444}
+.shc-ap-card.xa-alert{animation:xa-pulse 1.1s ease-in-out infinite}
+.xp-sheet{transform-box:fill-box}
+.shc-ap-card.xa-print .xp-sheet{animation:xa-paper 2.4s ease-in-out infinite}
+.xp-line{opacity:0}
+.shc-ap-card.xa-print .xp-line{opacity:.85}
+.shc-ap-card.xa-print .xp-led{animation:xa-blink .8s ease-in-out infinite}
+.xp-led{fill:#94a3b8}
+.shc-ap-card.xp-st-idle .xp-led{fill:#22c55e}.shc-ap-card.xp-st-printing .xp-led{fill:#0ea5e9}.shc-ap-card.xp-st-stopped .xp-led{fill:#ef4444;animation:xa-blink 1s ease-in-out infinite}
+.xa-ctrl{display:flex;flex-direction:column;gap:6px;margin-top:6px;align-items:center;width:100%}
+.xa-line{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;width:100%}
+.xa-pw{border:0;border-radius:999px;padding:4px 12px;font-size:11.5px;font-weight:850;cursor:pointer;background:var(--shc-soft);color:var(--shc-dim)}
+.shc-ap-card.xa-run .xa-pw,.xa-pw.on{background:#22c55e;color:#fff}
+.xa-chip{border:0;padding:4px 9px;border-radius:999px;background:var(--shc-soft);color:var(--shc-dim);font-weight:800;font-size:11px;cursor:pointer;white-space:nowrap}
+.xa-chip.on{background:var(--shc-blue);color:#fff}
+.xa-range{width:100%;max-width:210px;accent-color:var(--shc-blue)}
+.xa-stp{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--shc-dim)}
+.xa-stp button{width:26px;height:26px;border-radius:50%;border:0;background:var(--shc-soft);font-weight:900;font-size:16px;line-height:1;cursor:pointer;color:inherit}
+.xa-stp b{min-width:44px;text-align:center;font-size:14px;color:inherit}
+.xp-inks{display:flex;flex-direction:column;gap:5px;width:100%;margin-top:6px}
+.xp-ink{display:grid;grid-template-columns:64px 1fr 34px;gap:6px;align-items:center;font-size:11px;font-weight:800;color:var(--shc-dim);cursor:pointer}
+.xp-ink span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xp-bar{height:8px;border-radius:5px;background:var(--shc-soft);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(100,116,139,.25)}
+.xp-bar i{display:block;height:100%;border-radius:5px;transition:width .6s}
+.xp-ink.low .xp-bar{animation:xa-blink 1.3s ease-in-out infinite}
+.xp-ink.low b{color:#ef4444}
+.xp-ink b{text-align:right}
+.xa-line[hidden],.xa-stp[hidden],.xp-inks[hidden],.xa-range[hidden]{display:none}
+`;
+
+Object.assign(SHC_I18N.it, {
+  "server.cpu_temp": "Temperatura CPU",
+  "server.cpu_temp_hint": "Facoltativo: la riga compare solo se imposti il sensore.",
+  "xa.unreachable": "Dispositivo non raggiungibile",
+  "xa.st_on": "Acceso",
+  "xa.st_off": "Spento",
+  "xa.toggle": "Accendi / spegni",
+  "xa.sec_extra": "Sensori e comandi (facoltativi)",
+  "xa.power_w": "Potenza (W)",
+  "xa.ed_icon": "Icona",
+  "pu.name": "Purificatore d'aria",
+  "pu.entity_required": "Imposta entity con il purificatore (fan.*)",
+  "pu.speed": "Velocità",
+  "pu.preset": "Modalità",
+  "pu.pm25": "PM2.5",
+  "pu.quality": "Qualità aria",
+  "pu.filter": "Filtro",
+  "pu.humidity": "Umidità",
+  "pu.temperature": "Temperatura",
+  "pu.filter_low_warn": "Filtro quasi esaurito: da sostituire",
+  "pu.air_bad_warn": "Qualità dell'aria scarsa (PM2.5 alto)",
+  "pu.ed_entity": "Purificatore (fan)",
+  "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_aqi": "Qualità aria (sensore o testo)",
+  "pu.ed_filter": "Vita residua del filtro (%)",
+  "pu.ed_filter_low": "Filtro da sostituire sotto (%)",
+  "pu.ed_humidity": "Umidità",
+  "pu.ed_temperature": "Temperatura",
+  "dh.name": "Deumidificatore",
+  "dh.entity_required": "Imposta entity con il deumidificatore (humidifier.*, switch.* o input_boolean.*)",
+  "dh.humidity": "Umidità",
+  "dh.target": "Obiettivo",
+  "dh.mode": "Modalità",
+  "dh.fan": "Ventola",
+  "dh.tank": "Serbatoio",
+  "dh.tank_full": "Pieno",
+  "dh.tank_ok": "Ok",
+  "dh.tank_full_warn": "Serbatoio pieno: da svuotare",
+  "dh.ed_entity": "Deumidificatore (humidifier, switch)",
+  "dh.ed_humidity": "Umidità attuale (sensore)",
+  "dh.ed_target": "Umidità obiettivo (number / input_number)",
+  "dh.ed_mode": "Modalità (select)",
+  "dh.ed_fan": "Velocità ventola (select)",
+  "dh.ed_tank": "Serbatoio pieno (binary_sensor)",
+  "pr.name": "Stampante",
+  "pr.entity_required": "Imposta entity con il sensore di stato della stampante (IPP)",
+  "pr.state": "Stato",
+  "pr.st_idle": "Pronta",
+  "pr.st_printing": "In stampa",
+  "pr.st_stopped": "Ferma",
+  "pr.st_unknown": "Sconosciuto",
+  "pr.pages": "Pagine stampate",
+  "pr.lowest": "Livello più basso",
+  "pr.ink": "Inchiostro / toner",
+  "pr.ink_low_warn": "Inchiostro basso: {1}",
+  "pr.printer_stopped": "La stampante è ferma: controlla carta o errori",
+  "pr.ed_entity": "Stato stampante (sensore IPP)",
+  "pr.ed_pages": "Contatore pagine",
+  "pr.ed_inks": "Livelli inchiostro / toner",
+  "pr.ed_ink_entity": "Sensore livello (%)",
+  "pr.ed_ink_name": "Nome (es. Nero)",
+  "pr.ed_ink_color": "Colore (es. #06b6d4, facoltativo)",
+  "pr.ed_ink_low": "Avviso inchiostro basso sotto (%)",
+});
+Object.assign(SHC_I18N.en, {
+  "server.cpu_temp": "CPU temperature",
+  "server.cpu_temp_hint": "Optional: the row only appears when you set the sensor.",
+  "xa.unreachable": "Device not reachable",
+  "xa.st_on": "On",
+  "xa.st_off": "Off",
+  "xa.toggle": "Turn on / off",
+  "xa.sec_extra": "Sensors and controls (optional)",
+  "xa.power_w": "Power (W)",
+  "xa.ed_icon": "Icon",
+  "pu.name": "Air purifier",
+  "pu.entity_required": "Set entity to the air purifier (fan.*)",
+  "pu.speed": "Speed",
+  "pu.preset": "Mode",
+  "pu.pm25": "PM2.5",
+  "pu.quality": "Air quality",
+  "pu.filter": "Filter",
+  "pu.humidity": "Humidity",
+  "pu.temperature": "Temperature",
+  "pu.filter_low_warn": "Filter almost exhausted: replace it",
+  "pu.air_bad_warn": "Poor air quality (high PM2.5)",
+  "pu.ed_entity": "Purifier (fan)",
+  "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_aqi": "Air quality (sensor or text)",
+  "pu.ed_filter": "Filter life left (%)",
+  "pu.ed_filter_low": "Replace filter below (%)",
+  "pu.ed_humidity": "Humidity",
+  "pu.ed_temperature": "Temperature",
+  "dh.name": "Dehumidifier",
+  "dh.entity_required": "Set entity to the dehumidifier (humidifier.*, switch.* or input_boolean.*)",
+  "dh.humidity": "Humidity",
+  "dh.target": "Target",
+  "dh.mode": "Mode",
+  "dh.fan": "Fan",
+  "dh.tank": "Water tank",
+  "dh.tank_full": "Full",
+  "dh.tank_ok": "Ok",
+  "dh.tank_full_warn": "Water tank full: empty it",
+  "dh.ed_entity": "Dehumidifier (humidifier, switch)",
+  "dh.ed_humidity": "Current humidity (sensor)",
+  "dh.ed_target": "Target humidity (number / input_number)",
+  "dh.ed_mode": "Mode (select)",
+  "dh.ed_fan": "Fan speed (select)",
+  "dh.ed_tank": "Tank full (binary_sensor)",
+  "pr.name": "Printer",
+  "pr.entity_required": "Set entity to the printer status sensor (IPP)",
+  "pr.state": "Status",
+  "pr.st_idle": "Ready",
+  "pr.st_printing": "Printing",
+  "pr.st_stopped": "Stopped",
+  "pr.st_unknown": "Unknown",
+  "pr.pages": "Pages printed",
+  "pr.lowest": "Lowest level",
+  "pr.ink": "Ink / toner",
+  "pr.ink_low_warn": "Low ink: {1}",
+  "pr.printer_stopped": "The printer is stopped: check paper or errors",
+  "pr.ed_entity": "Printer status (IPP sensor)",
+  "pr.ed_pages": "Page counter",
+  "pr.ed_inks": "Ink / toner levels",
+  "pr.ed_ink_entity": "Level sensor (%)",
+  "pr.ed_ink_name": "Name (e.g. Black)",
+  "pr.ed_ink_color": "Colour (e.g. #06b6d4, optional)",
+  "pr.ed_ink_low": "Low ink warning below (%)",
+});
+Object.assign(SHC_I18N.nl, {
+  "server.cpu_temp": "CPU-temperatuur",
+  "server.cpu_temp_hint": "Optioneel: de rij verschijnt alleen als je de sensor instelt.",
+  "xa.unreachable": "Apparaat niet bereikbaar",
+  "xa.st_on": "Aan",
+  "xa.st_off": "Uit",
+  "xa.toggle": "Aan / uit",
+  "xa.sec_extra": "Sensoren en bediening (optioneel)",
+  "xa.power_w": "Vermogen (W)",
+  "xa.ed_icon": "Pictogram",
+  "pu.name": "Luchtreiniger",
+  "pu.entity_required": "Stel entity in op de luchtreiniger (fan.*)",
+  "pu.speed": "Snelheid",
+  "pu.preset": "Modus",
+  "pu.pm25": "PM2.5",
+  "pu.quality": "Luchtkwaliteit",
+  "pu.filter": "Filter",
+  "pu.humidity": "Vochtigheid",
+  "pu.temperature": "Temperatuur",
+  "pu.filter_low_warn": "Filter bijna op: vervangen",
+  "pu.air_bad_warn": "Slechte luchtkwaliteit (hoog PM2.5)",
+  "pu.ed_entity": "Luchtreiniger (fan)",
+  "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_aqi": "Luchtkwaliteit (sensor of tekst)",
+  "pu.ed_filter": "Resterende filterlevensduur (%)",
+  "pu.ed_filter_low": "Filter vervangen onder (%)",
+  "pu.ed_humidity": "Vochtigheid",
+  "pu.ed_temperature": "Temperatuur",
+  "dh.name": "Ontvochtiger",
+  "dh.entity_required": "Stel entity in op de ontvochtiger (humidifier.*, switch.* of input_boolean.*)",
+  "dh.humidity": "Vochtigheid",
+  "dh.target": "Doel",
+  "dh.mode": "Modus",
+  "dh.fan": "Ventilator",
+  "dh.tank": "Watertank",
+  "dh.tank_full": "Vol",
+  "dh.tank_ok": "Ok",
+  "dh.tank_full_warn": "Watertank vol: legen",
+  "dh.ed_entity": "Ontvochtiger (humidifier, switch)",
+  "dh.ed_humidity": "Huidige vochtigheid (sensor)",
+  "dh.ed_target": "Doelvochtigheid (number / input_number)",
+  "dh.ed_mode": "Modus (select)",
+  "dh.ed_fan": "Ventilatorsnelheid (select)",
+  "dh.ed_tank": "Tank vol (binary_sensor)",
+  "pr.name": "Printer",
+  "pr.entity_required": "Stel entity in op de statussensor van de printer (IPP)",
+  "pr.state": "Status",
+  "pr.st_idle": "Klaar",
+  "pr.st_printing": "Bezig met printen",
+  "pr.st_stopped": "Gestopt",
+  "pr.st_unknown": "Onbekend",
+  "pr.pages": "Geprinte pagina's",
+  "pr.lowest": "Laagste niveau",
+  "pr.ink": "Inkt / toner",
+  "pr.ink_low_warn": "Inkt bijna op: {1}",
+  "pr.printer_stopped": "De printer is gestopt: controleer papier of fouten",
+  "pr.ed_entity": "Printerstatus (IPP-sensor)",
+  "pr.ed_pages": "Paginateller",
+  "pr.ed_inks": "Inkt- / tonerniveaus",
+  "pr.ed_ink_entity": "Niveausensor (%)",
+  "pr.ed_ink_name": "Naam (bijv. Zwart)",
+  "pr.ed_ink_color": "Kleur (bijv. #06b6d4, optioneel)",
+  "pr.ed_ink_low": "Waarschuwing inkt bijna op onder (%)",
+});
+
+// Base comune: scheletro della card (chip, nome, badge, grafici/stato, hero + colonna dati), comandi e finestra stato
+class ShcXaBase extends ShcDeviceCardBase {
+  _build(o) {
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    const T = (k) => shcT(this._hass, k);
+    const row = ([cls, icon, key]) =>
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(T(key))}</small></span><b class="${cls}">—</b></div>`;
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${XA_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img ${o.cls}">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || o.icon)}"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(T("fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(T("fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-cl-herocol">
+            <div class="shc-ap-hero">${o.hero}</div>
+            <div class="xa-ctrl">${o.ctrl || ""}</div>
+            ${o.below || ""}
+          </div>
+          <div class="shc-ap-cycle-side">
+            <span class="shc-ap-cycle-cap" data-i18n="${o.nameKey}">${esc(T(o.nameKey))}</span>
+            <div class="shc-ap-cycle-list">${o.rows.map(row).join("")}</div>
+          </div>
+        </div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._bind = this._commonBind();
+    this._bind(".shc-dv-info", () => this._openInfo());
+    this._bind(".xa-pw", () => this._call("homeassistant", "toggle", { entity_id: this._config.entity }));
+  }
+
+  _q(sel) {
+    return this._root.querySelector(sel);
+  }
+
+  _setRow(cls, text, show = true) {
+    const el = this._q("." + cls);
+    el.textContent = text ?? "—";
+    el.closest(".shc-ap-cycle-row").hidden = !show;
+  }
+
+  _unit(entity) {
+    return this._hass.states[entity]?.attributes?.unit_of_measurement || "";
+  }
+
+  _numText(entity, dec = 0) {
+    const v = this._val(entity);
+    return v === null ? "—" : `${clNum(v, dec)}${this._unit(entity) ? " " + this._unit(entity) : ""}`;
+  }
+
+  // chip a scelta singola (modalita', velocita' ventola...): si ricostruiscono solo se cambia l'elenco
+  _chips(boxSel, options, current, onPick) {
+    const box = this._q(boxSel);
+    if (!box) return;
+    const sig = options.join("|");
+    if (box._sig !== sig) {
+      box._sig = sig;
+      box.innerHTML = options.map((v) => `<button type="button" class="xa-chip" data-v="${esc(v)}">${esc(this._pretty(v))}</button>`).join("");
+      box.hidden = !options.length;
+      if (!box._bound) {
+        box._bound = true;
+        box.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const b = e.target.closest(".xa-chip");
+          if (b) box._pick(b.dataset.v);
+        });
+      }
+    }
+    box._pick = onPick;
+    box.querySelectorAll(".xa-chip").forEach((b) => b.classList.toggle("on", b.dataset.v === current));
+  }
+
+  _pretty(v) {
+    const s = String(v).replace(/_/g, " ");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  _openInfoRows(titleKey, extraRows) {
+    const cfg = this._config;
+    const st = this._st();
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—");
+    const more = (label, entity, text) =>
+      entity && this._has(entity) ? `<div class="shc-ap-row" data-more="${esc(entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(label)}</span>${this._valHtml(text)}</div>` : "";
+    const rows = [
+      ...extraRows(more),
+      st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
+      this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`),
+    ].join("");
+    this._openDialog(shcT(this._hass, "fritz.status"), `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, titleKey))}</div>${rows}</div>`, () => this._openInfo());
+  }
+}
+
+function xaPowerBtn(hass) {
+  return `<div class="xa-line"><button type="button" class="xa-pw" data-i18n="xa.toggle">${esc(shcT(hass, "xa.toggle"))}</button></div>`;
+}
+
+// ---------------------------------------------------------------- purificatore
+function puHeroSvg(id) {
+  const parts = [[34, 100, -14, 6, 0], [48, 118, -16, -2, 0.7], [30, 134, -14, -6, 1.4], [206, 108, 16, 4, 0.35], [192, 126, 16, -3, 1.05]];
+  const air = [96, 120, 144];
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shcp-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shcp-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cbd5e1"/><stop offset=".4" stop-color="#ffffff"/><stop offset=".75" stop-color="#eef2f6"/><stop offset="1" stop-color="#b6c2d0"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="150" rx="58" ry="6" fill="#0f172a" opacity=".16" filter="url(#shcp-blur-${id})"/>
+    ${parts.map(([x, y, dx, dy, d]) => `<circle class="xa-p" style="--dx:${dx}px;--dy:${dy}px;animation-delay:${d}s" cx="${x}" cy="${y}" r="2.6"/>`).join("")}
+    ${air.map((x, i) => `<path class="xa-air" style="animation-delay:${i * 0.5}s" d="M${x} 24c-4-4 4-8 0-12"/>`).join("")}
+    <rect x="74" y="26" width="92" height="116" rx="20" fill="url(#shcp-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect class="xa-glow" x="74" y="26" width="92" height="116" rx="20" fill="#7dd3fc" opacity="0"/>
+    <g fill="#cbd5e1" stroke="#94a3b8" stroke-width=".6">${[0, 1, 2, 3, 4].map((i) => `<rect x="${86 + i * 14}" y="33" width="9" height="3.4" rx="1.7"/>`).join("")}</g>
+    <rect x="88" y="44" width="64" height="16" rx="6" fill="#1f2937"/>
+    <text class="xa-disp" x="120" y="55.6" text-anchor="middle">--</text>
+    <circle class="xa-led" cx="145" cy="52" r="2"/>
+    <circle cx="120" cy="96" r="30" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.4"/>
+    <circle cx="120" cy="96" r="25" fill="#f8fafc"/>
+    <g class="xa-blades" fill="#64748b" opacity=".92">${[0, 72, 144, 216, 288].map((a) => `<path transform="rotate(${a} 120 96)" d="M120 96c-3-9-2-17 3-22 5 4 6 12 2 21z"/>`).join("")}</g>
+    <circle cx="120" cy="96" r="4.2" fill="#475569"/>
+    <g stroke="#94a3b8" stroke-width=".8" opacity=".7" fill="none"><circle cx="120" cy="96" r="29"/><circle cx="120" cy="96" r="21" stroke-dasharray="2 3"/></g>
+    <rect x="86" y="140" width="10" height="5" rx="2" fill="#64748b"/><rect x="144" y="140" width="10" height="5" rx="2" fill="#64748b"/>
+  </svg>`;
+}
+
+class ShcPurifierCard extends ShcXaBase {
+  setConfig(config) {
+    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "pu.entity_required"));
+    this._config = { name: shcT(this._hass, "pu.name"), layout: "centrato", filter_low: 10, pm_warn: 35, ...config };
+    this._build({
+      cls: "shc-pu-card",
+      icon: "mdi:air-purifier",
+      nameKey: "pu.name",
+      hero: puHeroSvg(this._uid || (this._uid = Math.random().toString(36).slice(2, 8))),
+      ctrl: `${xaPowerBtn(this._hass)}<input type="range" class="xa-range" min="0" max="100" step="1" hidden><div class="xa-line xa-presets" hidden></div>`,
+      rows: [["pu-r-state", "mdi:air-purifier", "cf.state"], ["pu-r-speed", "mdi:speedometer", "pu.speed"], ["pu-r-preset", "mdi:tune-variant", "pu.preset"], ["pu-r-pm", "mdi:blur", "pu.pm25"], ["pu-r-aqi", "mdi:leaf", "pu.quality"], ["pu-r-filter", "mdi:air-filter", "pu.filter"], ["pu-r-hum", "mdi:water-percent", "pu.humidity"], ["pu-r-temp", "mdi:thermometer", "pu.temperature"], ["pu-r-pow", "mdi:flash", "appledit.power"]],
+    });
+    const r = this._q(".xa-range");
+    r.addEventListener("click", (e) => e.stopPropagation());
+    r.addEventListener("pointerdown", () => (this._drag = true));
+    r.addEventListener("change", () => {
+      this._drag = false;
+      this._call("fan", "set_percentage", { entity_id: this._config.entity, percentage: Number(r.value) });
+    });
+  }
+
+  _graphSeries() {
+    const c = this._config;
+    const s = [];
+    if (c.pm25_entity) s.push({ key: "pm", entity: c.pm25_entity, label: shcT(this._hass, "pu.pm25"), color: "#ef4444" });
+    if (c.humidity_entity) s.push({ key: "hum", entity: c.humidity_entity, label: shcT(this._hass, "pu.humidity"), color: "#0ea5e9" });
+    if (c.temperature_entity) s.push({ key: "temp", entity: c.temperature_entity, label: shcT(this._hass, "pu.temperature"), color: "#f97316" });
+    if (c.filter_entity) s.push({ key: "filter", entity: c.filter_entity, label: shcT(this._hass, "pu.filter"), color: "#22c55e" });
+    if (c.power_entity) s.push({ key: "power", entity: c.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f59e0b" });
+    return s;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const q = (s) => this._q(s);
+    const st = this._st();
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const on = !unav && st.state === "on";
+    const a = st?.attributes || {};
+    const pct = Number.isFinite(Number(a.percentage)) && a.percentage !== null ? Number(a.percentage) : null;
+    const pm = this._val(cfg.pm25_entity);
+    const q8 = pm === null ? "good" : pm <= 12 ? "good" : pm <= cfg.pm_warn ? "mid" : "bad";
+    const filt = this._val(cfg.filter_entity);
+    const filtLow = filt !== null && filt <= cfg.filter_low;
+    const bad = on && pm !== null && pm > cfg.pm_warn;
+
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "xa-run", "xa-q-good", "xa-q-mid", "xa-q-bad", "xa-alert");
+    card.classList.add(unav ? "is-unavailable" : on ? "is-run" : "is-off", "xa-q-" + q8);
+    if (on) card.classList.add("xa-run");
+    if (bad) card.classList.add("xa-alert");
+    card.style.setProperty("--xa-dur", `${(pct ? 2.6 - (pct / 100) * 2.1 : 1.3).toFixed(2)}s`);
+    this._setBadge(unav ? "unavailable" : on ? "run" : "off", unav ? "OFFLINE" : shcT(this._hass, on ? "xa.st_on" : "xa.st_off"));
+    q(".xa-disp").textContent = unav ? "--" : !on ? "OFF" : pm !== null ? `${clNum(pm, 0)}` : pct !== null ? `${Math.round(pct)}%` : "ON";
+    q(".xa-pw").classList.toggle("on", on);
+
+    const range = q(".xa-range");
+    range.hidden = pct === null && !("percentage" in a);
+    if (!this._drag && pct !== null) range.value = pct;
+    range.disabled = !on;
+    const presets = Array.isArray(a.preset_modes) ? a.preset_modes : [];
+    this._chips(".xa-presets", presets, a.preset_mode, (v) => this._call("fan", "set_preset_mode", { entity_id: cfg.entity, preset_mode: v }));
+
+    q(".pu-r-state").textContent = unav ? "—" : shcT(this._hass, on ? "xa.st_on" : "xa.st_off");
+    this._setRow("pu-r-speed", pct !== null ? `${Math.round(pct)}%` : "—", pct !== null);
+    this._setRow("pu-r-preset", a.preset_mode ? this._pretty(a.preset_mode) : "—", !!a.preset_mode);
+    this._setRow("pu-r-pm", this._numText(cfg.pm25_entity, 0), !!cfg.pm25_entity);
+    const aq = cfg.aqi_entity ? hass.states[cfg.aqi_entity] : null;
+    this._setRow("pu-r-aqi", aq && !["unknown", "unavailable"].includes(aq.state) ? (this._isNum(aq.state) ? this._numText(cfg.aqi_entity, 0) : this._pretty(aq.state)) : "—", !!aq);
+    this._setRow("pu-r-filter", this._numText(cfg.filter_entity, 0), !!cfg.filter_entity);
+    this._setRow("pu-r-hum", this._numText(cfg.humidity_entity, 0), !!cfg.humidity_entity);
+    this._setRow("pu-r-temp", this._numText(cfg.temperature_entity, 1), !!cfg.temperature_entity);
+    this._setRow("pu-r-pow", this._numText(cfg.power_entity, 0), !!cfg.power_entity);
+    q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
+    this._setWarn(unav ? shcT(this._hass, "xa.unreachable") : filtLow ? shcT(this._hass, "pu.filter_low_warn") : bad ? shcT(this._hass, "pu.air_bad_warn") : "");
+    this._liveRefresh([cfg.entity, cfg.pm25_entity, cfg.aqi_entity, cfg.filter_entity, cfg.humidity_entity, cfg.temperature_entity, cfg.power_entity]);
+  }
+
+  _isNum(v) {
+    return v !== "" && v !== null && v !== undefined && Number.isFinite(Number(v));
+  }
+
+  _openInfo() {
+    const cfg = this._config;
+    const a = this._st()?.attributes || {};
+    this._openInfoRows("pu.name", (more) => [
+      more(shcT(this._hass, "pu.pm25"), cfg.pm25_entity, this._numText(cfg.pm25_entity, 0)),
+      more(shcT(this._hass, "pu.quality"), cfg.aqi_entity, this._hass.states[cfg.aqi_entity]?.state),
+      more(shcT(this._hass, "pu.filter"), cfg.filter_entity, this._numText(cfg.filter_entity, 0)),
+      more(shcT(this._hass, "pu.humidity"), cfg.humidity_entity, this._numText(cfg.humidity_entity, 0)),
+      more(shcT(this._hass, "pu.temperature"), cfg.temperature_entity, this._numText(cfg.temperature_entity, 1)),
+      more(shcT(this._hass, "appledit.power"), cfg.power_entity, this._numText(cfg.power_entity, 0)),
+      a.preset_mode ? this._row(shcT(this._hass, "pu.preset"), this._valHtml(this._pretty(a.preset_mode))) : "",
+    ]);
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-purifier-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("fan.")) || "fan.purificatore";
+    return { name: shcT(hass, "pu.name"), entity: e };
+  }
+}
+
+class ShcPurifierCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    const T = (k) => shcT(this._hass, k);
+    return [
+      { title: T("fritzcard.basic"), fields: [
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("pu.name") },
+        { key: "entity", label: T("pu.ed_entity"), domain: ["fan"], required: true },
+        { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:air-purifier" },
+      ]},
+      { title: T("xa.sec_extra"), fields: [
+        { key: "pm25_entity", label: T("pu.ed_pm25"), domain: ["sensor"] },
+        { key: "aqi_entity", label: T("pu.ed_aqi"), domain: ["sensor"] },
+        { key: "filter_entity", label: T("pu.ed_filter"), domain: ["sensor"] },
+        { key: "filter_low", label: T("pu.ed_filter_low"), kind: "number" },
+        { key: "humidity_entity", label: T("pu.ed_humidity"), domain: ["sensor"] },
+        { key: "temperature_entity", label: T("pu.ed_temperature"), domain: ["sensor"] },
+        { key: "power_entity", label: T("xa.power_w"), domain: ["sensor"] },
+      ]},
+      { title: T("climatecard.other"), fields: [
+        { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-purifier-card-editor", ShcPurifierCardEditor);
+customElements.define("shc-purifier-card", ShcPurifierCard);
+window.customCards.push({
+  type: "shc-purifier-card",
+  name: "Purificatore d'aria",
+  description: "Purificatore d'aria (fan) animato: ventola, particelle, velocità e modalità, PM2.5, qualità aria, vita del filtro",
+  author: "Simonz82",
+});
+
+// ---------------------------------------------------------------- deumidificatore
+function dhHeroSvg(id) {
+  const drops = [[96, 0], [120, 0.5], [144, 1]];
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shcd-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shcd-body-${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c7d1dd"/><stop offset=".4" stop-color="#ffffff"/><stop offset=".75" stop-color="#eef2f6"/><stop offset="1" stop-color="#b6c2d0"/></linearGradient>
+      <clipPath id="shcd-tank-${id}"><rect x="84" y="108" width="72" height="26" rx="5"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="152" rx="66" ry="6" fill="#0f172a" opacity=".16" filter="url(#shcd-blur-${id})"/>
+    <rect x="66" y="14" width="108" height="124" rx="16" fill="url(#shcd-body-${id})" stroke="#8fa0b3" stroke-opacity=".6" stroke-width="1.5"/>
+    <rect x="78" y="22" width="84" height="18" rx="6" fill="#1f2937"/>
+    <text class="xa-disp" x="114" y="34.6" text-anchor="middle">--</text>
+    <circle class="xa-led" cx="152" cy="31" r="2.2"/>
+    <circle cx="120" cy="68" r="22" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2"/>
+    <g class="xa-blades" fill="#64748b" opacity=".9">${[0, 90, 180, 270].map((a) => `<path transform="rotate(${a} 120 68)" d="M120 68c-4-8-3-15 2-19 5 3 6 11 2 18z"/>`).join("")}</g>
+    <circle cx="120" cy="68" r="3.6" fill="#475569"/>
+    <g stroke="#94a3b8" stroke-width="1" opacity=".6">${[0, 1, 2, 3].map((i) => `<path d="M${88 + i * 0} ${96 + i * 3}h64" />`).join("")}</g>
+    ${drops.map(([x, d]) => `<path class="xa-drop" style="animation-delay:${d}s" d="M${x} 98c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8z"/>`).join("")}
+    <rect x="82" y="106" width="76" height="30" rx="7" fill="#e0f2fe" fill-opacity=".55" stroke="#64748b" stroke-width="1.2"/>
+    <rect class="xa-water" x="84" y="108" width="72" height="26" rx="5" clip-path="url(#shcd-tank-${id})" style="transform:scaleY(.3)"/>
+    <rect x="76" y="136" width="10" height="6" rx="2" fill="#64748b"/><rect x="154" y="136" width="10" height="6" rx="2" fill="#64748b"/>
+  </svg>`;
+}
+
+class ShcDehumidifierCard extends ShcXaBase {
+  setConfig(config) {
+    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "dh.entity_required"));
+    this._config = { name: shcT(this._hass, "dh.name"), layout: "centrato", target_min: 30, target_max: 80, target_step: 5, ...config };
+    this._build({
+      cls: "shc-dh-card",
+      icon: "mdi:air-humidifier",
+      nameKey: "dh.name",
+      hero: dhHeroSvg(this._uid || (this._uid = Math.random().toString(36).slice(2, 8))),
+      ctrl: `${xaPowerBtn(this._hass)}<div class="xa-stp xa-target" hidden><button type="button" data-d="-1">−</button><b class="xa-tval">—</b><button type="button" data-d="1">+</button></div><div class="xa-line xa-modes" hidden></div><div class="xa-line xa-fans" hidden></div>`,
+      rows: [["dh-r-state", "mdi:air-humidifier", "cf.state"], ["dh-r-hum", "mdi:water-percent", "dh.humidity"], ["dh-r-target", "mdi:target", "dh.target"], ["dh-r-mode", "mdi:tune-variant", "dh.mode"], ["dh-r-fan", "mdi:fan", "dh.fan"], ["dh-r-tank", "mdi:cup-water", "dh.tank"], ["dh-r-pow", "mdi:flash", "appledit.power"], ["dh-r-en", "mdi:lightning-bolt-circle", "wh.energy"]],
+    });
+    this._q(".xa-target").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const b = e.target.closest("button[data-d]");
+      if (b) this._stepTarget(Number(b.dataset.d));
+    });
+  }
+
+  _targetInfo() {
+    const cfg = this._config;
+    const st = this._st();
+    if (cfg.target_entity && this._has(cfg.target_entity)) {
+      const t = this._hass.states[cfg.target_entity];
+      const n = Number(t.state);
+      return { v: Number.isFinite(n) ? n : null, ent: cfg.target_entity, min: Number(t.attributes.min ?? cfg.target_min), max: Number(t.attributes.max ?? cfg.target_max), step: Number(t.attributes.step ?? cfg.target_step) };
+    }
+    const a = st?.attributes || {};
+    if (st && st.entity_id?.startsWith("humidifier.") && a.humidity !== undefined) {
+      return { v: Number.isFinite(Number(a.humidity)) ? Number(a.humidity) : null, ent: null, min: Number(a.min_humidity ?? cfg.target_min), max: Number(a.max_humidity ?? cfg.target_max), step: Number(a.target_humidity_step ?? cfg.target_step) };
+    }
+    return null;
+  }
+
+  _stepTarget(dir) {
+    const t = this._targetInfo();
+    if (!t) return;
+    const step = t.step || 5;
+    const nv = Math.min(t.max, Math.max(t.min, (t.v ?? t.min) + dir * step));
+    if (t.ent) this._call(t.ent.split(".")[0], "set_value", { entity_id: t.ent, value: nv });
+    else this._call("humidifier", "set_humidity", { entity_id: this._config.entity, humidity: nv });
+  }
+
+  _modeInfo() {
+    const cfg = this._config;
+    const st = this._st();
+    if (cfg.mode_entity && this._has(cfg.mode_entity)) {
+      const m = this._hass.states[cfg.mode_entity];
+      return { opts: m.attributes.options || [], cur: m.state, set: (v) => this._call(cfg.mode_entity.split(".")[0], "select_option", { entity_id: cfg.mode_entity, option: v }) };
+    }
+    const a = st?.attributes || {};
+    if (Array.isArray(a.available_modes)) return { opts: a.available_modes, cur: a.mode, set: (v) => this._call("humidifier", "set_mode", { entity_id: cfg.entity, mode: v }) };
+    return null;
+  }
+
+  _graphSeries() {
+    const c = this._config;
+    const s = [];
+    const cur = c.humidity_entity || null;
+    if (cur) s.push({ key: "hum", entity: cur, label: shcT(this._hass, "dh.humidity"), color: "#0ea5e9" });
+    if (c.target_entity) s.push({ key: "target", entity: c.target_entity, label: shcT(this._hass, "dh.target"), color: "#22c55e" });
+    if (c.power_entity) s.push({ key: "power", entity: c.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f59e0b" });
+    if (c.energy_entity) s.push({ key: "energy", entity: c.energy_entity, label: shcT(this._hass, "wh.energy"), color: "#8b5cf6" });
+    return s;
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const q = (s) => this._q(s);
+    const st = this._st();
+    const unav = !st || ["unavailable", "unknown"].includes(st.state);
+    const on = !unav && st.state === "on";
+    const a = st?.attributes || {};
+    const hum = this._val(cfg.humidity_entity) ?? (Number.isFinite(Number(a.current_humidity)) && a.current_humidity !== null ? Number(a.current_humidity) : null);
+    const tank = cfg.tank_entity ? hass.states[cfg.tank_entity] : null;
+    const full = !!tank && tank.state === "on";
+    const tg = this._targetInfo();
+
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "xa-run", "xa-tankfull", "xa-alert");
+    card.classList.add(unav ? "is-unavailable" : on ? "is-run" : "is-off");
+    if (on && !full) card.classList.add("xa-run");
+    if (full) card.classList.add("xa-tankfull", "xa-alert");
+    card.style.setProperty("--xa-dur", "1.1s");
+    this._setBadge(unav ? "unavailable" : on ? "run" : "off", unav ? "OFFLINE" : shcT(this._hass, on ? "xa.st_on" : "xa.st_off"));
+    q(".xa-disp").textContent = unav ? "--" : !on ? "OFF" : hum !== null ? `${clNum(hum, 0)}%` : "ON";
+    q(".xa-pw").classList.toggle("on", on);
+    q(".xa-water").style.transform = `scaleY(${full ? 1 : tank ? 0.28 : 0.3})`;
+
+    const tgBox = q(".xa-target");
+    tgBox.hidden = !tg;
+    if (tg) q(".xa-tval").textContent = tg.v !== null ? `${clNum(tg.v, 0)}%` : "—";
+    const mi = this._modeInfo();
+    this._chips(".xa-modes", mi ? mi.opts : [], mi?.cur, (v) => mi.set(v));
+    const fan = cfg.fan_entity ? hass.states[cfg.fan_entity] : null;
+    this._chips(".xa-fans", fan ? fan.attributes.options || [] : [], fan?.state, (v) => this._call(cfg.fan_entity.split(".")[0], "select_option", { entity_id: cfg.fan_entity, option: v }));
+
+    q(".dh-r-state").textContent = unav ? "—" : a.action ? this._pretty(a.action) : shcT(this._hass, on ? "xa.st_on" : "xa.st_off");
+    this._setRow("dh-r-hum", hum !== null ? `${clNum(hum, 0)}%` : "—", hum !== null || !!cfg.humidity_entity);
+    this._setRow("dh-r-target", tg && tg.v !== null ? `${clNum(tg.v, 0)}%` : "—", !!tg);
+    this._setRow("dh-r-mode", mi?.cur ? this._pretty(mi.cur) : "—", !!mi);
+    this._setRow("dh-r-fan", fan && !["unknown", "unavailable"].includes(fan.state) ? this._pretty(fan.state) : "—", !!fan);
+    this._setRow("dh-r-tank", tank ? shcT(this._hass, full ? "dh.tank_full" : "dh.tank_ok") : "—", !!tank);
+    this._setRow("dh-r-pow", this._numText(cfg.power_entity, 0), !!cfg.power_entity);
+    this._setRow("dh-r-en", this._numText(cfg.energy_entity, 1), !!cfg.energy_entity);
+    q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
+    this._setWarn(unav ? shcT(this._hass, "xa.unreachable") : full ? shcT(this._hass, "dh.tank_full_warn") : "");
+    this._liveRefresh([cfg.entity, cfg.humidity_entity, cfg.target_entity, cfg.mode_entity, cfg.fan_entity, cfg.tank_entity, cfg.power_entity, cfg.energy_entity]);
+  }
+
+  _openInfo() {
+    const cfg = this._config;
+    this._openInfoRows("dh.name", (more) => [
+      more(shcT(this._hass, "dh.humidity"), cfg.humidity_entity, this._numText(cfg.humidity_entity, 0)),
+      more(shcT(this._hass, "dh.target"), cfg.target_entity, this._numText(cfg.target_entity, 0)),
+      more(shcT(this._hass, "dh.mode"), cfg.mode_entity, this._hass.states[cfg.mode_entity]?.state),
+      more(shcT(this._hass, "dh.fan"), cfg.fan_entity, this._hass.states[cfg.fan_entity]?.state),
+      more(shcT(this._hass, "dh.tank"), cfg.tank_entity, this._hass.states[cfg.tank_entity]?.state === "on" ? shcT(this._hass, "dh.tank_full") : shcT(this._hass, "dh.tank_ok")),
+      more(shcT(this._hass, "appledit.power"), cfg.power_entity, this._numText(cfg.power_entity, 0)),
+      more(shcT(this._hass, "wh.energy"), cfg.energy_entity, this._numText(cfg.energy_entity, 1)),
+    ]);
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-dehumidifier-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("humidifier.")) || "humidifier.deumidificatore";
+    return { name: shcT(hass, "dh.name"), entity: e };
+  }
+}
+
+class ShcDehumidifierCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    const T = (k) => shcT(this._hass, k);
+    return [
+      { title: T("fritzcard.basic"), fields: [
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("dh.name") },
+        { key: "entity", label: T("dh.ed_entity"), domain: ["humidifier", "switch", "input_boolean"], required: true },
+        { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:air-humidifier" },
+      ]},
+      { title: T("xa.sec_extra"), fields: [
+        { key: "humidity_entity", label: T("dh.ed_humidity"), domain: ["sensor"] },
+        { key: "target_entity", label: T("dh.ed_target"), domain: ["number", "input_number"] },
+        { key: "mode_entity", label: T("dh.ed_mode"), domain: ["select", "input_select"] },
+        { key: "fan_entity", label: T("dh.ed_fan"), domain: ["select", "input_select"] },
+        { key: "tank_entity", label: T("dh.ed_tank"), domain: ["binary_sensor", "input_boolean"] },
+        { key: "power_entity", label: T("xa.power_w"), domain: ["sensor"] },
+        { key: "energy_entity", label: T("wh.ed_energy"), domain: ["sensor"] },
+      ]},
+      { title: T("climatecard.other"), fields: [
+        { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-dehumidifier-card-editor", ShcDehumidifierCardEditor);
+customElements.define("shc-dehumidifier-card", ShcDehumidifierCard);
+window.customCards.push({
+  type: "shc-dehumidifier-card",
+  name: "Deumidificatore",
+  description: "Deumidificatore animato: umidità attuale e obiettivo, modalità, ventola, serbatoio pieno, potenza",
+  author: "Simonz82",
+});
+
+// ---------------------------------------------------------------- stampante
+function prHeroSvg(id) {
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shcr-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="shcr-body-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="#e5eaf0"/><stop offset="1" stop-color="#b9c4d1"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="146" rx="84" ry="6" fill="#0f172a" opacity=".16" filter="url(#shcr-blur-${id})"/>
+    <rect x="76" y="14" width="88" height="42" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <rect x="52" y="48" width="136" height="64" rx="12" fill="url(#shcr-body-${id})" stroke="#8fa0b3" stroke-opacity=".7" stroke-width="1.5"/>
+    <rect x="62" y="56" width="116" height="9" rx="4" fill="#1f2937"/>
+    <rect x="66" y="58" width="36" height="5" rx="2" fill="#38bdf8" opacity=".35"/>
+    <circle class="xp-led" cx="168" cy="92" r="3"/>
+    <rect x="144" y="86" width="16" height="12" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width=".8"/>
+    <g class="xp-sheet"><rect x="80" y="98" width="80" height="34" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+      <path class="xp-line" d="M88 108h64M88 114h54M88 120h60" stroke="#475569" stroke-width="1.6" stroke-linecap="round"/></g>
+    <rect x="60" y="94" width="120" height="6" rx="2.5" fill="#0f172a" opacity=".75"/>
+    <rect x="52" y="108" width="136" height="14" rx="6" fill="url(#shcr-body-${id})" stroke="#8fa0b3" stroke-opacity=".7" stroke-width="1.2"/>
+    <rect x="66" y="122" width="108" height="9" rx="3" fill="#64748b"/>
+  </svg>`;
+}
+
+const PR_DEFAULT_COLORS = ["#1f2937", "#06b6d4", "#d946ef", "#facc15", "#f97316", "#22c55e"];
+function prInkColor(item, idx) {
+  if (item.color) return item.color;
+  const t = `${item.name || ""} ${item.entity || ""}`.toLowerCase();
+  if (/black|nero|noir|schwarz|zwart|\bbk\b|\bblk\b/.test(t)) return "#1f2937";
+  if (/cyan|ciano|\bc\b_|blu\b/.test(t)) return "#06b6d4";
+  if (/magenta|\bm\b_|rosa|rosso/.test(t)) return "#d946ef";
+  if (/yellow|giallo|jaune|gelb|geel/.test(t)) return "#facc15";
+  return PR_DEFAULT_COLORS[idx % PR_DEFAULT_COLORS.length];
+}
+
+class ShcPrinterCard extends ShcXaBase {
+  setConfig(config) {
+    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "pr.entity_required"));
+    this._config = { name: shcT(this._hass, "pr.name"), layout: "centrato", ink_low: 15, ...config };
+    this._config.ink_low = Number.isFinite(Number(this._config.ink_low)) ? Number(this._config.ink_low) : 15;
+    this._build({
+      cls: "shc-pr-card",
+      icon: "mdi:printer",
+      nameKey: "pr.name",
+      hero: prHeroSvg(this._uid || (this._uid = Math.random().toString(36).slice(2, 8))),
+      below: `<div class="xp-inks"></div>`,
+      rows: [["pr-r-state", "mdi:printer", "pr.state"], ["pr-r-pages", "mdi:file-document-outline", "pr.pages"], ["pr-r-low", "mdi:water-alert-outline", "pr.lowest"]],
+    });
+    this._q(".xp-inks").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const r = e.target.closest(".xp-ink");
+      if (r) this._moreInfo(r.dataset.e);
+    });
+  }
+
+  _inks() {
+    const raw = Array.isArray(this._config.ink_levels) ? this._config.ink_levels : [];
+    return raw
+      .map((it, i) => (typeof it === "string" ? { entity: it } : { ...it }))
+      .filter((it) => it.entity)
+      .map((it, i) => ({ ...it, name: it.name || this._hass?.states[it.entity]?.attributes?.friendly_name || it.entity, color: prInkColor(it, i) }));
+  }
+
+  _graphSeries() {
+    const s = this._inks().map((it) => ({ key: it.entity, entity: it.entity, label: it.name, color: it.color }));
+    if (this._config.pages_entity) s.push({ key: "pages", entity: this._config.pages_entity, label: shcT(this._hass, "pr.pages"), color: "#64748b" });
+    return s;
+  }
+
+  _state() {
+    const st = this._st();
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return null;
+    const v = String(st.state).toLowerCase();
+    return ["idle", "printing", "stopped"].includes(v) ? v : "unknown";
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const cfg = this._config;
+    const q = (s) => this._q(s);
+    const s = this._state();
+    const unav = s === null;
+    const inks = this._inks();
+    const lv = inks.map((it) => ({ ...it, v: this._val(it.entity) }));
+    const low = lv.filter((it) => it.v !== null && it.v <= cfg.ink_low);
+
+    const card = q(".shc-ap-card");
+    card.classList.remove("is-run", "is-off", "is-unavailable", "xa-print", "xp-st-idle", "xp-st-printing", "xp-st-stopped", "xa-alert");
+    card.classList.add(unav ? "is-unavailable" : s === "printing" ? "is-run" : "is-off");
+    if (!unav && s !== "unknown") card.classList.add("xp-st-" + s);
+    if (s === "printing") card.classList.add("xa-print");
+    if (low.length || s === "stopped") card.classList.add("xa-alert");
+    this._setBadge(unav ? "unavailable" : s === "printing" ? "run" : s === "idle" ? "standby" : "off", unav ? "OFFLINE" : shcT(this._hass, "pr.st_" + s));
+
+    // barre inchiostro: ricostruite solo se cambia l'elenco, poi aggiornate
+    const box = q(".xp-inks");
+    const sig = lv.map((it) => it.entity + it.name + it.color).join("|");
+    if (box._sig !== sig) {
+      box._sig = sig;
+      box.innerHTML = lv.map((it) => `<div class="xp-ink" data-e="${esc(it.entity)}"><span>${esc(it.name)}</span><div class="xp-bar"><i style="background:${esc(it.color)}"></i></div><b>—</b></div>`).join("");
+    }
+    box.querySelectorAll(".xp-ink").forEach((el, i) => {
+      const it = lv[i];
+      el.querySelector("i").style.width = `${it.v === null ? 0 : Math.min(100, Math.max(0, it.v))}%`;
+      el.querySelector("b").textContent = it.v === null ? "—" : `${Math.round(it.v)}%`;
+      el.classList.toggle("low", it.v !== null && it.v <= cfg.ink_low);
+    });
+    box.hidden = !lv.length;
+
+    q(".pr-r-state").textContent = unav ? "—" : shcT(this._hass, "pr.st_" + s);
+    this._setRow("pr-r-pages", this._numText(cfg.pages_entity, 0), !!cfg.pages_entity);
+    const known = lv.filter((it) => it.v !== null).sort((a, b) => a.v - b.v)[0];
+    this._setRow("pr-r-low", known ? `${known.name} ${Math.round(known.v)}%` : "—", !!lv.length);
+    q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
+    this._setWarn(unav ? shcT(this._hass, "xa.unreachable") : low.length ? shcT(this._hass, "pr.ink_low_warn", { "1": low.map((it) => it.name).join(", ") }) : s === "stopped" ? shcT(this._hass, "pr.printer_stopped") : "");
+    this._liveRefresh([cfg.entity, cfg.pages_entity, ...inks.map((it) => it.entity)]);
+  }
+
+  _openInfo() {
+    const cfg = this._config;
+    this._openInfoRows("pr.name", (more) => [
+      this._row(shcT(this._hass, "pr.state"), this._valHtml(this._state() ? shcT(this._hass, "pr.st_" + this._state()) : shcT(this._hass, "xa.unreachable"))),
+      ...this._inks().map((it) => more(it.name, it.entity, this._numText(it.entity, 0))),
+      more(shcT(this._hass, "pr.pages"), cfg.pages_entity, this._numText(cfg.pages_entity, 0)),
+    ]);
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-printer-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const e = Object.keys(hass?.states || {}).find((x) => x.startsWith("sensor.") && /printer|stampante|canon|epson|hp_/.test(x)) || "sensor.stampante";
+    return { name: shcT(hass, "pr.name"), entity: e, ink_levels: [{ entity: "sensor.stampante_nero", name: "Nero" }, { entity: "sensor.stampante_ciano", name: "Ciano" }] };
+  }
+}
+
+class ShcPrinterCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    const T = (k) => shcT(this._hass, k);
+    return [
+      { title: T("fritzcard.basic"), fields: [
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("pr.name") },
+        { key: "entity", label: T("pr.ed_entity"), domain: ["sensor"], required: true },
+        { key: "pages_entity", label: T("pr.ed_pages"), domain: ["sensor"] },
+        { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:printer" },
+      ]},
+      { title: T("pr.ink"), fields: [
+        { key: "ink_levels", label: T("pr.ed_inks"), kind: "list", itemFields: [
+          { key: "entity", label: T("pr.ed_ink_entity"), kind: "entity", domain: ["sensor"] },
+          { key: "name", label: T("pr.ed_ink_name"), kind: "text" },
+          { key: "color", label: T("pr.ed_ink_color"), kind: "text" },
+        ]},
+        { key: "ink_low", label: T("pr.ed_ink_low"), kind: "number" },
+      ]},
+      { title: T("climatecard.other"), fields: [
+        { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-printer-card-editor", ShcPrinterCardEditor);
+customElements.define("shc-printer-card", ShcPrinterCard);
+window.customCards.push({
+  type: "shc-printer-card",
+  name: "Stampante",
+  description: "Stampante (integrazione IPP) animata: stato, livelli di inchiostro / toner con i colori, contatore pagine, avviso inchiostro basso",
   author: "Simonz82",
 });

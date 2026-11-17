@@ -91,6 +91,11 @@ Tap a card to open its guide.
   </tr>
   <tr>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/macchina-caffe.gif" width="100%" alt="☕ Coffee machine"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md">☕ Coffee machine</a></b></sub></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/purificatore.gif" width="100%" alt="🌀 Air purifier"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md">🌀 Air purifier</a></b></sub></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/deumidificatore.gif" width="100%" alt="💧 Dehumidifier"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md">💧 Dehumidifier</a></b></sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/stampante.gif" width="100%" alt="🖨️ Printer"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md">🖨️ Printer</a></b></sub></td>
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
@@ -145,6 +150,9 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Alexa (text, memo, web radio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Speaker (Echo / Alexa and other speakers)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
 - [Coffee machine (smart plug: off, standby, heating, brewing, ready)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+- [Air purifier (fan: speed, modes, PM2.5, filter)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
+- [Dehumidifier (humidity, target, mode, fan, full tank)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
+- [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 
 Example, coffee machine on a smart plug (states from the power draw, thresholds in W):
 
@@ -255,6 +263,11 @@ Tocca una card per aprire la sua guida.
   </tr>
   <tr>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/macchina-caffe.gif" width="100%" alt="☕ Macchina del caffè"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md">☕ Macchina del caffè</a></b></sub></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/purificatore.gif" width="100%" alt="🌀 Purificatore d'aria"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md">🌀 Purificatore d'aria</a></b></sub></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/deumidificatore.gif" width="100%" alt="💧 Deumidificatore"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md">💧 Deumidificatore</a></b></sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/stampante.gif" width="100%" alt="🖨️ Stampante"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md">🖨️ Stampante</a></b></sub></td>
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
@@ -309,6 +322,9 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Alexa (testo, memo, webradio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Altoparlante (Echo / Alexa e altri altoparlanti)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
 - [Macchina del caffè (presa smart: spenta, standby, riscaldamento, erogazione, pronta)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+- [Purificatore d'aria (fan: velocità, modalità, PM2.5, filtro)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
+- [Deumidificatore (umidità, obiettivo, modalità, ventola, serbatoio pieno)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
+- [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 
 Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W):
 
