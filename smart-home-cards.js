@@ -1003,6 +1003,9 @@ const STYLE = `
 .shc-ap-chip b{color:var(--shc-text);font-weight:800}
 .shc-ap-chip.on{background:#dcfce7;border-color:#86efac;color:#15803d}
 .shc-ap-chip-action{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-ap-row-chips .shc-ap-chip,.shc-ap-chips .shc-ap-chip{width:auto;height:auto;flex:0 0 auto;white-space:nowrap}
+.shc-ap-row-chips .shc-ap-chip svg,.shc-ap-chips .shc-ap-chip svg{width:16px;height:16px}
+.shc-ap-card:has(> .shc-ap-panel[hidden]):not(:has(> .shc-ap-warn:not([hidden]))){padding-bottom:13px}
 .shc-ap-sub-back{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:800;color:var(--shc-blue);cursor:pointer;margin:0 0 10px}
 .shc-ap-switch.on::after{transform:translateX(16px)}
 .shc-ap-action-btn{flex:0 0 auto;border:0;border-radius:10px;padding:0 14px;height:26px;background:var(--shc-blue);color:#fff;font-size:13px;font-weight:850;cursor:pointer}
@@ -7388,7 +7391,24 @@ class ShcSimpleCardEditorBase extends HTMLElement {
 
   setConfig(config) {
     this._config = { ...config };
+    // righe di elenco appena aggiunte (ancora vuote) vivono solo nell'editor: si tengono finche' la config ricevuta
+    // coincide con quella emessa (HA puo' ripulire le righe vuote, e allora non si potrebbe aggiungerne altre)
+    if (this._listWork) {
+      for (const k of Object.keys(this._listWork)) {
+        const cfgList = shcGetPath(this._config, k);
+        if (JSON.stringify(this._listNonBlank(cfgList)) !== JSON.stringify(this._listNonBlank(this._listWork[k]))) delete this._listWork[k];
+      }
+    }
     this._render();
+  }
+
+  _listNonBlank(arr) {
+    return (Array.isArray(arr) ? arr : []).filter((it) => it && (typeof it === "string" ? it : Object.values(it).some((v) => v !== "" && v !== undefined && v !== null)));
+  }
+
+  _setList(key, items) {
+    (this._listWork = this._listWork || {})[key] = items;
+    this._set(key, this._listNonBlank(items));
   }
 
   set hass(hass) {
@@ -7411,7 +7431,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
   }
 
   _listItems(f) {
-    const val = shcGetPath(this._config, f.key);
+    const val = this._listWork?.[f.key] || shcGetPath(this._config, f.key);
     const items = Array.isArray(val) ? val : f.defaults || [];
     return items.map((it) => (typeof it === "string" ? { [f.itemFields[0].key]: it } : it || {}));
   }
@@ -7490,7 +7510,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       const f = listField(el.dataset.list);
       const items = this._listItems(f).map((it) => ({ ...it }));
       items[Number(el.dataset.idx)][el.dataset.sub] = value;
-      this._set(f.key, items);
+      this._setList(f.key, items);
     };
     body.querySelectorAll("ha-entity-picker[data-list]").forEach((el) => {
       el.hass = this._hass;
@@ -7512,7 +7532,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       btn.addEventListener("click", () => {
         const f = listField(btn.dataset.listAdd);
         rememberOpenLists();
-        this._set(f.key, this._listItems(f).concat([{}]));
+        this._setList(f.key, this._listItems(f).concat([{}]));
         this._render();
       });
     });
@@ -7520,7 +7540,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       btn.addEventListener("click", () => {
         const f = listField(btn.dataset.listDel);
         rememberOpenLists();
-        this._set(f.key, this._listItems(f).filter((_, i) => i !== Number(btn.dataset.idx)));
+        this._setList(f.key, this._listItems(f).filter((_, i) => i !== Number(btn.dataset.idx)));
         this._render();
       });
     });
@@ -18405,6 +18425,9 @@ const XA_STYLE = `
 .xp-ink.low b{color:#ef4444}
 .xp-ink b{text-align:right}
 .xa-line[hidden],.xa-stp[hidden],.xp-inks[hidden],.xa-range[hidden]{display:none}
+.shc-cl-card.cl-img.shc-xa .shc-ap-hero{background:radial-gradient(120% 90% at 50% 8%,rgba(224,242,254,.65),rgba(241,245,249,.35) 60%,transparent) !important;border-radius:18px;overflow:hidden}
+.shc-cl-card.cl-img.shc-xa.is-run .shc-ap-hero{background:radial-gradient(120% 90% at 50% 8%,rgba(186,230,253,.85),rgba(224,242,254,.35) 62%,transparent) !important}
+.shc-cl-card.cl-img.shc-xa.is-off .shc-ap-hero,.shc-cl-card.cl-img.shc-xa.is-unavailable .shc-ap-hero{filter:grayscale(.55) opacity(.75)}
 `;
 
 Object.assign(SHC_I18N.it, {
@@ -18470,6 +18493,15 @@ Object.assign(SHC_I18N.it, {
   "pr.ed_ink_name": "Nome (es. Nero)",
   "pr.ed_ink_color": "Colore (es. #06b6d4, facoltativo)",
   "pr.ed_ink_low": "Avviso inchiostro basso sotto (%)",
+  "xa.no_automations": "Nessuna automazione configurata: aggiungile con automation_entity / automation_entities",
+  "xa.ed_automation": "Automazione (interruttore nelle Impostazioni)",
+  "xa.auto_on": "Attiva",
+  "xa.auto_off": "Disattivata",
+  "pr.sec_connection": "Connessione",
+  "pr.sec_ink": "Livello toner",
+  "pr.reachable": "Raggiungibilità",
+  "pr.online": "Online",
+  "pr.offline": "Offline",
 });
 Object.assign(SHC_I18N.en, {
   "server.cpu_temp": "CPU temperature",
@@ -18534,6 +18566,15 @@ Object.assign(SHC_I18N.en, {
   "pr.ed_ink_name": "Name (e.g. Black)",
   "pr.ed_ink_color": "Colour (e.g. #06b6d4, optional)",
   "pr.ed_ink_low": "Low ink warning below (%)",
+  "xa.no_automations": "No automation configured: add them with automation_entity / automation_entities",
+  "xa.ed_automation": "Automation (switch in Settings)",
+  "xa.auto_on": "On",
+  "xa.auto_off": "Off",
+  "pr.sec_connection": "Connection",
+  "pr.sec_ink": "Ink / toner level",
+  "pr.reachable": "Reachability",
+  "pr.online": "Online",
+  "pr.offline": "Offline",
 });
 Object.assign(SHC_I18N.nl, {
   "server.cpu_temp": "CPU-temperatuur",
@@ -18598,6 +18639,15 @@ Object.assign(SHC_I18N.nl, {
   "pr.ed_ink_name": "Naam (bijv. Zwart)",
   "pr.ed_ink_color": "Kleur (bijv. #06b6d4, optioneel)",
   "pr.ed_ink_low": "Waarschuwing inkt bijna op onder (%)",
+  "xa.no_automations": "Geen automatisering ingesteld: voeg ze toe met automation_entity / automation_entities",
+  "xa.ed_automation": "Automatisering (schakelaar in Instellingen)",
+  "xa.auto_on": "Aan",
+  "xa.auto_off": "Uit",
+  "pr.sec_connection": "Verbinding",
+  "pr.sec_ink": "Inkt- / tonerniveau",
+  "pr.reachable": "Bereikbaarheid",
+  "pr.online": "Online",
+  "pr.offline": "Offline",
 });
 
 // Base comune: scheletro della card (chip, nome, badge, grafici/stato, hero + colonna dati), comandi e finestra stato
@@ -18609,12 +18659,13 @@ class ShcXaBase extends ShcDeviceCardBase {
     const row = ([cls, icon, key]) =>
       `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(T(key))}</small></span><b class="${cls}">—</b></div>`;
     this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${XA_STYLE}</style>
-      <article class="shc-ap-card shc-cl-card cl-img ${o.cls}">
+      <article class="shc-ap-card shc-cl-card cl-img shc-xa ${o.cls}">
         <div class="shc-ap-top">
           <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || o.icon)}"></ha-icon></span>
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(T("fritz.settings"))}" data-i18n-title="fritz.settings"${o.alwaysSettings || this._autoIds().length ? "" : " hidden"}>${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(T("fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
             <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(T("fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
           </span>
@@ -18635,11 +18686,55 @@ class ShcXaBase extends ShcDeviceCardBase {
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
     this._bind = this._commonBind();
     this._bind(".shc-dv-info", () => this._openInfo());
+    this._bind(".shc-ap-settings", () => this._openSettings());
     this._bind(".xa-pw", () => this._call("homeassistant", "toggle", { entity_id: this._config.entity }));
   }
 
   _q(sel) {
     return this._root.querySelector(sel);
+  }
+
+  // automation_entity (singola) + automation_entities (lista di id o {entity, name}), senza doppioni
+  _autoIds() {
+    const cfg = this._config || {};
+    const out = [];
+    const seen = new Set();
+    const add = (id, name) => {
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      out.push({ id, name });
+    };
+    add(cfg.automation_entity);
+    (Array.isArray(cfg.automation_entities) ? cfg.automation_entities : []).forEach((it) => (typeof it === "string" ? add(it) : add(it?.entity, it?.name)));
+    return out;
+  }
+
+  _autoName(a) {
+    return a.name || this._hass?.states[a.id]?.attributes?.friendly_name || a.id;
+  }
+
+  _openSettings() {
+    const hass = this._hass;
+    const autos = this._autoIds();
+    const rows = autos
+      .map((a) => {
+        const st = hass.states[a.id];
+        if (!st) return this._row(this._autoName(a), `<span class="shc-ap-row-val">n/d</span>`);
+        const on = st.state === "on";
+        return this._row(this._autoName(a), `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(a.id)}" aria-pressed="${on}"></button>`);
+      })
+      .join("");
+    const overlay = this._openDialog(
+      shcT(hass, "fritz.settings"),
+      rows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(hass, "ups.automations"))}</div>${rows}</div>` : `<div class="shc-ap-row-val">${esc(shcT(hass, "xa.no_automations"))}</div>`,
+    );
+    overlay.querySelectorAll("[data-entity]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hass.callService(btn.dataset.entity.split(".")[0], "toggle", { entity_id: btn.dataset.entity });
+        setTimeout(() => this._openSettings(), 250);
+      });
+    });
   }
 
   _setRow(cls, text, show = true) {
@@ -18857,6 +18952,11 @@ class ShcPurifierCardEditor extends ShcSimpleCardEditorBase {
         { key: "humidity_entity", label: T("pu.ed_humidity"), domain: ["sensor"] },
         { key: "temperature_entity", label: T("pu.ed_temperature"), domain: ["sensor"] },
         { key: "power_entity", label: T("xa.power_w"), domain: ["sensor"] },
+        { key: "automation_entity", label: T("xa.ed_automation"), domain: ["automation"] },
+        { key: "automation_entities", label: T("upscard.more_automations"), kind: "list", itemFields: [
+          { key: "entity", label: T("upscard.automation"), kind: "entity", domain: ["automation"] },
+          { key: "name", label: T("fritzcard.name"), kind: "text" },
+        ]},
       ]},
       { title: T("climatecard.other"), fields: [
         { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
@@ -19052,6 +19152,11 @@ class ShcDehumidifierCardEditor extends ShcSimpleCardEditorBase {
         { key: "tank_entity", label: T("dh.ed_tank"), domain: ["binary_sensor", "input_boolean"] },
         { key: "power_entity", label: T("xa.power_w"), domain: ["sensor"] },
         { key: "energy_entity", label: T("wh.ed_energy"), domain: ["sensor"] },
+        { key: "automation_entity", label: T("xa.ed_automation"), domain: ["automation"] },
+        { key: "automation_entities", label: T("upscard.more_automations"), kind: "list", itemFields: [
+          { key: "entity", label: T("upscard.automation"), kind: "entity", domain: ["automation"] },
+          { key: "name", label: T("fritzcard.name"), kind: "text" },
+        ]},
       ]},
       { title: T("climatecard.other"), fields: [
         { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
@@ -19108,6 +19213,7 @@ class ShcPrinterCard extends ShcXaBase {
     this._config.ink_low = Number.isFinite(Number(this._config.ink_low)) ? Number(this._config.ink_low) : 15;
     this._build({
       cls: "shc-pr-card",
+      alwaysSettings: true,
       icon: "mdi:printer",
       nameKey: "pr.name",
       hero: prHeroSvg(this._uid || (this._uid = Math.random().toString(36).slice(2, 8))),
@@ -19189,11 +19295,31 @@ class ShcPrinterCard extends ShcXaBase {
 
   _openInfo() {
     const cfg = this._config;
-    this._openInfoRows("pr.name", (more) => [
-      this._row(shcT(this._hass, "pr.state"), this._valHtml(this._state() ? shcT(this._hass, "pr.st_" + this._state()) : shcT(this._hass, "xa.unreachable"))),
-      ...this._inks().map((it) => more(it.name, it.entity, this._numText(it.entity, 0))),
-      more(shcT(this._hass, "pr.pages"), cfg.pages_entity, this._numText(cfg.pages_entity, 0)),
+    const T = (k, v) => shcT(this._hass, k, v);
+    const st = this._st();
+    const state = this._state();
+    const fmtTime = (iso) => (iso ? new Date(iso).toLocaleString(shcLoc(this._hass), { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—");
+    const more = (label, entity, text) =>
+      entity && this._has(entity) ? `<div class="shc-ap-row" data-more="${esc(entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(label)}</span>${this._valHtml(text)}</div>` : "";
+    const sec = (title, rows) => (rows.filter(Boolean).length ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(title)}</div>${rows.filter(Boolean).join("")}</div>` : "");
+    const conn = sec(T("pr.sec_connection"), [
+      this._row(T("pr.state"), this._valHtml(state ? T("pr.st_" + state) : T("xa.unreachable"))),
+      this._row(T("pr.reachable"), this._valHtml(state ? T("pr.online") : T("pr.offline"))),
+      st ? this._row(T("climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
+      more(T("pr.pages"), cfg.pages_entity, this._numText(cfg.pages_entity, 0)),
     ]);
+    const inks = sec(T("pr.sec_ink"), this._inks().map((it) => more(it.name, it.entity, this._numText(it.entity, 0))));
+    const autos = sec(
+      T("ups.automations"),
+      this._autoIds().map((a) => {
+        const as = this._hass.states[a.id];
+        if (!as) return "";
+        const lt = as.attributes?.last_triggered;
+        return more(this._autoName(a), a.id, `${T(as.state === "on" ? "xa.auto_on" : "xa.auto_off")}${lt ? " · " + fmtTime(lt) : ""}`);
+      }),
+    );
+    const full = this._row(T("climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(T("zigbee.open"))}</button>`);
+    this._openDialog(T("fritz.status"), conn + inks + autos + `<div class="shc-ap-sec">${full}</div>`, () => this._openInfo());
   }
 
   static getConfigElement() {
@@ -19223,6 +19349,11 @@ class ShcPrinterCardEditor extends ShcSimpleCardEditorBase {
           { key: "color", label: T("pr.ed_ink_color"), kind: "text" },
         ]},
         { key: "ink_low", label: T("pr.ed_ink_low"), kind: "number" },
+        { key: "automation_entity", label: T("xa.ed_automation"), domain: ["automation"] },
+        { key: "automation_entities", label: T("upscard.more_automations"), kind: "list", itemFields: [
+          { key: "entity", label: T("upscard.automation"), kind: "entity", domain: ["automation"] },
+          { key: "name", label: T("fritzcard.name"), kind: "text" },
+        ]},
       ]},
       { title: T("climatecard.other"), fields: [
         { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
