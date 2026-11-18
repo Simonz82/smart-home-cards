@@ -314,6 +314,22 @@ controls:
 
 Senza `controls` la card resta come prima, senza comandi.
 
+### Tapparella (o altra `cover`): Apri, Stop, Chiudi
+
+Per **comandare** una tapparella, una tenda o un cancello e non solo vederli, usa `artwork: blind` con `controls.cover_entity`. Compaiono i pulsanti **▲ Apri**, **■ Stop**, **▼ Chiudi** (solo quelli che la cover supporta) e, se la cover accetta `set_cover_position`, un **cursore della posizione** 0-100%.
+
+```yaml
+type: custom:shc-appliance-clone-card
+name: Tapparella salotto
+artwork: blind
+level_entity: cover.tapparella_salotto
+level_attribute: current_position
+controls:
+  cover_entity: cover.tapparella_salotto
+```
+
+La card chiama i servizi `cover.open_cover`, `cover.close_cover`, `cover.stop_cover` e `cover.set_cover_position`. `level_entity` serve solo per l'animazione del disegno (vedi sotto); `level_invert: true` se nella tua cover 100 = chiusa.
+
 ## 🧺 Samsung con LocalThings (asciugatrice, lavatrice...)
 
 Con l'integrazione **LocalThings** (comunicazione locale con gli elettrodomestici Samsung, senza cloud) le entità sono quasi tutte `sensor`, `select`, `switch`, `binary_sensor` e `button`. La card le mostra così:

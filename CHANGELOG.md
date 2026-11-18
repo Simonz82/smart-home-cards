@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Appliance card, blind / cover control** (Facebook question): new option `controls.cover_entity` adds Open / Stop / Close buttons (only the ones the cover supports) and a position slider when `set_cover_position` is supported. Works with `artwork: blind` or any other drawing. Docs in `docs/elettrodomestici.md`.
 - **Printer / air purifier / dehumidifier cards** (discussion #21): the drawing now sits on the same soft gradient background as the appliance cards; the printer ⓘ Status window has Connection, Ink / toner level and Automations sections; new ⚙ Settings button with `automation_entity` / `automation_entities` (always on the printer, only when configured on the other two); the visual editor list of ink levels accepts any number of entries (empty new rows are kept while editing).
 - **Layout fix** (discussion #22): with the power band hidden (`hide_power`) the card now keeps its bottom padding, so the image is no longer cut at the bottom edge, in both classic and centred layout, on every card.
 - **Settings window** (discussion #20): the pills (time, days, numbers, extra switches) of grouped settings rows were clipped to a small circle (values like 60.0 or 03:00 cut); they now size to their content.

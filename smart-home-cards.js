@@ -966,6 +966,9 @@ const STYLE = `
 .shc-ap-cbtn.pause{background:#f59e0b;border-color:#f59e0b;color:#fff}
 .shc-ap-cbtn.stop{color:#dc2626;border-color:rgba(220,38,38,.45)}
 .shc-ap-cbtn.stop.armed{background:#dc2626;border-color:#dc2626;color:#fff}
+.shc-ap-cpos{display:flex;align-items:center;gap:10px;margin-top:9px}
+.shc-ap-cpos input{flex:1;min-width:0}
+.shc-ap-cpos b{min-width:38px;text-align:right;font-size:13px}
 .shc-ap-cbtn:disabled{opacity:.45;cursor:not-allowed}
 .shc-ap-ctrl-note{font-size:12.5px;font-weight:700;line-height:1.4;color:var(--shc-dim)}
 .shc-ap-ctrl-note.bad{color:#b45309}
@@ -1890,6 +1893,8 @@ const SHC_I18N = {
       "ctrl.start": "Avvia",
       "ctrl.resume": "Riprendi",
       "ctrl.pause": "Pausa",
+      "ctrl.open": "Apri",
+      "ctrl.close": "Chiudi",
       "ctrl.stop": "Stop",
       "ctrl.paused_hint": "In pausa: premi Riprendi per continuare il ciclo.",
       "ctrl.running_hint": "Ciclo in corso: programma e opzioni si cambiano a macchina ferma.",
@@ -3007,6 +3012,8 @@ const SHC_I18N = {
       "ctrl.start": "Start",
       "ctrl.resume": "Resume",
       "ctrl.pause": "Pause",
+      "ctrl.open": "Open",
+      "ctrl.close": "Close",
       "ctrl.stop": "Stop",
       "ctrl.paused_hint": "Paused: press Resume to continue the cycle.",
       "ctrl.running_hint": "Cycle in progress: program and options can only be changed when the machine is stopped.",
@@ -4125,6 +4132,8 @@ const SHC_I18N = {
       "ctrl.start": "Starten",
       "ctrl.resume": "Hervatten",
       "ctrl.pause": "Pauzeren",
+      "ctrl.open": "Openen",
+      "ctrl.close": "Sluiten",
       "ctrl.stop": "Stoppen",
       "ctrl.paused_hint": "Gepauzeerd: druk op Hervatten om de cyclus voort te zetten.",
       "ctrl.running_hint": "Cyclus bezig: programma en opties kunnen alleen worden gewijzigd als het apparaat stilstaat.",
@@ -5470,7 +5479,7 @@ class ShcApplianceCloneCard extends HTMLElement {
   disconnectedCallback() { if (this._root) this._root.querySelectorAll(".shc-tv-pop").forEach((n) => n._close && n._close()); }
 
   setConfig(config) {
-    if (!config.power_entity && !config.live?.state_entity) throw new Error(shcT(this._hass, "err.need_entity"));
+    if (!config.power_entity && !config.live?.state_entity && !config.controls?.cover_entity) throw new Error(shcT(this._hass, "err.need_entity"));
     this._autoName = !config.name;
     this._config = {
       name: shcT(this._hass, "name.default"),
@@ -7020,7 +7029,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const c = this._config.controls;
     const box = this._root.querySelector(".shc-ap-ctrl");
     if (!c || !box) return;
-    const avail = [c.machine_select, c.start_select, c.power_switch, c.start_button].some((e) => this._ctrlOk(hass, e));
+    const avail = [c.machine_select, c.start_select, c.power_switch, c.start_button, c.cover_entity].some((e) => this._ctrlOk(hass, e));
     box.hidden = !avail;
     if (!avail) return;
     // hide_when_remote_off: con il controllo remoto spento i comandi spariscono del tutto
@@ -7055,6 +7064,21 @@ class ShcApplianceCloneCard extends HTMLElement {
       if (state === "stop") btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="start"${dis}>\u25b6 ${esc(shcT(this._hass, "ctrl.start"))}</button>`);
       else if (c.stop_button) btns.push(`<button type="button" class="shc-ap-cbtn stop" data-cact="stop"${dis}>\u25a0 Stop</button>`);
     }
+    // Tapparella / cover: Apri, Stop, Chiudi (+ cursore posizione) secondo supported_features.
+    let coverHtml = "";
+    if (c.cover_entity && this._ctrlOk(hass, c.cover_entity)) {
+      const cs = hass.states[c.cover_entity];
+      const f = Number(cs.attributes?.supported_features ?? 15);
+      const pos = Number(cs.attributes?.current_position);
+      const hasPos = Number.isFinite(pos);
+      const moving = cs.state === "opening" || cs.state === "closing";
+      const isOpen = cs.state === "open" && (!hasPos || pos >= 100);
+      const isClosed = cs.state === "closed";
+      if (f & 1) btns.push(`<button type="button" class="shc-ap-cbtn go" data-cact="cover_open"${isOpen ? " disabled" : ""}>\u25b2 ${esc(shcT(this._hass, "ctrl.open"))}</button>`);
+      if (f & 8) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="cover_stop"${moving ? "" : " disabled"}>\u25a0 Stop</button>`);
+      if (f & 2) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="cover_close"${isClosed ? " disabled" : ""}>\u25bc ${esc(shcT(this._hass, "ctrl.close"))}</button>`);
+      if ((f & 4) && hasPos) coverHtml = `<div class="shc-ap-cpos"><input type="range" min="0" max="100" step="1" value="${pos}" data-cpos><b>${pos}%</b></div>`;
+    }
     if (c.program_select) btns.push(`<button type="button" class="shc-ap-cbtn" data-cact="programs">${esc(shcT(this._hass, "ctrl.programs"))}</button>`);
     const prog = c.program_select ? this._programLabel(hass.states[c.program_select]?.state) : "";
     const delay = (c.delay_entity ? Number(hass.states[c.delay_entity]?.state) : 0) * (c.delay_unit === "h" ? 3600 : 1);
@@ -7063,7 +7087,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     if (!remote) note = `<div class="shc-ap-ctrl-note bad">${esc(c.remote_hint || shcT(this._hass, "ctrl.remote_hint"))}</div>`;
     else if (state === "pause" && c.machine_select) note = `<div class="shc-ap-ctrl-note">${esc(shcT(this._hass, "ctrl.paused_hint"))}</div>`;
     const html = `<div class="shc-ap-ctrl-head"><span>${esc(shcT(this._hass, "ctrl.commands"))}</span>${progTxt ? `<span class="shc-ap-ctrl-prog" data-cact="programs">${esc(progTxt)}</span>` : ""}</div>
-      <div class="shc-ap-ctrl-btns">${btns.join("")}</div>${note}`;
+      <div class="shc-ap-ctrl-btns">${btns.join("")}</div>${coverHtml}${note}`;
     if (html === this._ctrlHtml) return;
     this._ctrlHtml = html;
     box.innerHTML = html;
@@ -7073,6 +7097,12 @@ class ShcApplianceCloneCard extends HTMLElement {
         this._ctrlAction(b.dataset.cact, b);
       }),
     );
+    const cp = box.querySelector("[data-cpos]");
+    if (cp) {
+      cp.addEventListener("click", (e) => e.stopPropagation());
+      cp.addEventListener("input", () => { if (cp.nextElementSibling) cp.nextElementSibling.textContent = `${cp.value}%`; });
+      cp.addEventListener("change", () => this._hass?.callService("cover", "set_cover_position", { entity_id: c.cover_entity, position: Number(cp.value) }));
+    }
   }
 
   _fmtDelay(sec) {
@@ -7086,6 +7116,9 @@ class ShcApplianceCloneCard extends HTMLElement {
     const c = this._config.controls || {};
     if (!hass) return;
     if (act === "programs") return this._openPrograms();
+    if (act === "cover_open") return hass.callService("cover", "open_cover", { entity_id: c.cover_entity });
+    if (act === "cover_close") return hass.callService("cover", "close_cover", { entity_id: c.cover_entity });
+    if (act === "cover_stop") return hass.callService("cover", "stop_cover", { entity_id: c.cover_entity });
     if (act === "power") return hass.callService("switch", "toggle", { entity_id: c.power_switch });
     if (act === "stop") {
       // Fermare un ciclo non si annulla: serve un secondo tocco entro 4 secondi.
