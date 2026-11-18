@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2026-11-18 — 1.23.0: TV card EPG and apps, blind control, separate purifier entities, settings fixes (#24, #25, discussions #20-#22)
 
 - **Air purifier card, separate entities** (discussion #25): new optional `power_entity` (`switch` / `input_boolean` / `fan`; a `sensor` still means power in W), `speed_entity` (`number` / `input_number` slider using the entity's min, max and step, `select` / `input_select` chips, or `fan` percentage) and `mode_entity` (`select` / `input_select` chips or `fan` presets). The right service is called for each domain (`switch.turn_on/off`, `number.set_value`, `input_number.set_value`, `select.select_option`, `input_select.select_option`, `fan.set_percentage`, `fan.set_preset_mode`). Without them the card behaves as before. Visual editor and it/en/nl texts; guide in [docs/purificatore.md](docs/purificatore.md).
 - **TV card, live TV vs app vs HDMI** (#24): `media_content_type: channel` is always live TV; with `media_content_type: app` and a technical `app_id` (e.g. `org.tizen.netflix-app`) the panel shows the `source` name (Netflix) instead of the id; checked against the SamsungTV Smart attributes (`TV/HDMI`, `channel` / `video` / `app`). Guide in [docs/tv.md](docs/tv.md).
