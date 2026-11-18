@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased: TV card, local SamsungTV Smart (TheFab21) and apps (#26)
+
+- **TV card, `channel_attribute`** (#26): new optional setting, the name of an attribute of the Samsung `media_player` that holds the channel (e.g. `media_channel` from [TheFab21/ha-samsungtv-smart](https://github.com/TheFab21/ha-samsungtv-smart)), so no extra template sensor is needed. Order: `channel_entity`, then `channel_attribute`, then `channel_name_entity`, then `shared_channel_entity`, then the browser memory. Without it nothing changes.
+- **TV card, apps over a stale channel** (#26): `input_source: TV` alone no longer proves the digital tuner is on screen. With `media_content_type: app` and no `app_id` / `app_name`, the panel shows the app (name from `source`, then `media_title`) and no guide, and choosing a channel first switches to the digital TV source. `media_content_type: channel` is still always live TV, and existing setups with `app_id` / `app_name` behave as before.
+- **Docs** (`docs/tv.md`): TheFab21/ha-samsungtv-smart as a local, SmartThings-free alternative (tested on a Samsung Q60 Tizen, other models may differ), real channel with `channel_attribute` or a `media_channel` template sensor + `shared_channel_entity` fallback, and the per-model source sequence `KEY_EXIT+2000+KEY_TV+KEY_EXIT` as an example (not a default).
+
 ## 2026-11-18 — 1.23.0: TV card EPG and apps, blind control, separate purifier entities, settings fixes (#24, #25, discussions #20-#22)
 
 - **Air purifier card, separate entities** (discussion #25): new optional `power_entity` (`switch` / `input_boolean` / `fan`; a `sensor` still means power in W), `speed_entity` (`number` / `input_number` slider using the entity's min, max and step, `select` / `input_select` chips, or `fan` percentage) and `mode_entity` (`select` / `input_select` chips or `fan` presets). The right service is called for each domain (`switch.turn_on/off`, `number.set_value`, `input_number.set_value`, `select.select_option`, `input_select.select_option`, `fan.set_percentage`, `fan.set_preset_mode`). Without them the card behaves as before. Visual editor and it/en/nl texts; guide in [docs/purificatore.md](docs/purificatore.md).

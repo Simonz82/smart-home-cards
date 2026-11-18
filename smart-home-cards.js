@@ -6631,7 +6631,14 @@ class ShcApplianceCloneCard extends HTMLElement {
     let app = a.app_name || a.app_id;
     // id tecnico (es. org.tizen.netflix-app) con content type "app": meglio il nome della sorgente
     if (!a.app_name && String(a.media_content_type || "").toLowerCase() === "app" && /^[a-z0-9_-]+(\.[a-z0-9_-]+)+$/i.test(String(app || "")) && a.source && !this._epgIsDtv(a.source)) app = a.source;
-    return app && String(app).trim() && !this._epgIsDtv(app) ? String(app).trim() : "";
+    if (app && String(app).trim()) return !this._epgIsDtv(app) ? String(app).trim() : "";
+    // media_content_type "app" senza app_id / app_name (es. SamsungTV Smart locale con input_source rimasto "TV"): e' un'app, non il digitale
+    if (String(a.media_content_type || "").toLowerCase() === "app") {
+      if (a.source && String(a.source).trim() && !this._epgIsDtv(a.source)) return String(a.source).trim();
+      if (a.media_title && String(a.media_title).trim()) return String(a.media_title).trim();
+      return "App";
+    }
+    return "";
   }
   _epgPlay(num) {
     const mp = this._epgMp();
@@ -6689,7 +6696,13 @@ class ShcApplianceCloneCard extends HTMLElement {
       const st = id ? hass.states[id] : null;
       return st && !["unavailable", "unknown", "none", ""].includes(String(st.state).toLowerCase()) ? String(st.state).trim() : "";
     };
-    const n = val(c.channel_entity), nm = val(c.channel_name_entity);
+    // precedenza canale: channel_entity, poi channel_attribute (attributo del media player), poi nome (channel_name_entity), poi shared_channel_entity, poi ricordo del browser
+    let n = val(c.channel_entity);
+    if (!n && c.channel_attribute && mp) {
+      const av = a[c.channel_attribute];
+      if (av !== undefined && av !== null && !["unavailable", "unknown", "none", ""].includes(String(av).trim().toLowerCase())) n = String(av).trim();
+    }
+    const nm = val(c.channel_name_entity);
     if (n) {
       const ch = list.find((x) => String(x.number) === String(+n) || String(x.number) === n);
       if (ch) return { kind: "ch", ch };

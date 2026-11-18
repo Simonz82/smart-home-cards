@@ -58,6 +58,7 @@ Le sezioni che la TV non espone (immagine/audio, Art Mode) vengono nascoste da s
 | `samsung_remote_position` | `below` (predefinito: telecomando sempre sotto la card) oppure `button` (telecomando chiuso, si apre dal pulsante `mdi:remote-tv` accanto all'ingranaggio) |
 | `epg_channels` | Elenco canali per la guida TV (EPG): `[{number, name, id}]`, `id: null` = canale senza guida. Con l'elenco la card mostra sotto la barra della potenza la riga del canale in onda e i pulsanti Telecomando / EPG (con `epg_channels` `samsung_remote_position` non serve: il telecomando si apre dal pulsante). Senza elenco la card resta identica. Sensori attesi: `sensor.<id>_program_current`, `_upcoming` e, se presente, `_primetime` (scheda "Prima serata"). Logo: automatico da `image.<id>_icon` (opzione "enable_channel_icons" dell'integrazione XMLTV EPG) oppure campo facoltativo `logo` (URL) per canale; senza logo resta il numero |
 | `channel_entity`, `channel_name_entity` | Sensori con numero e nome del canale corrente (es. SmartThings). Il canale si riconosce prima dal numero, poi dal nome. Se non disponibili la card usa `shared_channel_entity` (se impostato) e poi l'ultimo canale scelto da lei (tocco nell'EPG o tasti numerici del telecomando), salvato nel browser |
+| `channel_attribute` | Nome di un attributo del `media_player` Samsung che contiene il canale (es. `media_channel`, esposto da [TheFab21/ha-samsungtv-smart](https://github.com/TheFab21/ha-samsungtv-smart)); evita il sensore template. Precedenza: `channel_entity` > `channel_attribute` > `channel_name_entity` (nome) > `shared_channel_entity` > ultimo canale scelto nel browser. Mai usato se la TV mostra un'app (1.23.1) |
 | `shared_channel_entity` | `input_text` / `input_number` (anche `text` / `number`) dove la card scrive l'ultimo canale scelto (tocco nell'EPG o tasti numerici del telecomando); tutti i dispositivi lo leggono e mostrano lo stesso canale. **Consigliato con SamsungTV Smart**, dove non c'è un sensore del canale. Il canale rilevato da `channel_entity` / `channel_name_entity` ha sempre la precedenza; senza questa opzione resta il ricordo nel browser (1.23.0) |
 | `epg_dtv_source` | Nome della sorgente TV digitale (es. `TV`, `TV Digitale`). Se è impostata, toccando un canale nell'EPG la card, quando la TV sta usando un'app o un'altra sorgente, fa prima `select_source`, attende il cambio e poi invia il canale. A TV spenta non fa nulla (la card non accende mai la TV) (1.23.0) |
 | `epg_source_delay` | Millisecondi di attesa dopo il cambio sorgente prima di inviare il canale (default `1500`). La card aspetta che l'attributo `source` cambi (massimo 4 s); se l'integrazione non lo aggiorna invia comunque (1.23.0) |
@@ -130,4 +131,41 @@ epg_channels:
 - **Cambio sorgente**: con `epg_dtv_source` impostato, un canale scelto mentre guardi Netflix, Prime o un ingresso HDMI porta prima la TV sul digitale e poi invia il canale. Se la TV è spenta non viene inviato nulla. I nomi delle sorgenti sono quelli dell'attributo `source_list` del tuo `media_player`.
 - **Pannello sotto la card**: mostra *TV spenta* quando la TV è spenta, *Stato della TV non disponibile* se l'entità non risponde, e con un'app attiva il nome dell'app con il titolo e l'immagine se l'integrazione li espone (se non li espone, solo il nome). Per sorgenti non riconosciute mostra il nome della sorgente invece di informazioni inventate.
 - **Come distingue TV, app e HDMI** (1.23.0): legge `source`, `app_id`, `app_name` e `media_content_type` del `media_player`. `media_content_type: channel` = TV in diretta (canale e guida); `app_id` o `source` diversi dai nomi della TV digitale (`TV`, `Digital TV`, `Live TV`, `TV/HDMI` + `epg_dtv_source` / `epg_dtv_aliases`) = app o ingresso: la card mostra il nome (con `media_content_type: app` e un `app_id` tecnico come `org.tizen.netflix-app` usa il nome della `source`, es. Netflix) e nessuna guida; un ingresso come `HDMI1` compare col suo nome. Funziona con SmartThings e con SamsungTV Smart (il suo `TV/HDMI` con `media_content_type: video` o `channel` è trattato come TV). Se la TV non distingue il digitale dall'HDMI esterno (stesso `TV/HDMI`), vale il canale scelto dalla card.
+### Alternativa locale senza SmartThings: TheFab21/ha-samsungtv-smart (novità, non ancora rilasciata)
+
+[TheFab21/ha-samsungtv-smart](https://github.com/TheFab21/ha-samsungtv-smart) (alternativa a ollo69/ha-samsungtv-smart, provata alla versione 9.5.5) aggiunge l'interfaccia locale **IP Control** (JSON-RPC) di Samsung, oltre a WebSocket locale e impostazioni rapide dove la TV le supporta. Non serve configurare SmartThings. Segnalato e provato da PierfrancescoArdino (issue #26) su una **QLED serie Q60 Tizen**: altri modelli possono comportarsi in modo diverso, verifica sulla tua TV. Non sostituisce SmartThings per tutte le TV: è un'alternativa locale, senza cloud, quando funziona sul tuo modello.
+
+Su quella TV l'integrazione riporta il **canale reale** (anche cambiato col telecomando fisico) nell'attributo `media_channel` e l'ingresso in `source` / `input_source`; il rilevamento e l'avvio delle app Samsung restano disponibili. Due modi per usare il canale reale nella card:
+
+```yaml
+# 1) senza sensore: la card legge l'attributo del media player
+channel_attribute: media_channel
+```
+
+```yaml
+# 2) con un sensore template (configuration.yaml / packages)
+template:
+  - sensor:
+      - name: "TV canale effettivo"
+        unique_id: tv_canale_effettivo
+        state: "{{ state_attr('media_player.soggiorno_tv', 'media_channel') | default('', true) }}"
+```
+
+```yaml
+channel_entity: sensor.tv_canale_effettivo
+shared_channel_entity: input_text.tv_canale_condiviso   # ripiego se il sensore non e' disponibile
+```
+
+Precedenza (la prima disponibile vince, e solo quando la TV mostra il digitale terrestre): `channel_entity` > `channel_attribute` > `channel_name_entity` (nome del canale) > `shared_channel_entity` > ultimo canale scelto nel browser. Senza queste opzioni nulla cambia.
+
+**Attenzione alle app.** Con questa integrazione `input_source` può restare `TV` anche con Netflix aperto, e `media_channel` contiene ancora l'ultimo canale sintonizzato. Per questo, dalla versione successiva alla 1.23.0, `input_source: TV` da solo non basta: se `app_id` / `app_name` sono valorizzati, oppure `media_content_type` è `app`, la card mostra l'app (nome da `app_name`, poi dalla `source`, poi dal titolo) e **nessuna guida EPG**. `media_content_type: channel` resta sempre TV in diretta.
+
+**Tornare alla TV da un'app.** Su alcuni modelli un singolo `KEY_TV` non riporta al digitale mentre un'app è aperta. Nella `source_list` di SamsungTV Smart puoi definire una sequenza di tasti per la sorgente TV; sulla Q60 funziona questa (esempio per modello, **non** un valore predefinito valido per tutte le TV):
+
+```
+"TV": "KEY_EXIT+2000+KEY_TV+KEY_EXIT"
+```
+
+(sequenza di tasti separati da `+`; il numero è una pausa in millisecondi; sintassi della `source_list` di SamsungTV Smart, controlla la documentazione dell'integrazione). Poi indica quel nome in `epg_dtv_source` della card.
+
 - Tutte le opzioni sono nell'editor visuale (sezione Guida TV / EPG) e opzionali: senza, non cambia nulla.
