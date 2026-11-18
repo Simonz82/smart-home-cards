@@ -6626,7 +6626,11 @@ class ShcApplianceCloneCard extends HTMLElement {
     return !!n && list.some((x) => k(x) === n);
   }
   _epgAppName(a) {
-    const app = a.app_name || a.app_id;
+    // media_content_type "channel": TV in diretta, mai un'app
+    if (String(a.media_content_type || "").toLowerCase() === "channel") return "";
+    let app = a.app_name || a.app_id;
+    // id tecnico (es. org.tizen.netflix-app) con content type "app": meglio il nome della sorgente
+    if (!a.app_name && String(a.media_content_type || "").toLowerCase() === "app" && /^[a-z0-9_-]+(\.[a-z0-9_-]+)+$/i.test(String(app || "")) && a.source && !this._epgIsDtv(a.source)) app = a.source;
     return app && String(app).trim() && !this._epgIsDtv(app) ? String(app).trim() : "";
   }
   _epgPlay(num) {
@@ -6679,7 +6683,7 @@ class ShcApplianceCloneCard extends HTMLElement {
     const detail = { title: a.media_title && String(a.media_title).trim() !== appName ? String(a.media_title).trim() : "", pic: a.entity_picture || "" };
     if (appName) return { kind: "app", name: appName, ...detail };
     const src = a.source ? String(a.source).trim() : "";
-    const tvSrc = !src || this._epgIsDtv(src);
+    const tvSrc = !src || this._epgIsDtv(src) || String(a.media_content_type || "").toLowerCase() === "channel";
     if (!tvSrc) return { kind: "app", name: src, ...detail };
     const val = (id) => {
       const st = id ? hass.states[id] : null;
@@ -18486,6 +18490,9 @@ Object.assign(SHC_I18N.it, {
   "pu.air_bad_warn": "Qualità dell'aria scarsa (PM2.5 alto)",
   "pu.ed_entity": "Purificatore (fan)",
   "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_power": "Potenza (W) o interruttore on/off",
+  "pu.ed_speed": "Velocità (number / select / fan)",
+  "pu.ed_mode": "Modalità (select / fan)",
   "pu.ed_aqi": "Qualità aria (sensore o testo)",
   "pu.ed_filter": "Vita residua del filtro (%)",
   "pu.ed_filter_low": "Filtro da sostituire sotto (%)",
@@ -18559,6 +18566,9 @@ Object.assign(SHC_I18N.en, {
   "pu.air_bad_warn": "Poor air quality (high PM2.5)",
   "pu.ed_entity": "Purifier (fan)",
   "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_power": "Power (W) or on/off switch",
+  "pu.ed_speed": "Speed (number / select / fan)",
+  "pu.ed_mode": "Mode (select / fan)",
   "pu.ed_aqi": "Air quality (sensor or text)",
   "pu.ed_filter": "Filter life left (%)",
   "pu.ed_filter_low": "Replace filter below (%)",
@@ -18632,6 +18642,9 @@ Object.assign(SHC_I18N.nl, {
   "pu.air_bad_warn": "Slechte luchtkwaliteit (hoog PM2.5)",
   "pu.ed_entity": "Luchtreiniger (fan)",
   "pu.ed_pm25": "PM2.5 (µg/m³)",
+  "pu.ed_power": "Vermogen (W) of aan/uit-schakelaar",
+  "pu.ed_speed": "Snelheid (number / select / fan)",
+  "pu.ed_mode": "Modus (select / fan)",
   "pu.ed_aqi": "Luchtkwaliteit (sensor of tekst)",
   "pu.ed_filter": "Resterende filterlevensduur (%)",
   "pu.ed_filter_low": "Filter vervangen onder (%)",
@@ -18720,7 +18733,7 @@ class ShcXaBase extends ShcDeviceCardBase {
     this._bind = this._commonBind();
     this._bind(".shc-dv-info", () => this._openInfo());
     this._bind(".shc-ap-settings", () => this._openSettings());
-    this._bind(".xa-pw", () => this._call("homeassistant", "toggle", { entity_id: this._config.entity }));
+    this._bind(".xa-pw", () => (this._pwClick ? this._pwClick() : this._call("homeassistant", "toggle", { entity_id: this._config.entity })));
   }
 
   _q(sel) {
@@ -18867,7 +18880,7 @@ class ShcPurifierCard extends ShcXaBase {
       icon: "mdi:air-purifier",
       nameKey: "pu.name",
       hero: puHeroSvg(this._uid || (this._uid = Math.random().toString(36).slice(2, 8))),
-      ctrl: `${xaPowerBtn(this._hass)}<input type="range" class="xa-range" min="0" max="100" step="1" hidden><div class="xa-line xa-presets" hidden></div>`,
+      ctrl: `${xaPowerBtn(this._hass)}<input type="range" class="xa-range" min="0" max="100" step="1" hidden><div class="xa-line xa-speedsel" hidden></div><div class="xa-line xa-presets" hidden></div>`,
       rows: [["pu-r-state", "mdi:air-purifier", "cf.state"], ["pu-r-speed", "mdi:speedometer", "pu.speed"], ["pu-r-preset", "mdi:tune-variant", "pu.preset"], ["pu-r-pm", "mdi:blur", "pu.pm25"], ["pu-r-aqi", "mdi:leaf", "pu.quality"], ["pu-r-filter", "mdi:air-filter", "pu.filter"], ["pu-r-hum", "mdi:water-percent", "pu.humidity"], ["pu-r-temp", "mdi:thermometer", "pu.temperature"], ["pu-r-pow", "mdi:flash", "appledit.power"]],
     });
     const r = this._q(".xa-range");
@@ -18875,8 +18888,59 @@ class ShcPurifierCard extends ShcXaBase {
     r.addEventListener("pointerdown", () => (this._drag = true));
     r.addEventListener("change", () => {
       this._drag = false;
-      this._call("fan", "set_percentage", { entity_id: this._config.entity, percentage: Number(r.value) });
+      this._speedSet(Number(r.value));
     });
+  }
+
+  // entita' separate facoltative: power_entity (switch/input_boolean/fan; se e' un sensore resta la potenza in W), speed_entity, mode_entity
+  _pwCtl() {
+    const id = this._config.power_entity;
+    return id && /^(switch|input_boolean|fan|light)\./.test(id) ? id : "";
+  }
+
+  _pwSensor() {
+    const id = this._config.power_entity;
+    return id && !this._pwCtl() ? id : "";
+  }
+
+  _pwClick() {
+    const id = this._pwCtl();
+    if (!id) return this._call("homeassistant", "toggle", { entity_id: this._config.entity });
+    this._call(id.split(".")[0], this._hass.states[id]?.state === "on" ? "turn_off" : "turn_on", { entity_id: id });
+  }
+
+  _speedSet(v) {
+    const id = this._config.speed_entity;
+    if (!id) return this._call("fan", "set_percentage", { entity_id: this._config.entity, percentage: v });
+    const dom = id.split(".")[0];
+    if (dom === "fan") this._call("fan", "set_percentage", { entity_id: id, percentage: v });
+    else if (dom === "number" || dom === "input_number") this._call(dom, "set_value", { entity_id: id, value: v });
+    else if (dom === "select" || dom === "input_select") this._call(dom, "select_option", { entity_id: id, option: String(v) });
+  }
+
+  // {kind:"range", min,max,step,v,unit} | {kind:"chips", options, cur} | null
+  _speedInfo() {
+    const id = this._config.speed_entity;
+    const st = id ? this._hass.states[id] : null;
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return null;
+    const dom = id.split(".")[0], a = st.attributes || {};
+    if (dom === "number" || dom === "input_number") {
+      const v = Number(st.state);
+      return Number.isFinite(v) ? { kind: "range", min: Number(a.min ?? 0), max: Number(a.max ?? 100), step: Number(a.step ?? 1), v, unit: a.unit_of_measurement || "" } : null;
+    }
+    if (dom === "fan") return Number.isFinite(Number(a.percentage)) && a.percentage !== null ? { kind: "range", min: 0, max: 100, step: Number(a.percentage_step) || 1, v: Number(a.percentage), unit: "%" } : null;
+    if (dom === "select" || dom === "input_select") return { kind: "chips", options: Array.isArray(a.options) ? a.options : [], cur: st.state };
+    return null;
+  }
+
+  _modeInfo() {
+    const id = this._config.mode_entity;
+    const st = id ? this._hass.states[id] : null;
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return null;
+    const dom = id.split(".")[0], a = st.attributes || {};
+    if (dom === "fan") return { options: Array.isArray(a.preset_modes) ? a.preset_modes : [], cur: a.preset_mode, pick: (v) => this._call("fan", "set_preset_mode", { entity_id: id, preset_mode: v }) };
+    if (dom === "select" || dom === "input_select") return { options: Array.isArray(a.options) ? a.options : [], cur: st.state, pick: (v) => this._call(dom, "select_option", { entity_id: id, option: v }) };
+    return null;
   }
 
   _graphSeries() {
@@ -18886,7 +18950,7 @@ class ShcPurifierCard extends ShcXaBase {
     if (c.humidity_entity) s.push({ key: "hum", entity: c.humidity_entity, label: shcT(this._hass, "pu.humidity"), color: "#0ea5e9" });
     if (c.temperature_entity) s.push({ key: "temp", entity: c.temperature_entity, label: shcT(this._hass, "pu.temperature"), color: "#f97316" });
     if (c.filter_entity) s.push({ key: "filter", entity: c.filter_entity, label: shcT(this._hass, "pu.filter"), color: "#22c55e" });
-    if (c.power_entity) s.push({ key: "power", entity: c.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f59e0b" });
+    if (this._pwSensor()) s.push({ key: "power", entity: c.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f59e0b" });
     return s;
   }
 
@@ -18898,10 +18962,18 @@ class ShcPurifierCard extends ShcXaBase {
     const cfg = this._config;
     const q = (s) => this._q(s);
     const st = this._st();
-    const unav = !st || ["unavailable", "unknown"].includes(st.state);
-    const on = !unav && st.state === "on";
+    const pwId = this._pwCtl();
+    const base = pwId ? hass.states[pwId] : st;
+    const unav = !base || ["unavailable", "unknown"].includes(base.state);
+    const on = !unav && base.state === "on";
     const a = st?.attributes || {};
-    const pct = Number.isFinite(Number(a.percentage)) && a.percentage !== null ? Number(a.percentage) : null;
+    const sp = this._speedInfo();
+    let pct = Number.isFinite(Number(a.percentage)) && a.percentage !== null ? Number(a.percentage) : null;
+    if (cfg.speed_entity) {
+      pct = null;
+      if (sp && sp.kind === "range" && sp.max > sp.min) pct = ((sp.v - sp.min) / (sp.max - sp.min)) * 100;
+      else if (sp && sp.kind === "chips" && sp.options.length > 1) pct = (Math.max(0, sp.options.indexOf(sp.cur)) / (sp.options.length - 1)) * 100;
+    }
     const pm = this._val(cfg.pm25_entity);
     const q8 = pm === null ? "good" : pm <= 12 ? "good" : pm <= cfg.pm_warn ? "mid" : "bad";
     const filt = this._val(cfg.filter_entity);
@@ -18919,25 +18991,37 @@ class ShcPurifierCard extends ShcXaBase {
     q(".xa-pw").classList.toggle("on", on);
 
     const range = q(".xa-range");
-    range.hidden = pct === null && !("percentage" in a);
-    if (!this._drag && pct !== null) range.value = pct;
+    if (cfg.speed_entity) {
+      range.hidden = !(sp && sp.kind === "range");
+      if (sp && sp.kind === "range") {
+        range.min = sp.min; range.max = sp.max; range.step = sp.step;
+        if (!this._drag) range.value = sp.v;
+      }
+      this._chips(".xa-speedsel", sp && sp.kind === "chips" ? sp.options : [], sp && sp.cur, (v) => this._speedSet(v));
+    } else {
+      range.hidden = pct === null && !("percentage" in a);
+      if (!this._drag && pct !== null) range.value = pct;
+    }
     range.disabled = !on;
-    const presets = Array.isArray(a.preset_modes) ? a.preset_modes : [];
-    this._chips(".xa-presets", presets, a.preset_mode, (v) => this._call("fan", "set_preset_mode", { entity_id: cfg.entity, preset_mode: v }));
+    const mi = this._modeInfo();
+    const presets = cfg.mode_entity ? (mi ? mi.options : []) : Array.isArray(a.preset_modes) ? a.preset_modes : [];
+    const curMode = cfg.mode_entity ? (mi ? mi.cur : undefined) : a.preset_mode;
+    this._chips(".xa-presets", presets, curMode, cfg.mode_entity ? (v) => mi && mi.pick(v) : (v) => this._call("fan", "set_preset_mode", { entity_id: cfg.entity, preset_mode: v }));
 
     q(".pu-r-state").textContent = unav ? "—" : shcT(this._hass, on ? "xa.st_on" : "xa.st_off");
-    this._setRow("pu-r-speed", pct !== null ? `${Math.round(pct)}%` : "—", pct !== null);
-    this._setRow("pu-r-preset", a.preset_mode ? this._pretty(a.preset_mode) : "—", !!a.preset_mode);
+    if (cfg.speed_entity) this._setRow("pu-r-speed", sp ? (sp.kind === "range" ? `${clNum(sp.v, Number.isInteger(sp.step) ? 0 : 1)}${sp.unit ? " " + sp.unit : ""}` : this._pretty(sp.cur)) : "—", !!sp);
+    else this._setRow("pu-r-speed", pct !== null ? `${Math.round(pct)}%` : "—", pct !== null);
+    this._setRow("pu-r-preset", curMode ? this._pretty(curMode) : "—", !!curMode);
     this._setRow("pu-r-pm", this._numText(cfg.pm25_entity, 0), !!cfg.pm25_entity);
     const aq = cfg.aqi_entity ? hass.states[cfg.aqi_entity] : null;
     this._setRow("pu-r-aqi", aq && !["unknown", "unavailable"].includes(aq.state) ? (this._isNum(aq.state) ? this._numText(cfg.aqi_entity, 0) : this._pretty(aq.state)) : "—", !!aq);
     this._setRow("pu-r-filter", this._numText(cfg.filter_entity, 0), !!cfg.filter_entity);
     this._setRow("pu-r-hum", this._numText(cfg.humidity_entity, 0), !!cfg.humidity_entity);
     this._setRow("pu-r-temp", this._numText(cfg.temperature_entity, 1), !!cfg.temperature_entity);
-    this._setRow("pu-r-pow", this._numText(cfg.power_entity, 0), !!cfg.power_entity);
+    this._setRow("pu-r-pow", this._numText(this._pwSensor(), 0), !!this._pwSensor());
     q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
     this._setWarn(unav ? shcT(this._hass, "xa.unreachable") : filtLow ? shcT(this._hass, "pu.filter_low_warn") : bad ? shcT(this._hass, "pu.air_bad_warn") : "");
-    this._liveRefresh([cfg.entity, cfg.pm25_entity, cfg.aqi_entity, cfg.filter_entity, cfg.humidity_entity, cfg.temperature_entity, cfg.power_entity]);
+    this._liveRefresh([cfg.entity, cfg.pm25_entity, cfg.aqi_entity, cfg.filter_entity, cfg.humidity_entity, cfg.temperature_entity, cfg.power_entity, cfg.speed_entity, cfg.mode_entity]);
   }
 
   _isNum(v) {
@@ -18953,7 +19037,7 @@ class ShcPurifierCard extends ShcXaBase {
       more(shcT(this._hass, "pu.filter"), cfg.filter_entity, this._numText(cfg.filter_entity, 0)),
       more(shcT(this._hass, "pu.humidity"), cfg.humidity_entity, this._numText(cfg.humidity_entity, 0)),
       more(shcT(this._hass, "pu.temperature"), cfg.temperature_entity, this._numText(cfg.temperature_entity, 1)),
-      more(shcT(this._hass, "appledit.power"), cfg.power_entity, this._numText(cfg.power_entity, 0)),
+      more(shcT(this._hass, "appledit.power"), this._pwSensor(), this._numText(this._pwSensor(), 0)),
       a.preset_mode ? this._row(shcT(this._hass, "pu.preset"), this._valHtml(this._pretty(a.preset_mode))) : "",
     ]);
   }
@@ -18974,17 +19058,19 @@ class ShcPurifierCardEditor extends ShcSimpleCardEditorBase {
     return [
       { title: T("fritzcard.basic"), fields: [
         { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("pu.name") },
-        { key: "entity", label: T("pu.ed_entity"), domain: ["fan"], required: true },
+        { key: "entity", label: T("pu.ed_entity"), domain: ["fan", "switch", "input_boolean"], required: true },
         { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:air-purifier" },
       ]},
       { title: T("xa.sec_extra"), fields: [
+        { key: "speed_entity", label: T("pu.ed_speed"), domain: ["number", "input_number", "select", "input_select", "fan"] },
+        { key: "mode_entity", label: T("pu.ed_mode"), domain: ["select", "input_select", "fan"] },
         { key: "pm25_entity", label: T("pu.ed_pm25"), domain: ["sensor"] },
         { key: "aqi_entity", label: T("pu.ed_aqi"), domain: ["sensor"] },
         { key: "filter_entity", label: T("pu.ed_filter"), domain: ["sensor"] },
         { key: "filter_low", label: T("pu.ed_filter_low"), kind: "number" },
         { key: "humidity_entity", label: T("pu.ed_humidity"), domain: ["sensor"] },
         { key: "temperature_entity", label: T("pu.ed_temperature"), domain: ["sensor"] },
-        { key: "power_entity", label: T("xa.power_w"), domain: ["sensor"] },
+        { key: "power_entity", label: T("pu.ed_power"), domain: ["sensor", "switch", "input_boolean", "fan"] },
         { key: "automation_entity", label: T("xa.ed_automation"), domain: ["automation"] },
         { key: "automation_entities", label: T("upscard.more_automations"), kind: "list", itemFields: [
           { key: "entity", label: T("upscard.automation"), kind: "entity", domain: ["automation"] },
