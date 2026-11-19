@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased: coffee card restyle and capsule stock, TV card local SamsungTV Smart (TheFab21) (#26)
+## 2026-11-19 — 1.24.0: coffee card restyle and capsule stock, TV card local SamsungTV Smart (TheFab21) (#26)
 
 - **TV card, `channel_attribute`** (#26): new optional setting, the name of an attribute of the Samsung `media_player` that holds the channel (e.g. `media_channel` from [TheFab21/ha-samsungtv-smart](https://github.com/TheFab21/ha-samsungtv-smart)), so no extra template sensor is needed. Order: `channel_entity`, then `channel_attribute`, then `channel_name_entity`, then `shared_channel_entity`, then the browser memory. Without it nothing changes.
 - **TV card, apps over a stale channel** (#26): `input_source: TV` alone no longer proves the digital tuner is on screen. With `media_content_type: app` and no `app_id` / `app_name`, the panel shows the app (name from `source`, then `media_title`) and no guide, and choosing a channel first switches to the digital TV source. `media_content_type: channel` is still always live TV, and existing setups with `app_id` / `app_name` behave as before.

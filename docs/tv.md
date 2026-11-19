@@ -158,7 +158,7 @@ shared_channel_entity: input_text.tv_canale_condiviso   # ripiego se il sensore 
 
 Precedenza (la prima disponibile vince, e solo quando la TV mostra il digitale terrestre): `channel_entity` > `channel_attribute` > `channel_name_entity` (nome del canale) > `shared_channel_entity` > ultimo canale scelto nel browser. Senza queste opzioni nulla cambia.
 
-**Attenzione alle app.** Con questa integrazione `input_source` può restare `TV` anche con Netflix aperto, e `media_channel` contiene ancora l'ultimo canale sintonizzato. Per questo, dalla versione successiva alla 1.23.0, `input_source: TV` da solo non basta: se `app_id` / `app_name` sono valorizzati, oppure `media_content_type` è `app`, la card mostra l'app (nome da `app_name`, poi dalla `source`, poi dal titolo) e **nessuna guida EPG**. `media_content_type: channel` resta sempre TV in diretta.
+**Attenzione alle app.** Con questa integrazione `input_source` può restare `TV` anche con Netflix aperto, e `media_channel` contiene ancora l'ultimo canale sintonizzato. Per questo, dalla versione 1.24.0, `input_source: TV` da solo non basta: se `app_id` / `app_name` sono valorizzati, oppure `media_content_type` è `app`, la card mostra l'app (nome da `app_name`, poi dalla `source`, poi dal titolo) e **nessuna guida EPG**. `media_content_type: channel` resta sempre TV in diretta.
 
 **Tornare alla TV da un'app.** Su alcuni modelli un singolo `KEY_TV` non riporta al digitale mentre un'app è aperta. Nella `source_list` di SamsungTV Smart puoi definire una sequenza di tasti per la sorgente TV; sulla Q60 funziona questa (esempio per modello, **non** un valore predefinito valido per tutte le TV):
 
