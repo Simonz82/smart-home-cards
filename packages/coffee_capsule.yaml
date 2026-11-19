@@ -1,0 +1,300 @@
+# Package per la card shc-coffee-card (Smart Home Cards): scorta capsule, caffe' di oggi/settimana,
+# manutenzione (decalcificazione, acqua, vaschetta) e avvisi. Il conteggio sta in Home Assistant,
+# la card legge soltanto questi valori.
+#
+# COSA CAMBIARE (cerca e sostituisci):
+#   switch.macchina_caffe            -> la presa smart della macchina (switch o input_boolean)
+#   sensor.macchina_caffe_potenza    -> il sensore di potenza in W della presa
+#   notify.mobile_app_il_tuo_telefono -> il tuo servizio di notifica (cerca "notify.")
+#   300 (soglia) e 8 / 62 (secondi)  -> vedi i commenti nell'automazione "conta un caffe"
+# Dopo il copia/incolla: riavvia HA (o ricarica input_number, input_datetime, script, automazioni),
+# poi imposta una volta i valori degli helper (capsule rimanenti, soglia, per confezione, ogni N caffe).
+#
+# Nota: la presa deve restare accesa per rilevare i caffe'; l'auto-spegnimento e' facoltativo
+# (minuti = 0 lo disattiva) e agisce solo sulla presa configurata qui sotto.
+input_number:
+  macchina_caffe_capsule:
+    name: Capsule rimanenti
+    icon: mdi:coffee-maker-outline
+    min: 0
+    max: 500
+    step: 1
+    mode: box
+  macchina_caffe_soglia:
+    name: Soglia avviso capsule
+    icon: mdi:alert-outline
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+  macchina_caffe_confezione:
+    name: Capsule per confezione
+    icon: mdi:package-variant
+    min: 1
+    max: 200
+    step: 1
+    mode: box
+  macchina_caffe_media:
+    name: Media caffe al giorno
+    icon: mdi:chart-line
+    min: 0
+    max: 50
+    step: 0.01
+    mode: box
+  macchina_caffe_decalcifica_ogni:
+    name: Decalcificazione ogni (caffe)
+    min: 0
+    max: 2000
+    step: 1
+    mode: box
+  macchina_caffe_acqua_ogni:
+    name: Serbatoio acqua ogni (caffe)
+    min: 0
+    max: 200
+    step: 1
+    mode: box
+  macchina_caffe_vaschetta_ogni:
+    name: Vaschetta capsule ogni (caffe)
+    min: 0
+    max: 100
+    step: 1
+    mode: box
+  macchina_caffe_spegni_dopo:
+    name: Spegni dopo (minuti, 0 = mai)
+    icon: mdi:timer-off-outline
+    min: 0
+    max: 240
+    step: 1
+    unit_of_measurement: min
+    mode: box
+  macchina_caffe_oggi:
+    name: Caffe oggi
+    icon: mdi:coffee
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  macchina_caffe_settimana:
+    name: Caffe questa settimana
+    icon: mdi:coffee
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  macchina_caffe_decalcifica:
+    name: Caffe dall ultima decalcificazione
+    icon: mdi:spray-bottle
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  macchina_caffe_acqua:
+    name: Caffe dall ultimo pieno acqua
+    icon: mdi:water
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+  macchina_caffe_vaschetta:
+    name: Caffe dall ultimo svuotamento vaschetta
+    icon: mdi:tray-full
+    min: 0
+    max: 100000
+    step: 1
+    mode: box
+input_datetime:
+  macchina_caffe_ultimo:
+    name: Ultimo caffe o accensione
+    has_date: true
+    has_time: true
+  macchina_caffe_giorno:
+    name: Giorno del contatore caffe
+    has_date: true
+    has_time: false
+  macchina_caffe_settimana_dal:
+    name: Lunedi della settimana (contatore caffe)
+    has_date: true
+    has_time: false
+script:
+  macchina_caffe_ricarica:
+    alias: Capsule - ho ricaricato
+    icon: mdi:package-variant-plus
+    mode: single
+    sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.macchina_caffe_capsule
+        data:
+          value: >-
+            {{ [states('input_number.macchina_caffe_capsule') | float(0) + states('input_number.macchina_caffe_confezione') | float(0),
+                state_attr('input_number.macchina_caffe_capsule', 'max') | float(500)] | min }}
+automation:
+  # 1) Rileva l'erogazione dalla potenza: picco sopra 300 W lungo 8-70 s, a macchina gia' calda.
+  #    Un riscaldamento da fredda dura di piu' (nessun conteggio). Nessun doppio conteggio:
+  #    mode single + il picco deve chiudersi (potenza sotto soglia per 4 s) entro il limite.
+  - id: macchina_caffe_conta_caffe
+    alias: Macchina caffe - conta un caffe
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.macchina_caffe_potenza
+        above: 300
+        for: "00:00:08"
+    conditions:
+      - condition: state
+        entity_id: switch.macchina_caffe
+        state: "on"
+    actions:
+      - wait_for_trigger:
+          - trigger: numeric_state
+            entity_id: sensor.macchina_caffe_potenza
+            below: 300
+            for: "00:00:04"
+        timeout: "00:01:02"
+        continue_on_timeout: false
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.macchina_caffe_capsule
+        data:
+          value: "{{ [states('input_number.macchina_caffe_capsule') | float(0) - 1, 0] | max }}"
+      - action: input_number.increment
+        target:
+          entity_id:
+            - input_number.macchina_caffe_oggi
+            - input_number.macchina_caffe_settimana
+            - input_number.macchina_caffe_decalcifica
+            - input_number.macchina_caffe_acqua
+            - input_number.macchina_caffe_vaschetta
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.macchina_caffe_ultimo
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+  # 2) Avvisi: capsule sotto soglia (una volta, finche' non ricarichi) e manutenzione.
+  #    Trigger a template: scattano solo al passaggio da falso a vero, quindi un solo avviso e
+  #    nessun avviso ripetuto dopo un riavvio.
+  - id: macchina_caffe_avviso_capsule
+    alias: Macchina caffe - avviso capsule in esaurimento
+    mode: single
+    triggers:
+      - trigger: template
+        value_template: >-
+          {{ states('input_number.macchina_caffe_capsule') | is_number
+             and states('input_number.macchina_caffe_soglia') | is_number
+             and states('input_number.macchina_caffe_capsule') | float <= states('input_number.macchina_caffe_soglia') | float }}
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: Macchina del caffe
+          message: "Restano {{ states('input_number.macchina_caffe_capsule') | int(0) }} capsule: e' ora di comprarne altre."
+  - id: macchina_caffe_avviso_manutenzione
+    alias: Macchina caffe - avviso manutenzione
+    mode: queued
+    triggers:
+      - trigger: template
+        id: decalcifica
+        value_template: >-
+          {{ states('input_number.macchina_caffe_decalcifica_ogni') | float(0) > 0
+             and states('input_number.macchina_caffe_decalcifica') | float(0) >= states('input_number.macchina_caffe_decalcifica_ogni') | float(0) }}
+      - trigger: template
+        id: acqua
+        value_template: >-
+          {{ states('input_number.macchina_caffe_acqua_ogni') | float(0) > 0
+             and states('input_number.macchina_caffe_acqua') | float(0) >= states('input_number.macchina_caffe_acqua_ogni') | float(0) }}
+      - trigger: template
+        id: vaschetta
+        value_template: >-
+          {{ states('input_number.macchina_caffe_vaschetta_ogni') | float(0) > 0
+             and states('input_number.macchina_caffe_vaschetta') | float(0) >= states('input_number.macchina_caffe_vaschetta_ogni') | float(0) }}
+    actions:
+      - action: notify.mobile_app_il_tuo_telefono
+        data:
+          title: Macchina del caffe
+          message: >-
+            {{ {'decalcifica': 'Decalcificazione necessaria.',
+                'acqua': 'Riempi il serbatoio dell acqua.',
+                'vaschetta': 'Svuota la vaschetta delle capsule usate.'}[trigger.id] }}
+  # 3) Azzeramento giornaliero/settimanale e media mobile (7 giorni). Parte anche all'avvio di HA
+  #    (recupera un mezzanotte perso durante un riavvio).
+  - id: macchina_caffe_rollover
+    alias: Macchina caffe - nuovo giorno
+    mode: single
+    triggers:
+      - trigger: time
+        at: "00:00:05"
+      - trigger: homeassistant
+        event: start
+    actions:
+      - delay: "00:00:20"
+      - variables:
+          today: "{{ now().date().isoformat() }}"
+          monday: "{{ (now().date() - timedelta(days=now().weekday())).isoformat() }}"
+      - if:
+          - condition: template
+            value_template: "{{ states('input_datetime.macchina_caffe_giorno') != today }}"
+        then:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.macchina_caffe_media
+            data:
+              value: >-
+                {% set m = states('input_number.macchina_caffe_media') | float(0) %}
+                {% set y = states('input_number.macchina_caffe_oggi') | float(0) %}
+                {{ ((m * 6 + y) / 7 if m > 0 else y) | round(2) }}
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.macchina_caffe_oggi
+            data:
+              value: 0
+          - action: input_datetime.set_datetime
+            target:
+              entity_id: input_datetime.macchina_caffe_giorno
+            data:
+              date: "{{ today }}"
+      - if:
+          - condition: template
+            value_template: "{{ states('input_datetime.macchina_caffe_settimana_dal') != monday }}"
+        then:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.macchina_caffe_settimana
+            data:
+              value: 0
+          - action: input_datetime.set_datetime
+            target:
+              entity_id: input_datetime.macchina_caffe_settimana_dal
+            data:
+              date: "{{ monday }}"
+  # 4) Auto-spegnimento dopo N minuti senza caffe (0 = disattivato). Spegne la presa.
+  - id: macchina_caffe_ultimo_uso
+    alias: Macchina caffe - segna accensione
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: switch.macchina_caffe
+        to: "on"
+    actions:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.macchina_caffe_ultimo
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+  - id: macchina_caffe_auto_spegnimento
+    alias: Macchina caffe - spegni se inattiva
+    mode: single
+    triggers:
+      - trigger: time_pattern
+        minutes: "/1"
+    conditions:
+      - condition: state
+        entity_id: switch.macchina_caffe
+        state: "on"
+      - condition: template
+        value_template: >-
+          {% set n = states('input_number.macchina_caffe_spegni_dopo') | float(0) %}
+          {{ n > 0 and (as_timestamp(now()) - (state_attr('input_datetime.macchina_caffe_ultimo', 'timestamp') | float(as_timestamp(now())))) > n * 60 }}
+    actions:
+      - action: homeassistant.turn_off
+        target:
+          entity_id: switch.macchina_caffe

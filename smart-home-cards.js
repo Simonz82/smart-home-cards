@@ -17610,12 +17610,12 @@ const CF_STYLE = `
 .shc-ap-card.cf-ready .cf-led{fill:#22c55e}
 .shc-ap-card.cf-heating .cf-led{fill:#f97316}
 .shc-ap-card.cf-brewing .cf-led{fill:#0ea5e9}
-.shc-ap-card.cf-heating .shc-cl-chip ha-icon{color:#f97316}
-.shc-ap-card.cf-brewing .shc-cl-chip ha-icon{color:#b45309}
-.shc-ap-card.cf-ready .shc-cl-chip ha-icon{color:#16a34a}
-.shc-ap-card.cf-standby .shc-cl-chip ha-icon{color:#ca8a04}
+.shc-ap-card.cf-heating .shc-ap-chip ha-icon{color:#f97316}
+.shc-ap-card.cf-brewing .shc-ap-chip ha-icon{color:#b45309}
+.shc-ap-card.cf-ready .shc-ap-chip ha-icon{color:#16a34a}
+.shc-ap-card.cf-standby .shc-ap-chip ha-icon{color:#ca8a04}
 .shc-ap-card.cf-alert{animation:shc-cf-pulse 1.1s ease-in-out infinite}
-.cf-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:4px}
+.cf-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:8px 13px 0}
 .cf-step{padding:3px 8px;border-radius:999px;background:var(--shc-soft);color:var(--shc-dim);font-size:10.5px;font-weight:800;opacity:.7;white-space:nowrap}
 .cf-step.on{opacity:1;color:#fff}
 .cf-step.on[data-s=off]{background:#94a3b8}
@@ -17623,6 +17623,34 @@ const CF_STYLE = `
 .cf-step.on[data-s=heating]{background:#f97316}
 .cf-step.on[data-s=brewing]{background:#b45309}
 .cf-step.on[data-s=ready]{background:#16a34a}
+.shc-cf-card{--cf-cap:#16a34a;--cf-low:#ef4444}
+.shc-cf-card .shc-ap-hero{flex:0 0 auto;width:100%;height:190px}
+.shc-cf-card .cf-img{width:100%;height:100%;object-fit:contain;display:block}
+.shc-cf-card .cf-rows{margin:10px 13px 0;flex:0 0 auto}
+.shc-cf-card .cf-rows[hidden],.shc-cf-card .cf-cap[hidden]{display:none}
+.cf-cap{margin:10px 13px 0;padding:13px 14px;border-radius:16px;background:var(--shc-soft);cursor:pointer}
+.cf-cap-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cf-cap-label{font-size:12px;font-weight:850;letter-spacing:.3px;text-transform:uppercase;color:var(--shc-dim)}
+.cf-cap-flag{padding:2px 9px;border-radius:999px;background:var(--cf-low);color:#fff;font-size:11px;font-weight:900;letter-spacing:.02em}
+.cf-cap-flag[hidden]{display:none}
+.cf-cap-main{display:flex;align-items:baseline;gap:7px;margin-top:3px}
+.cf-cap-big{font-size:38px;line-height:1.05;font-weight:950;letter-spacing:-1px;color:var(--shc-text)}
+.cf-cap.is-low .cf-cap-big{color:var(--cf-low)}
+.cf-cap-of{font-size:13px;font-weight:750;color:var(--shc-dim)}
+.cf-cap-bar{height:10px}
+.cf-cap-bar i{background:linear-gradient(90deg,var(--cf-cap),var(--cf-cap))}
+.cf-cap.is-low .cf-cap-bar i{background:var(--cf-low)}
+.cf-cap-thr{position:absolute;z-index:2;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:var(--shc-text);opacity:.55;text-decoration:none}
+.cf-cap-thr[hidden]{display:none}
+.cf-cap-meta{display:flex;justify-content:space-between;gap:10px;margin-top:7px;font-size:12px;font-weight:750;color:var(--shc-dim);min-height:1em}
+.cf-refill{margin-top:10px;width:100%;height:34px;border-radius:12px;font-size:13.5px}
+.cf-refill[hidden]{display:none}
+.cf-refill.armed{background:#f59e0b;animation:shc-cf-glow 1s ease-in-out infinite}
+.cf-power{cursor:pointer}
+.cf-power[hidden]{display:none}
+.shc-cf-card .shc-ap-panel{margin-top:10px}
+.shc-cf-card .shc-ap-warn{margin-top:10px;margin-bottom:0}
+.shc-cf-card:not(:has(> .cf-power:not([hidden]))){padding-bottom:13px}
 `;
 
 function cfHeroSvg(id) {
@@ -17676,57 +17704,89 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
       ready_min: 20,
       water_low: 15,
       ready_alert: false,
+      power_max: 1500,
       ...config,
     };
-    for (const k of ["standby_w", "active_w", "brew_w", "min_brew_s", "max_brew_s", "ready_min", "water_low"]) {
+    for (const k of ["standby_w", "active_w", "brew_w", "min_brew_s", "max_brew_s", "ready_min", "water_low", "power_max"]) {
       const n = Number(this._config[k]);
       this._config[k] = Number.isFinite(n) ? n : 0;
     }
+    if (!(this._config.power_max > 0)) this._config.power_max = 1500;
     this._cf = new ShcCoffeeTracker(this._config);
     this._seededDay = null;
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    const c = this._config;
+    const T = (k) => shcT(this._hass, k);
     const row = (cls, icon, key) =>
-      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(shcT(this._hass, key))}</small></span><b class="${cls}">—</b></div>`;
-    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${CF_STYLE}</style>
-      <article class="shc-ap-card shc-cl-card cl-img shc-cf-card">
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(T(key))}</small></span><b class="${cls}">—</b></div>`;
+    const hero = c.image ? `<img class="cf-img" src="${esc(c.image)}" alt="">` : cfHeroSvg(this._uid);
+    this._root.innerHTML = `<style>${STYLE}${DV_STYLE}${CF_STYLE}</style>
+      <article class="shc-ap-card shc-cf-card">
         <div class="shc-ap-top">
-          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || "mdi:coffee-maker")}"></ha-icon></span>
+          <span class="shc-ap-chip"><ha-icon icon="${esc(c.icon || "mdi:coffee-maker")}"></ha-icon></span>
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
           <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
           <span class="shc-ap-tools">
-            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
-            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(shcT(this._hass, "fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(T("fritz.settings"))}" data-i18n-title="fritz.settings" hidden>${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(T("fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-dv-info" title="${esc(T("fritz.status"))}" data-i18n-title="fritz.status">${ICON_INFO}</button>
           </span>
         </div>
         <div class="shc-ap-top-row">
-          <div class="shc-cl-herocol">
-            <div class="shc-ap-hero">${cfHeroSvg(this._uid)}</div>
-            <div class="cf-steps">${CF_STATES.map((s) => `<span class="cf-step" data-s="${s}" data-i18n="cf.st_${s}">${esc(shcT(this._hass, "cf.st_" + s))}</span>`).join("")}</div>
-          </div>
-          <div class="shc-ap-cycle-side">
-            <span class="shc-ap-cycle-cap" data-i18n="cf.name">${esc(shcT(this._hass, "cf.name"))}</span>
-            <div class="shc-ap-cycle-list">
-              ${row("cf-r-state", "mdi:coffee-maker-outline", "cf.state")}
-              ${row("cf-r-pow", "mdi:flash", "appledit.power")}
-              ${row("cf-r-cups", "mdi:coffee", "cf.cups_today")}
-              ${row("cf-r-water", "mdi:water", "cf.water")}
-              ${row("cf-r-desc", "mdi:spray-bottle", "cf.descale")}
-              ${row("cf-r-machine", "mdi:information-outline", "cf.machine")}
-              ${row("cf-r-en", "mdi:lightning-bolt-circle", "wh.energy")}
-            </div>
+          <div class="shc-ap-hero">${hero}</div>
+        </div>
+        ${c.show_steps ? `<div class="cf-steps">${CF_STATES.map((s) => `<span class="cf-step" data-s="${s}" data-i18n="cf.st_${s}">${esc(T("cf.st_" + s))}</span>`).join("")}</div>` : ""}
+        <div class="cf-cap" hidden>
+          <div class="cf-cap-head"><span class="cf-cap-label"></span><span class="cf-cap-flag" hidden></span></div>
+          <div class="cf-cap-main"><b class="cf-cap-big">—</b><small class="cf-cap-of"></small></div>
+          <div class="shc-ap-bar cf-cap-bar"><i style="width:0%"></i><u class="cf-cap-thr" hidden></u></div>
+          <div class="cf-cap-meta"><span class="cf-cap-days"></span><span class="cf-cap-thrtxt"></span></div>
+          <button type="button" class="shc-ap-action-btn cf-refill" hidden></button>
+        </div>
+        <div class="shc-ap-cycle-side cf-rows" hidden>
+          <span class="shc-ap-cycle-cap" data-i18n="cf.today_cap">${esc(T("cf.today_cap"))}</span>
+          <div class="shc-ap-cycle-list">
+            ${row("cf-r-state", "mdi:coffee-maker-outline", "cf.state")}
+            ${row("cf-r-cups", "mdi:coffee", "cf.cups_today")}
+            ${row("cf-r-week", "mdi:calendar-week", "cf.cups_week")}
+            ${row("cf-r-water", "mdi:water", "cf.water")}
+            ${row("cf-r-desc", "mdi:spray-bottle", "cf.descale")}
+            ${row("cf-r-tray", "mdi:tray-full", "cf.tray")}
+            ${row("cf-r-machine", "mdi:information-outline", "cf.machine")}
+            ${row("cf-r-en", "mdi:lightning-bolt-circle", "wh.energy")}
           </div>
         </div>
         <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel cf-power" role="button" tabindex="0" hidden>
+          <div class="shc-ap-meters">
+            <div class="shc-ap-meter">
+              <div class="shc-ap-meter-row"><span data-i18n="power.current">${esc(T("power.current"))}</span><strong class="cf-power-val">—</strong></div>
+              <div class="shc-ap-bar"><i class="cf-power-bar" style="width:0%"></i></div>
+            </div>
+          </div>
+        </div>
       </article>`;
-    this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._root.querySelector(".shc-ap-name").textContent = c.name;
+    if (c.bar_color) this._root.querySelector(".cf-power-bar").style.background = c.bar_color;
+    const card = this._root.querySelector(".shc-ap-card");
+    if (c.capsule_color) card.style.setProperty("--cf-cap", c.capsule_color);
+    if (c.low_color) card.style.setProperty("--cf-low", c.low_color);
     const bind = this._commonBind();
     bind(".shc-dv-info", () => this._openInfo());
+    bind(".shc-ap-settings", () => this._openSettings());
+    bind(".cf-power", () => this._root.querySelector(".shc-ap-graph").click());
+    bind(".cf-cap", (e) => {
+      if (e.target.closest(".cf-refill")) return;
+      if (c.capsules_entity) this._moreInfo(c.capsules_entity);
+    });
+    bind(".cf-refill", () => this._refillTap());
   }
 
   disconnectedCallback() {
     clearTimeout(this._tick);
     clearTimeout(this._alertT);
+    clearTimeout(this._refillT);
   }
 
   _graphSeries() {
@@ -17734,7 +17794,103 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     const s = [];
     if (cfg.power_entity) s.push({ key: "power", entity: cfg.power_entity, label: shcT(this._hass, "appledit.power"), color: "#f97316" });
     if (cfg.energy_entity) s.push({ key: "energy", entity: cfg.energy_entity, label: shcT(this._hass, "wh.energy"), color: "#0ea5e9" });
+    if (cfg.capsules_entity) s.push({ key: "caps", entity: cfg.capsules_entity, label: this._unitCap(), color: "#16a34a" });
     return s;
+  }
+
+  // ---- utilita' --------------------------------------------------------------
+  // numero fisso oppure entity_id (input_number/sensor/counter) da cui leggere il valore
+  _num(v) {
+    if (v === null || v === undefined || v === "") return null;
+    if (typeof v === "number") return Number.isFinite(v) ? v : null;
+    const s = String(v).trim();
+    if (this._isNum(s)) return Number(s);
+    return this._val(s);
+  }
+
+  _unit1() {
+    return String(this._config.capsule_unit || shcT(this._hass, "cf.unit_capsules"));
+  }
+
+  _unitCap() {
+    const u = this._unit1();
+    return shcT(this._hass, "cf.remaining", { "1": u.charAt(0).toUpperCase() + u.slice(1) });
+  }
+
+  _resetCounter(id) {
+    const d = id.split(".")[0];
+    if (d === "counter") this._call("counter", "reset", { entity_id: id });
+    else this._call(d, "set_value", { entity_id: id, value: 0 });
+  }
+
+  // dati scorta capsule (null se non configurata)
+  _caps() {
+    const cfg = this._config;
+    if (!cfg.capsules_entity) return null;
+    const n = this._val(cfg.capsules_entity);
+    const thr = this._num(cfg.capsules_threshold);
+    const pack = this._num(cfg.capsules_pack);
+    let max = this._num(cfg.capsules_max);
+    if (!(max > 0)) max = pack > 0 ? pack : Math.max((thr || 0) * 4, n || 0, 1);
+    const avg = this._val(cfg.avg_entity);
+    return {
+      n,
+      thr: thr === null ? 0 : thr,
+      pack: pack > 0 ? pack : 0,
+      max: Math.max(max, n || 0, 1),
+      avg: avg > 0 ? avg : null,
+      low: n !== null && n <= (thr || 0),
+      empty: n !== null && n <= 0,
+    };
+  }
+
+  // manutenzione a contatore: { ent, cnt, left, every, due } oppure null
+  _maint(kind) {
+    const cfg = this._config;
+    const ent = cfg[kind + "_counter_entity"];
+    if (!ent || !this._has(ent)) return null;
+    const every = this._num(cfg[kind + "_every"]);
+    const cnt = this._val(ent);
+    if (!(every > 0) || cnt === null) return { ent, cnt, left: null, every: 0, due: false };
+    return { ent, cnt, left: Math.max(0, every - cnt), every, due: cnt >= every };
+  }
+
+  _maintText(m) {
+    if (!m) return "—";
+    if (m.left === null) return m.cnt !== null ? clNum(m.cnt, 0) : "—";
+    return m.due ? shcT(this._hass, "cf.todo") : shcT(this._hass, "cf.in_cups", { "1": clNum(m.left, 0) });
+  }
+
+  // tocco in due tempi (evita aggiunte per sbaglio): il primo arma il pulsante, il secondo conferma
+  _refillTap() {
+    if (this._refillArmed) {
+      clearTimeout(this._refillT);
+      this._refillArmed = false;
+      this._refill();
+    } else {
+      this._refillArmed = true;
+      clearTimeout(this._refillT);
+      this._refillT = setTimeout(() => {
+        this._refillArmed = false;
+        if (this._hass) this.hass = this._hass;
+      }, 4000);
+    }
+    if (this._hass) this.hass = this._hass;
+  }
+
+  _refill() {
+    const cfg = this._config;
+    if (cfg.refill_script) {
+      this._call("script", "turn_on", { entity_id: cfg.refill_script });
+      return;
+    }
+    const id = cfg.capsules_entity;
+    const caps = this._caps();
+    if (!id || !caps || caps.n === null || !caps.pack) return;
+    let v = caps.n + caps.pack;
+    const mx = Number(this._hass.states[id]?.attributes?.max);
+    if (Number.isFinite(mx)) v = Math.min(v, mx);
+    this._call(id.split(".")[0], "set_value", { entity_id: id, value: v });
   }
 
   // storia di oggi (presa + potenza) rigiocata nella stessa macchina a stati: caffe' del giorno e stato corrente
@@ -17801,6 +17957,7 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
     const cfg = this._config;
+    const T = (k, v) => shcT(this._hass, k, v);
     const q = (sel) => this._root.querySelector(sel);
     const st = this._st();
     const unav = !st || ["unavailable", "unknown"].includes(st.state);
@@ -17839,15 +17996,57 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     if (!unav) card.classList.add("cf-" + s);
     if (alert) card.classList.add("cf-alert");
 
-    const label = (x) => shcT(this._hass, "cf.st_" + x);
-    this._setBadge(unav ? "unavailable" : s === "off" ? "off" : s === "standby" ? "standby" : "run", unav ? "OFFLINE" : alert ? shcT(this._hass, "cf.ready_now") : label(s));
+    const label = (x) => T("cf.st_" + x);
+    this._setBadge(unav ? "unavailable" : s === "off" ? "off" : s === "standby" ? "standby" : "run", unav ? "OFFLINE" : alert ? T("cf.ready_now") : label(s));
     const watts = pw === null ? null : pw >= 1000 ? `${clNum(pw / 1000, 1)}kW` : `${clNum(pw, 0)}W`;
-    q(".cf-disp").textContent = unav ? "--" : s === "off" ? "OFF" : watts ?? "ON";
+    const disp = q(".cf-disp");
+    if (disp) disp.textContent = unav ? "--" : s === "off" ? "OFF" : watts ?? "ON";
     this._root.querySelectorAll(".cf-step").forEach((el) => el.classList.toggle("on", !unav && el.dataset.s === s));
 
-    q(".cf-r-state").textContent = unav ? "—" : label(s);
-    q(".cf-r-pow").textContent = pw !== null ? `${clNum(pw, 0)} W` : "—";
-    q(".cf-r-pow").closest(".shc-ap-cycle-row").hidden = !cfg.power_entity;
+    // ---- scorta capsule ----
+    const caps = this._caps();
+    const capBox = q(".cf-cap");
+    capBox.hidden = !caps || cfg.hide_capsules === true;
+    if (caps && !capBox.hidden) {
+      const unitTxt = this._unit1();
+      q(".cf-cap-label").textContent = this._unitCap();
+      q(".cf-cap-big").textContent = caps.n === null ? "—" : clNum(caps.n, 0);
+      q(".cf-cap-of").textContent = caps.pack ? `/ ${clNum(caps.pack, 0)} ${unitTxt}` : unitTxt;
+      const pct = caps.n === null ? 0 : Math.min(100, Math.max(0, (caps.n / caps.max) * 100));
+      q(".cf-cap-bar i").style.width = `${pct.toFixed(1)}%`;
+      const thr = q(".cf-cap-thr");
+      thr.hidden = !(caps.thr > 0 && caps.thr < caps.max);
+      if (!thr.hidden) thr.style.left = `${Math.min(100, (caps.thr / caps.max) * 100).toFixed(1)}%`;
+      capBox.classList.toggle("is-low", caps.low);
+      capBox.classList.toggle("is-empty", caps.empty);
+      const flag = q(".cf-cap-flag");
+      flag.hidden = !caps.low;
+      flag.textContent = caps.empty ? T("cf.cap_empty") : T("cf.cap_buy");
+      let days = "";
+      if (caps.avg && caps.n !== null) {
+        const d = caps.n / caps.avg;
+        days = d < 1 ? T("cf.days_lt1") : Math.round(d) === 1 ? T("cf.days_1") : T("cf.days_n", { "1": Math.round(d) });
+      }
+      q(".cf-cap-days").textContent = days;
+      q(".cf-cap-thrtxt").textContent = caps.thr > 0 ? T("cf.threshold_n", { "1": clNum(caps.thr, 0) }) : "";
+      const btn = q(".cf-refill");
+      const canRefill = !!cfg.refill_script || caps.pack > 0;
+      btn.hidden = !canRefill || cfg.hide_refill === true;
+      if (!btn.hidden) {
+        const plus = caps.pack ? T("cf.refill_plus", { "1": clNum(caps.pack, 0) }) : T("cf.refill");
+        btn.textContent = this._refillArmed ? T("cf.refill_confirm") + (caps.pack ? ` +${clNum(caps.pack, 0)}` : "") : plus;
+        btn.classList.toggle("armed", !!this._refillArmed);
+      }
+    }
+
+    // ---- righe ----
+    const rowsBox = q(".cf-rows");
+    const setRow = (cls, text, show) => {
+      const el = q("." + cls);
+      el.textContent = text ?? "—";
+      el.closest(".shc-ap-cycle-row").hidden = !show;
+    };
+    setRow("cf-r-state", unav ? "—" : label(s), true);
 
     // caffe' di oggi: contatore dell'entita' se c'e', altrimenti stima dai picchi di potenza
     let cups = "—";
@@ -17857,29 +18056,51 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     } else if (cfg.power_entity) {
       cups = this._seededDay ? `~${tr.count}` : "…";
     }
-    q(".cf-r-cups").textContent = cups;
-    q(".cf-r-cups").closest(".shc-ap-cycle-row").hidden = !cfg.cups_entity && !cfg.power_entity;
+    setRow("cf-r-cups", cups, !!cfg.cups_entity || !!cfg.power_entity);
+    const wk = this._val(cfg.cups_week_entity);
+    setRow("cf-r-week", wk !== null ? clNum(wk, 0) : "—", !!cfg.cups_week_entity && this._has(cfg.cups_week_entity));
 
-    // acqua e decalcificazione (facoltativi)
-    const lowWater = this._waterLow();
+    // acqua, decalcificazione, vaschetta (facoltativi)
+    const mWater = this._maint("water");
+    const mDesc = this._maint("descale");
+    const mTray = this._maint("tray");
+    const lowWater = mWater ? mWater.due : this._waterLow();
+    const descDue = mDesc ? mDesc.due : this._descaleDue();
+    const trayDue = !!(mTray && mTray.due);
     const water = cfg.water_entity ? hass.states[cfg.water_entity] : null;
     const wn = this._val(cfg.water_entity);
-    q(".cf-r-water").textContent = !water ? "—" : wn !== null ? `${clNum(wn, 0)}${water.attributes?.unit_of_measurement ? " " + water.attributes.unit_of_measurement : ""}` : lowWater ? shcT(this._hass, "cf.water_refill") : shcT(this._hass, "cf.ok");
-    q(".cf-r-water").closest(".shc-ap-cycle-row").hidden = !cfg.water_entity || !water;
+    if (mWater) setRow("cf-r-water", this._maintText(mWater), true);
+    else setRow("cf-r-water", !water ? "—" : wn !== null ? `${clNum(wn, 0)}${water.attributes?.unit_of_measurement ? " " + water.attributes.unit_of_measurement : ""}` : lowWater ? T("cf.water_refill") : T("cf.ok"), !!cfg.water_entity && !!water);
     const desc = cfg.descale_entity ? hass.states[cfg.descale_entity] : null;
-    const descDue = this._descaleDue();
-    q(".cf-r-desc").textContent = !desc ? "—" : this._isNum(desc.state) ? `${clNum(Number(desc.state), 0)}${desc.attributes?.unit_of_measurement ? " " + desc.attributes.unit_of_measurement : ""}` : descDue ? shcT(this._hass, "cf.descale_due_short") : shcT(this._hass, "cf.ok");
-    q(".cf-r-desc").closest(".shc-ap-cycle-row").hidden = !cfg.descale_entity || !desc;
+    if (mDesc) setRow("cf-r-desc", this._maintText(mDesc), true);
+    else setRow("cf-r-desc", !desc ? "—" : this._isNum(desc.state) ? `${clNum(Number(desc.state), 0)}${desc.attributes?.unit_of_measurement ? " " + desc.attributes.unit_of_measurement : ""}` : descDue ? T("cf.descale_due_short") : T("cf.ok"), !!cfg.descale_entity && !!desc);
+    setRow("cf-r-tray", this._maintText(mTray), !!mTray);
     const ms = cfg.state_entity ? hass.states[cfg.state_entity] : null;
-    q(".cf-r-machine").textContent = ms && !["unknown", "unavailable"].includes(ms.state) ? this._pretty(ms.state) : "—";
-    q(".cf-r-machine").closest(".shc-ap-cycle-row").hidden = !cfg.state_entity || !ms;
+    setRow("cf-r-machine", ms && !["unknown", "unavailable"].includes(ms.state) ? this._pretty(ms.state) : "—", !!cfg.state_entity && !!ms);
     const en = this._val(cfg.energy_entity);
-    q(".cf-r-en").textContent = en !== null ? `${clNum(en, 1)} kWh` : "—";
-    q(".cf-r-en").closest(".shc-ap-cycle-row").hidden = !cfg.energy_entity;
+    setRow("cf-r-en", en !== null ? `${clNum(en, 1)} kWh` : "—", !!cfg.energy_entity);
+    rowsBox.hidden = cfg.hide_rows === true;
+
+    // ---- banda potenza ----
+    const pb = q(".cf-power");
+    pb.hidden = !cfg.power_entity || cfg.hide_power_band === true;
+    if (!pb.hidden) {
+      q(".cf-power-val").textContent = pw !== null ? (pw >= 1000 ? `${clNum(pw / 1000, 1)} kW` : `${clNum(pw, 0)} W`) : "—";
+      q(".cf-power-bar").style.width = `${pw === null ? 0 : Math.min(100, Math.max(0, (pw / cfg.power_max) * 100)).toFixed(1)}%`;
+    }
 
     q(".shc-ap-graph").style.display = this._graphSeries().length ? "" : "none";
-    this._setWarn(unav ? shcT(this._hass, "cf.unreachable") : lowWater ? shcT(this._hass, "cf.water_refill_warn") : descDue ? shcT(this._hass, "cf.descale_due") : "");
-    this._liveRefresh([cfg.entity, cfg.power_entity, cfg.energy_entity, cfg.cups_entity, cfg.water_entity, cfg.descale_entity, cfg.state_entity]);
+    q(".shc-ap-settings").hidden = !this._hasSettings();
+    const warns = [];
+    if (unav) warns.push(T("cf.unreachable"));
+    else {
+      if (caps && caps.low && cfg.hide_capsules !== true) warns.push(caps.empty ? T("cf.cap_empty_warn") : T("cf.cap_low_warn", { "1": clNum(caps.n, 0) }));
+      if (lowWater) warns.push(T("cf.water_refill_warn"));
+      if (descDue) warns.push(T("cf.descale_due"));
+      if (trayDue) warns.push(T("cf.tray_warn"));
+    }
+    this._setWarn(warns.join(" · "));
+    this._liveRefresh([cfg.entity, cfg.power_entity, cfg.energy_entity, cfg.cups_entity, cfg.cups_week_entity, cfg.water_entity, cfg.descale_entity, cfg.state_entity, cfg.capsules_entity, cfg.avg_entity, cfg.descale_counter_entity, cfg.water_counter_entity, cfg.tray_counter_entity, cfg.capsules_threshold, cfg.capsules_pack, cfg.descale_every, cfg.water_every, cfg.tray_every, cfg.auto_off_entity]);
   }
 
   _isNum(v) {
@@ -17910,9 +18131,78 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     return this._onLike(d.state);
   }
 
+  // entita' modificabili dalle Impostazioni (soglia, confezione, scorta, ogni N caffe', spegnimento) e automazioni
+  _settingEntities() {
+    const cfg = this._config;
+    const out = [];
+    const add = (key, sec, labelKey, ent, step) => {
+      if (typeof ent === "string" && /^(input_number|number)\./.test(ent) && this._has(ent)) out.push({ key, sec, labelKey, ent, step });
+    };
+    add("caps", "caps", "cf.set_caps", cfg.capsules_entity, 1);
+    add("thr", "caps", "cf.set_threshold", cfg.capsules_threshold, 1);
+    add("pack", "caps", "cf.set_pack", cfg.capsules_pack, 1);
+    add("desc", "maint", "cf.set_descale_every", cfg.descale_every, 10);
+    add("water", "maint", "cf.set_water_every", cfg.water_every, 1);
+    add("tray", "maint", "cf.set_tray_every", cfg.tray_every, 1);
+    add("auto", "auto", "cf.set_auto_off", cfg.auto_off_entity, 5);
+    return out;
+  }
+
+  _autoIds() {
+    const cfg = this._config || {};
+    const out = [];
+    const seen = new Set();
+    const add = (id, name) => {
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      out.push({ id, name });
+    };
+    add(cfg.automation_entity);
+    (Array.isArray(cfg.automation_entities) ? cfg.automation_entities : []).forEach((it) => (typeof it === "string" ? add(it) : add(it?.entity, it?.name)));
+    return out;
+  }
+
+  _hasSettings() {
+    return this._autoIds().length > 0 || this._settingEntities().length > 0;
+  }
+
+  _openSettings() {
+    const hass = this._hass;
+    const T = (k) => shcT(hass, k);
+    const sets = this._settingEntities();
+    const secs = [["caps", "cf.settings_caps"], ["maint", "cf.settings_maint"], ["auto", "cf.settings_auto"]];
+    let html = "";
+    for (const [sec, titleKey] of secs) {
+      const items = sets.filter((x) => x.sec === sec);
+      if (!items.length) continue;
+      const rows = items
+        .map((x) => {
+          const st = hass.states[x.ent];
+          const u = st.attributes?.unit_of_measurement ? " " + st.attributes.unit_of_measurement : "";
+          return this._row(T(x.labelKey), this._stepperHtml(x.ent, `${clNum(Number(st.state), 0)}${u}`, x.step));
+        })
+        .join("");
+      html += `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T(titleKey))}</div>${rows}</div>`;
+    }
+    const autos = this._autoIds();
+    if (autos.length) {
+      const rows = autos
+        .map((a) => {
+          const st = hass.states[a.id];
+          const name = a.name || st?.attributes?.friendly_name || a.id;
+          if (!st) return this._row(name, `<span class="shc-ap-row-val">n/d</span>`);
+          return this._row(name, `<button type="button" class="shc-ap-switch${st.state === "on" ? " on" : ""}" data-toggle="${esc(a.id)}" aria-pressed="${st.state === "on"}"></button>`);
+        })
+        .join("");
+      html += `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("ups.automations"))}</div>${rows}</div>`;
+    }
+    this._openDialog(T("fritz.settings"), html || `<div class="shc-ap-row-val">${esc(T("cf.no_settings"))}</div>`, () => this._openSettings());
+  }
+
   // Stato
   _openInfo() {
     const cfg = this._config;
+    const T = (k, v) => shcT(this._hass, k, v);
     const st = this._st();
     const unav = !st || ["unavailable", "unknown"].includes(st.state);
     const s = unav ? null : this._cf.state;
@@ -17920,26 +18210,58 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     const more = (label, entity, text) =>
       entity && this._has(entity) ? `<div class="shc-ap-row" data-more="${esc(entity)}" style="cursor:pointer"><span class="shc-ap-row-label">${esc(label)}</span>${this._valHtml(text)}</div>` : "";
     const stOf = (e) => this._hass.states[e];
-    const withUnit = (e) => (stOf(e) ? `${stOf(e).state}${stOf(e).attributes?.unit_of_measurement ? " " + stOf(e).attributes.unit_of_measurement : ""}` : "");
+    const withUnit = (e) => {
+      const x = stOf(e);
+      if (!x) return "";
+      const v = this._isNum(x.state) ? clNum(Number(x.state), Number.isInteger(Number(x.state)) ? 0 : 1) : x.state;
+      return `${v}${x.attributes?.unit_of_measurement ? " " + x.attributes.unit_of_measurement : ""}`;
+    };
+    const caps = this._caps();
+    const capRows = caps
+      ? [
+          more(this._unitCap(), cfg.capsules_entity, caps.n === null ? "—" : `${clNum(caps.n, 0)}`),
+          caps.thr > 0 ? this._row(T("cf.threshold"), this._valHtml(clNum(caps.thr, 0))) : "",
+          caps.avg ? this._row(T("cf.avg"), this._valHtml(T("cf.avg_n", { "1": clNum(caps.avg, 1) }))) : "",
+          caps.avg && caps.n !== null ? this._row(T("cf.days_left"), this._valHtml(`~${Math.round(caps.n / caps.avg)}`)) : "",
+        ].join("")
+      : "";
+    // manutenzione con contatore: valore + "Fatto" (azzera il contatore)
+    const maintRow = (kind, titleKey) => {
+      const m = this._maint(kind);
+      if (!m) return "";
+      const btn = /^(input_number|number|counter)\./.test(m.ent) ? `<button type="button" class="shc-ap-action-btn" data-reset="${esc(m.ent)}">${esc(T("cf.done"))}</button>` : "";
+      return `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(T(titleKey))}</span><span class="shc-ap-row-val">${esc(this._maintText(m))}${m.cnt !== null && m.every ? ` (${clNum(m.cnt, 0)}/${clNum(m.every, 0)})` : ""}</span>${btn}</div>`;
+    };
     const rows = [
-      this._row(shcT(this._hass, "fritz.status"), this._valHtml(unav ? shcT(this._hass, "cf.unreachable") : shcT(this._hass, "cf.st_" + s))),
-      more(shcT(this._hass, "appledit.power"), cfg.power_entity, withUnit(cfg.power_entity)),
+      this._row(T("fritz.status"), this._valHtml(unav ? T("cf.unreachable") : T("cf.st_" + s))),
+      more(T("appledit.power"), cfg.power_entity, withUnit(cfg.power_entity)),
       cfg.cups_entity && this._has(cfg.cups_entity)
-        ? more(shcT(this._hass, "cf.cups_today"), cfg.cups_entity, withUnit(cfg.cups_entity))
+        ? more(T("cf.cups_today"), cfg.cups_entity, withUnit(cfg.cups_entity))
         : cfg.power_entity
-          ? this._row(shcT(this._hass, "cf.cups_today"), this._valHtml(`~${this._cf.count}`))
+          ? this._row(T("cf.cups_today"), this._valHtml(`~${this._cf.count}`))
           : "",
-      cfg.power_entity && !cfg.cups_entity ? `<div class="shc-ap-row"><span class="shc-ap-row-label" style="font-weight:600;font-size:12px;opacity:.75">${esc(shcT(this._hass, "cf.cups_hint"))}</span></div>` : "",
-      more(shcT(this._hass, "cf.water"), cfg.water_entity, withUnit(cfg.water_entity)),
-      more(shcT(this._hass, "cf.descale"), cfg.descale_entity, withUnit(cfg.descale_entity)),
-      more(shcT(this._hass, "cf.machine"), cfg.state_entity, stOf(cfg.state_entity) ? this._pretty(stOf(cfg.state_entity).state) : ""),
-      more(shcT(this._hass, "wh.energy"), cfg.energy_entity, withUnit(cfg.energy_entity)),
-      this._row(shcT(this._hass, "cf.thresholds"), this._valHtml(`${cfg.standby_w} / ${cfg.active_w}${cfg.brew_w > 0 ? " / " + cfg.brew_w : ""} W`)),
-      st ? this._row(shcT(this._hass, "climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
-      this._row(shcT(this._hass, "climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(shcT(this._hass, "zigbee.open"))}</button>`),
+      cfg.power_entity && !cfg.cups_entity ? `<div class="shc-ap-row"><span class="shc-ap-row-label" style="font-weight:600;font-size:12px;opacity:.75">${esc(T("cf.cups_hint"))}</span></div>` : "",
+      more(T("cf.cups_week"), cfg.cups_week_entity, withUnit(cfg.cups_week_entity)),
+      more(T("cf.water"), cfg.water_entity, withUnit(cfg.water_entity)),
+      more(T("cf.descale"), cfg.descale_entity, withUnit(cfg.descale_entity)),
+      more(T("cf.machine"), cfg.state_entity, stOf(cfg.state_entity) ? this._pretty(stOf(cfg.state_entity).state) : ""),
+      more(T("wh.energy"), cfg.energy_entity, withUnit(cfg.energy_entity)),
+      this._row(T("cf.thresholds"), this._valHtml(`${cfg.standby_w} / ${cfg.active_w}${cfg.brew_w > 0 ? " / " + cfg.brew_w : ""} W`)),
+      st ? this._row(T("climate.last_changed"), this._valHtml(fmtTime(st.last_changed))) : "",
+      this._row(T("climate.full_card"), `<button type="button" class="shc-ap-action-btn" data-more="${esc(cfg.entity)}">${esc(T("zigbee.open"))}</button>`),
     ].join("");
-    const html = `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "cf.name"))}</div>${rows}</div>`;
-    this._openDialog(shcT(this._hass, "fritz.status"), html, () => this._openInfo());
+    const maint = [maintRow("descale", "cf.descale"), maintRow("water", "cf.water"), maintRow("tray", "cf.tray")].join("");
+    const html =
+      (capRows ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(this._unitCap())}</div>${capRows}</div>` : "") +
+      (maint ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("cf.settings_maint"))}</div>${maint}</div>` : "") +
+      `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("cf.name"))}</div>${rows}</div>`;
+    const overlay = this._openDialog(T("fritz.status"), html, () => this._openInfo());
+    overlay.querySelectorAll("[data-reset]").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._resetCounter(b.dataset.reset);
+      }),
+    );
   }
 
   static getConfigElement() {
@@ -17954,32 +18276,63 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
 
 class ShcCoffeeCardEditor extends ShcSimpleCardEditorBase {
   get schema() {
+    const T = (k) => shcT(this._hass, k);
     return [
-      { title: shcT(this._hass, "fritzcard.basic"), fields: [
-        { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text", placeholder: shcT(this._hass, "cf.name") },
-        { key: "entity", label: shcT(this._hass, "cf.ed_entity"), domain: ["switch", "input_boolean"], required: true },
-        { key: "power_entity", label: shcT(this._hass, "cf.ed_power"), domain: ["sensor"] },
-        { key: "energy_entity", label: shcT(this._hass, "wh.ed_energy"), domain: ["sensor"] },
-        { key: "icon", label: shcT(this._hass, "wh.ed_icon"), kind: "text", placeholder: "mdi:coffee-maker" },
+      { title: T("fritzcard.basic"), fields: [
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("cf.name") },
+        { key: "entity", label: T("cf.ed_entity"), domain: ["switch", "input_boolean"], required: true },
+        { key: "power_entity", label: T("cf.ed_power"), domain: ["sensor"] },
+        { key: "energy_entity", label: T("wh.ed_energy"), domain: ["sensor"] },
+        { key: "icon", label: T("wh.ed_icon"), kind: "text", placeholder: "mdi:coffee-maker" },
+        { key: "image", label: T("cf.ed_image"), kind: "text", hint: T("cf.ed_image_hint"), placeholder: "/local/macchina.png" },
       ]},
-      { title: shcT(this._hass, "cf.sec_thresholds"), fields: [
-        { key: "standby_w", label: shcT(this._hass, "cf.ed_standby_w"), kind: "number", hint: shcT(this._hass, "cf.ed_standby_hint") },
-        { key: "active_w", label: shcT(this._hass, "cf.ed_active_w"), kind: "number", hint: shcT(this._hass, "cf.ed_active_hint") },
-        { key: "brew_w", label: shcT(this._hass, "cf.ed_brew_w"), kind: "number", hint: shcT(this._hass, "cf.ed_brew_hint") },
-        { key: "min_brew_s", label: shcT(this._hass, "cf.ed_min_brew"), kind: "number" },
-        { key: "max_brew_s", label: shcT(this._hass, "cf.ed_max_brew"), kind: "number" },
-        { key: "ready_min", label: shcT(this._hass, "cf.ed_ready_min"), kind: "number" },
-        { key: "ready_alert", label: shcT(this._hass, "cf.ed_ready_alert"), kind: "bool", hint: shcT(this._hass, "cf.ed_ready_alert_hint") },
+      { title: T("cf.sec_capsules"), fields: [
+        { key: "capsules_entity", label: T("cf.ed_caps"), domain: ["input_number", "counter", "sensor", "number"], hint: T("cf.ed_caps_hint") },
+        { key: "capsule_unit", label: T("cf.ed_unit"), kind: "text", placeholder: T("cf.unit_capsules") },
+        { key: "capsules_threshold", label: T("cf.ed_threshold"), kind: "text", hint: T("cf.ed_num_or_entity") },
+        { key: "capsules_pack", label: T("cf.ed_pack"), kind: "text", hint: T("cf.ed_num_or_entity") },
+        { key: "capsules_max", label: T("cf.ed_max"), kind: "number" },
+        { key: "avg_entity", label: T("cf.ed_avg"), domain: ["sensor", "input_number"], hint: T("cf.ed_avg_hint") },
+        { key: "refill_script", label: T("cf.ed_refill_script"), domain: ["script"], hint: T("cf.ed_refill_hint") },
+        { key: "hide_refill", label: T("cf.ed_hide_refill"), kind: "bool" },
       ]},
-      { title: shcT(this._hass, "cf.sec_machine"), fields: [
-        { key: "state_entity", label: shcT(this._hass, "cf.ed_state"), domain: ["sensor", "select", "binary_sensor"] },
-        { key: "cups_entity", label: shcT(this._hass, "cf.ed_cups"), domain: ["sensor", "counter", "input_number"] },
-        { key: "water_entity", label: shcT(this._hass, "cf.ed_water"), domain: ["sensor", "binary_sensor"] },
-        { key: "water_low", label: shcT(this._hass, "cf.ed_water_low"), kind: "number" },
-        { key: "descale_entity", label: shcT(this._hass, "cf.ed_descale"), domain: ["sensor", "binary_sensor"] },
+      { title: T("cf.sec_maint"), fields: [
+        { key: "cups_week_entity", label: T("cf.ed_cups_week"), domain: ["sensor", "counter", "input_number"] },
+        { key: "descale_counter_entity", label: T("cf.ed_descale_counter"), domain: ["input_number", "counter", "sensor"] },
+        { key: "descale_every", label: T("cf.ed_descale_every"), kind: "text", hint: T("cf.ed_num_or_entity") },
+        { key: "water_counter_entity", label: T("cf.ed_water_counter"), domain: ["input_number", "counter", "sensor"] },
+        { key: "water_every", label: T("cf.ed_water_every"), kind: "text", hint: T("cf.ed_num_or_entity") },
+        { key: "tray_counter_entity", label: T("cf.ed_tray_counter"), domain: ["input_number", "counter", "sensor"] },
+        { key: "tray_every", label: T("cf.ed_tray_every"), kind: "text", hint: T("cf.ed_num_or_entity") },
+        { key: "auto_off_entity", label: T("cf.ed_auto_off"), domain: ["input_number", "number"], hint: T("cf.ed_auto_off_hint") },
+        { key: "automation_entity", label: T("xa.ed_automation"), domain: ["automation"] },
       ]},
-      { title: shcT(this._hass, "climatecard.other"), fields: [
-        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
+      { title: T("cf.sec_thresholds"), fields: [
+        { key: "standby_w", label: T("cf.ed_standby_w"), kind: "number", hint: T("cf.ed_standby_hint") },
+        { key: "active_w", label: T("cf.ed_active_w"), kind: "number", hint: T("cf.ed_active_hint") },
+        { key: "brew_w", label: T("cf.ed_brew_w"), kind: "number", hint: T("cf.ed_brew_hint") },
+        { key: "min_brew_s", label: T("cf.ed_min_brew"), kind: "number" },
+        { key: "max_brew_s", label: T("cf.ed_max_brew"), kind: "number" },
+        { key: "ready_min", label: T("cf.ed_ready_min"), kind: "number" },
+        { key: "power_max", label: T("cf.ed_power_max"), kind: "number" },
+        { key: "ready_alert", label: T("cf.ed_ready_alert"), kind: "bool", hint: T("cf.ed_ready_alert_hint") },
+      ]},
+      { title: T("cf.sec_machine"), fields: [
+        { key: "state_entity", label: T("cf.ed_state"), domain: ["sensor", "select", "binary_sensor"] },
+        { key: "cups_entity", label: T("cf.ed_cups"), domain: ["sensor", "counter", "input_number"] },
+        { key: "water_entity", label: T("cf.ed_water"), domain: ["sensor", "binary_sensor"] },
+        { key: "water_low", label: T("cf.ed_water_low"), kind: "number" },
+        { key: "descale_entity", label: T("cf.ed_descale"), domain: ["sensor", "binary_sensor"] },
+      ]},
+      { title: T("cf.sec_look"), fields: [
+        { key: "capsule_color", label: T("cf.ed_capsule_color"), kind: "text", placeholder: "#16a34a" },
+        { key: "low_color", label: T("cf.ed_low_color"), kind: "text", placeholder: "#ef4444" },
+        { key: "bar_color", label: T("cf.ed_bar_color"), kind: "text", placeholder: "#f97316" },
+        { key: "show_steps", label: T("cf.ed_show_steps"), kind: "bool" },
+        { key: "hide_capsules", label: T("cf.ed_hide_capsules"), kind: "bool" },
+        { key: "hide_rows", label: T("cf.ed_hide_rows"), kind: "bool" },
+        { key: "hide_power_band", label: T("cf.ed_hide_power"), kind: "bool" },
+        { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }
@@ -18707,6 +19060,221 @@ Object.assign(SHC_I18N.nl, {
   "pr.reachable": "Bereikbaarheid",
   "pr.online": "Online",
   "pr.offline": "Offline",
+});
+
+// Macchina del caffe': scorta capsule, manutenzione, impostazioni (it/en/nl)
+Object.assign(SHC_I18N.it, {
+  "cf.today_cap": "Dettagli",
+  "cf.unit_capsules": "capsule",
+  "cf.remaining": "{1} rimanenti",
+  "cf.cap_buy": "Da comprare",
+  "cf.cap_empty": "Finite",
+  "cf.cap_low_warn": "Scorta in esaurimento: ne restano {1}. È ora di comprarne altre",
+  "cf.cap_empty_warn": "Scorta finita: da comprare",
+  "cf.days_lt1": "Meno di 1 giorno",
+  "cf.days_1": "Circa 1 giorno",
+  "cf.days_n": "Circa {1} giorni",
+  "cf.threshold_n": "Avviso a {1}",
+  "cf.threshold": "Soglia di avviso",
+  "cf.avg": "Consumo medio",
+  "cf.avg_n": "{1} al giorno",
+  "cf.days_left": "Giorni rimanenti",
+  "cf.refill": "Ho ricaricato",
+  "cf.refill_plus": "Ho ricaricato (+{1})",
+  "cf.refill_confirm": "Confermi?",
+  "cf.cups_week": "Caffè questa settimana",
+  "cf.tray": "Vaschetta",
+  "cf.tray_warn": "Svuota la vaschetta delle capsule usate",
+  "cf.todo": "Da fare",
+  "cf.in_cups": "tra {1} caffè",
+  "cf.done": "Fatto",
+  "cf.settings_caps": "Scorta",
+  "cf.settings_maint": "Manutenzione",
+  "cf.settings_auto": "Spegnimento automatico",
+  "cf.set_caps": "Capsule rimanenti",
+  "cf.set_threshold": "Avvisa sotto",
+  "cf.set_pack": "Capsule per confezione",
+  "cf.set_descale_every": "Decalcificazione ogni (caffè)",
+  "cf.set_water_every": "Serbatoio acqua ogni (caffè)",
+  "cf.set_tray_every": "Vaschetta ogni (caffè)",
+  "cf.set_auto_off": "Spegni dopo (minuti, 0 = mai)",
+  "cf.no_settings": "Nessuna impostazione: aggiungi entità di scorta, manutenzione o automazioni alla card",
+  "cf.ed_image": "Immagine della macchina (facoltativa)",
+  "cf.ed_image_hint": "Percorso o URL di una tua immagine: sostituisce il disegno animato.",
+  "cf.sec_capsules": "Scorta capsule (facoltativo)",
+  "cf.ed_caps": "Capsule rimanenti (input_number / counter)",
+  "cf.ed_caps_hint": "Il conteggio sta in Home Assistant: la card lo legge e mostra scorta, barra e avvisi. Usa il package coffee_capsule.yaml.",
+  "cf.ed_unit": "Unità (capsule, cialde, grammi...)",
+  "cf.ed_threshold": "Soglia di avviso",
+  "cf.ed_pack": "Pezzi per confezione",
+  "cf.ed_num_or_entity": "Un numero oppure un'entità input_number.",
+  "cf.ed_max": "Scorta massima per la barra (facoltativo)",
+  "cf.ed_avg": "Consumo medio al giorno (sensore)",
+  "cf.ed_avg_hint": "Serve a stimare i giorni rimanenti. Nel package: input_number media.",
+  "cf.ed_refill_script": "Script di ricarica (facoltativo)",
+  "cf.ed_refill_hint": "Senza script, il pulsante somma una confezione alla scorta.",
+  "cf.ed_hide_refill": "Nascondi il pulsante \"Ho ricaricato\"",
+  "cf.sec_maint": "Manutenzione e consumi (facoltativo)",
+  "cf.ed_cups_week": "Caffè della settimana",
+  "cf.ed_descale_counter": "Caffè dall'ultima decalcificazione",
+  "cf.ed_descale_every": "Decalcificare ogni (caffè)",
+  "cf.ed_water_counter": "Caffè dall'ultimo pieno d'acqua",
+  "cf.ed_water_every": "Riempire l'acqua ogni (caffè)",
+  "cf.ed_tray_counter": "Caffè dall'ultimo svuotamento vaschetta",
+  "cf.ed_tray_every": "Svuotare la vaschetta ogni (caffè)",
+  "cf.ed_auto_off": "Spegnimento automatico: minuti (input_number)",
+  "cf.ed_auto_off_hint": "Lo spegnimento lo fa l'automazione del package; la card permette solo di cambiare i minuti dalle Impostazioni.",
+  "cf.ed_power_max": "Potenza a fondo barra (W)",
+  "cf.sec_look": "Aspetto e sezioni",
+  "cf.ed_capsule_color": "Colore barra scorta",
+  "cf.ed_low_color": "Colore sotto soglia",
+  "cf.ed_bar_color": "Colore barra potenza",
+  "cf.ed_show_steps": "Mostra le tappe (spenta, standby, riscaldamento...)",
+  "cf.ed_hide_capsules": "Nascondi la scorta capsule",
+  "cf.ed_hide_rows": "Nascondi l'elenco dei dati",
+  "cf.ed_hide_power": "Nascondi la banda potenza"
+});
+Object.assign(SHC_I18N.en, {
+  "cf.today_cap": "Details",
+  "cf.unit_capsules": "capsules",
+  "cf.remaining": "{1} left",
+  "cf.cap_buy": "Time to buy",
+  "cf.cap_empty": "Empty",
+  "cf.cap_low_warn": "Running low: {1} left. Time to buy more",
+  "cf.cap_empty_warn": "Out of stock: time to buy",
+  "cf.days_lt1": "Less than 1 day",
+  "cf.days_1": "About 1 day",
+  "cf.days_n": "About {1} days",
+  "cf.threshold_n": "Alert at {1}",
+  "cf.threshold": "Alert threshold",
+  "cf.avg": "Average use",
+  "cf.avg_n": "{1} per day",
+  "cf.days_left": "Days left",
+  "cf.refill": "I restocked",
+  "cf.refill_plus": "I restocked (+{1})",
+  "cf.refill_confirm": "Confirm?",
+  "cf.cups_week": "Coffees this week",
+  "cf.tray": "Capsule bin",
+  "cf.tray_warn": "Empty the used capsule tray",
+  "cf.todo": "To do",
+  "cf.in_cups": "in {1} coffees",
+  "cf.done": "Done",
+  "cf.settings_caps": "Stock",
+  "cf.settings_maint": "Maintenance",
+  "cf.settings_auto": "Auto power off",
+  "cf.set_caps": "Capsules left",
+  "cf.set_threshold": "Alert below",
+  "cf.set_pack": "Capsules per pack",
+  "cf.set_descale_every": "Descale every (coffees)",
+  "cf.set_water_every": "Water tank every (coffees)",
+  "cf.set_tray_every": "Tray every (coffees)",
+  "cf.set_auto_off": "Power off after (minutes, 0 = never)",
+  "cf.no_settings": "No settings: add stock, maintenance or automation entities to the card",
+  "cf.ed_image": "Machine picture (optional)",
+  "cf.ed_image_hint": "Path or URL of your own picture: replaces the animated drawing.",
+  "cf.sec_capsules": "Capsule stock (optional)",
+  "cf.ed_caps": "Capsules left (input_number / counter)",
+  "cf.ed_caps_hint": "The count lives in Home Assistant: the card reads it and shows stock, bar and alerts. Use the coffee_capsule.yaml package.",
+  "cf.ed_unit": "Unit (capsules, pods, grams...)",
+  "cf.ed_threshold": "Alert threshold",
+  "cf.ed_pack": "Pieces per pack",
+  "cf.ed_num_or_entity": "A number or an input_number entity.",
+  "cf.ed_max": "Maximum stock for the bar (optional)",
+  "cf.ed_avg": "Average use per day (sensor)",
+  "cf.ed_avg_hint": "Used to estimate the days left. In the package: the average input_number.",
+  "cf.ed_refill_script": "Restock script (optional)",
+  "cf.ed_refill_hint": "Without a script, the button adds one pack to the stock.",
+  "cf.ed_hide_refill": "Hide the \"I restocked\" button",
+  "cf.sec_maint": "Maintenance and usage (optional)",
+  "cf.ed_cups_week": "Coffees this week",
+  "cf.ed_descale_counter": "Coffees since last descaling",
+  "cf.ed_descale_every": "Descale every (coffees)",
+  "cf.ed_water_counter": "Coffees since the tank was filled",
+  "cf.ed_water_every": "Refill the water every (coffees)",
+  "cf.ed_tray_counter": "Coffees since the tray was emptied",
+  "cf.ed_tray_every": "Empty the tray every (coffees)",
+  "cf.ed_auto_off": "Auto power off: minutes (input_number)",
+  "cf.ed_auto_off_hint": "The package automation does the switching off; the card only lets you change the minutes in Settings.",
+  "cf.ed_power_max": "Power at full bar (W)",
+  "cf.sec_look": "Look and sections",
+  "cf.ed_capsule_color": "Stock bar colour",
+  "cf.ed_low_color": "Below-threshold colour",
+  "cf.ed_bar_color": "Power bar colour",
+  "cf.ed_show_steps": "Show the steps (off, standby, heating...)",
+  "cf.ed_hide_capsules": "Hide the capsule stock",
+  "cf.ed_hide_rows": "Hide the data list",
+  "cf.ed_hide_power": "Hide the power band"
+});
+Object.assign(SHC_I18N.nl, {
+  "cf.today_cap": "Details",
+  "cf.unit_capsules": "capsules",
+  "cf.remaining": "{1} over",
+  "cf.cap_buy": "Kopen",
+  "cf.cap_empty": "Op",
+  "cf.cap_low_warn": "Voorraad bijna op: nog {1}. Tijd om bij te kopen",
+  "cf.cap_empty_warn": "Voorraad op: bijkopen",
+  "cf.days_lt1": "Minder dan 1 dag",
+  "cf.days_1": "Ongeveer 1 dag",
+  "cf.days_n": "Ongeveer {1} dagen",
+  "cf.threshold_n": "Melding bij {1}",
+  "cf.threshold": "Meldingsdrempel",
+  "cf.avg": "Gemiddeld gebruik",
+  "cf.avg_n": "{1} per dag",
+  "cf.days_left": "Resterende dagen",
+  "cf.refill": "Bijgevuld",
+  "cf.refill_plus": "Bijgevuld (+{1})",
+  "cf.refill_confirm": "Bevestigen?",
+  "cf.cups_week": "Koffies deze week",
+  "cf.tray": "Capsulebakje",
+  "cf.tray_warn": "Leeg het bakje met gebruikte capsules",
+  "cf.todo": "Te doen",
+  "cf.in_cups": "over {1} koffies",
+  "cf.done": "Klaar",
+  "cf.settings_caps": "Voorraad",
+  "cf.settings_maint": "Onderhoud",
+  "cf.settings_auto": "Automatisch uit",
+  "cf.set_caps": "Capsules over",
+  "cf.set_threshold": "Melden onder",
+  "cf.set_pack": "Capsules per pak",
+  "cf.set_descale_every": "Ontkalken elke (koffies)",
+  "cf.set_water_every": "Watertank elke (koffies)",
+  "cf.set_tray_every": "Bakje elke (koffies)",
+  "cf.set_auto_off": "Uit na (minuten, 0 = nooit)",
+  "cf.no_settings": "Geen instellingen: voeg voorraad-, onderhouds- of automatiseringsentiteiten toe",
+  "cf.ed_image": "Afbeelding van de machine (optioneel)",
+  "cf.ed_image_hint": "Pad of URL van je eigen afbeelding: vervangt de animatie.",
+  "cf.sec_capsules": "Capsulevoorraad (optioneel)",
+  "cf.ed_caps": "Capsules over (input_number / counter)",
+  "cf.ed_caps_hint": "De teller staat in Home Assistant. Gebruik het package coffee_capsule.yaml.",
+  "cf.ed_unit": "Eenheid (capsules, pads, gram...)",
+  "cf.ed_threshold": "Meldingsdrempel",
+  "cf.ed_pack": "Stuks per pak",
+  "cf.ed_num_or_entity": "Een getal of een input_number-entiteit.",
+  "cf.ed_max": "Maximale voorraad voor de balk (optioneel)",
+  "cf.ed_avg": "Gemiddeld gebruik per dag (sensor)",
+  "cf.ed_avg_hint": "Voor de schatting van de resterende dagen.",
+  "cf.ed_refill_script": "Bijvul-script (optioneel)",
+  "cf.ed_refill_hint": "Zonder script telt de knop één pak bij de voorraad.",
+  "cf.ed_hide_refill": "Verberg de knop \"Bijgevuld\"",
+  "cf.sec_maint": "Onderhoud en gebruik (optioneel)",
+  "cf.ed_cups_week": "Koffies van de week",
+  "cf.ed_descale_counter": "Koffies sinds laatste ontkalking",
+  "cf.ed_descale_every": "Ontkalken elke (koffies)",
+  "cf.ed_water_counter": "Koffies sinds watertank gevuld",
+  "cf.ed_water_every": "Water bijvullen elke (koffies)",
+  "cf.ed_tray_counter": "Koffies sinds bakje geleegd",
+  "cf.ed_tray_every": "Bakje legen elke (koffies)",
+  "cf.ed_auto_off": "Automatisch uit: minuten (input_number)",
+  "cf.ed_auto_off_hint": "De automatisering van het package schakelt uit; de kaart wijzigt alleen de minuten.",
+  "cf.ed_power_max": "Vermogen bij volle balk (W)",
+  "cf.sec_look": "Uiterlijk en secties",
+  "cf.ed_capsule_color": "Kleur voorraadbalk",
+  "cf.ed_low_color": "Kleur onder drempel",
+  "cf.ed_bar_color": "Kleur vermogensbalk",
+  "cf.ed_show_steps": "Toon de stappen",
+  "cf.ed_hide_capsules": "Verberg capsulevoorraad",
+  "cf.ed_hide_rows": "Verberg de gegevenslijst",
+  "cf.ed_hide_power": "Verberg de vermogensband"
 });
 
 // Base comune: scheletro della card (chip, nome, badge, grafici/stato, hero + colonna dati), comandi e finestra stato

@@ -149,12 +149,12 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Notification center](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md)
 - [Alexa (text, memo, web radio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Speaker (Echo / Alexa and other speakers)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
-- [Coffee machine (smart plug: off, standby, heating, brewing, ready)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+- [Coffee machine (smart plug: states, capsule stock with low alert, maintenance)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
 - [Air purifier (fan: speed, modes, PM2.5, filter)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Dehumidifier (humidity, target, mode, fan, full tank)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 
-Example, coffee machine on a smart plug (states from the power draw, thresholds in W):
+Example, coffee machine on a smart plug (states from the power draw, thresholds in W, capsule stock counted in Home Assistant by `packages/coffee_capsule.yaml`):
 
 ```yaml
 type: custom:shc-coffee-card
@@ -163,6 +163,9 @@ power_entity: sensor.coffee_machine_power
 standby_w: 10
 active_w: 300
 ready_alert: true
+capsules_entity: input_number.coffee_capsules      # remaining capsules (-1 per coffee)
+capsules_threshold: input_number.coffee_alert_at   # alert once below this
+capsules_pack: input_number.coffee_pack_size       # "I restocked" adds one pack
 ```
 
 Also: [layouts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [charts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [custom notifications](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [TV guide and remote](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
@@ -321,12 +324,12 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Centro notifiche](https://github.com/Simonz82/smart-home-cards/blob/main/docs/centro-notifiche.md)
 - [Alexa (testo, memo, webradio)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md)
 - [Altoparlante (Echo / Alexa e altri altoparlanti)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/altoparlante.md)
-- [Macchina del caffè (presa smart: spenta, standby, riscaldamento, erogazione, pronta)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
+- [Macchina del caffè (presa smart: stati, scorta capsule con avviso, manutenzione)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/macchina-caffe.md)
 - [Purificatore d'aria (fan: velocità, modalità, PM2.5, filtro)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Deumidificatore (umidità, obiettivo, modalità, ventola, serbatoio pieno)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 
-Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W):
+Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W, scorta capsule contata in Home Assistant da `packages/coffee_capsule.yaml`):
 
 ```yaml
 type: custom:shc-coffee-card
@@ -335,6 +338,9 @@ power_entity: sensor.macchina_caffe_potenza
 standby_w: 10
 active_w: 300
 ready_alert: true
+capsules_entity: input_number.macchina_caffe_capsule      # capsule rimanenti (-1 a ogni caffè)
+capsules_threshold: input_number.macchina_caffe_soglia    # avviso sotto questa soglia
+capsules_pack: input_number.macchina_caffe_confezione     # "Ho ricaricato" somma una confezione
 ```
 
 Anche: [layout](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [grafici](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [notifiche personalizzate](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [guida TV e telecomando](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
