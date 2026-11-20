@@ -126,6 +126,19 @@ actions:
     confirm: "Vuoi riavviare il NAS Synology?"
 ```
 
+## 🐳 Pulsante Docker (opzione `docker`)
+
+Opzionale, solo YAML: pulsante **Docker** con l'elenco dei container del NAS e AVVIA / STOP / RIAVVIA (SSH con chiave a comando forzato).
+
+```yaml
+docker:
+  entity: sensor.nas_docker
+  service: shell_command.nas_docker_cmd
+  critical: [my-database]               # opzionale: doppia conferma su STOP/RIAVVIA
+```
+
+Guida completa (chiave SSH, wrapper, package, sicurezza, English version): [docs/vm-ct-docker.md](vm-ct-docker.md). *English: optional Docker button for Synology containers, see the guide.*
+
 ## 🎛️ Layout classico o centrato
 
 Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_nas` e parametro `layout_entity`).

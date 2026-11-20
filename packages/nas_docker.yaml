@@ -1,0 +1,21 @@
+# Docker container list + start/stop/restart on a Synology NAS, for the Docker button of shc-nas-card (option `docker`).
+# Elenco container Docker + avvia/ferma/riavvia su NAS Synology, per il pulsante Docker di shc-nas-card (opzione `docker`).
+#
+# CHANGE / DA CAMBIARE:
+#   - 192.168.1.20 -> IP of the NAS / IP del NAS
+#   - nasuser      -> NAS user that owns the forced-command key / utente NAS della chiave
+# Key and wrapper: see docs/vm-ct-docker.md (key in /config/.ssh_nas/, NEVER in git / mai in git).
+
+command_line:
+  - sensor:
+      name: nas_docker
+      command: "ssh -i /config/.ssh_nas/id_ha_nas_docker -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/config/.ssh_nas/known_hosts -o ConnectTimeout=8 -o BatchMode=yes nasuser@192.168.1.20 list"
+      scan_interval: 60
+      command_timeout: 20
+      value_template: "{{ value_json.containers | selectattr('state','eq','running') | list | count }}"
+      json_attributes: [containers]
+
+shell_command:
+  # action and name are cleaned here too (defence in depth: the wrapper validates them again on the NAS)
+  # action e name vengono ripuliti anche qui (il wrapper sul NAS li valida di nuovo)
+  nas_docker_cmd: "ssh -i /config/.ssh_nas/id_ha_nas_docker -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/config/.ssh_nas/known_hosts -o ConnectTimeout=8 -o BatchMode=yes nasuser@192.168.1.20 '{{ action | regex_replace('[^a-z]', '') }} {{ name | regex_replace('[^A-Za-z0-9_.-]', '') }}'"

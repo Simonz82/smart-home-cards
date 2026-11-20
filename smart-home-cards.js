@@ -1013,6 +1013,7 @@ const STYLE = `
 .shc-ap-switch.on::after{transform:translateX(16px)}
 .shc-ap-action-btn{flex:0 0 auto;border:0;border-radius:10px;padding:0 14px;height:26px;background:var(--shc-blue);color:#fff;font-size:13px;font-weight:850;cursor:pointer}
 .shc-ap-action-btn:active{filter:brightness(.92)}
+.shc-px-guests{display:flex;gap:8px;padding:6px 0 2px}.shc-px-guests[hidden]{display:none}
 .shc-ap-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .shc-ap-stat-grid.cols4{grid-template-columns:repeat(4,1fr)}
 .shc-ap-stat{display:flex;flex-direction:column;gap:2px;padding:9px 10px;border-radius:13px;background:var(--shc-soft)}
@@ -9630,8 +9631,15 @@ class ShcNasCard extends HTMLElement {
             </div>
           </div>
         </div>
+        <div class="shc-px-guests" hidden>
+          <button type="button" class="shc-ap-action-btn shc-nas-docker">Docker</button>
+        </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    if (this._config.docker && this._config.docker.entity && this._config.docker.service) {
+      this._root.querySelector(".shc-px-guests").hidden = false;
+      this._root.querySelector(".shc-nas-docker").addEventListener("click", (e) => { e.stopPropagation(); this._openDocker(); });
+    }
     shcBindGraph(this);
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -9710,6 +9718,43 @@ class ShcNasCard extends HTMLElement {
     });
     overlay.hidden = false;
     return overlay;
+  }
+
+  _openDocker() {
+    this._dockerOpen = true;
+    const g = this._config.docker || {};
+    const hass = this._hass;
+    const list = ((hass.states[g.entity] || {}).attributes || {}).containers;
+    const crit = g.critical || [];
+    const items = (Array.isArray(list) ? list : []).slice().sort((x, y) => String(x.name).localeCompare(String(y.name)));
+    const rows = items.map((r) => {
+      const run = r.state === "running";
+      const critical = crit.includes(r.name);
+      const btn = (act, label, conf, conf2) => `<button type="button" class="shc-ap-action-btn" data-d-act="${act}" data-d-name="${esc(r.name)}" data-d-confirm="${esc(conf || "")}" data-d-confirm2="${esc(conf2 || "")}">${label}</button>`;
+      const warn = critical ? `ATTENZIONE: ${r.name} e' un container critico (servizi di casa/sito dipendono da lui). ` : "";
+      const c2 = critical ? `Seconda conferma: procedere davvero su ${r.name}?` : "";
+      const btns = run
+        ? btn("stop", "STOP", `${warn}Fermare ${r.name}?`, c2) + btn("restart", "RIAVVIA", `${warn}Riavviare ${r.name}?`, c2)
+        : btn("start", "AVVIA", "");
+      return `<div class="shc-ap-row" style="flex-wrap:wrap;gap:6px">
+        <span class="shc-ap-row-label">${esc(r.name)}</span>
+        <span class="shc-ap-row-val" style="color:${run ? "#22c55e" : "var(--shc-dim)"}">${run ? "avviato" : "fermo"}</span>
+        <span style="display:flex;gap:6px;flex-wrap:wrap">${btns}</span>
+      </div>`;
+    }).join("");
+    const overlay = this._openDialog("Docker", rows || `<div class="shc-ap-row-val">\u2014</div>`);
+    overlay.querySelectorAll("[data-d-act]").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (b.dataset.dConfirm && !window.confirm(b.dataset.dConfirm)) return;
+        if (b.dataset.dConfirm2 && !window.confirm(b.dataset.dConfirm2)) return;
+        const [dom, svc] = g.service.split(".");
+        hass.callService(dom, svc, { action: b.dataset.dAct, name: b.dataset.dName });
+        b.disabled = true;
+        b.style.opacity = ".5";
+        [5000, 12000, 25000].forEach((ms) => setTimeout(() => { if (!overlay.hidden && this._dockerOpen) this._openDocker(); }, ms));
+      });
+    });
   }
 
   _fmtDateTime(iso, face) {
@@ -11682,8 +11727,17 @@ class ShcProxmoxCard extends HTMLElement {
             </div>
           </div>
         </div>
+        <div class="shc-px-guests" hidden>
+          <button type="button" class="shc-ap-action-btn shc-px-guests-vm">VM</button>
+          <button type="button" class="shc-ap-action-btn shc-px-guests-ct">CT</button>
+        </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    if (this._config.guests && this._config.guests.entity && this._config.guests.script) {
+      this._root.querySelector(".shc-px-guests").hidden = false;
+      this._root.querySelector(".shc-px-guests-vm").addEventListener("click", (e) => { e.stopPropagation(); this._openGuests("qemu"); });
+      this._root.querySelector(".shc-px-guests-ct").addEventListener("click", (e) => { e.stopPropagation(); this._openGuests("lxc"); });
+    }
     shcBindGraph(this);
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -11758,6 +11812,40 @@ class ShcProxmoxCard extends HTMLElement {
     });
     overlay.hidden = false;
     return overlay;
+  }
+
+  _openGuests(kind) {
+    this._guestsKind = kind;
+    const g = this._config.guests || {};
+    const hass = this._hass;
+    const list = ((hass.states[g.entity] || {}).attributes || {}).data;
+    const guests = (Array.isArray(list) ? list : []).filter((r) => r.type === kind).sort((x, y) => x.vmid - y.vmid);
+    const rows = guests.map((r) => {
+      const run = r.status === "running";
+      const btn = (act, label, conf) => `<button type="button" class="shc-ap-action-btn" data-g-act="${act}" data-g-vmid="${r.vmid}" data-g-name="${esc(r.name || "")}" data-g-confirm="${esc(conf || "")}">${label}</button>`;
+      const other = (g.exclusive || {})[String(r.vmid)];
+      const startConf = other ? `${r.name}: avvio. Il guest ${other} usa la stessa GPU e verra' spento prima. Continuare?` : "";
+      const who = `${r.name} (${r.vmid})`;
+      const btns = run
+        ? btn("shutdown", "ARRESTA", `Arresto pulito di ${who}?`) + btn("stop", "STOP", `STOP forzato di ${who}? Equivale a staccare la corrente.`) + btn("reboot", "RIAVVIA", `Riavviare ${who}?`)
+        : btn("start", "AVVIA", startConf);
+      return `<div class="shc-ap-row" style="flex-wrap:wrap;gap:6px">
+        <span class="shc-ap-row-label">${esc(r.name || r.vmid)} <small>(${r.vmid})</small></span>
+        <span class="shc-ap-row-val" style="color:${run ? "#22c55e" : "var(--shc-dim)"}">${run ? "acceso" : "spento"}</span>
+        <span style="display:flex;gap:6px;flex-wrap:wrap">${btns}</span>
+      </div>`;
+    }).join("");
+    const overlay = this._openDialog(kind === "qemu" ? "VM" : "CT", rows || `<div class="shc-ap-row-val">\u2014</div>`);
+    overlay.querySelectorAll("[data-g-act]").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (b.dataset.gConfirm && !window.confirm(b.dataset.gConfirm)) return;
+        hass.callService("script", g.script.split(".").pop(), { type: kind, vmid: Number(b.dataset.gVmid), action: b.dataset.gAct });
+        b.disabled = true;
+        b.style.opacity = ".5";
+        [4000, 12000, 25000].forEach((ms) => setTimeout(() => { if (!overlay.hidden && this._guestsKind === kind) this._openGuests(kind); }, ms));
+      });
+    });
   }
 
   _fmtDateTime(iso, face) {

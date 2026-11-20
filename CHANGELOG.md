@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — 1.25.0: VM / CT buttons on the Proxmox card, Docker button on the NAS card
+
+- **Proxmox card, `guests`** (YAML only): **VM** and **CT** buttons open a popup listing the guests (from a REST sensor on the Proxmox API) with their state and **START / SHUTDOWN / STOP / REBOOT**; forced STOP asks for confirmation. `guests.exclusive` (`vmid: incompatible vmid`) asks for confirmation and lets the script shut the incompatible guest down first (e.g. two guests sharing a GPU). New package `packages/proxmox_guests.yaml` (sensor, `rest_command`, script that whitelists type/action/vmid). Needs a Proxmox API token with `VM.Audit` + `VM.PowerMgmt`; with `privsep=1` the role must be granted to the user as well, otherwise 403.
+- **NAS card, `docker`** (YAML only): **Docker** button with the container list of a Synology NAS and **START / STOP / RESTART**; `docker.critical` containers ask for two confirmations on STOP / RESTART. New packages `packages/nas_docker.yaml` and `packages/ha_docker.sh` (SSH key bound to a forced command, the wrapper only accepts `list` and `start|stop|restart <validated name>`).
+- **Docs**: [docs/vm-ct-docker.md](docs/vm-ct-docker.md), step by step in Italian and English: Proxmox role/token commands, SSH key setup, card YAML and a security section. Without the new options both cards are unchanged. Popup texts are Italian only for now.
+
 ## 2026-11-19 — 1.24.0: coffee card restyle and capsule stock, TV card local SamsungTV Smart (TheFab21) (#26)
 
 - **TV card, `channel_attribute`** (#26): new optional setting, the name of an attribute of the Samsung `media_player` that holds the channel (e.g. `media_channel` from [TheFab21/ha-samsungtv-smart](https://github.com/TheFab21/ha-samsungtv-smart)), so no extra template sensor is needed. Order: `channel_entity`, then `channel_attribute`, then `channel_name_entity`, then `shared_channel_entity`, then the browser memory. Without it nothing changes.

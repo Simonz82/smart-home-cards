@@ -75,6 +75,19 @@ settings_sections: []                           # opzionale, vedi settings-secti
 
 Per il pattern notifiche vedi [notifiche-personalizzate.md](notifiche-personalizzate.md), per `settings_sections` vedi [settings-sections.md](settings-sections.md).
 
+## 🖥️ Pulsanti VM e CT (opzione `guests`)
+
+Opzionale, solo YAML: aggiunge i pulsanti **VM** e **CT** con l'elenco dei guest e AVVIA / ARRESTA / STOP / RIAVVIA (con conferme).
+
+```yaml
+guests:
+  entity: sensor.proxmox_guests          # elenco guest (package proxmox_guests.yaml)
+  script: script.proxmox_guest_action
+  exclusive: {"101": "102", "102": "101"}   # opzionale: guest che non girano insieme
+```
+
+Guida completa (ruolo e token Proxmox, `privsep`, package, sicurezza, English version): [docs/vm-ct-docker.md](vm-ct-docker.md). *English: optional VM / CT buttons with start/shutdown/stop/reboot popups, see the guide.*
+
 ## 🎛️ Layout classico o centrato
 
 Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_proxmox` e parametro `layout_entity`).

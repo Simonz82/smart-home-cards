@@ -1,0 +1,75 @@
+# Proxmox VM/CT list + actions for the VM / CT buttons of shc-proxmox-card (option `guests`).
+# Elenco VM/CT Proxmox + azioni per i pulsanti VM / CT di shc-proxmox-card (opzione `guests`).
+#
+# CHANGE / DA CAMBIARE:
+#   - 192.168.1.10  -> IP (or hostname) of your Proxmox host / IP del tuo host Proxmox
+#   - pve           -> name of your Proxmox node (Datacenter > node name) / nome del nodo
+#   - exclusive map -> your own guests that must not run together (or {}) / i tuoi guest incompatibili (o {})
+# The HA secrets file must contain / nel file dei segreti di HA deve esserci:
+#   proxmox_ha_token: "PVEAPIToken=homeassistant@pve!ha=xxxxx-xxxxx-xxxxx"
+# Guide / Guida: docs/vm-ct-docker.md
+
+sensor:
+  - platform: rest
+    name: proxmox_guests
+    resource: https://192.168.1.10:8006/api2/json/cluster/resources?type=vm
+    headers:
+      Authorization: !secret proxmox_ha_token
+    verify_ssl: false          # self-signed certificate; with a valid certificate set true
+    scan_interval: 30
+    value_template: "{{ value_json.data | selectattr('status','eq','running') | list | count }}"
+    json_attributes: [data]
+
+rest_command:
+  proxmox_guest_cmd:
+    url: "https://192.168.1.10:8006/api2/json/nodes/pve/{{ type }}/{{ vmid | int }}/status/{{ action }}"
+    method: post
+    headers:
+      Authorization: !secret proxmox_ha_token
+    verify_ssl: false
+    content_type: application/x-www-form-urlencoded
+    # clean shutdown: wait up to 60 s, then force / arresto pulito: attende 60 s poi forza
+    payload: "{{ 'timeout=60&forceStop=1' if action == 'shutdown' else '' }}"
+
+script:
+  proxmox_guest_action:
+    alias: Proxmox guest action
+    mode: queued
+    fields:
+      type: {}      # qemu (VM) or lxc (CT)
+      vmid: {}
+      action: {}    # start | shutdown | stop | reboot
+    sequence:
+      # Only these values are accepted / solo questi valori sono accettati
+      - condition: template
+        value_template: >
+          {{ type in ['qemu','lxc'] and action in ['start','shutdown','stop','reboot'] and (vmid | int(0)) > 0 }}
+      - variables:
+          # Guests that must not run together (e.g. same GPU): vmid -> incompatible vmid
+          # Guest incompatibili (es. stessa GPU): vmid -> vmid incompatibile
+          exclusive: {"101": 102, "102": 101}
+          altro: "{{ exclusive.get(vmid | string, 0) | int }}"
+          altro_attivo: >
+            {{ altro > 0 and (state_attr('sensor.proxmox_guests','data') | default([], true)
+               | selectattr('vmid','eq',altro) | selectattr('status','eq','running') | list | count) > 0 }}
+          altro_type: >
+            {{ (state_attr('sensor.proxmox_guests','data') | default([], true)
+               | selectattr('vmid','eq',altro) | map(attribute='type') | list | first) | default('lxc') }}
+      - if: "{{ action == 'start' and altro_attivo }}"
+        then:
+          - action: rest_command.proxmox_guest_cmd
+            data: {type: "{{ altro_type }}", vmid: "{{ altro }}", action: shutdown}
+          - repeat:
+              until: >
+                {{ (state_attr('sensor.proxmox_guests','data') | default([], true)
+                   | selectattr('vmid','eq',altro) | selectattr('status','eq','running') | list | count) == 0
+                   or repeat.index >= 20 }}
+              sequence:
+                - delay: 5
+                - action: homeassistant.update_entity
+                  target: {entity_id: sensor.proxmox_guests}
+      - action: rest_command.proxmox_guest_cmd
+        data: {type: "{{ type }}", vmid: "{{ vmid }}", action: "{{ action }}"}
+      - delay: 3
+      - action: homeassistant.update_entity
+        target: {entity_id: sensor.proxmox_guests}
