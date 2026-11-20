@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 1.25.0: VM / CT buttons on the Proxmox card, Docker button on the NAS card
+## 2026-11-20 — 1.25.0: VM / CT buttons on the Proxmox card, Docker button on the NAS card
 
 - **Proxmox card, `guests`** (YAML only): **VM** and **CT** buttons open a popup listing the guests (from a REST sensor on the Proxmox API) with their state and **START / SHUTDOWN / STOP / REBOOT**; forced STOP asks for confirmation. `guests.exclusive` (`vmid: incompatible vmid`) asks for confirmation and lets the script shut the incompatible guest down first (e.g. two guests sharing a GPU). New package `packages/proxmox_guests.yaml` (sensor, `rest_command`, script that whitelists type/action/vmid). Needs a Proxmox API token with `VM.Audit` + `VM.PowerMgmt`; with `privsep=1` the role must be granted to the user as well, otherwise 403.
 - **NAS card, `docker`** (YAML only): **Docker** button with the container list of a Synology NAS and **START / STOP / RESTART**; `docker.critical` containers ask for two confirmations on STOP / RESTART. New packages `packages/nas_docker.yaml` and `packages/ha_docker.sh` (SSH key bound to a forced command, the wrapper only accepts `list` and `start|stop|restart <validated name>`).
