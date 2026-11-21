@@ -138,6 +138,7 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 - `power_max`: potenza a fondo barra (default 1500 W).
 - `show_steps: true` mostra anche le tappe (spenta, standby, riscaldamento, erogazione, pronta) sotto il disegno.
 - `hide_rows`, `hide_power_band`, `hide_capsules`, `hide_refill`: nascondono le sezioni.
+- `layout: classico` mette la foto a sinistra e il blocco "Oggi" a destra, come le altre card elettrodomestico; `layout: centrato` (predefinito) tiene la foto in alto a tutta larghezza. Si sceglie anche dall'editor visuale (Aspetto) o con `layout_entity`, vedi [layout.md](layout.md).
 - Il tocco sulla banda potenza apre il grafico; la scorta apre l'entità; il disegno apre la presa. Editor visuale completo (⚙ nella dashboard).
 
 ## Opzioni
@@ -165,6 +166,7 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 | `automation_entity`, `automation_entities` | No | - | Automazioni con interruttore nelle Impostazioni |
 | `capsule_color`, `low_color`, `bar_color` | No | verde, rosso, arancio | Colori |
 | `show_steps`, `hide_capsules`, `hide_refill`, `hide_rows`, `hide_power_band` | No | `false` | Sezioni da mostrare/nascondere |
+| `layout`, `layout_entity` | No | `centrato` | `classico` (foto a sinistra, dettagli a destra) o `centrato`; vedi [layout.md](layout.md) |
 
 Le righe compaiono solo se imposti la relativa entità. Il pannello ℹ mostra scorta, manutenzione (con "Fatto"), stato, valori, soglie e l'ultimo cambio.
 

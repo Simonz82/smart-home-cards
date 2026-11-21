@@ -1148,8 +1148,8 @@ function inverseSeverityColor(pct) {
 // Layout della card: "classico" (foto a sinistra, info a destra) oppure "centrato" (foto in alto
 // al centro, info su 2 colonne, poi le barre). Si sceglie dalle Impostazioni della card con
 // "layout_entity" (un input_select Classico/Centrato); senza, vale il parametro "layout".
-function applyLayoutChoice(root, cfg, hass) {
-  const card = root && root.querySelector(".shc-ap-card");
+function applyLayoutChoice(root, cfg, hass, sel) {
+  const card = root && root.querySelector(sel || ".shc-ap-card");
   if (!card) return;
   let layout = cfg.layout;
   if (cfg.layout_entity) {
@@ -1927,6 +1927,8 @@ const SHC_I18N = {
       "editor.item_showedit": "{1} element{2} — mostra/modifica",
       "editor.remove": "Rimuovi",
       "editor.add": "Aggiungi",
+      "editor.layout_classic": "Classico",
+      "editor.layout_centered": "Centrato",
       "editor.required": " — obbligatorio",
       "editor.an_entity_is_required": "Serve un'entita' per far funzionare la card.",
       "fritzcard.basic": "Base",
@@ -3046,6 +3048,8 @@ const SHC_I18N = {
       "editor.item_showedit": "{1} item{2} — show/edit",
       "editor.remove": "Remove",
       "editor.add": "Add",
+      "editor.layout_classic": "Classic",
+      "editor.layout_centered": "Centered",
       "editor.required": " — required",
       "editor.an_entity_is_required": "An entity is required for the card to work.",
       "fritzcard.basic": "Basic",
@@ -4166,6 +4170,8 @@ const SHC_I18N = {
       "editor.item_showedit": "{1} item{2} — tonen/bewerken",
       "editor.remove": "Verwijderen",
       "editor.add": "Toevoegen",
+      "editor.layout_classic": "Klassiek",
+      "editor.layout_centered": "Gecentreerd",
       "editor.required": " — verplicht",
       "editor.an_entity_is_required": "Er is een entiteit nodig om de kaart te laten werken.",
       "fritzcard.basic": "Basis",
@@ -7539,6 +7545,17 @@ class ShcSimpleCardEditorBase extends HTMLElement {
               ${f.required && !val ? `<div class="shc-ed-missing">${esc(shcT(this._hass, "editor.an_entity_is_required"))}</div>` : ""}
             </div>`;
           }
+          if (f.kind === "layout") {
+            const lv = String(shcGetPath(cfg, f.key) || f.def || "classico");
+            return `<div class="shc-ed-row">
+              <span class="shc-ed-label">${esc(f.label)}</span>
+              <div class="shc-ed-choice">
+                <button type="button" class="shc-ed-lay-btn${lv === "centrato" ? "" : " on"}" data-lay-key="${esc(f.key)}" data-lay-val="classico">${esc(shcT(this._hass, "editor.layout_classic"))}</button>
+                <button type="button" class="shc-ed-lay-btn${lv === "centrato" ? " on" : ""}" data-lay-key="${esc(f.key)}" data-lay-val="centrato">${esc(shcT(this._hass, "editor.layout_centered"))}</button>
+              </div>
+              ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
+            </div>`;
+          }
           if (f.kind === "bool") {
             return `<label class="shc-ed-row shc-ed-check">
               <input type="checkbox" data-bool="${esc(f.key)}"${val ? " checked" : ""}>
@@ -7613,6 +7630,12 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     });
     body.querySelectorAll("input[data-bool]").forEach((el) => {
       el.addEventListener("change", () => this._set(el.dataset.bool, el.checked));
+    });
+    body.querySelectorAll("button[data-lay-key]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._set(btn.dataset.layKey, btn.dataset.layVal);
+        this._render();
+      });
     });
   }
 }
@@ -17712,9 +17735,12 @@ const CF_STYLE = `
 .cf-step.on[data-s=brewing]{background:#b45309}
 .cf-step.on[data-s=ready]{background:#16a34a}
 .shc-cf-card{--cf-cap:#16a34a;--cf-low:#ef4444}
-.shc-cf-card .shc-ap-hero{flex:0 0 auto;width:100%;height:190px}
+.shc-cf-card.layout-centrato .shc-ap-hero{flex:0 0 auto;width:100%;height:190px}
+.shc-cf-card:not(.layout-centrato) .shc-ap-hero{height:auto;min-height:170px}
+.shc-cf-card:not(.layout-centrato) .shc-ap-top-row:not(:has(.cf-rows:not([hidden]))) .shc-ap-hero{flex-basis:100%}
 .shc-cf-card .cf-img{width:100%;height:100%;object-fit:contain;display:block}
 .shc-cf-card .cf-rows{margin:10px 13px 0;flex:0 0 auto}
+.shc-cf-card .shc-ap-top-row .cf-rows{margin:0;flex:1 1 50%}
 .shc-cf-card .cf-rows[hidden],.shc-cf-card .cf-cap[hidden]{display:none}
 .cf-cap{margin:10px 13px 0;padding:13px 14px;border-radius:16px;background:var(--shc-soft);cursor:pointer}
 .cf-cap-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -17810,7 +17836,7 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
       `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(T(key))}</small></span><b class="${cls}">—</b></div>`;
     const hero = c.image ? `<img class="cf-img" src="${esc(c.image)}" alt="">` : cfHeroSvg(this._uid);
     this._root.innerHTML = `<style>${STYLE}${DV_STYLE}${CF_STYLE}</style>
-      <article class="shc-ap-card shc-cf-card">
+      <article class="shc-ap-card shc-cf-card${c.layout !== "classico" ? " layout-centrato" : ""}">
         <div class="shc-ap-top">
           <span class="shc-ap-chip"><ha-icon icon="${esc(c.icon || "mdi:coffee-maker")}"></ha-icon></span>
           <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
@@ -17875,6 +17901,20 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     clearTimeout(this._tick);
     clearTimeout(this._alertT);
     clearTimeout(this._refillT);
+  }
+
+  // layout classico: il blocco "Oggi" sta a destra della foto (come nelle altre card elettrodomestico);
+  // centrato: resta sotto la foto, dopo la scorta capsule
+  _placeRows() {
+    const card = this._root.querySelector(".shc-ap-card");
+    const rows = card && card.querySelector(".cf-rows");
+    if (!rows) return;
+    const top = card.querySelector(".shc-ap-top-row");
+    if (card.classList.contains("layout-centrato")) {
+      if (rows.parentNode === top) card.insertBefore(rows, card.querySelector(".shc-ap-warn"));
+    } else if (rows.parentNode !== top) {
+      top.appendChild(rows);
+    }
   }
 
   _graphSeries() {
@@ -18044,6 +18084,7 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     shcApplyI18n(this);
     if (!this._config) return;
     applyLayoutChoice(this._root, this._config, hass);
+    this._placeRows();
     const cfg = this._config;
     const T = (k, v) => shcT(this._hass, k, v);
     const q = (sel) => this._root.querySelector(sel);
@@ -18420,6 +18461,7 @@ class ShcCoffeeCardEditor extends ShcSimpleCardEditorBase {
         { key: "hide_capsules", label: T("cf.ed_hide_capsules"), kind: "bool" },
         { key: "hide_rows", label: T("cf.ed_hide_rows"), kind: "bool" },
         { key: "hide_power_band", label: T("cf.ed_hide_power"), kind: "bool" },
+        { key: "layout", label: T("settings.layout"), kind: "layout", def: "centrato" },
         { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
@@ -18520,6 +18562,13 @@ const SHC_SPK_CSS = `
 @keyframes shcSpWave{0%{transform:scale(.62);opacity:.5}100%{transform:scale(1.28);opacity:0}}
 @media (prefers-reduced-motion:reduce){.shc-sp.on .shc-sp-ring,.shc-sp.play .shc-sp-ring,.shc-sp.play .shc-sp-wave{animation:none}.shc-sp-bg,.shc-sp-hero img,.shc-sp-hero svg{transition:none}.shc-sp.play .shc-sp-wave.w1{opacity:.3}}
 .shc-sp-info{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.shc-sp.layout-centrato .shc-sp-head{flex-direction:column;gap:8px;align-items:stretch}
+.shc-sp.layout-centrato .shc-sp-hero{flex:0 0 auto;width:100%;height:150px}
+.shc-sp.layout-centrato .shc-sp-hero img{max-width:100%;max-height:140px}
+.shc-sp.layout-centrato .shc-sp-hero svg{width:130px;height:136px}
+.shc-sp.layout-centrato .shc-sp-info{align-items:center;text-align:center;width:100%}
+.shc-sp.layout-centrato .shc-sp-state{justify-content:center}
+.shc-sp.layout-centrato .shc-sp-prog{width:100%}
 .shc-sp-name{font-size:17px;font-weight:900;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shc-sp-state{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:750;color:var(--shc-dim);min-width:0}
 .shc-sp-state i{width:8px;height:8px;border-radius:50%;background:#94a3b8;flex:0 0 8px}
@@ -18652,7 +18701,7 @@ class ShcSpeakerCard extends HTMLElement {
     if (c.power_entity) tiles.push(`<button type="button" class="shc-sp-tile" data-more="${esc(c.power_entity)}"><b class="t-pw">—</b><small>${SHC_SPK_ICON.bolt}${esc(T("power"))}</small></button>`);
     if (c.energy_entity) tiles.push(`<button type="button" class="shc-sp-tile" data-more="${esc(c.energy_entity)}"><b class="t-en">—</b><small>${SHC_SPK_ICON.leaf}${esc(T("energy"))}</small></button>`);
     this._root.innerHTML = `<style>${STYLE}${SHC_SPK_CSS}</style>
-    <article class="shc-sp">
+    <article class="shc-sp${c.layout === "centrato" ? " layout-centrato" : ""}">
       <div class="shc-sp-bg"></div><div class="shc-sp-bg2"></div>
       <div class="shc-sp-head">
         <div class="shc-sp-hero"><i class="shc-sp-wave w1"></i><i class="shc-sp-wave w2"></i><i class="shc-sp-wave w3"></i><i class="shc-sp-ring"></i>${this._heroHtml(model)}</div>
@@ -18727,7 +18776,8 @@ class ShcSpeakerCard extends HTMLElement {
     const first = !this._hass;
     this._hass = hass;
     if (!this._config) return;
-    if (!this._built || (this._lang !== shcLang(hass))) { this._lang = shcLang(hass); this._render(); return; }
+    if (!this._built || (this._lang !== shcLang(hass))) { this._lang = shcLang(hass); this._render(); applyLayoutChoice(this._root, this._config, hass, ".shc-sp"); return; }
+    applyLayoutChoice(this._root, this._config, hass, ".shc-sp");
     this._update();
   }
   _fmtT(sec) { sec = Math.max(0, Math.round(sec)); const m = Math.floor(sec / 60), s = sec % 60; return m + ":" + String(s).padStart(2, "0"); }
@@ -18829,6 +18879,8 @@ class ShcSpeakerCardEditor extends ShcSimpleCardEditorBase {
         { key: "tts_type", label: T("ed_tts_type"), kind: "text", placeholder: "tts | announce" },
         { key: "tts_service", label: T("ed_tts_svc"), kind: "text" },
         { key: "ring_color", label: T("ed_ring"), kind: "text", placeholder: "#00caff" },
+        { key: "layout", label: shcT(this._hass, "settings.layout"), kind: "layout", def: "classico" },
+        { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
     ];
   }

@@ -90,6 +90,8 @@ layout: centrato     # oppure: classico (predefinito)
 
 Se sono presenti entrambi, vince il menu (`layout_entity`).
 
+**Macchina del caffè e Altoparlante (dalla 1.26.0).** Anche queste due card hanno `layout` / `layout_entity`, con il campo **Layout** nell'editor visuale. Macchina del caffè: predefinito `centrato` (come prima), `classico` mette la foto a sinistra e il blocco "Oggi" a destra. Altoparlante: predefinito `classico` (come prima), `centrato` mette la foto grande in alto. Non hanno layout le card senza foto o disegno da affiancare ai dettagli (Alexa Testo, Memo, WebRadio, Centro notifiche).
+
 **Elettrodomestici (dalla 1.16.3).** La card Elettrodomestici (`custom:shc-appliance-clone-card`) vale per tutti i tipi: lavatrice, asciugatrice, lavastoviglie, frigorifero, forno, TV, tablet, friggitrice ad aria, microonde, piastra e piano a induzione. Nell'editor visuale c'è il campo **Layout** (Classico / Centrato, predefinito Classico, chiave `layout`) subito sotto l'immagine; in *Impostazioni avanzate* resta il menu `layout_entity`. Se imposti `layout_entity` e non hai scritto una sezione "Aspetto", nelle Impostazioni (ingranaggio) la riga **Layout** compare da sola.
 
 ## Note sul layout centrato

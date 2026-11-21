@@ -24,6 +24,7 @@ Con le integrazioni **Alexa Media Player** (o simili) la card trova da sola, tra
 | `power_entity`, `energy_entity` | Sensori di potenza e di energia, mostrati in due riquadri |
 | `switch_entity` | Presa che alimenta l'altoparlante: il tasto di accensione la commuta |
 | `ring_color` | Colore dell'anello animato (CSS) |
+| `layout`, `layout_entity` | `classico` (predefinito: foto a sinistra, info a destra) o `centrato` (foto in alto); `layout_entity` è un `input_select` Classico/Centrato, vedi [layout.md](layout.md) |
 | `volume_step` | Passo dei tasti volume in % (predefinito 5) |
 | `show_tts` | `false` nasconde il campo "Scrivi e fai parlare Alexa" |
 | `tts_service` | Servizio di notifica da usare (es. `notify.alexa_media_salotto`); se manca la card lo ricava dal nome |

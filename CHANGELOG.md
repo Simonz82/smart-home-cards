@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-21 — 1.26.0: classic / centred layout on the coffee machine and speaker cards (discussion #28)
+
+- **Coffee machine card, `layout`**: `classico` shows the photo on the left and the "Today" details on the right, like the other appliance cards; `centrato` (default, same as before) keeps the photo on top. The option existed but did nothing since the 1.24.0 restyle; now it works. Same `layout` / `layout_entity` options as every other card, with a Layout field in the visual editor.
+- **Speaker card, `layout`**: new `centrato` shows the speaker picture large on top with the info centred below; `classico` (default, unchanged) keeps picture left, info right. `layout_entity` (a Classic/Centered `input_select`) also works. Visual editor field included.
+- Cards with no photo to place beside the details (Alexa Text, Memo, WebRadio, Notification centre, clocks) are not affected; thermostat cards (climate, boiler, heater, water heater) already had the option and are unchanged. Without the new settings nothing changes.
+
 ## 2026-11-20 — 1.25.0: VM / CT buttons on the Proxmox card, Docker button on the NAS card
 
 - **Proxmox card, `guests`** (YAML only): **VM** and **CT** buttons open a popup listing the guests (from a REST sensor on the Proxmox API) with their state and **START / SHUTDOWN / STOP / REBOOT**; forced STOP asks for confirmation. `guests.exclusive` (`vmid: incompatible vmid`) asks for confirmation and lets the script shut the incompatible guest down first (e.g. two guests sharing a GPU). New package `packages/proxmox_guests.yaml` (sensor, `rest_command`, script that whitelists type/action/vmid). Needs a Proxmox API token with `VM.Audit` + `VM.PowerMgmt`; with `privsep=1` the role must be granted to the user as well, otherwise 403.
