@@ -167,6 +167,7 @@ ready_alert: true
 capsules_entity: input_number.coffee_capsules      # remaining capsules (-1 per coffee)
 capsules_threshold: input_number.coffee_alert_at   # alert once below this
 capsules_pack: input_number.coffee_pack_size       # "I restocked" adds one pack
+layout: classico   # photo on the left, "Today" on the right (default: centrato); also on shc-speaker-card
 ```
 
 Also: [layouts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [charts](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [custom notifications](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [TV guide and remote](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
@@ -343,6 +344,7 @@ ready_alert: true
 capsules_entity: input_number.macchina_caffe_capsule      # capsule rimanenti (-1 a ogni caffè)
 capsules_threshold: input_number.macchina_caffe_soglia    # avviso sotto questa soglia
 capsules_pack: input_number.macchina_caffe_confezione     # "Ho ricaricato" somma una confezione
+layout: classico   # foto a sinistra, "Oggi" a destra (predefinito: centrato); vale anche per shc-speaker-card
 ```
 
 Anche: [layout](https://github.com/Simonz82/smart-home-cards/blob/main/docs/layout.md), [grafici](https://github.com/Simonz82/smart-home-cards/blob/main/docs/grafici.md), [notifiche personalizzate](https://github.com/Simonz82/smart-home-cards/blob/main/docs/notifiche-personalizzate.md), [guida TV e telecomando](https://github.com/Simonz82/smart-home-cards/blob/main/docs/tv.md).
