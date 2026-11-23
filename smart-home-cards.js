@@ -20321,6 +20321,13 @@ Object.assign(SHC_I18N.it, {
   "pk.ed_script": "Script \"salva posizione\"",
   "pk.ed_color": "Colore del disegno",
   "pk.ed_hide_map": "Nascondi la mappa",
+  "pk.set_car": "Auto",
+  "pk.set_name": "Nome dell'auto",
+  "pk.set_name_ph": "es. Golf",
+  "pk.set_phone": "Persona associata",
+  "pk.set_phone_ph": "es. simone",
+  "pk.set_phone_hint": "Nome della persona (come in person.<nome>): suo e' il telefono letto per Bluetooth e posizione, sua la notifica.",
+  "pk.ed_car": "Auto (1, 2 o 3)",
   "pk.set_notifications": "Notifiche",
   "pk.set_notify": "Notifica a ogni parcheggio",
   "pk.set_notify_hint": "Spento: la posizione si registra comunque, senza notifica.",
@@ -20368,6 +20375,13 @@ Object.assign(SHC_I18N.en, {
   "pk.ed_script": "\"Save position\" script",
   "pk.ed_color": "Drawing colour",
   "pk.ed_hide_map": "Hide the map",
+  "pk.set_car": "Car",
+  "pk.set_name": "Car name",
+  "pk.set_name_ph": "e.g. Golf",
+  "pk.set_phone": "Linked person",
+  "pk.set_phone_ph": "e.g. john",
+  "pk.set_phone_hint": "Person name (as in person.<name>): their phone is used for Bluetooth and position, and they get the notification.",
+  "pk.ed_car": "Car (1, 2 or 3)",
   "pk.set_notifications": "Notifications",
   "pk.set_notify": "Notify on every parking",
   "pk.set_notify_hint": "Off: the position is still saved, without a notification.",
@@ -20415,6 +20429,13 @@ Object.assign(SHC_I18N.nl, {
   "pk.ed_script": "Script \"positie opslaan\"",
   "pk.ed_color": "Kleur van de tekening",
   "pk.ed_hide_map": "Verberg de kaart",
+  "pk.set_car": "Auto",
+  "pk.set_name": "Naam van de auto",
+  "pk.set_name_ph": "bijv. Golf",
+  "pk.set_phone": "Gekoppelde persoon",
+  "pk.set_phone_ph": "bijv. jan",
+  "pk.set_phone_hint": "Naam van de persoon (zoals in person.<naam>): zijn/haar telefoon wordt gebruikt voor Bluetooth en positie en die persoon krijgt de melding.",
+  "pk.ed_car": "Auto (1, 2 of 3)",
   "pk.set_notifications": "Meldingen",
   "pk.set_notify": "Melding bij elke parkeerplek",
   "pk.set_notify_hint": "Uit: de positie wordt toch opgeslagen, zonder melding.",
@@ -20480,8 +20501,10 @@ function pkCarSvg(id, color) {
 
 class ShcParkingCard extends ShcDeviceCardBase {
   setConfig(config) {
-    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "pk.entity_required"));
-    this._config = { name: shcT(this._hass, "pk.name"), save_script: "script.auto_parcheggio_salva", photo_entity: "input_text.auto_parcheggio_foto", notify_entity: "input_boolean.auto_parcheggio_notifica", activity_entity: "input_boolean.auto_parcheggio_usa_attivita", threshold_entity: "input_number.auto_parcheggio_soglia_precisione", ...config };
+    // ogni card e' legata a un'auto (car: 1, 2 o 3); gli helper del package si chiamano auto_parcheggio_auto<N>_*
+    const car = Math.min(3, Math.max(1, Math.round(Number(config.car)) || 1));
+    const pre = `auto_parcheggio_auto${car}_`;
+    this._config = { save_script: "script.auto_parcheggio_salva", entity: `sensor.${pre}posizione`, photo_entity: `input_text.${pre}foto`, notify_entity: `input_boolean.${pre}notifica`, activity_entity: `input_boolean.${pre}usa_attivita`, threshold_entity: `input_number.${pre}soglia_precisione`, bt_entity: `input_text.${pre}bt`, name_entity: `input_text.${pre}nome`, phone_entity: `input_text.${pre}persona`, ...config, car };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._uid = this._uid || Math.random().toString(36).slice(2, 8);
     this._mapKey = null;
@@ -20512,7 +20535,7 @@ class ShcParkingCard extends ShcDeviceCardBase {
         </div>
         <div class="shc-ap-warn" hidden></div>
       </article>`;
-    this._q(".shc-ap-name").textContent = this._config.name;
+    this._q(".shc-ap-name").textContent = this._carName();
     this._q(".pk-hero").addEventListener("click", (e) => {
       e.stopPropagation();
       this._moreInfo(this._config.entity);
@@ -20554,7 +20577,22 @@ class ShcParkingCard extends ShcDeviceCardBase {
     const cfg = this._config;
     if (cfg.person) return cfg.person;
     const uid = this._hass?.user?.id;
-    return Object.keys(this._hass?.states || {}).find((k) => k.startsWith("person.") && this._hass.states[k].attributes.user_id === uid) || null;
+    const own = Object.keys(this._hass?.states || {}).find((k) => k.startsWith("person.") && this._hass.states[k].attributes.user_id === uid);
+    if (own) return own;
+    const as = this._assocPerson();
+    return as && this._has("person." + as) ? "person." + as : null;
+  }
+
+  // persona associata all'auto (helper input_text): sua e' la notifica, suo il Bluetooth
+  _assocPerson() {
+    const st = this._hass?.states[this._config.phone_entity];
+    return st && !["unknown", "unavailable", ""].includes(st.state) ? st.state.trim().toLowerCase() : "";
+  }
+
+  _carName() {
+    const st = this._hass?.states[this._config.name_entity];
+    const v = st && !["unknown", "unavailable", ""].includes(st.state) ? st.state : "";
+    return this._config.name || v || shcT(this._hass, "pk.name");
   }
 
   _data() {
@@ -20597,8 +20635,10 @@ class ShcParkingCard extends ShcDeviceCardBase {
     const T = (k, v) => shcT(this._hass, k, v);
     const d = this._data();
     this._d = d;
-    this._liveRefresh([cfg.notify_entity, cfg.activity_entity, cfg.threshold_entity, this._btEntity()].filter(Boolean));
+    this._liveRefresh([cfg.notify_entity, cfg.activity_entity, cfg.threshold_entity, cfg.bt_entity, cfg.name_entity, cfg.phone_entity].filter(Boolean));
     const card = this._q(".shc-ap-card");
+    const nm = this._carName();
+    if (this._q(".shc-ap-name").textContent !== nm) this._q(".shc-ap-name").textContent = nm;
     // fine registrazione: la posizione e' stata aggiornata dopo il tocco
     if (this._pending) {
       const st = this._st();
@@ -20712,14 +20752,15 @@ class ShcParkingCard extends ShcDeviceCardBase {
   _record() {
     const cfg = this._config;
     const pe = this._personEntity();
-    const persona = (cfg.persona || (pe ? pe.split(".")[1] : "")).toString();
+    // posizione del telefono di chi preme (persona dell'utente collegato), altrimenti quella associata all'auto
+    const persona = (cfg.persona || (pe ? pe.split(".")[1] : "") || this._assocPerson()).toString();
     if (!persona) return;
     const btn = this._q(".pk-rec");
     btn.disabled = true;
     this._pending = Date.now();
     this._q(".pk-rec-t").textContent = shcT(this._hass, "pk.recording");
     this._msg("");
-    this._call("script", "turn_on", { entity_id: cfg.save_script, variables: { persona, metodo: "manuale", scarta_se_impreciso: false } });
+    this._call("script", "turn_on", { entity_id: cfg.save_script, variables: { auto: cfg.car, persona, metodo: "manuale", scarta_se_impreciso: false } });
     this.hass = this._hass;
   }
 
@@ -20732,34 +20773,34 @@ class ShcParkingCard extends ShcDeviceCardBase {
     setTimeout(() => this._msg(""), 6000);
   }
 
-  _btEntity() {
-    const pe = this._personEntity();
-    const persona = this._config.persona || (pe ? pe.split(".")[1] : "");
-    return this._config.bt_entity || (persona ? `input_text.auto_bt_${persona}` : "");
-  }
-
   // impostazioni (stesso schema delle altre card: ingranaggio -> popup con interruttori e valori)
   _openSettings() {
     const T = (k) => shcT(this._hass, k);
     const cfg = this._config;
-    const thr = this._hass.states[cfg.threshold_entity];
-    const bt = this._btEntity();
-    const bts = bt && this._hass.states[bt];
+    const hs = this._hass.states;
+    const txt = (ent, key, ph) => {
+      const st = hs[ent];
+      return st ? this._row(T(key), `<input type="text" class="pk-set-input" maxlength="255" data-pk-text="${esc(ent)}" value="${esc(["unknown", "unavailable"].includes(st.state) ? "" : st.state)}" placeholder="${esc(T(ph))}">`) : "";
+    };
+    const thr = hs[cfg.threshold_entity];
+    const nameRow = txt(cfg.name_entity, "pk.set_name", "pk.set_name_ph");
+    const phoneRow = txt(cfg.phone_entity, "pk.set_phone", "pk.set_phone_ph");
+    const btRow = txt(cfg.bt_entity, "pk.set_bt", "pk.set_bt_ph");
     const notif = this._has(cfg.notify_entity) ? this._row(T("pk.set_notify"), this._switchHtml(cfg.notify_entity)) : "";
     const act = this._has(cfg.activity_entity) ? this._row(T("pk.set_activity"), this._switchHtml(cfg.activity_entity)) : "";
     const thrRow = thr ? this._row(T("pk.set_accuracy"), this._stepperHtml(cfg.threshold_entity, `${Math.round(Number(thr.state))} m`, 5)) : "";
-    const btRow = bts ? this._row(T("pk.set_bt"), `<input type="text" class="pk-set-input" maxlength="255" data-pk-bt="${esc(bt)}" value="${esc(["unknown", "unavailable"].includes(bts.state) ? "" : bts.state)}" placeholder="${esc(T("pk.set_bt_ph"))}">`) : "";
     const html = `
+      ${nameRow || phoneRow ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_car"))} ${cfg.car}</div>${nameRow}${phoneRow}${phoneRow ? `<p class="shc-cl-note">${esc(T("pk.set_phone_hint"))}</p>` : ""}</div>` : ""}
       ${notif ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_notifications"))}</div>${notif}<p class="shc-cl-note">${esc(T("pk.set_notify_hint"))}</p></div>` : ""}
       ${act || thrRow || btRow ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_detection"))}</div>${btRow}${act}${thrRow}${btRow ? `<p class="shc-cl-note">${esc(T("pk.set_bt_hint"))}</p>` : ""}</div>` : ""}
-      ${!notif && !act && !thrRow && !btRow ? `<p class="shc-cl-note">${esc(T("pk.set_none"))}</p>` : ""}`;
+      ${!notif && !act && !thrRow && !btRow && !nameRow ? `<p class="shc-cl-note">${esc(T("pk.set_none"))}</p>` : ""}`;
     const live = () => {
       if (this._root.activeElement?.classList?.contains("pk-set-input")) return;
       this._openSettings();
     };
     const overlay = this._openDialog(T("fritz.settings"), html, live);
-    overlay.querySelectorAll("[data-pk-bt]").forEach((inp) =>
-      inp.addEventListener("change", () => this._call("input_text", "set_value", { entity_id: inp.dataset.pkBt, value: inp.value.trim() })),
+    overlay.querySelectorAll("[data-pk-text]").forEach((inp) =>
+      inp.addEventListener("change", () => this._call("input_text", "set_value", { entity_id: inp.dataset.pkText, value: inp.value.trim() })),
     );
   }
 
@@ -20825,7 +20866,7 @@ class ShcParkingCard extends ShcDeviceCardBase {
   }
 
   static getStubConfig() {
-    return { entity: "sensor.auto_parcheggio" };
+    return { car: 1 };
   }
 
   getCardSize() {
@@ -20839,7 +20880,8 @@ class ShcParkingCardEditor extends ShcSimpleCardEditorBase {
     return [
       { title: T("fritzcard.basic"), fields: [
         { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("pk.name") },
-        { key: "entity", label: T("pk.ed_entity"), domain: ["sensor"], required: true },
+        { key: "car", label: T("pk.ed_car"), kind: "number", placeholder: "1" },
+        { key: "entity", label: T("pk.ed_entity"), domain: ["sensor"] },
         { key: "person", label: T("pk.ed_person"), domain: ["person"] },
         { key: "save_script", label: T("pk.ed_script"), domain: ["script"] },
         { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:car-brake-parking" },
