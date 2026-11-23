@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-23 — 1.27.0: several physical disks and a Backup and load block in the Proxmox card Statistics popup
+
+- **Proxmox card, `disks`** (YAML only): the **Statistics** popup shows one block per physical disk. Each item of the list takes `name`, `usage`, `used`, `total`, `temperature`, `wearout`, `power_on_hours`, `power_cycles` and `health`, and only the rows you configure are shown. Old configs keep working: `disk_health` is still the first disk and `disk_health2` + `sensors.disk2_*` the second one.
+- **Proxmox card, `extra`** (YAML only): optional **Backup and load** block (last backup, duration, result, swap %, load average 5 / 15 min, certificate expiry). It only appears if configured; entities of the Proxmox VE custom integration (`proxmoxve_custom` 6.x) are given as example. Look and buttons are unchanged, the card front is unchanged.
+- **Docs**: [docs/proxmox.md](docs/proxmox.md), new section with a YAML example for one or two disks plus backup, in Italian and English.
+- Dutch translation of the new Statistics labels.
+
 ## 2026-11-21 — 1.26.0: classic / centred layout on the coffee machine and speaker cards (discussion #28)
 
 - **Coffee machine card, `layout`**: `classico` shows the photo on the left and the "Today" details on the right, like the other appliance cards; `centrato` (default, same as before) keeps the photo on top. The option existed but did nothing since the 1.24.0 restyle; now it works. Same `layout` / `layout_entity` options as every other card, with a Layout field in the visual editor.

@@ -2295,6 +2295,17 @@ const SHC_I18N = {
       "proxmox.ssd_health": "Salute SSD",
       "proxmox.issue_detected": "Problema rilevato",
       "proxmox.physical_disk": "Disco fisico",
+      "proxmox.disk_used_pct": "Spazio usato %",
+      "proxmox.disk_used": "Spazio usato",
+      "proxmox.disk_total": "Spazio totale",
+      "proxmox.backup_section": "Backup e carico",
+      "proxmox.last_backup": "Ultimo backup",
+      "proxmox.backup_duration": "Durata backup",
+      "proxmox.backup_result": "Esito backup",
+      "proxmox.swap_used_pct": "Swap usata %",
+      "proxmox.load_5": "Carico 5 min",
+      "proxmox.load_15": "Carico 15 min",
+      "proxmox.cert_expires": "Scadenza certificato",
       "proxmox.current_power": "Potenza attuale",
       "proxmox.energy_today": "Energia oggi",
       "proxmox.energy_month": "Energia mese",
@@ -3416,6 +3427,17 @@ const SHC_I18N = {
       "proxmox.ssd_health": "SSD health",
       "proxmox.issue_detected": "Issue detected",
       "proxmox.physical_disk": "Physical disk",
+      "proxmox.disk_used_pct": "Space used %",
+      "proxmox.disk_used": "Space used",
+      "proxmox.disk_total": "Space total",
+      "proxmox.backup_section": "Backup and load",
+      "proxmox.last_backup": "Last backup",
+      "proxmox.backup_duration": "Backup duration",
+      "proxmox.backup_result": "Backup result",
+      "proxmox.swap_used_pct": "Swap used %",
+      "proxmox.load_5": "Load 5 min",
+      "proxmox.load_15": "Load 15 min",
+      "proxmox.cert_expires": "Certificate expires",
       "proxmox.current_power": "Current power",
       "proxmox.energy_today": "Energy today",
       "proxmox.energy_month": "Energy month",
@@ -4538,6 +4560,17 @@ const SHC_I18N = {
       "proxmox.ssd_health": "SSD-gezondheid",
       "proxmox.issue_detected": "Probleem gedetecteerd",
       "proxmox.physical_disk": "Fysieke schijf",
+      "proxmox.disk_used_pct": "Gebruikte ruimte %",
+      "proxmox.disk_used": "Gebruikte ruimte",
+      "proxmox.disk_total": "Totale ruimte",
+      "proxmox.backup_section": "Back-up en belasting",
+      "proxmox.last_backup": "Laatste back-up",
+      "proxmox.backup_duration": "Duur back-up",
+      "proxmox.backup_result": "Resultaat back-up",
+      "proxmox.swap_used_pct": "Swap gebruikt %",
+      "proxmox.load_5": "Belasting 5 min",
+      "proxmox.load_15": "Belasting 15 min",
+      "proxmox.cert_expires": "Certificaat verloopt",
       "proxmox.current_power": "Huidig vermogen",
       "proxmox.energy_today": "Energie vandaag",
       "proxmox.energy_month": "Energie maand",
@@ -12075,17 +12108,58 @@ class ShcProxmoxCard extends HTMLElement {
       this._statRow(shcT(this._hass, "proxmox.started_on"), this._fmtDateTime(hass.states[s.last_boot]?.state)),
     ].join("");
 
-    const diskHtml = [
-      this._statRow(shcT(this._hass, "proxmox.ssd_temperature"), val(dh.temp, 0)),
-      this._statRow(shcT(this._hass, "proxmox.ssd_wearout"), val(dh.wearout, 0)),
-      this._statRow(shcT(this._hass, "proxmox.poweron_hours"), val(dh.power_on_hours, 0)),
-      this._statRow(shcT(this._hass, "proxmox.power_cycles"), val(dh.power_cycles, 0)),
-      this._statRow(shcT(this._hass, "proxmox.ssd_health"), dh.health ? (hass.states[dh.health]?.state === "on" ? shcT(this._hass, "proxmox.issue_detected") : "OK") : "\u2014"),
-    ].join("");
+    const healthTxt = (id) => (id ? (hass.states[id]?.state === "on" ? shcT(this._hass, "proxmox.issue_detected") : "OK") : "\u2014");
+    const ex = cfg.extra || {};
+
+    // Dischi fisici (dal 1.27.0): lista `disks:` con un blocco per disco. Ogni voce:
+    // { name, usage (% usato), used, total, temperature, wearout, power_on_hours, power_cycles, health }.
+    // Compatibile con la config precedente: senza `disks` si usano disk_health (disco 1, tutte le righe)
+    // e, se presenti, disk_health2 + sensors.disk2_* (disco 2).
+    let disks = Array.isArray(cfg.disks) ? cfg.disks.filter((d) => d && typeof d === "object") : [];
+    let legacyDisks = false;
+    if (!disks.length) {
+      legacyDisks = true;
+      const dh2 = cfg.disk_health2 || {};
+      disks = [{ temperature: dh.temp, wearout: dh.wearout, power_on_hours: dh.power_on_hours, power_cycles: dh.power_cycles, health: dh.health }];
+      if (Object.keys(dh2).length || s.disk2_pct) {
+        disks.push({ usage: s.disk2_pct, used: s.disk2_used, total: s.disk2_total, temperature: dh2.temp, wearout: dh2.wearout, power_on_hours: dh2.power_on_hours, power_cycles: dh2.power_cycles, health: dh2.health });
+      }
+    }
+    const diskSections = disks.map((d, i) => {
+      const rows = [
+        [shcT(this._hass, "proxmox.disk_used_pct"), d.usage ?? d.used_pct, 1],
+        [shcT(this._hass, "proxmox.disk_used"), d.used, 1],
+        [shcT(this._hass, "proxmox.disk_total"), d.total, 1],
+        [shcT(this._hass, "proxmox.ssd_temperature"), d.temperature ?? d.temp, 0],
+        [shcT(this._hass, "proxmox.ssd_wearout"), d.wearout, 0],
+        [shcT(this._hass, "proxmox.poweron_hours"), d.power_on_hours, 0],
+        [shcT(this._hass, "proxmox.power_cycles"), d.power_cycles, 0],
+      ];
+      // Config precedente: il disco 1 mostra sempre le 4 righe SMART (con "-" se mancano), come prima.
+      const legacyRow1 = legacyDisks && i === 0;
+      const html = rows
+        .filter((r, k) => r[1] || (legacyRow1 && k >= 3))
+        .map((r) => this._statRow(r[0], val(r[1], r[2])))
+        .join("") + ((d.health || legacyRow1) ? this._statRow(shcT(this._hass, "proxmox.ssd_health"), healthTxt(d.health)) : "");
+      if (!html) return "";
+      const base = shcT(this._hass, "proxmox.physical_disk");
+      const title = d.name || (disks.length > 1 ? `${base} ${i + 1}` : base);
+      return `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(title)}</div>${html}</div>`;
+    }).join("");
+    const extraHtml = Object.keys(ex).length ? [
+      ex.last_backup ? this._statRow(shcT(this._hass, "proxmox.last_backup"), this._fmtDateTime(hass.states[ex.last_backup]?.state)) : "",
+      ex.backup_duration ? this._statRow(shcT(this._hass, "proxmox.backup_duration"), val(ex.backup_duration, 1)) : "",
+      ex.backup_status ? this._statRow(shcT(this._hass, "proxmox.backup_result"), healthTxt(ex.backup_status)) : "",
+      ex.swap_pct ? this._statRow(shcT(this._hass, "proxmox.swap_used_pct"), val(ex.swap_pct, 1)) : "",
+      ex.load5 ? this._statRow(shcT(this._hass, "proxmox.load_5"), val(ex.load5, 2)) : "",
+      ex.load15 ? this._statRow(shcT(this._hass, "proxmox.load_15"), val(ex.load15, 2)) : "",
+      ex.cert_expires ? this._statRow(shcT(this._hass, "proxmox.cert_expires"), this._fmtDateTime(hass.states[ex.cert_expires]?.state)) : "",
+    ].join("") : "";
 
     this._openDialog(shcT(this._hass, "fritz.statistics"), `
       <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "servercard.system"))}</div>${sistemaHtml}</div>
-      <div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "proxmox.physical_disk"))}</div>${diskHtml}</div>
+      ${diskSections}
+      ${extraHtml ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(this._hass, "proxmox.backup_section"))}</div>${extraHtml}</div>` : ""}
     `);
   }
 

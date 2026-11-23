@@ -73,6 +73,43 @@ settings_sections: []                           # opzionale, vedi settings-secti
 
 `disk_health` è pensato per un SSD/NVMe che espone dati SMART — se usi [Scrutiny](https://github.com/AnalogJ/scrutiny) o un semplice `command_line` sensor su `smartctl -a`, questi sono i valori tipici da estrarne. Anche questo blocco è del tutto opzionale.
 
+## 💽 Uno o più dischi, backup e carico (popup Statistiche, dalla 1.27.0)
+
+Il popup **Statistiche** mostra un blocco per ogni disco fisico e, se lo configuri, un blocco **Backup e carico**. Sono entrambi opzionali: senza `disks` vale il vecchio `disk_health`, senza `extra` il blocco non compare. Nessun pulsante nuovo, il fronte della card non cambia.
+
+```yaml
+disks:                                  # opzionale: un blocco nel popup per ogni voce
+  - name: NVMe sistema                  # titolo del blocco (senza name: "Disco fisico", "Disco fisico 2", ...)
+    temperature: sensor.disk_proxmox_nvme0_temperatura
+    wearout: sensor.disk_proxmox_nvme0_wearout
+    power_on_hours: sensor.disk_proxmox_nvme0_ore_di_avvio
+    power_cycles: sensor.disk_proxmox_nvme0_cicli_di_alimentazione
+    health: binary_sensor.disk_proxmox_nvme0_stato_di_salute   # on = problema
+  - name: NVMe dati
+    usage: sensor.proxmox_disco_dati_percentuale   # spazio usato %
+    used: sensor.proxmox_disco_dati_usato          # spazio usato
+    total: sensor.proxmox_disco_dati_totale        # spazio totale
+    temperature: sensor.disk_proxmox_nvme1_temperatura
+    wearout: sensor.disk_proxmox_nvme1_wearout
+    power_on_hours: sensor.disk_proxmox_nvme1_ore_di_avvio
+    power_cycles: sensor.disk_proxmox_nvme1_cicli_di_alimentazione
+    health: binary_sensor.disk_proxmox_nvme1_stato_di_salute
+extra:                                  # opzionale: blocco "Backup e carico", compaiono solo le righe configurate
+  last_backup: sensor.node_proxmox_last_backup
+  backup_duration: sensor.node_proxmox_backup_duration
+  backup_status: binary_sensor.node_proxmox_backup_status     # device_class problem: off = OK
+  swap_pct: sensor.node_proxmox_percentuale_swap_usata
+  load5: sensor.node_proxmox_load_average_5_min
+  load15: sensor.node_proxmox_load_average_15_min
+  cert_expires: sensor.node_proxmox_certificate_expires
+```
+
+- Ogni voce di `disks` mostra solo le righe che configuri: con un solo disco basta una voce.
+- **Compatibilità**: le config precedenti funzionano senza modifiche. `disk_health` (disco 1) e, se presenti, `disk_health2` + `sensors.disk2_pct` / `disk2_used` / `disk2_total` (disco 2) vengono letti come se fossero una lista `disks`.
+- Le entità dell'esempio `extra` sono quelle dell'integrazione [Proxmox VE custom](https://github.com/dougiteixeira/proxmoxve) (dominio `proxmoxve_custom`, 6.x): abilita i sensori del nodo (ultimo backup, durata, esito, swap, load average, scadenza certificato) dalle entità disabilitate del dispositivo. I nomi esatti dipendono dal nome del nodo e dalla lingua. Lo spazio di un disco aggiuntivo (`usage` / `used` / `total`) l'integrazione non lo espone sempre: si può portare in HA con un sensore MQTT o `command_line`.
+
+*English: the **Statistics** popup shows one block per physical disk (`disks:` list with `name`, `usage`, `used`, `total`, `temperature`, `wearout`, `power_on_hours`, `power_cycles`, `health`) and an optional **Backup and load** block (`extra:`: last backup, duration, result, swap %, load 5 / 15 min, certificate expiry; the entities above are those of the [Proxmox VE custom](https://github.com/dougiteixeira/proxmoxve) integration, `proxmoxve_custom` 6.x). Only the rows you configure are shown. Old configs (`disk_health`, `disk_health2` + `sensors.disk2_*`) keep working unchanged. Backup status is a binary sensor with `device_class: problem` (off = OK).*
+
 Per il pattern notifiche vedi [notifiche-personalizzate.md](notifiche-personalizzate.md), per `settings_sections` vedi [settings-sections.md](settings-sections.md).
 
 ## 🖥️ Pulsanti VM e CT (opzione `guests`)
