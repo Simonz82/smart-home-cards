@@ -1,0 +1,366 @@
+# Sostituisci persona1 / persona2 con i nomi delle tue persone (sensor.<nome>_bluetooth_connection, device_tracker.<nome>, notify.mobile_app_<nome>, person.<nome>).
+# Dove ho parcheggiato l'auto (card shc-parking-card di smart-home-cards).
+# Metodo: quando il telefono si scollega dal Bluetooth dell'auto (attributo connected_paired_devices del
+# sensore sensor.<persona>_bluetooth_connection) si chiede al telefono una posizione fresca, si scarta se il GPS
+# e' impreciso, e si salva in helper (ripristinati da HA al riavvio). Fuori dal Bluetooth: uscita dal sensore
+# attivita' "in_vehicle" (opzionale, spenta di default perche' vale anche per bus e treno) e pulsante manuale.
+# Per ogni persona: input_text.auto_bt_<persona> = nomi Bluetooth dell'auto separati da virgola
+# (basta un pezzo del nome, es. "Uconnect, FIAT"). Vuoto = niente rilevamento automatico via Bluetooth.
+# Aggiungere un'altra persona: input_text auto_bt_<nome>, trigger nell'automazione, opzione nello script.
+
+input_number:
+  auto_parcheggio_lat:
+    name: Auto parcheggio latitudine
+    min: -90
+    max: 90
+    step: 0.000001
+    mode: box
+    icon: mdi:latitude
+  auto_parcheggio_lon:
+    name: Auto parcheggio longitudine
+    min: -180
+    max: 180
+    step: 0.000001
+    mode: box
+    icon: mdi:longitude
+  auto_parcheggio_precisione:
+    name: Auto parcheggio precisione GPS (m)
+    min: 0
+    max: 5000
+    step: 1
+    mode: box
+    unit_of_measurement: m
+    icon: mdi:crosshairs-gps
+  auto_parcheggio_soglia_precisione:
+    name: Auto parcheggio precisione massima accettata (m)
+    min: 5
+    max: 500
+    step: 5
+    mode: box
+    unit_of_measurement: m
+    initial: 60
+    icon: mdi:target
+
+input_datetime:
+  auto_parcheggio_quando:
+    name: Auto parcheggio ora
+    has_date: true
+    has_time: true
+
+input_text:
+  auto_parcheggio_indirizzo:
+    name: Auto parcheggio indirizzo
+    max: 255
+    icon: mdi:map-marker
+  auto_parcheggio_chi:
+    name: Auto parcheggio registrata da
+    max: 50
+  auto_parcheggio_metodo:
+    name: Auto parcheggio metodo
+    max: 50
+  auto_parcheggio_foto:
+    name: Auto parcheggio foto (URL caricato dalla card)
+    max: 255
+  auto_bt_persona1:
+    name: Bluetooth auto di Persona 1 (nomi separati da virgola)
+    max: 255
+    icon: mdi:bluetooth
+  auto_bt_persona2:
+    name: Bluetooth auto di Persona 2 (nomi separati da virgola)
+    max: 255
+    icon: mdi:bluetooth
+
+input_boolean:
+  auto_parcheggio_usa_attivita:
+    name: Auto parcheggio anche da attivita' in auto (in_vehicle)
+    icon: mdi:car-connected
+
+template:
+  - sensor:
+      - name: Auto parcheggio
+        unique_id: auto_parcheggio_posizione
+        icon: mdi:car-brake-parking
+        device_class: timestamp
+        # senza prima registrazione (latitudine al minimo -90) il sensore e' non disponibile: la card mostra "nessuna posizione"
+        availability: "{{ is_number(states('input_number.auto_parcheggio_lat')) and states('input_number.auto_parcheggio_lat') | float(-90) > -89.9 }}"
+        state: "{{ as_datetime(states('input_datetime.auto_parcheggio_quando')).replace(tzinfo=now().tzinfo).isoformat() }}"
+        attributes:
+          latitude: "{{ states('input_number.auto_parcheggio_lat') | float(0) }}"
+          longitude: "{{ states('input_number.auto_parcheggio_lon') | float(0) }}"
+          gps_accuracy: "{{ states('input_number.auto_parcheggio_precisione') | float(0) }}"
+          address: "{{ states('input_text.auto_parcheggio_indirizzo') }}"
+          by: "{{ states('input_text.auto_parcheggio_chi') }}"
+          method: "{{ states('input_text.auto_parcheggio_metodo') }}"
+          photo: "{{ states('input_text.auto_parcheggio_foto') if states('input_text.auto_parcheggio_foto') not in ['unknown', 'unavailable'] else '' }}"
+
+script:
+  # Legge una posizione fresca del telefono (max 3 tentativi) e la restituisce come risposta.
+  # Le variabili dei blocchi annidati non escono dal blocco: per questo il risultato esce con "stop".
+  auto_parcheggio_leggi:
+    alias: Auto parcheggio - leggi posizione telefono
+    icon: mdi:crosshairs-gps
+    mode: parallel
+    max: 4
+    fields:
+      persona:
+        description: persona1 o persona2
+        required: true
+        example: persona1
+        selector:
+          select:
+            options:
+              - persona1
+              - persona2
+      scarta_se_impreciso:
+        description: se vero il risultato ok e' falso quando il GPS supera la soglia
+        default: false
+        selector:
+          boolean:
+    sequence:
+      - variables:
+          p: "{{ persona | default('persona1') }}"
+          scarta: "{{ scarta_se_impreciso | default(false) }}"
+          tracker: "device_tracker.{{ p }}"
+          soglia: "{{ states('input_number.auto_parcheggio_soglia_precisione') | float(60) }}"
+      # a casa: coordinate della zona Casa (il GPS al chiuso e' impreciso e darebbe un falso punto)
+      - if:
+          - condition: template
+            value_template: "{{ ('person.' ~ p) in (state_attr('zone.home', 'persons') | default([], true)) }}"
+        then:
+          - variables:
+              out:
+                ok: true
+                casa: true
+                lat: "{{ state_attr('zone.home', 'latitude') | float(0) }}"
+                lon: "{{ state_attr('zone.home', 'longitude') | float(0) }}"
+                acc: 0
+          - stop: A casa
+            response_variable: out
+      - repeat:
+          count: 3
+          sequence:
+            - variables:
+                inizio: "{{ now() }}"
+            - action: "notify.mobile_app_{{ p }}"
+              data:
+                message: request_location_update
+            # aspetta che il tracker si aggiorni (se le coordinate non cambiano non arriva nulla: dopo 25 s si va avanti)
+            - wait_template: "{{ states[tracker].last_updated > inizio }}"
+              timeout: "00:00:25"
+              continue_on_timeout: true
+            - delay: "00:00:04"
+            - variables:
+                lat: "{{ state_attr(tracker, 'latitude') | float(0) }}"
+                lon: "{{ state_attr(tracker, 'longitude') | float(0) }}"
+                acc: "{{ state_attr(tracker, 'gps_accuracy') | float(9999) }}"
+                out:
+                  ok: "{{ lat != 0 and (acc <= soglia or not scarta) }}"
+                  casa: false
+                  lat: "{{ lat }}"
+                  lon: "{{ lon }}"
+                  acc: "{{ acc }}"
+            - if:
+                - condition: template
+                  value_template: "{{ out.ok }}"
+              then:
+                - stop: Posizione ok
+                  response_variable: out
+      # tentativi finiti senza una posizione precisa: ultimo valore letto, ok falso
+      - variables:
+          out:
+            ok: false
+            casa: false
+            lat: "{{ state_attr(tracker, 'latitude') | float(0) }}"
+            lon: "{{ state_attr(tracker, 'longitude') | float(0) }}"
+            acc: "{{ state_attr(tracker, 'gps_accuracy') | float(9999) }}"
+      - stop: GPS impreciso
+        response_variable: out
+
+  auto_parcheggio_salva:
+    alias: Auto parcheggio - salva posizione
+    description: >-
+      Legge la posizione del telefono, scarta se il GPS e' impreciso (solo automatico) e salva la posizione
+      dell'auto. A casa usa le coordinate della zona Casa. Il manuale salva sempre.
+    icon: mdi:car-brake-parking
+    mode: queued
+    max: 4
+    fields:
+      persona:
+        description: persona1 o persona2
+        required: true
+        example: persona1
+        selector:
+          select:
+            options:
+              - persona1
+              - persona2
+      metodo:
+        description: bluetooth, attivita o manuale
+        default: manuale
+        selector:
+          select:
+            options:
+              - bluetooth
+              - attivita
+              - manuale
+      scarta_se_impreciso:
+        description: se vero (automatico) non salva con GPS impreciso; il manuale salva sempre
+        default: false
+        selector:
+          boolean:
+    sequence:
+      - variables:
+          p: "{{ persona | default('persona1') }}"
+          m: "{{ metodo | default('manuale') }}"
+          geo: "sensor.{{ p }}_geocoded_location"
+          nome: "{{ state_attr('person.' ~ p, 'friendly_name') | default(p, true) | title }}"
+      - action: script.auto_parcheggio_leggi
+        data:
+          persona: "{{ p }}"
+          scarta_se_impreciso: "{{ scarta_se_impreciso | default(false) }}"
+        response_variable: pos
+      # il sensore indirizzo dell'app si aggiorna poco dopo la posizione
+      - delay: "00:00:05"
+      - variables:
+          salva: "{{ pos.ok and pos.lat != 0 }}"
+          lat: "{{ pos.lat }}"
+          lon: "{{ pos.lon }}"
+          acc: "{{ pos.acc }}"
+          loc: "{{ state_attr(geo, 'location') }}"
+          indirizzo: >-
+            {% if pos.casa %}Casa
+            {% elif loc is iterable and loc is not string and loc | length == 2 and (loc[0] | float(0) - pos.lat) | abs < 0.002 and (loc[1] | float(0) - pos.lon) | abs < 0.002 and states(geo) not in ['unknown', 'unavailable', 'None', ''] %}{{ states(geo) }}{% endif %}
+      - if:
+          - condition: template
+            value_template: "{{ salva }}"
+        then:
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.auto_parcheggio_lat
+            data:
+              value: "{{ lat }}"
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.auto_parcheggio_lon
+            data:
+              value: "{{ lon }}"
+          - action: input_number.set_value
+            target:
+              entity_id: input_number.auto_parcheggio_precisione
+            data:
+              value: "{{ [acc, 5000] | min }}"
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.auto_parcheggio_indirizzo
+            data:
+              value: "{{ (indirizzo | string | trim)[:250] }}"
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.auto_parcheggio_chi
+            data:
+              value: "{{ nome }}"
+          - action: input_text.set_value
+            target:
+              entity_id: input_text.auto_parcheggio_metodo
+            data:
+              value: "{{ m }}"
+          # l'ora per ultima: la card considera la posizione completa quando cambia questa
+          - action: input_datetime.set_datetime
+            target:
+              entity_id: input_datetime.auto_parcheggio_quando
+            data:
+              datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+          - action: "notify.mobile_app_{{ p }}"
+            data:
+              title: Auto parcheggiata
+              message: "{{ indirizzo | string | trim if indirizzo | string | trim != '' else 'Posizione salvata' }}. Tocca per navigare."
+              data:
+                tag: auto_parcheggio
+                clickAction: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
+                url: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
+        else:
+          # una sola notifica informativa, nessun allarme
+          - action: "notify.mobile_app_{{ p }}"
+            data:
+              title: Auto parcheggio non salvato
+              message: "GPS troppo impreciso ({{ acc | round(0) }} m). Premi Registra posizione dalla card quando sei all'aperto."
+              data:
+                tag: auto_parcheggio_errore
+
+automation:
+  - id: auto_parcheggio_bluetooth
+    alias: auto_parcheggio_bluetooth
+    description: Il telefono si scollega dal Bluetooth dell'auto (nomi in input_text.auto_bt_<persona>) -> salva la posizione
+    mode: parallel
+    max: 6
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: sensor.persona1_bluetooth_connection
+        id: persona1
+        not_from:
+          - unknown
+          - unavailable
+        not_to:
+          - unknown
+          - unavailable
+      - trigger: state
+        entity_id: sensor.persona2_bluetooth_connection
+        id: persona2
+        not_from:
+          - unknown
+          - unavailable
+        not_to:
+          - unknown
+          - unavailable
+    conditions:
+      # il nome dell'auto era connesso prima e ora non piu' (vale anche dopo reload: si guarda from/to dell'evento, non uno stato locale)
+      - condition: template
+        value_template: >-
+          {% set nomi = states('input_text.auto_bt_' ~ trigger.id).split(',') | map('trim') | reject('eq', '') | map('lower') | list %}
+          {% set prima = (trigger.from_state.attributes.connected_paired_devices | default([]) + trigger.from_state.attributes.connected_not_paired_devices | default([])) | join('|') | lower %}
+          {% set dopo = (trigger.to_state.attributes.connected_paired_devices | default([]) + trigger.to_state.attributes.connected_not_paired_devices | default([])) | join('|') | lower %}
+          {{ nomi | length > 0 and nomi | select('in', prima) | list | length > 0 and nomi | select('in', dopo) | list | length == 0 }}
+    actions:
+      # evita i falsi distacchi brevi (avviamento motore, sbalzi): deve restare scollegato 20 s
+      - delay: "00:00:20"
+      - condition: template
+        value_template: >-
+          {% set nomi = states('input_text.auto_bt_' ~ trigger.id).split(',') | map('trim') | reject('eq', '') | map('lower') | list %}
+          {% set s = states.sensor[trigger.id ~ '_bluetooth_connection'] %}
+          {% set ora = (s.attributes.connected_paired_devices | default([]) + s.attributes.connected_not_paired_devices | default([])) | join('|') | lower %}
+          {{ nomi | select('in', ora) | list | length == 0 }}
+      # niente doppioni: un'altra persona della stessa auto ha gia' salvato negli ultimi 3 minuti
+      - condition: template
+        value_template: "{{ (now() | as_timestamp - as_timestamp(states('input_datetime.auto_parcheggio_quando'), 0)) > 180 }}"
+      - action: script.auto_parcheggio_salva
+        data:
+          persona: "{{ trigger.id }}"
+          metodo: bluetooth
+          scarta_se_impreciso: true
+
+  - id: auto_parcheggio_attivita
+    alias: auto_parcheggio_attivita
+    description: Uscita dall'attivita' in_vehicle (solo Persona 1, interruttore input_boolean.auto_parcheggio_usa_attivita) -> salva la posizione
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: sensor.persona1_detected_activity
+        from: in_vehicle
+        for: "00:01:00"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.auto_parcheggio_usa_attivita
+        state: "on"
+    actions:
+      # "from + for" non regge uno scollegamento breve: serve che l'attivita' sia davvero cambiata e che non sia tornata in auto
+      - condition: template
+        value_template: "{{ not is_state('sensor.persona1_detected_activity', ['in_vehicle', 'unknown', 'unavailable']) }}"
+      - condition: template
+        value_template: "{{ (now() | as_timestamp - as_timestamp(states('input_datetime.auto_parcheggio_quando'), 0)) > 180 }}"
+      - action: script.auto_parcheggio_salva
+        data:
+          persona: persona1
+          metodo: attivita
+          scarta_se_impreciso: true

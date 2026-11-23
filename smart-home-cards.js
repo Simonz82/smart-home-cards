@@ -20283,3 +20283,512 @@ window.customCards.push({
   description: "Stampante (integrazione IPP) animata: stato, livelli di inchiostro / toner con i colori, contatore pagine, avviso inchiostro basso",
   author: "Simonz82",
 });
+
+// ---------------------------------------------------------------- posizione auto parcheggiata
+Object.assign(SHC_I18N.it, {
+  "pk.name": "Auto parcheggiata",
+  "pk.entity_required": "Imposta entity con il sensore della posizione dell'auto (sensor.auto_parcheggio)",
+  "pk.none": "Nessuna posizione",
+  "pk.parked": "Parcheggiata",
+  "pk.saving": "Registrazione…",
+  "pk.since": "Parcheggiata da",
+  "pk.when": "Registrata il",
+  "pk.address": "Indirizzo",
+  "pk.distance": "Distanza da te",
+  "pk.by": "Registrata da",
+  "pk.accuracy": "Precisione",
+  "pk.now": "adesso",
+  "pk.navigate": "Portami all'auto",
+  "pk.record": "Registra posizione adesso",
+  "pk.recording": "Registrazione in corso…",
+  "pk.recorded": "Posizione salvata",
+  "pk.record_fail": "Non salvata: controlla la notifica sul telefono",
+  "pk.photo": "Foto dell'auto",
+  "pk.photo_pick": "Scegli una foto",
+  "pk.photo_drawing": "Usa il disegno",
+  "pk.photo_uploading": "Caricamento…",
+  "pk.photo_error": "Caricamento non riuscito (serve un utente amministratore)",
+  "pk.photo_hint": "La foto viene salvata in Home Assistant e vale per tutti i dispositivi.",
+  "pk.m_bluetooth": "Bluetooth auto",
+  "pk.m_attivita": "In auto",
+  "pk.m_manuale": "Pulsante",
+  "pk.at_home": "A casa",
+  "pk.no_pos_hint": "Appena scolleghi il Bluetooth dell'auto, o premi il pulsante, la posizione viene salvata.",
+  "pk.ed_entity": "Sensore posizione auto",
+  "pk.ed_person": "Persona (distanza e pulsante)",
+  "pk.ed_image": "Foto fissa (URL, es. /local/auto.jpg)",
+  "pk.ed_photo_entity": "Foto caricata dalla card (input_text)",
+  "pk.ed_script": "Script \"salva posizione\"",
+  "pk.ed_color": "Colore del disegno",
+  "pk.ed_hide_map": "Nascondi la mappa",
+});
+Object.assign(SHC_I18N.en, {
+  "pk.name": "Parked car",
+  "pk.entity_required": "Set entity to the car position sensor (sensor.auto_parcheggio)",
+  "pk.none": "No position",
+  "pk.parked": "Parked",
+  "pk.saving": "Saving…",
+  "pk.since": "Parked for",
+  "pk.when": "Saved on",
+  "pk.address": "Address",
+  "pk.distance": "Distance from you",
+  "pk.by": "Saved by",
+  "pk.accuracy": "Accuracy",
+  "pk.now": "just now",
+  "pk.navigate": "Take me to the car",
+  "pk.record": "Save position now",
+  "pk.recording": "Saving position…",
+  "pk.recorded": "Position saved",
+  "pk.record_fail": "Not saved: check the notification on your phone",
+  "pk.photo": "Car photo",
+  "pk.photo_pick": "Choose a photo",
+  "pk.photo_drawing": "Use the drawing",
+  "pk.photo_uploading": "Uploading…",
+  "pk.photo_error": "Upload failed (an administrator user is required)",
+  "pk.photo_hint": "The photo is stored in Home Assistant and shown on every device.",
+  "pk.m_bluetooth": "Car Bluetooth",
+  "pk.m_attivita": "In vehicle",
+  "pk.m_manuale": "Button",
+  "pk.at_home": "At home",
+  "pk.no_pos_hint": "As soon as you disconnect from the car Bluetooth, or press the button, the position is saved.",
+  "pk.ed_entity": "Car position sensor",
+  "pk.ed_person": "Person (distance and button)",
+  "pk.ed_image": "Fixed photo (URL, e.g. /local/car.jpg)",
+  "pk.ed_photo_entity": "Photo uploaded from the card (input_text)",
+  "pk.ed_script": "\"Save position\" script",
+  "pk.ed_color": "Drawing colour",
+  "pk.ed_hide_map": "Hide the map",
+});
+Object.assign(SHC_I18N.nl, {
+  "pk.name": "Geparkeerde auto",
+  "pk.entity_required": "Stel entity in op de positiesensor van de auto (sensor.auto_parcheggio)",
+  "pk.none": "Geen positie",
+  "pk.parked": "Geparkeerd",
+  "pk.saving": "Opslaan…",
+  "pk.since": "Geparkeerd sinds",
+  "pk.when": "Opgeslagen op",
+  "pk.address": "Adres",
+  "pk.distance": "Afstand tot jou",
+  "pk.by": "Opgeslagen door",
+  "pk.accuracy": "Nauwkeurigheid",
+  "pk.now": "zojuist",
+  "pk.navigate": "Breng me naar de auto",
+  "pk.record": "Positie nu opslaan",
+  "pk.recording": "Positie opslaan…",
+  "pk.recorded": "Positie opgeslagen",
+  "pk.record_fail": "Niet opgeslagen: controleer de melding op je telefoon",
+  "pk.photo": "Foto van de auto",
+  "pk.photo_pick": "Kies een foto",
+  "pk.photo_drawing": "Gebruik de tekening",
+  "pk.photo_uploading": "Uploaden…",
+  "pk.photo_error": "Uploaden mislukt (beheerder vereist)",
+  "pk.photo_hint": "De foto wordt in Home Assistant bewaard en op elk apparaat getoond.",
+  "pk.m_bluetooth": "Auto-Bluetooth",
+  "pk.m_attivita": "In voertuig",
+  "pk.m_manuale": "Knop",
+  "pk.at_home": "Thuis",
+  "pk.no_pos_hint": "Zodra je de auto-Bluetooth loskoppelt, of op de knop drukt, wordt de positie opgeslagen.",
+  "pk.ed_entity": "Positiesensor auto",
+  "pk.ed_person": "Persoon (afstand en knop)",
+  "pk.ed_image": "Vaste foto (URL, bv. /local/auto.jpg)",
+  "pk.ed_photo_entity": "Via de kaart geüploade foto (input_text)",
+  "pk.ed_script": "Script \"positie opslaan\"",
+  "pk.ed_color": "Kleur van de tekening",
+  "pk.ed_hide_map": "Verberg de kaart",
+});
+
+const PK_STYLE = `
+.shc-pk-card .pk-hero{position:relative;height:190px;border-radius:18px;overflow:hidden;display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 8%,rgba(224,242,254,.65),rgba(241,245,249,.35) 60%,transparent)}
+.shc-pk-card .pk-hero img.pk-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shc-pk-card .pk-hero .shc-dv-svg{width:100%;height:100%}
+@keyframes pk-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.shc-pk-card .pk-pin{animation:pk-bob 2.2s ease-in-out infinite;transform-box:fill-box}
+.shc-pk-card.is-off .pk-pin{display:none}
+.shc-pk-card .pk-wrap{margin:10px 13px 0;display:flex;flex-direction:column;gap:10px}
+.shc-pk-card .pk-map{position:relative;height:170px;border-radius:16px;overflow:hidden;border:1px solid var(--shc-border);background:var(--shc-soft)}
+.shc-pk-card .pk-tiles{position:absolute;width:768px;height:768px}
+.shc-pk-card .pk-tiles img{position:absolute;width:256px;height:256px;max-width:none;user-select:none}
+.shc-pk-card .pk-marker{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);filter:drop-shadow(0 2px 3px rgba(0,0,0,.4));pointer-events:none}
+.shc-pk-card .pk-attr{position:absolute;right:0;bottom:0;padding:1px 5px;font-size:10px;background:rgba(255,255,255,.75);color:#333;text-decoration:none}
+.shc-pk-card .pk-empty{padding:14px;text-align:center;color:var(--shc-dim);font-size:13px;font-weight:700;line-height:1.35}
+.shc-pk-card .pk-btns{display:flex;gap:8px;margin:12px 13px 13px}
+.shc-pk-card .pk-btn{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;height:42px;border:0;border-radius:13px;font-size:13.5px;font-weight:850;cursor:pointer;text-decoration:none;color:#fff;background:var(--shc-blue)}
+.shc-pk-card .pk-btn.alt{background:var(--shc-soft);color:var(--shc-text);border:1px solid var(--shc-border)}
+.shc-pk-card .pk-btn[disabled]{opacity:.55;cursor:default}
+.shc-pk-card .pk-btn ha-icon{--mdc-icon-size:18px}
+.shc-pk-card .pk-btn.hidden{display:none}
+.shc-pk-card .pk-msg{margin:-4px 13px 10px;font-size:12.5px;font-weight:800;color:var(--shc-dim);text-align:center}
+.shc-pk-card .pk-addr{white-space:normal;text-align:right}
+.shc-pk-card .pk-row-wrap{margin:10px 13px 0}
+.pk-photo-actions{display:flex;flex-direction:column;gap:10px}
+.pk-photo-actions .pk-btn{display:flex;align-items:center;justify-content:center;height:42px;border:0;border-radius:13px;font-size:14px;font-weight:850;cursor:pointer;color:#fff;background:var(--shc-blue)}
+.pk-photo-actions .pk-btn.alt{background:var(--shc-soft);color:var(--shc-text);border:1px solid var(--shc-border)}
+.pk-photo-actions p{margin:0;font-size:12.5px;color:var(--shc-dim)}
+`;
+
+function pkCarSvg(id, color) {
+  const c = color || "#3b82f6";
+  return `<svg class="shc-dv-svg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="pk-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="pk-body-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${esc(c)}"/><stop offset="1" stop-color="${esc(c)}" stop-opacity=".72"/></linearGradient>
+      <linearGradient id="pk-glass-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="136" rx="92" ry="6" fill="#0f172a" opacity=".18" filter="url(#pk-blur-${id})"/>
+    <path d="M26 116V100q0-9 10-11l24-6 22-27q4-5 12-5h52q9 0 15 6l20 26 24 7q9 3 9 12v14q0 6-6 6H32q-6 0-6-6z" fill="url(#pk-body-${id})" stroke="#0f172a" stroke-opacity=".28" stroke-width="1.6"/>
+    <path d="M86 60l-18 23h40V56h-14q-5 0-8 4zM116 56v27h56l-18-22q-3-5-10-5z" fill="url(#pk-glass-${id})" stroke="#0f172a" stroke-opacity=".25" stroke-width="1.2"/>
+    <path d="M112 56v50" stroke="#0f172a" stroke-opacity=".3" stroke-width="1.6"/>
+    <rect x="118" y="96" width="14" height="3.6" rx="1.8" fill="#0f172a" opacity=".4"/>
+    <rect x="28" y="94" width="10" height="7" rx="3" fill="#fde68a" stroke="#b45309" stroke-opacity=".5" stroke-width=".8"/>
+    <rect x="204" y="94" width="10" height="7" rx="3" fill="#fca5a5" stroke="#991b1b" stroke-opacity=".5" stroke-width=".8"/>
+    <g><circle cx="68" cy="118" r="17" fill="#1f2937"/><circle cx="68" cy="118" r="8.5" fill="#cbd5e1" stroke="#64748b" stroke-width="1.4"/><circle cx="68" cy="118" r="2.6" fill="#475569"/></g>
+    <g><circle cx="176" cy="118" r="17" fill="#1f2937"/><circle cx="176" cy="118" r="8.5" fill="#cbd5e1" stroke="#64748b" stroke-width="1.4"/><circle cx="176" cy="118" r="2.6" fill="#475569"/></g>
+    <g class="pk-pin"><path d="M120 6c-9 0-16 7-16 16 0 12 16 26 16 26s16-14 16-26c0-9-7-16-16-16z" fill="#ef4444" stroke="#fff" stroke-width="2"/><text x="120" y="29" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="sans-serif">P</text></g>
+  </svg>`;
+}
+
+class ShcParkingCard extends ShcDeviceCardBase {
+  setConfig(config) {
+    if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "pk.entity_required"));
+    this._config = { name: shcT(this._hass, "pk.name"), save_script: "script.auto_parcheggio_salva", photo_entity: "input_text.auto_parcheggio_foto", ...config };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._uid = this._uid || Math.random().toString(36).slice(2, 8);
+    this._mapKey = null;
+    const T = (k) => shcT(this._hass, k);
+    const row = ([cls, icon, key]) =>
+      `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${icon}" style="--mdc-icon-size:16px"></ha-icon></span><small data-i18n="${key}">${esc(T(key))}</small></span><b class="${cls}">—</b></div>`;
+    const rows = [["pk-r-since", "mdi:clock-outline", "pk.since"], ["pk-r-when", "mdi:calendar-clock", "pk.when"], ["pk-r-addr", "mdi:map-marker", "pk.address"], ["pk-r-dist", "mdi:walk", "pk.distance"], ["pk-r-by", "mdi:account", "pk.by"], ["pk-r-acc", "mdi:crosshairs-gps", "pk.accuracy"]];
+    this._root.innerHTML = `<style>${STYLE}${CL_STYLE}${DV_STYLE}${PK_STYLE}</style>
+      <article class="shc-ap-card shc-cl-card cl-img shc-pk-card layout-centrato is-off">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip shc-cl-chip"><ha-icon icon="${esc(this._config.icon || "mdi:car-brake-parking")}"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool pk-photo-tool" title="${esc(T("pk.photo"))}" data-i18n-title="pk.photo"><ha-icon icon="mdi:camera" style="--mdc-icon-size:19px"></ha-icon></button>
+          </span>
+        </div>
+        <div class="pk-wrap">
+          <div class="pk-hero"></div>
+          <div class="pk-map"></div>
+        </div>
+        <div class="pk-row-wrap"><div class="shc-ap-cycle-side"><div class="shc-ap-cycle-list">${rows.map(row).join("")}</div></div></div>
+        <div class="pk-msg" hidden></div>
+        <div class="pk-btns">
+          <a class="pk-btn alt pk-nav hidden" target="_blank" rel="noopener"><ha-icon icon="mdi:navigation-variant"></ha-icon><span data-i18n="pk.navigate">${esc(T("pk.navigate"))}</span></a>
+          <button type="button" class="pk-btn pk-rec"><ha-icon icon="mdi:map-marker-plus"></ha-icon><span class="pk-rec-t" data-i18n="pk.record">${esc(T("pk.record"))}</span></button>
+        </div>
+        <div class="shc-ap-warn" hidden></div>
+      </article>`;
+    this._q(".shc-ap-name").textContent = this._config.name;
+    this._q(".pk-hero").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._moreInfo(this._config.entity);
+    });
+    this._q(".pk-rec").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._record();
+    });
+    this._q(".pk-photo-tool").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openPhoto();
+    });
+  }
+
+  connectedCallback() {
+    this._tick = setInterval(() => this._hass && this._config && this._renderTime(), 30000);
+  }
+
+  disconnectedCallback() {
+    clearInterval(this._tick);
+  }
+
+  _q(sel) {
+    return this._root.querySelector(sel);
+  }
+
+  _setRow(cls, text, show = true) {
+    const el = this._q("." + cls);
+    el.textContent = text ?? "—";
+    el.closest(".shc-ap-cycle-row").hidden = !show;
+  }
+
+  // persona: config.person, altrimenti quella collegata all'utente che guarda la dashboard
+  _personEntity() {
+    const cfg = this._config;
+    if (cfg.person) return cfg.person;
+    const uid = this._hass?.user?.id;
+    return Object.keys(this._hass?.states || {}).find((k) => k.startsWith("person.") && this._hass.states[k].attributes.user_id === uid) || null;
+  }
+
+  _data() {
+    const st = this._st();
+    if (!st || ["unavailable", "unknown"].includes(st.state)) return null;
+    const a = st.attributes || {};
+    const lat = Number(a.latitude);
+    const lon = Number(a.longitude);
+    const t = new Date(st.state);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) || Number.isNaN(t.getTime())) return null;
+    return { lat, lon, t, acc: Number(a.gps_accuracy) || 0, address: a.address || "", by: a.by || "", method: a.method || "", photo: a.photo || "" };
+  }
+
+  _hav(la1, lo1, la2, lo2) {
+    const r = Math.PI / 180;
+    const x = Math.sin(((la2 - la1) * r) / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin(((lo2 - lo1) * r) / 2) ** 2;
+    return 12742000 * Math.asin(Math.sqrt(x));
+  }
+
+  _ago(t) {
+    const m = Math.max(0, Math.floor((Date.now() - t.getTime()) / 60000));
+    if (m < 1) return shcT(this._hass, "pk.now");
+    if (m < 60) return `${m} min`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} h ${m % 60} min`;
+    return `${Math.floor(h / 24)} g ${h % 24} h`;
+  }
+
+  _renderTime() {
+    const d = this._d;
+    if (!d) return;
+    this._setRow("pk-r-since", this._ago(d.t));
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config) return;
+    const cfg = this._config;
+    const T = (k, v) => shcT(this._hass, k, v);
+    const d = this._data();
+    this._d = d;
+    const card = this._q(".shc-ap-card");
+    // fine registrazione: la posizione e' stata aggiornata dopo il tocco
+    if (this._pending) {
+      const st = this._st();
+      if (st && new Date(st.last_updated).getTime() > this._pending) this._finishRec(true);
+      else if (Date.now() - this._pending > 90000) this._finishRec(false);
+    }
+    card.classList.remove("is-run", "is-off", "is-standby");
+    card.classList.add(this._pending ? "is-standby" : d ? "is-run" : "is-off");
+    this._setBadge(this._pending ? "standby" : d ? "run" : "off", this._pending ? T("pk.saving") : d ? T("pk.parked") : T("pk.none"));
+
+    // foto: config.image > foto caricata (attributo) > disegno
+    const photoEnt = cfg.photo_entity && this._hass.states[cfg.photo_entity];
+    const photoState = photoEnt && !["", "unknown", "unavailable"].includes(photoEnt.state) ? photoEnt.state : "";
+    const photo = cfg.image || photoState || d?.photo || "";
+    const heroKey = `${photo}|${cfg.car_color || ""}`;
+    const hero = this._q(".pk-hero");
+    if (hero._k !== heroKey) {
+      hero._k = heroKey;
+      hero.innerHTML = pkCarSvg(this._uid, cfg.car_color) + (photo ? `<img class="pk-photo" alt="" src="${esc(photo)}">` : "");
+      const img = hero.querySelector("img.pk-photo");
+      if (img) img.addEventListener("error", () => img.remove());
+    }
+
+    const map = this._q(".pk-map");
+    const nav = this._q(".pk-nav");
+    if (!d) {
+      map.hidden = !!cfg.hide_map;
+      map.innerHTML = `<div class="pk-empty">${esc(T("pk.no_pos_hint"))}</div>`;
+      this._mapKey = null;
+      nav.classList.add("hidden");
+      ["pk-r-since", "pk-r-when", "pk-r-addr", "pk-r-dist", "pk-r-by", "pk-r-acc"].forEach((c) => this._setRow(c, "—", false));
+      this._q(".pk-row-wrap").hidden = true;
+      return;
+    }
+    this._q(".pk-row-wrap").hidden = false;
+    // mappa OpenStreetMap: ricostruita solo se cambia il punto
+    const key = `${d.lat.toFixed(6)},${d.lon.toFixed(6)}`;
+    map.hidden = !!cfg.hide_map;
+    if (this._mapKey !== key && !cfg.hide_map) {
+      this._mapKey = key;
+      map.innerHTML = this._tilesHtml(d.lat, d.lon, 17);
+    }
+    nav.href = `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lon}&travelmode=walking`;
+    nav.classList.remove("hidden");
+
+    this._setRow("pk-r-since", this._ago(d.t));
+    this._setRow("pk-r-when", d.t.toLocaleString(shcLoc(this._hass), { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }));
+    const addr = d.address || this._geo(d.lat, d.lon);
+    this._setRow("pk-r-addr", addr || "—", !!addr);
+    this._q(".pk-r-addr").classList.add("pk-addr");
+    // distanza dal telefono (persona dell'utente che guarda)
+    const pe = this._personEntity();
+    const ps = pe && this._hass.states[pe];
+    const pla = Number(ps?.attributes?.latitude);
+    const plo = Number(ps?.attributes?.longitude);
+    if (Number.isFinite(pla) && Number.isFinite(plo) && pla && plo) {
+      const m = this._hav(pla, plo, d.lat, d.lon);
+      this._setRow("pk-r-dist", m < 1000 ? `${Math.round(m / 5) * 5 || 5} m` : `${(m / 1000).toFixed(m < 10000 ? 1 : 0)} km`);
+    } else this._setRow("pk-r-dist", "—", false);
+    const me = d.method ? T("pk.m_" + d.method) : "";
+    this._setRow("pk-r-by", [d.by, me !== "pk.m_" + d.method ? me : ""].filter(Boolean).join(" · "), !!(d.by || me));
+    this._setRow("pk-r-acc", d.acc ? `± ${Math.round(d.acc)} m` : T("pk.at_home"), true);
+  }
+
+  // mappa a tessere OpenStreetMap (immagini normali, niente WebGL): 3x3 tessere centrate sul punto
+  _tilesHtml(lat, lon, z) {
+    const n = 2 ** z;
+    const fx = ((lon + 180) / 360) * n;
+    const rad = (lat * Math.PI) / 180;
+    const fy = ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * n;
+    const x0 = Math.floor(fx);
+    const y0 = Math.floor(fy);
+    let imgs = "";
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) imgs += `<img alt="" referrerpolicy="origin" draggable="false" style="left:${(dx + 1) * 256}px;top:${(dy + 1) * 256}px" src="https://tile.openstreetmap.org/${z}/${(x0 + dx + n) % n}/${y0 + dy}.png">`;
+    const ox = (1 + (fx - x0)) * 256;
+    const oy = (1 + (fy - y0)) * 256;
+    return `<div class="pk-tiles" style="left:calc(50% - ${ox.toFixed(1)}px);top:calc(50% - ${oy.toFixed(1)}px)">${imgs}</div><svg class="pk-marker" viewBox="0 0 24 34" width="30" height="42"><path d="M12 1C6 1 1.5 5.500 1.500 11.500 1.500 19 12 33 12 33s10.500-14 10.500-21.500C22.500 5.500 18 1 12 1z" fill="#ef4444" stroke="#fff" stroke-width="2"/><circle cx="12" cy="11.500" r="4" fill="#fff"/></svg><a class="pk-attr" href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=18/${lat}/${lon}" target="_blank" rel="noopener">© OpenStreetMap</a>`;
+  }
+
+  // indirizzo da OpenStreetMap solo se il sensore non lo ha: una richiesta per punto, ricordata nel browser
+  _geo(lat, lon) {
+    const k = `shc_pk_addr_${lat.toFixed(5)}_${lon.toFixed(5)}`;
+    let v = "";
+    try {
+      v = localStorage.getItem(k) || "";
+    } catch (e) {}
+    if (v || this._geoReq === k) return v;
+    this._geoReq = k;
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&lat=${lat}&lon=${lon}&accept-language=${shcLang(this._hass)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        const a = j?.address;
+        const txt = a ? [[a.road || a.pedestrian || a.footway, a.house_number].filter(Boolean).join(" "), a.village || a.town || a.city].filter(Boolean).join(", ") : j?.display_name || "";
+        if (txt) {
+          try {
+            localStorage.setItem(k, txt);
+          } catch (e) {}
+          if (this._hass) this.hass = this._hass;
+        }
+      })
+      .catch(() => {});
+    return "";
+  }
+
+  _msg(text) {
+    const m = this._q(".pk-msg");
+    m.hidden = !text;
+    m.textContent = text || "";
+  }
+
+  _record() {
+    const cfg = this._config;
+    const pe = this._personEntity();
+    const persona = (cfg.persona || (pe ? pe.split(".")[1] : "")).toString();
+    if (!persona) return;
+    const btn = this._q(".pk-rec");
+    btn.disabled = true;
+    this._pending = Date.now();
+    this._q(".pk-rec-t").textContent = shcT(this._hass, "pk.recording");
+    this._msg("");
+    this._call("script", "turn_on", { entity_id: cfg.save_script, variables: { persona, metodo: "manuale", scarta_se_impreciso: false } });
+    this.hass = this._hass;
+  }
+
+  _finishRec(ok) {
+    this._pending = 0;
+    const btn = this._q(".pk-rec");
+    btn.disabled = false;
+    this._q(".pk-rec-t").textContent = shcT(this._hass, "pk.record");
+    this._msg(ok ? shcT(this._hass, "pk.recorded") : shcT(this._hass, "pk.record_fail"));
+    setTimeout(() => this._msg(""), 6000);
+  }
+
+  _openPhoto() {
+    const T = (k) => shcT(this._hass, k);
+    const o = this._openDialog(
+      T("pk.photo"),
+      `<div class="pk-photo-actions">
+        <button type="button" class="pk-btn pk-pick">${esc(T("pk.photo_pick"))}</button>
+        <button type="button" class="pk-btn alt pk-reset">${esc(T("pk.photo_drawing"))}</button>
+        <p class="pk-photo-note">${esc(T("pk.photo_hint"))}</p>
+        <input type="file" accept="image/*" class="pk-file" hidden>
+      </div>`,
+    );
+    const note = o.querySelector(".pk-photo-note");
+    const file = o.querySelector(".pk-file");
+    o.querySelector(".pk-pick").addEventListener("click", () => file.click());
+    o.querySelector(".pk-reset").addEventListener("click", () => {
+      this._setPhoto("");
+      o.hidden = true;
+    });
+    file.addEventListener("change", async () => {
+      const f = file.files?.[0];
+      if (!f) return;
+      note.textContent = T("pk.photo_uploading");
+      try {
+        const url = await this._upload(f);
+        this._setPhoto(url);
+        o.hidden = true;
+      } catch (e) {
+        note.textContent = T("pk.photo_error");
+      }
+    });
+  }
+
+  // ridimensiona a 1000 px (JPEG) e carica con la stessa API delle foto persona di Home Assistant
+  async _upload(f) {
+    const bmp = await createImageBitmap(f);
+    const k = Math.min(1, 1000 / Math.max(bmp.width, bmp.height));
+    const cv = document.createElement("canvas");
+    cv.width = Math.round(bmp.width * k);
+    cv.height = Math.round(bmp.height * k);
+    cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+    const blob = await new Promise((r) => cv.toBlob(r, "image/jpeg", 0.86));
+    const fd = new FormData();
+    fd.append("file", blob, "auto.jpg");
+    const token = this._hass.auth?.data?.access_token;
+    const res = await fetch("/api/image/upload", { method: "POST", body: fd, headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) throw new Error("upload " + res.status);
+    const j = await res.json();
+    if (!j.id) throw new Error("no id");
+    return `/api/image/serve/${j.id}/original`;
+  }
+
+  _setPhoto(url) {
+    const ent = this._config.photo_entity;
+    if (ent && this._has(ent)) this._call("input_text", "set_value", { entity_id: ent, value: url });
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-parking-card-editor");
+  }
+
+  static getStubConfig() {
+    return { entity: "sensor.auto_parcheggio" };
+  }
+
+  getCardSize() {
+    return 9;
+  }
+}
+
+class ShcParkingCardEditor extends ShcSimpleCardEditorBase {
+  get schema() {
+    const T = (k) => shcT(this._hass, k);
+    return [
+      { title: T("fritzcard.basic"), fields: [
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("pk.name") },
+        { key: "entity", label: T("pk.ed_entity"), domain: ["sensor"], required: true },
+        { key: "person", label: T("pk.ed_person"), domain: ["person"] },
+        { key: "save_script", label: T("pk.ed_script"), domain: ["script"] },
+        { key: "icon", label: T("xa.ed_icon"), kind: "text", placeholder: "mdi:car-brake-parking" },
+      ]},
+      { title: T("pk.photo"), fields: [
+        { key: "photo_entity", label: T("pk.ed_photo_entity"), domain: ["input_text"] },
+        { key: "image", label: T("pk.ed_image"), kind: "text" },
+        { key: "car_color", label: T("pk.ed_color"), kind: "text", placeholder: "#3b82f6" },
+        { key: "hide_map", label: T("pk.ed_hide_map"), kind: "bool" },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-parking-card-editor", ShcParkingCardEditor);
+customElements.define("shc-parking-card", ShcParkingCard);
+window.customCards.push({
+  type: "shc-parking-card",
+  name: "Auto parcheggiata",
+  description: "Dove hai lasciato l'auto: disegno o foto, mappa, indirizzo, distanza, navigazione e pulsante per registrare la posizione (Bluetooth dell'auto o manuale)",
+  author: "Simonz82",
+});

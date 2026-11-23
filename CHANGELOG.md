@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — new card `shc-parking-card` (parked car)
+
+- **New card Auto parcheggiata / Parked car**: car drawing or your own photo (upload from the card), OpenStreetMap map with pin, how long parked, address, distance from you, who saved it, **Take me to the car** (walking directions) and **Save position now**. Visual editor included, Italian / English / Dutch.
+- **Package `packages/auto_parcheggio.yaml`**: saves the position when the phone disconnects from the car Bluetooth (Companion sensor `connected_paired_devices`, 20 s debounce, fresh `request_location_update`, discarded if GPS accuracy is too low), optional `in_vehicle` activity exit, manual script used by the button. Position is stored in helpers, so it survives restarts.
+- Docs: [docs/auto-parcheggiata.md](docs/auto-parcheggiata.md).
+
 ## 2026-11-23 — 1.27.0: several physical disks and a Backup and load block in the Proxmox card Statistics popup
 
 - **Proxmox card, `disks`** (YAML only): the **Statistics** popup shows one block per physical disk. Each item of the list takes `name`, `usage`, `used`, `total`, `temperature`, `wearout`, `power_on_hours`, `power_cycles` and `health`, and only the rows you configure are shown. Old configs keep working: `disk_health` is still the first disk and `disk_health2` + `sensors.disk2_*` the second one.
