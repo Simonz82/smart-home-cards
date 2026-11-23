@@ -20803,6 +20803,7 @@ class ShcParkingCard extends ShcDeviceCardBase {
     cv.width = Math.round(bmp.width * k);
     cv.height = Math.round(bmp.height * k);
     cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+    if (bmp.close) bmp.close();
     const blob = await new Promise((r) => cv.toBlob(r, "image/jpeg", 0.86));
     const fd = new FormData();
     fd.append("file", blob, "auto.jpg");

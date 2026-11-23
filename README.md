@@ -99,6 +99,11 @@ Tap a card to open its guide.
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/parcheggio.gif" width="100%" alt="🅿️ Parked car"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md">🅿️ Parked car</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>All previews are animated and show the cards switched on, with sample data.</sub>
@@ -155,6 +160,7 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Air purifier (fan: speed, modes, PM2.5, filter)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Dehumidifier (humidity, target, mode, fan, full tank)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
+- [Parked car (map, address, distance, "Take me to the car", automatic save on Bluetooth disconnect)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
 
 Example, coffee machine on a smart plug (states from the power draw, thresholds in W, capsule stock counted in Home Assistant by `packages/coffee_capsule.yaml`):
 
@@ -277,6 +283,11 @@ Tocca una card per aprire la sua guida.
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/parcheggio.gif" width="100%" alt="🅿️ Auto parcheggiata"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md">🅿️ Auto parcheggiata</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>Tutte le anteprime sono animate e mostrano le card accese, con dati di esempio.</sub>
@@ -333,6 +344,7 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Purificatore d'aria (fan: velocità, modalità, PM2.5, filtro)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Deumidificatore (umidità, obiettivo, modalità, ventola, serbatoio pieno)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
+- [Auto parcheggiata (mappa, indirizzo, distanza, "Portami all'auto", salvataggio automatico allo scollegamento Bluetooth)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
 
 Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W, scorta capsule contata in Home Assistant da `packages/coffee_capsule.yaml`):
 

@@ -4,6 +4,9 @@
 
 **EN** — Shows where you left the car: a car drawing (or your own photo), an OpenStreetMap map with a pin, how long it has been parked, address, distance from you, who saved the position and how, a **Take me to the car** button (walking directions) and a **Save position now** button.
 
+<p align="center"><img src="screenshot/galleria/parcheggio.gif" width="360" alt="shc-parking-card"></p>
+
+
 
 ## Come funziona il salvataggio automatico
 
@@ -31,7 +34,7 @@ Metodo ispirato al video https://www.youtube.com/watch?v=JF5k4Pg0IEY (sensore Bl
 type: custom:shc-parking-card
 entity: sensor.auto_parcheggio
 # opzionali
-name: Panda
+name: La mia auto
 person: person.persona1          # distanza e pulsante; se manca, la persona dell'utente collegato
 save_script: script.auto_parcheggio_salva
 photo_entity: input_text.auto_parcheggio_foto
