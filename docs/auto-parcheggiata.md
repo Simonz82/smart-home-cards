@@ -48,6 +48,14 @@ car_color: "#3b82f6"             # colore del disegno
 hide_map: false
 ```
 
+Seconda auto (stessa famiglia, card e notifiche separate):
+
+```yaml
+type: custom:shc-parking-card
+car: 2
+person: person.persona2
+```
+
 ## Foto dell'auto
 
 Il disegno è quello predefinito. L'icona della fotocamera in alto a destra apre il dialogo **Foto dell'auto**: scegli una foto dal telefono, viene ridimensionata a 1000 px, caricata in Home Assistant (stessa API delle foto persona, serve un utente amministratore) e il suo indirizzo salvato in `input_text.auto_parcheggio_auto<N>_foto`, quindi la vedono tutti i dispositivi. **Usa il disegno** la rimuove. Con `image:` in YAML la foto è fissa.
