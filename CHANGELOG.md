@@ -4,6 +4,8 @@
 
 - **New card Auto parcheggiata / Parked car**: car drawing or your own photo (upload from the card), OpenStreetMap map with pin, how long parked, address, distance from you, who saved it, **Take me to the car** (walking directions) and **Save position now**. Visual editor included, Italian / English / Dutch.
 - **Package `packages/auto_parcheggio.yaml`**: saves the position when the phone disconnects from the car Bluetooth (Companion sensor `connected_paired_devices`, 20 s debounce, fresh `request_location_update`, discarded if GPS accuracy is too low), optional `in_vehicle` activity exit, manual script used by the button. Position is stored in helpers, so it survives restarts.
+- **Settings (gear icon)** on the parking card: notify on every parking (`input_boolean.auto_parcheggio_notifica`, off = position still saved without notification), car Bluetooth name, activity detection and GPS accuracy threshold. Options `notify_entity`, `activity_entity`, `threshold_entity`, `bt_entity`. Italian / English / Dutch.
+- The example package now covers one person (`persona1`); notifications and the Bluetooth branch can be extended to more people as described in the file.
 - Docs: [docs/auto-parcheggiata.md](docs/auto-parcheggiata.md).
 
 ## 2026-11-23 — 1.27.0: several physical disks and a Backup and load block in the Proxmox card Statistics popup

@@ -13,11 +13,17 @@
 4. In alternativa, con `input_boolean.auto_parcheggio_usa_attivita` acceso, anche l'uscita dall'attività `in_vehicle` salva la posizione (spento di default: vale anche per bus e treno).
 5. Il pulsante della card chiama lo stesso script in modo manuale (salva sempre, anche con GPS impreciso).
 
+## Impostazioni (ingranaggio)
+
+L'ingranaggio in alto a destra della card apre le impostazioni, come nelle altre card smart-home-cards: **Notifica a ogni parcheggio** (`input_boolean.auto_parcheggio_notifica`; spento = la posizione si registra comunque, senza notifica), **nome Bluetooth dell'auto** (`input_text.auto_bt_<persona>`), **anche quando scendo dall'auto** (`input_boolean.auto_parcheggio_usa_attivita`) e **precisione GPS massima** (`input_number.auto_parcheggio_soglia_precisione`). Le righe compaiono solo se l'helper esiste; entità personalizzabili con `notify_entity`, `activity_entity`, `threshold_entity`, `bt_entity`.
+
+**EN** — The gear icon opens the settings popup: notify on every parking (off = position still saved, no notification), car Bluetooth name, also detect when leaving the car (activity) and maximum GPS accuracy. Rows only appear when the helper exists; entities can be overridden with `notify_entity`, `activity_entity`, `threshold_entity`, `bt_entity`.
+
 Metodo ispirato al video https://www.youtube.com/watch?v=JF5k4Pg0IEY (sensore Bluetooth dell'app Companion + `request_location_update`). Su iPhone il sensore Bluetooth non esiste: resta il pulsante manuale.
 
 ## Installazione
 
-1. Copia [`packages/auto_parcheggio.yaml`](../packages/auto_parcheggio.yaml) nei tuoi `packages` e sostituisci `persona1` / `persona2` con i nomi delle tue persone. Ricarica o riavvia HA.
+1. Copia [`packages/auto_parcheggio.yaml`](../packages/auto_parcheggio.yaml) nei tuoi `packages` e sostituisci `persona1` con il nome della tua persona (altre persone: vedi i commenti nel file). Ricarica o riavvia HA.
 2. Inserisci in `input_text.auto_bt_<persona>` il nome Bluetooth dell'auto.
 3. Aggiungi la card:
 

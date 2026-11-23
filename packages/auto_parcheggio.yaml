@@ -1,12 +1,13 @@
-# Sostituisci persona1 / persona2 con i nomi delle tue persone (sensor.<nome>_bluetooth_connection, device_tracker.<nome>, notify.mobile_app_<nome>, person.<nome>).
+# Sostituisci persona1 con il nome della tua persona (sensor.<nome>_bluetooth_connection, device_tracker.<nome>, notify.mobile_app_<nome>, person.<nome>).
 # Dove ho parcheggiato l'auto (card shc-parking-card di smart-home-cards).
 # Metodo: quando il telefono si scollega dal Bluetooth dell'auto (attributo connected_paired_devices del
 # sensore sensor.<persona>_bluetooth_connection) si chiede al telefono una posizione fresca, si scarta se il GPS
 # e' impreciso, e si salva in helper (ripristinati da HA al riavvio). Fuori dal Bluetooth: uscita dal sensore
 # attivita' "in_vehicle" (opzionale, spenta di default perche' vale anche per bus e treno) e pulsante manuale.
+# Esempio con una sola persona (persona1): rilevamento Bluetooth e notifiche solo per lei/lui. Per altre persone aggiungi input_text auto_bt_<nome>, un trigger con id = nome e il nome nella condizione di notifica dello script.
 # Per ogni persona: input_text.auto_bt_<persona> = nomi Bluetooth dell'auto separati da virgola
 # (basta un pezzo del nome, es. "Uconnect, FIAT"). Vuoto = niente rilevamento automatico via Bluetooth.
-# Aggiungere un'altra persona: input_text auto_bt_<nome>, trigger nell'automazione, opzione nello script.
+# Aggiungere un'altra persona: input_text auto_bt_<nome>, trigger nell'automazione (id = nome), nome nella condizione di notifica dello script.
 
 input_number:
   auto_parcheggio_lat:
@@ -65,12 +66,11 @@ input_text:
     name: Bluetooth auto di Persona 1 (nomi separati da virgola)
     max: 255
     icon: mdi:bluetooth
-  auto_bt_persona2:
-    name: Bluetooth auto di Persona 2 (nomi separati da virgola)
-    max: 255
-    icon: mdi:bluetooth
 
 input_boolean:
+  auto_parcheggio_notifica:
+    name: Auto parcheggio notifica a ogni parcheggio
+    icon: mdi:bell-ring
   auto_parcheggio_usa_attivita:
     name: Auto parcheggio anche da attivita' in auto (in_vehicle)
     icon: mdi:car-connected
@@ -270,22 +270,31 @@ script:
               entity_id: input_datetime.auto_parcheggio_quando
             data:
               datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
-          - action: "notify.mobile_app_{{ p }}"
-            data:
-              title: Auto parcheggiata
-              message: "{{ indirizzo | string | trim if indirizzo | string | trim != '' else 'Posizione salvata' }}. Tocca per navigare."
-              data:
-                tag: auto_parcheggio
-                clickAction: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
-                url: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
+          # notifica solo a persona1 e solo se l'interruttore della card e' acceso
+          - if:
+              - condition: template
+                value_template: "{{ p == 'persona1' and is_state('input_boolean.auto_parcheggio_notifica', 'on') }}"
+            then:
+              - action: "notify.mobile_app_{{ p }}"
+                data:
+                  title: Auto parcheggiata
+                  message: "{{ indirizzo | string | trim if indirizzo | string | trim != '' else 'Posizione salvata' }}. Tocca per navigare."
+                  data:
+                    tag: auto_parcheggio
+                    clickAction: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
+                    url: "https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lon }}&travelmode=walking"
         else:
-          # una sola notifica informativa, nessun allarme
-          - action: "notify.mobile_app_{{ p }}"
-            data:
-              title: Auto parcheggio non salvato
-              message: "GPS troppo impreciso ({{ acc | round(0) }} m). Premi Registra posizione dalla card quando sei all'aperto."
-              data:
-                tag: auto_parcheggio_errore
+          # una sola notifica informativa, nessun allarme (solo Persona 1)
+          - if:
+              - condition: template
+                value_template: "{{ p == 'persona1' }}"
+            then:
+              - action: "notify.mobile_app_{{ p }}"
+                data:
+                  title: Auto parcheggio non salvato
+                  message: "GPS troppo impreciso ({{ acc | round(0) }} m). Premi Registra posizione dalla card quando sei all'aperto."
+                  data:
+                    tag: auto_parcheggio_errore
 
 automation:
   - id: auto_parcheggio_bluetooth
@@ -298,15 +307,6 @@ automation:
       - trigger: state
         entity_id: sensor.persona1_bluetooth_connection
         id: persona1
-        not_from:
-          - unknown
-          - unavailable
-        not_to:
-          - unknown
-          - unavailable
-      - trigger: state
-        entity_id: sensor.persona2_bluetooth_connection
-        id: persona2
         not_from:
           - unknown
           - unavailable
