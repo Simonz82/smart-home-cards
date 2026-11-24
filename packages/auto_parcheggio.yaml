@@ -6,6 +6,8 @@
 # 3) Riavvio COMPLETO di Home Assistant (il ricaricamento non crea gli helper).
 # 4) Aggiungi la card (type: custom:shc-parking-card, car: 1) e dall'ingranaggio imposta persona associata (lo stesso nome del telefono) e nome Bluetooth dell'auto.
 # Serve l'app Companion Android con il sensore "Bluetooth connection" acceso (su iPhone funziona solo il pulsante manuale).
+# Come capisce che sei in auto (per auto, helper input_select ..._rilevamento, dall'ingranaggio): bluetooth (default), android_auto (sensore Android Auto dell'app Companion),
+# carplay_comandi (iPhone: un Comando dell'app Comandi chiama script.auto_parcheggio_salva con metodo carplay) o solo_manuale.
 # Dove ho parcheggiato l'auto (card shc-parking-card di smart-home-cards): fino a 3 auto, ognuna con la sua posizione.
 # Ogni card e' legata a un'auto (car: 1, 2 o 3 nella card). Per ogni auto ci sono helper separati
 # (input_*.auto_parcheggio_auto<N>_*): posizione, indirizzo, foto, nome dell'auto, nome Bluetooth, persona associata
@@ -202,6 +204,32 @@ input_text:
     max: 50
     icon: mdi:account
 
+input_select:
+  auto_parcheggio_auto1_rilevamento:
+    name: Auto parcheggio auto 1 come capisco che sono in auto
+    icon: mdi:car-connected
+    options:
+      - bluetooth
+      - android_auto
+      - carplay_comandi
+      - solo_manuale
+  auto_parcheggio_auto2_rilevamento:
+    name: Auto parcheggio auto 2 come capisco che sono in auto
+    icon: mdi:car-connected
+    options:
+      - bluetooth
+      - android_auto
+      - carplay_comandi
+      - solo_manuale
+  auto_parcheggio_auto3_rilevamento:
+    name: Auto parcheggio auto 3 come capisco che sono in auto
+    icon: mdi:car-connected
+    options:
+      - bluetooth
+      - android_auto
+      - carplay_comandi
+      - solo_manuale
+
 input_boolean:
   auto_parcheggio_auto1_notifica:
     name: Auto parcheggio auto 1 notifica a ogni parcheggio
@@ -380,12 +408,14 @@ script:
         selector:
           text:
       metodo:
-        description: bluetooth, attivita o manuale
+        description: bluetooth, android_auto, carplay, attivita o manuale (carplay si usa da un Comando iPhone)
         default: manuale
         selector:
           select:
             options:
               - bluetooth
+              - android_auto
+              - carplay
               - attivita
               - manuale
       scarta_se_impreciso:
@@ -538,7 +568,7 @@ automation:
         {% set prima = (trigger.from_state.attributes.connected_paired_devices | default([]) + trigger.from_state.attributes.connected_not_paired_devices | default([])) | join('|') | lower %}
         {% set dopo = (trigger.to_state.attributes.connected_paired_devices | default([]) + trigger.to_state.attributes.connected_not_paired_devices | default([])) | join('|') | lower %}
         {% for n in [1, 2, 3] %}
-        {% if ns.a == 0 and (states('input_text.auto_parcheggio_auto' ~ n ~ '_persona') | trim | lower) == trigger.id %}
+        {% if ns.a == 0 and (states('input_text.auto_parcheggio_auto' ~ n ~ '_persona') | trim | lower) == trigger.id and states('input_select.auto_parcheggio_auto' ~ n ~ '_rilevamento') in ['bluetooth', 'unknown', 'unavailable', ''] %}
         {% set nomi = states('input_text.auto_parcheggio_auto' ~ n ~ '_bt').split(',') | map('trim') | reject('eq', '') | map('lower') | list %}
         {% if nomi | length > 0 and nomi | select('in', prima) | list | length > 0 and nomi | select('in', dopo) | list | length == 0 %}{% set ns.a = n %}{% endif %}
         {% endif %}
@@ -599,4 +629,51 @@ automation:
           auto: "{{ auto | int(0) }}"
           persona: "{{ trigger.id }}"
           metodo: attivita
+          scarta_se_impreciso: true
+
+  - id: auto_parcheggio_android_auto
+    alias: auto_parcheggio_android_auto
+    description: Il telefono si scollega da Android Auto (binary_sensor.<telefono>_android_auto da on a off) -> salva la posizione sull'auto associata che ha rilevamento = android_auto
+    mode: parallel
+    max: 4
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.persona1_android_auto
+        id: persona1
+        from: "on"
+        to: "off"
+      - trigger: state
+        entity_id: binary_sensor.persona2_android_auto
+        id: persona2
+        from: "on"
+        to: "off"
+      - trigger: state
+        entity_id: binary_sensor.persona3_android_auto
+        id: persona3
+        from: "on"
+        to: "off"
+    variables:
+      auto: >-
+        {% set ns = namespace(a=0) %}
+        {% for n in [1, 2, 3] %}
+        {% if ns.a == 0 and (states('input_text.auto_parcheggio_auto' ~ n ~ '_persona') | trim | lower) == trigger.id and is_state('input_select.auto_parcheggio_auto' ~ n ~ '_rilevamento', 'android_auto') %}{% set ns.a = n %}{% endif %}
+        {% endfor %}
+        {{ ns.a }}
+    conditions:
+      - condition: template
+        value_template: "{{ auto | int(0) > 0 }}"
+    actions:
+      # evita i falsi distacchi brevi: deve restare scollegato 20 s
+      - delay: "00:00:20"
+      - condition: template
+        value_template: "{{ is_state('binary_sensor.' ~ trigger.id ~ '_android_auto', 'off') }}"
+      # niente doppioni sulla stessa auto negli ultimi 3 minuti
+      - condition: template
+        value_template: "{{ (now() | as_timestamp - as_timestamp(states('input_datetime.auto_parcheggio_auto' ~ (auto | int(0)) ~ '_quando'), 0)) > 180 }}"
+      - action: script.auto_parcheggio_salva
+        data:
+          auto: "{{ auto | int(0) }}"
+          persona: "{{ trigger.id }}"
+          metodo: android_auto
           scarta_se_impreciso: true

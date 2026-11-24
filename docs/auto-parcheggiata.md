@@ -16,7 +16,7 @@
 - **smart-home-cards** installata dal Marketplace (o HACS), versione **1.28.1 o più nuova**.
 - Un telefono **Android** con l'**app Companion** di Home Assistant. Serve per salvare la posizione da solo quando scendi dall'auto.
 - Nell'app Companion il sensore **Bluetooth connection** deve essere acceso. Come si fa: apri l'app Home Assistant sul telefono > **Impostazioni** > **App Companion** > **Gestisci sensori** > **Bluetooth connection** > accendi **Abilita sensore**. Se Android lo chiede, dai il permesso "Dispositivi nelle vicinanze".
-- Sul **iPhone** questo sensore non esiste: la card funziona lo stesso, ma solo con il pulsante **Registra posizione adesso**.
+- Con un **iPhone** non esiste il sensore Bluetooth. Hai due strade: l'app **Comandi** di Apple per riconoscere **CarPlay** (vedi il capitolo "Scegli come capisce che sei in auto"), oppure solo il pulsante **Registra posizione adesso**.
 
 **EN** — You need: Home Assistant; smart-home-cards 1.28.1 or newer (Marketplace/HACS); an Android phone with the Companion app, with the **Bluetooth connection** sensor turned on (app > Settings > Companion app > Manage sensors > Bluetooth connection > Enable sensor). On iPhone only the manual **Save position now** button works.
 
@@ -36,7 +36,7 @@ La card da sola **non basta**. Ha bisogno di un file in più, il **package** (un
 2. Nella casella di ricerca scrivi `bluetooth_connection`.
 3. Vedrai una riga come `sensor.pixel_8_bluetooth_connection`. Il **nome del telefono** è la parte tra `sensor.` e `_bluetooth_connection`. In questo esempio è **`pixel_8`**.
 4. Scrivilo su un foglio. Ti serve nei passi 5 e 8.
-5. Se non trovi nessuna riga: il sensore Bluetooth non è acceso (vedi "Prima di iniziare") oppure hai un iPhone.
+5. Se non trovi nessuna riga: il sensore Bluetooth non è acceso (vedi "Prima di iniziare") oppure hai un iPhone. **Con l'iPhone** cerca invece `geocoded_location`: se vedi `sensor.iphone_di_anna_geocoded_location`, il nome è `iphone_di_anna`.
 
 ### Passo 3 - Controlla che i package siano attivi
 
@@ -92,7 +92,8 @@ Sulla card premi l'**ingranaggio** in alto a destra. Compila campo per campo:
 | **Nome dell'auto** | Come vuoi chiamarla, per esempio `Golf`. |
 | **Persona associata** | Il nome del telefono del passo 2, per esempio `pixel_8`. Riceve le notifiche e dà la posizione. |
 | **Notifica a ogni parcheggio** | Acceso = ricevi una notifica ogni volta. Spento = la posizione si salva lo stesso, senza notifica. |
-| **Nome Bluetooth dell'auto** | Il nome con cui l'auto compare nel Bluetooth del telefono (Android > Impostazioni > Bluetooth), per esempio `Uconnect`. Anche solo un pezzo del nome. Più nomi: separali con la virgola. Vuoto = niente salvataggio automatico. |
+| **Come capisco che sono in auto** | Scegli uno: **Bluetooth**, **Android Auto**, **CarPlay (Comandi iPhone)** o **Solo pulsante**. Se non sai quale, leggi il capitolo qui sotto. All'inizio è **Bluetooth**. |
+| **Nome Bluetooth dell'auto** | Compare **solo se hai scelto Bluetooth**. Il nome con cui l'auto compare nel Bluetooth del telefono (Android > Impostazioni > Bluetooth), per esempio `Uconnect`. Anche solo un pezzo del nome. Più nomi: separali con la virgola. Vuoto = niente salvataggio automatico. |
 | **Anche quando scendo dall'auto** | Acceso = salva anche quando il telefono capisce che hai smesso di guidare. Attenzione: vale anche per bus e treno. Meglio lasciarlo spento. |
 | **Precisione GPS massima** | Metri. Se il GPS è più impreciso, la posizione automatica viene scartata. Lascia 60. |
 
@@ -110,6 +111,50 @@ Sulla card premi l'**ingranaggio** in alto a destra. Compila campo per campo:
 
 **EN** — Short version of the steps. 1) Update smart-home-cards to 1.28.1+ and press Ctrl+F5. 2) Find your phone name: Settings > Devices & services > Entities, search `bluetooth_connection`; for `sensor.pixel_8_bluetooth_connection` the name is `pixel_8`. 3) In `/config/configuration.yaml` make sure you have `homeassistant:` / `packages: !include_dir_named packages`. 4) Copy `packages/auto_parcheggio.yaml` into `/config/packages/`. 5) Open it in File editor or Studio Code Server and replace `persona1` with your phone name (Ctrl+H, replace all; same for `persona2`/`persona3` if you have more phones). 6) **Fully restart** Home Assistant (reload is not enough). 7) Add a manual card with `type: custom:shc-parking-card` and `car: 1`. 8) In the gear set car name, linked person (your phone name), notification, car Bluetooth name. 9) Check that `sensor.auto_parcheggio_auto1_posizione` and `script.auto_parcheggio_salva` exist, go outside and press **Save position now**.
 
+## Scegli come capisce che sei in auto
+
+La card salva la posizione quando **scendi dall'auto**. Per capirlo può usare 4 metodi. Se ne usa **uno solo per auto**, quello che scegli nell'ingranaggio, nel campo **Come capisco che sono in auto**.
+
+| Hai... | Scegli | Come funziona |
+|---|---|---|
+| Android e l'auto ha solo il Bluetooth (anche senza schermo) | **Bluetooth** | Quando il telefono si scollega dal Bluetooth dell'auto, salva. |
+| Android e usi lo schermo **Android Auto** | **Android Auto** | Quando il telefono esce da Android Auto, salva. Non serve scrivere il nome Bluetooth. |
+| iPhone con **CarPlay** | **CarPlay (Comandi iPhone)** | Un Comando dell'app Comandi avvisa Home Assistant quando CarPlay si disconnette. |
+| Non vuoi niente di automatico | **Solo pulsante** | Salva solo quando premi **Registra posizione adesso**. |
+
+Chi aggiorna da una versione vecchia non deve fare niente: resta su **Bluetooth**.
+
+### Metodo Android Auto
+
+1. Sul telefono apri l'app **Home Assistant** > **Impostazioni** > **App Companion** > **Gestisci sensori** > **Android Auto** > accendi **Abilita sensore**. (In Home Assistant compare `binary_sensor.<nome telefono>_android_auto`: controllalo in **Impostazioni > Dispositivi e servizi > Entità**.)
+2. Nel package (`/config/packages/auto_parcheggio.yaml`) il nome del telefono deve essere quello del passo 5. Il file contiene già la regola per Android Auto.
+3. **Aggiorna il package**: se lo avevi già copiato con la 1.28, copia di nuovo il file nuovo, rifai cerca e sostituisci di `persona1` e **riavvia del tutto** Home Assistant.
+4. Sulla card premi l'ingranaggio > **Come capisco che sono in auto** > **Android Auto**.
+5. **Prova**: vai in auto con Android Auto collegato, scendi, scollega il telefono e aspetta circa 30 secondi. La card mostra "Android Auto" come metodo.
+
+### Metodo CarPlay (iPhone)
+
+HA non può vedere CarPlay da solo. Lo fa l'app **Comandi** dell'iPhone, che poi chiama Home Assistant. Servono: app **Home Assistant** sull'iPhone con il permesso posizione su **Sempre**, e il package copiato come nei passi sopra.
+
+1. Nella card: ingranaggio > **Come capisco che sono in auto** > **CarPlay (Comandi iPhone)**.
+2. Sull'iPhone apri l'app **Comandi** > scheda **Automazione** > **+** (in alto) > **Crea automazione personale** > **CarPlay**.
+3. Scegli **Si disconnette** (e togli la spunta da "Si connette"). Premi **Avanti**.
+4. Premi **Aggiungi azione** e cerca **Home Assistant**. Scegli **Chiama servizio** (se vedi **Esegui script** usa quello: vedi sotto).
+5. Nel campo **Servizio** scrivi: `script.auto_parcheggio_salva`
+6. Nel campo **Dati del servizio** (JSON) scrivi questo, cambiando il nome del telefono (per esempio `iphone_di_anna`: è il nome dell iPhone, trovato come al passo 2 con `device_tracker`):
+
+```json
+{"auto": 1, "persona": "iphone_di_anna", "metodo": "carplay"}
+```
+
+   `auto` è il numero dell'auto della card (1, 2 o 3). `persona` è il nome dell'iPhone in Home Assistant (la parte tra `device_tracker.` e la fine, o tra `notify.mobile_app_` e la fine). Deve essere uguale al campo **Persona associata** della card.
+7. Premi **Avanti**. Scegli **Esegui immediatamente** (non "Chiedi prima di eseguire") e lascia spento **Notifica quando viene eseguita**. Premi **Fine**.
+8. **Prova**: collega l'iPhone a CarPlay, scollegalo e aspetta circa 30 secondi. La card mostra "CarPlay" come metodo.
+
+Se invece di **Chiama servizio** vedi **Esegui script**: scegli lo script **Auto parcheggio - salva posizione** e nei campi scrivi `auto` = 1, `persona` = il nome dell'iPhone, `metodo` = `carplay`.
+
+**EN** — How does the card know you are in the car? Pick one method per car in the gear, field **How I know I'm in the car**: **Bluetooth** (default, unchanged for existing users), **Android Auto** (turn on the Android Auto sensor in the Companion app: Settings > Companion app > Manage sensors > Android Auto; update the package, restart Home Assistant fully), **CarPlay (iPhone Shortcuts)** or **Button only**. CarPlay: in the Shortcuts app go to Automation > + > Create Personal Automation > CarPlay > Is Disconnected > Run Immediately, add the Home Assistant action **Call service** `script.auto_parcheggio_salva` with data `{"auto": 1, "persona": "<iphone name>", "metodo": "carplay"}`. The iPhone needs the Home Assistant app with location set to Always.
+
 ## Problemi comuni
 
 - **Vedi "Custom element doesn't exist: shc-parking-card"** -> la card è vecchia o il browser ha la cache vecchia. Aggiorna smart-home-cards (passo 1), poi **Ctrl+F5**.
@@ -118,6 +163,9 @@ Sulla card premi l'**ingranaggio** in alto a destra. Compila campo per campo:
 - **Il pulsante dice "Non salvata"** -> il nome del telefono è sbagliato. Controlla il passo 2, il passo 5 e il campo **Persona associata** (devono essere identici, tutto minuscolo). Controlla anche che l'app Companion abbia il permesso di posizione "sempre".
 - **Non arriva nessuna notifica** -> in ingranaggio accendi **Notifica a ogni parcheggio**. Controlla che **Persona associata** sia il nome del telefono giusto. Controlla che esista `notify.mobile_app_<nome>` in **Strumenti per sviluppatori > Azioni**.
 - **Il salvataggio automatico non parte** -> controlla che **Nome Bluetooth dell'auto** non sia vuoto e che sia scritto come lo vede il telefono. Per vederlo: **Strumenti per sviluppatori > Stati**, cerca `sensor.<nome>_bluetooth_connection` mentre sei in auto e leggi `connected_paired_devices`.
+- **Android Auto non salva** -> controlla che esista `binary_sensor.<nome>_android_auto` (acceso dall'app, vedi il capitolo) e che nell'ingranaggio sia scelto **Android Auto**. Hai aggiornato il package e riavviato del tutto? Senza il package nuovo non esiste il campo.
+- **CarPlay non salva** -> apri l'app **Comandi** > **Automazione** e controlla che sia su **Esegui immediatamente**. Controlla che `persona` sia uguale al campo **Persona associata** e che nell'ingranaggio sia scelto **CarPlay**. Prova il Comando a mano (tocca e premi Play): se la posizione si salva, il problema è solo l'avvio automatico di iOS.
+- **Nel menu manca "Come capisco che sono in auto"** -> il package è quello vecchio. Copia il file nuovo (passo 4), rifai il passo 5 e riavvia del tutto (passo 6).
 - **La posizione di casa è sbagliata** -> a casa la card usa le coordinate della zona **Casa**. Vai in **Impostazioni > Aree, zone e etichette > Zone**, apri **Casa** e sposta il punto sulla tua casa.
 
 **EN** — Common problems: "Custom element doesn't exist" -> update + Ctrl+F5. "Package missing" -> check file path, package lines in configuration.yaml, full restart. "No position" -> press Save position now outside. "Not saved" / no notification -> phone name must be identical everywhere (step 2, 5, gear "Linked person"). Home position wrong -> fix the Home zone in Settings > Areas, labels & zones > Zones.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-25 — 1.29.0: parking card recognises Android Auto and CarPlay
+
+- **`shc-parking-card`**: new gear field **How I know I'm in the car** per car (Bluetooth / Android Auto / CarPlay via iPhone Shortcuts / button only). The Bluetooth name field only shows when Bluetooth is chosen; a CarPlay hint with a link to the guide is shown. Without the new helper the card behaves as before (Bluetooth).
+- Package: new `input_select.auto_parcheggio_auto<N>_rilevamento` (default `bluetooth`, so existing setups do not change) and a new automation `auto_parcheggio_android_auto` (`binary_sensor.<phone>_android_auto` on -> off, 20 s debounce, no duplicates in 3 minutes). `script.auto_parcheggio_salva` accepts `metodo: android_auto` and `metodo: carplay` (an iPhone Shortcuts automation calls it; `request_location_update` works on iOS too). The Bluetooth automation only fires for cars set to Bluetooth.
+- Docs: new chapter "Scegli come capisce che sei in auto" with the Android Auto and CarPlay steps, new common problems. After updating, copy the new package file and restart Home Assistant fully.
+
 ## 2026-11-24 — 1.28.1: parking card setup guide and settings popup number/select
 
 - **`shc-parking-card`**: when the package is missing (no `sensor.auto_parcheggio_auto<N>_posizione` or no `script.auto_parcheggio_salva`) the card now shows a clear "install the package" message with the guide link instead of an empty card; the manual button no longer calls a missing script.

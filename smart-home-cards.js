@@ -20333,6 +20333,16 @@ Object.assign(SHC_I18N.it, {
   "pk.set_bt": "Nome Bluetooth dell'auto",
   "pk.set_bt_ph": "es. Uconnect, FIAT",
   "pk.set_bt_hint": "Nomi separati da virgola. Vuoto = niente rilevamento automatico dal Bluetooth.",
+  "pk.set_detect": "Come capisco che sono in auto",
+  "pk.d_bluetooth": "Bluetooth",
+  "pk.d_android_auto": "Android Auto",
+  "pk.d_carplay_comandi": "CarPlay (Comandi iPhone)",
+  "pk.d_solo_manuale": "Solo pulsante",
+  "pk.set_carplay_hint": "Su iPhone serve un Comando nell'app Comandi: vedi la guida (link sotto).",
+  "pk.set_android_hint": "Serve il sensore Android Auto acceso nell'app Companion.",
+  "pk.m_android_auto": "Android Auto",
+  "pk.m_carplay": "CarPlay",
+  "pk.guide": "Apri la guida",
   "pk.set_activity": "Anche quando scendo dall'auto (attivita')",
   "pk.set_accuracy": "Precisione GPS massima",
   "pk.set_none": "Nessuna impostazione disponibile: crea gli helper del package auto_parcheggio.",
@@ -20388,6 +20398,16 @@ Object.assign(SHC_I18N.en, {
   "pk.set_bt": "Car Bluetooth name",
   "pk.set_bt_ph": "e.g. Uconnect, FIAT",
   "pk.set_bt_hint": "Names separated by commas. Empty = no automatic Bluetooth detection.",
+  "pk.set_detect": "How I know I'm in the car",
+  "pk.d_bluetooth": "Bluetooth",
+  "pk.d_android_auto": "Android Auto",
+  "pk.d_carplay_comandi": "CarPlay (iPhone Shortcuts)",
+  "pk.d_solo_manuale": "Button only",
+  "pk.set_carplay_hint": "On iPhone you need an automation in the Shortcuts app: see the guide (link below).",
+  "pk.set_android_hint": "The Android Auto sensor must be on in the Companion app.",
+  "pk.m_android_auto": "Android Auto",
+  "pk.m_carplay": "CarPlay",
+  "pk.guide": "Open the guide",
   "pk.set_activity": "Also when I get out of the car (activity)",
   "pk.set_accuracy": "Maximum GPS accuracy",
   "pk.set_none": "No settings available: create the helpers from the auto_parcheggio package.",
@@ -20443,6 +20463,16 @@ Object.assign(SHC_I18N.nl, {
   "pk.set_bt": "Bluetooth-naam van de auto",
   "pk.set_bt_ph": "bijv. Uconnect, FIAT",
   "pk.set_bt_hint": "Namen gescheiden door komma's. Leeg = geen automatische Bluetooth-detectie.",
+  "pk.set_detect": "Hoe weet ik dat ik in de auto zit",
+  "pk.d_bluetooth": "Bluetooth",
+  "pk.d_android_auto": "Android Auto",
+  "pk.d_carplay_comandi": "CarPlay (iPhone Opdrachten)",
+  "pk.d_solo_manuale": "Alleen knop",
+  "pk.set_carplay_hint": "Op iPhone is een automatisering in de app Opdrachten nodig: zie de gids (link hieronder).",
+  "pk.set_android_hint": "De Android Auto-sensor moet aan staan in de Companion-app.",
+  "pk.m_android_auto": "Android Auto",
+  "pk.m_carplay": "CarPlay",
+  "pk.guide": "Open de gids",
   "pk.set_activity": "Ook als ik uit de auto stap (activiteit)",
   "pk.set_accuracy": "Maximale GPS-nauwkeurigheid",
   "pk.set_none": "Geen instellingen beschikbaar: maak de helpers van het package auto_parcheggio aan.",
@@ -20504,7 +20534,7 @@ class ShcParkingCard extends ShcDeviceCardBase {
     // ogni card e' legata a un'auto (car: 1, 2 o 3); gli helper del package si chiamano auto_parcheggio_auto<N>_*
     const car = Math.min(3, Math.max(1, Math.round(Number(config.car)) || 1));
     const pre = `auto_parcheggio_auto${car}_`;
-    this._config = { save_script: "script.auto_parcheggio_salva", entity: `sensor.${pre}posizione`, photo_entity: `input_text.${pre}foto`, notify_entity: `input_boolean.${pre}notifica`, activity_entity: `input_boolean.${pre}usa_attivita`, threshold_entity: `input_number.${pre}soglia_precisione`, bt_entity: `input_text.${pre}bt`, name_entity: `input_text.${pre}nome`, phone_entity: `input_text.${pre}persona`, ...config, car };
+    this._config = { save_script: "script.auto_parcheggio_salva", entity: `sensor.${pre}posizione`, photo_entity: `input_text.${pre}foto`, notify_entity: `input_boolean.${pre}notifica`, activity_entity: `input_boolean.${pre}usa_attivita`, threshold_entity: `input_number.${pre}soglia_precisione`, bt_entity: `input_text.${pre}bt`, name_entity: `input_text.${pre}nome`, detect_entity: `input_select.${pre}rilevamento`, phone_entity: `input_text.${pre}persona`, ...config, car };
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._uid = this._uid || Math.random().toString(36).slice(2, 8);
     this._mapKey = null;
@@ -20635,7 +20665,7 @@ class ShcParkingCard extends ShcDeviceCardBase {
     const T = (k, v) => shcT(this._hass, k, v);
     const d = this._data();
     this._d = d;
-    this._liveRefresh([cfg.notify_entity, cfg.activity_entity, cfg.threshold_entity, cfg.bt_entity, cfg.name_entity, cfg.phone_entity].filter(Boolean));
+    this._liveRefresh([cfg.notify_entity, cfg.activity_entity, cfg.threshold_entity, cfg.bt_entity, cfg.name_entity, cfg.phone_entity, cfg.detect_entity].filter(Boolean));
     const card = this._q(".shc-ap-card");
     const nm = this._carName();
     if (this._q(".shc-ap-name").textContent !== nm) this._q(".shc-ap-name").textContent = nm;
@@ -20801,20 +20831,32 @@ class ShcParkingCard extends ShcDeviceCardBase {
     const thr = hs[cfg.threshold_entity];
     const nameRow = txt(cfg.name_entity, "pk.set_name", "pk.set_name_ph");
     const phoneRow = txt(cfg.phone_entity, "pk.set_phone", "pk.set_phone_ph");
-    const btRow = txt(cfg.bt_entity, "pk.set_bt", "pk.set_bt_ph");
+    // come capisco che sono in auto (senza l'helper: comportamento di prima, solo Bluetooth)
+    const dst = hs[cfg.detect_entity];
+    const mode = dst && ["bluetooth", "android_auto", "carplay_comandi", "solo_manuale"].includes(dst.state) ? dst.state : "bluetooth";
+    const detRow = dst
+      ? this._row(T("pk.set_detect"), `<select class="pk-set-input" data-pk-select="${esc(cfg.detect_entity)}">${["bluetooth", "android_auto", "carplay_comandi", "solo_manuale"].map((o) => `<option value="${o}"${o === mode ? " selected" : ""}>${esc(T("pk.d_" + o))}</option>`).join("")}</select>`)
+      : "";
+    const detHint = mode === "carplay_comandi" ? `<p class="shc-cl-note">${esc(T("pk.set_carplay_hint"))} <a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md" target="_blank" rel="noopener" style="color:var(--shc-blue)">${esc(T("pk.guide"))}</a></p>` : mode === "android_auto" ? `<p class="shc-cl-note">${esc(T("pk.set_android_hint"))}</p>` : "";
+    const btRow = mode === "bluetooth" ? txt(cfg.bt_entity, "pk.set_bt", "pk.set_bt_ph") : "";
     const notif = this._has(cfg.notify_entity) ? this._row(T("pk.set_notify"), this._switchHtml(cfg.notify_entity)) : "";
     const act = this._has(cfg.activity_entity) ? this._row(T("pk.set_activity"), this._switchHtml(cfg.activity_entity)) : "";
     const thrRow = thr ? this._row(T("pk.set_accuracy"), this._stepperHtml(cfg.threshold_entity, `${Math.round(Number(thr.state))} m`, 5)) : "";
     const html = `
       ${nameRow || phoneRow ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_car"))} ${cfg.car}</div>${nameRow}${phoneRow}${phoneRow ? `<p class="shc-cl-note">${esc(T("pk.set_phone_hint"))}</p>` : ""}</div>` : ""}
       ${notif ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_notifications"))}</div>${notif}<p class="shc-cl-note">${esc(T("pk.set_notify_hint"))}</p></div>` : ""}
-      ${act || thrRow || btRow ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_detection"))}</div>${btRow}${act}${thrRow}${btRow ? `<p class="shc-cl-note">${esc(T("pk.set_bt_hint"))}</p>` : ""}</div>` : ""}
-      ${!notif && !act && !thrRow && !btRow && !nameRow ? `<p class="shc-cl-note">${esc(T("pk.set_none"))}</p>` : ""}`;
+      ${act || thrRow || btRow || detRow ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(T("pk.set_detection"))}</div>${detRow}${detHint}${btRow}${act}${thrRow}${btRow ? `<p class="shc-cl-note">${esc(T("pk.set_bt_hint"))}</p>` : ""}</div>` : ""}
+      ${!notif && !act && !thrRow && !btRow && !nameRow && !detRow ? `<p class="shc-cl-note">${esc(T("pk.set_none"))}</p>` : ""}`;
     const live = () => {
       if (this._root.activeElement?.classList?.contains("pk-set-input")) return;
       this._openSettings();
     };
     const overlay = this._openDialog(T("fritz.settings"), html, live);
+    overlay.querySelectorAll("[data-pk-select]").forEach((sel) =>
+      sel.addEventListener("change", () => {
+        this._call("input_select", "select_option", { entity_id: sel.dataset.pkSelect, option: sel.value });
+      }),
+    );
     overlay.querySelectorAll("[data-pk-text]").forEach((inp) =>
       inp.addEventListener("change", () => this._call("input_text", "set_value", { entity_id: inp.dataset.pkText, value: inp.value.trim() })),
     );
