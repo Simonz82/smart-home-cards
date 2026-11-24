@@ -1,7 +1,11 @@
-# PRIMA DI USARE: sostituisci persona1 / persona2 / persona3 (cerca e sostituisci in tutto il file) con il NOME DEL TELEFONO come lo vede Home Assistant,
-# cioe' la parte centrale di sensor.<nome>_bluetooth_connection, device_tracker.<nome> e notify.mobile_app_<nome> (es. pixel_8, iphone_di_anna).
-# Servono l'app Companion Android con il sensore "Bluetooth connection" attivo e il tracker GPS. Lo stesso <nome> va scritto poi, dall'ingranaggio della card, in "persona associata".
-# Se hai un solo telefono lascia pure gli altri trigger (non danno fastidio). Guida passo passo: docs/auto-parcheggiata.md
+# PRIMA DI USARE (guida con tutti i passi: docs/auto-parcheggiata.md)
+# 1) Metti questo file in /config/packages/auto_parcheggio.yaml (in configuration.yaml: homeassistant: packages: !include_dir_named packages).
+# 2) Cerca e sostituisci "persona1" con il nome del tuo telefono = la parte tra "sensor." e "_bluetooth_connection"
+#    (Impostazioni > Dispositivi e servizi > Entita', cerca bluetooth_connection; es. sensor.pixel_8_bluetooth_connection -> pixel_8).
+#    Hai altri telefoni? Fai lo stesso con persona2 e persona3. Con un solo telefono lasciali pure: non danno fastidio.
+# 3) Riavvio COMPLETO di Home Assistant (il ricaricamento non crea gli helper).
+# 4) Aggiungi la card (type: custom:shc-parking-card, car: 1) e dall'ingranaggio imposta persona associata (lo stesso nome del telefono) e nome Bluetooth dell'auto.
+# Serve l'app Companion Android con il sensore "Bluetooth connection" acceso (su iPhone funziona solo il pulsante manuale).
 # Dove ho parcheggiato l'auto (card shc-parking-card di smart-home-cards): fino a 3 auto, ognuna con la sua posizione.
 # Ogni card e' legata a un'auto (car: 1, 2 o 3 nella card). Per ogni auto ci sono helper separati
 # (input_*.auto_parcheggio_auto<N>_*): posizione, indirizzo, foto, nome dell'auto, nome Bluetooth, persona associata
