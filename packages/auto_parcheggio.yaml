@@ -1,4 +1,7 @@
-# Sostituisci persona1/persona2/persona3 con i nomi delle tue persone (sensor.<nome>_bluetooth_connection, device_tracker.<nome>, notify.mobile_app_<nome>, person.<nome>) oppure lascia i trigger che non ti servono.
+# PRIMA DI USARE: sostituisci persona1 / persona2 / persona3 (cerca e sostituisci in tutto il file) con il NOME DEL TELEFONO come lo vede Home Assistant,
+# cioe' la parte centrale di sensor.<nome>_bluetooth_connection, device_tracker.<nome> e notify.mobile_app_<nome> (es. pixel_8, iphone_di_anna).
+# Servono l'app Companion Android con il sensore "Bluetooth connection" attivo e il tracker GPS. Lo stesso <nome> va scritto poi, dall'ingranaggio della card, in "persona associata".
+# Se hai un solo telefono lascia pure gli altri trigger (non danno fastidio). Guida passo passo: docs/auto-parcheggiata.md
 # Dove ho parcheggiato l'auto (card shc-parking-card di smart-home-cards): fino a 3 auto, ognuna con la sua posizione.
 # Ogni card e' legata a un'auto (car: 1, 2 o 3 nella card). Per ogni auto ci sono helper separati
 # (input_*.auto_parcheggio_auto<N>_*): posizione, indirizzo, foto, nome dell'auto, nome Bluetooth, persona associata
@@ -273,7 +276,7 @@ script:
     max: 4
     fields:
       persona:
-        description: nome della persona (come in device_tracker.<nome>)
+        description: nome del telefono (come in device_tracker.<nome>)
         required: true
         example: persona1
         selector:
@@ -299,7 +302,7 @@ script:
       # a casa: coordinate della zona Casa (il GPS al chiuso e' impreciso e darebbe un falso punto)
       - if:
           - condition: template
-            value_template: "{{ ('person.' ~ p) in (state_attr('zone.home', 'persons') | default([], true)) }}"
+            value_template: "{{ is_state(tracker, 'home') or ('person.' ~ p) in (state_attr('zone.home', 'persons') | default([], true)) }}"
         then:
           - variables:
               out:

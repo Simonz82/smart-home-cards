@@ -20285,6 +20285,7 @@ window.customCards.push({
 Object.assign(SHC_I18N.it, {
   "pk.name": "Auto parcheggiata",
   "pk.entity_required": "Imposta entity con il sensore della posizione dell'auto (sensor.auto_parcheggio)",
+  "pk.no_package": "Manca il package: copia packages/auto_parcheggio.yaml (smart-home-cards) in /config/packages, imposta il nome del tuo telefono e riavvia Home Assistant. Guida: docs/auto-parcheggiata.md",
   "pk.none": "Nessuna posizione",
   "pk.parked": "Parcheggiata",
   "pk.saving": "Registrazione…",
@@ -20339,6 +20340,7 @@ Object.assign(SHC_I18N.it, {
 Object.assign(SHC_I18N.en, {
   "pk.name": "Parked car",
   "pk.entity_required": "Set entity to the car position sensor (sensor.auto_parcheggio)",
+  "pk.no_package": "Package missing: copy packages/auto_parcheggio.yaml (smart-home-cards) into /config/packages, set your phone name and restart Home Assistant. Guide: docs/auto-parcheggiata.md",
   "pk.none": "No position",
   "pk.parked": "Parked",
   "pk.saving": "Saving…",
@@ -20393,6 +20395,7 @@ Object.assign(SHC_I18N.en, {
 Object.assign(SHC_I18N.nl, {
   "pk.name": "Geparkeerde auto",
   "pk.entity_required": "Stel entity in op de positiesensor van de auto (sensor.auto_parcheggio)",
+  "pk.no_package": "Package ontbreekt: kopieer packages/auto_parcheggio.yaml (smart-home-cards) naar /config/packages, stel de naam van je telefoon in en herstart Home Assistant. Gids: docs/auto-parcheggiata.md",
   "pk.none": "Geen positie",
   "pk.parked": "Geparkeerd",
   "pk.saving": "Opslaan…",
@@ -20661,6 +20664,16 @@ class ShcParkingCard extends ShcDeviceCardBase {
 
     const map = this._q(".pk-map");
     const nav = this._q(".pk-nav");
+    // senza il package (sensore o script mancanti) la card non puo' funzionare: dirlo chiaramente
+    if (!this._has(cfg.entity) || !this._has(cfg.save_script)) {
+      map.hidden = false;
+      map.innerHTML = `<div class="pk-empty">${esc(T("pk.no_package"))}<br><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md" target="_blank" rel="noopener" style="color:var(--shc-blue)">docs/auto-parcheggiata.md</a></div>`;
+      this._mapKey = null;
+      nav.classList.add("hidden");
+      ["pk-r-since", "pk-r-when", "pk-r-addr", "pk-r-dist", "pk-r-by", "pk-r-acc"].forEach((c) => this._setRow(c, "—", false));
+      this._q(".pk-row-wrap").hidden = true;
+      return;
+    }
     if (!d) {
       map.hidden = !!cfg.hide_map;
       map.innerHTML = `<div class="pk-empty">${esc(T("pk.no_pos_hint"))}</div>`;
@@ -20750,8 +20763,14 @@ class ShcParkingCard extends ShcDeviceCardBase {
     const cfg = this._config;
     const pe = this._personEntity();
     // posizione del telefono di chi preme (persona dell'utente collegato), altrimenti quella associata all'auto
-    const persona = (cfg.persona || (pe ? pe.split(".")[1] : "") || this._assocPerson()).toString();
+    // il nome deve essere quello del telefono (device_tracker.<nome>): la persona dell'utente va bene solo se coincide
+    const peName = pe ? pe.split(".")[1] : "";
+    const persona = (cfg.persona || (peName && this._has("device_tracker." + peName) ? peName : "") || this._assocPerson() || peName).toString();
     if (!persona) return;
+    if (!this._has(cfg.save_script)) {
+      this._msg(shcT(this._hass, "pk.no_package"));
+      return;
+    }
     const btn = this._q(".pk-rec");
     btn.disabled = true;
     this._pending = Date.now();

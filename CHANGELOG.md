@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased — parking card setup
+
+- **`shc-parking-card`**: when the package is missing (no `sensor.auto_parcheggio_auto<N>_posizione` or no `script.auto_parcheggio_salva`) the card now shows a clear "install the package" message with the guide link instead of an empty card; the manual button no longer calls a missing script.
+- Manual save uses the phone name of the linked person unless the viewer's person has a matching `device_tracker`.
+- Package: the "at home" check also works when the person name differs from the phone name; header explains what to replace; docs rewritten as numbered install steps (update + Ctrl+F5, packages in `configuration.yaml`, copy, replace `persona1/2/3` with the phone name, restart).
+
 ## Unreleased — inline number / select controls in the settings popup
 
 - **`settings_sections`**: rows with a native `number` / `input_number` entity now show a slider (min / max / step / unit from the entity attributes, value label updated while dragging, `set_value` called only on release), and rows with a native `select` entity show a dropdown (`select.select_option`, same as `input_select`). Controls are disabled when the entity is unavailable or unknown. Existing YAML is unchanged. Applies to all cards with a settings popup. (Issue #30)

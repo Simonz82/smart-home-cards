@@ -30,10 +30,24 @@ L'ingranaggio in alto a destra della card apre le impostazioni dell'auto della c
 
 **EN** — The gear icon opens the settings of the car of that card: car name, linked person, notify on every parking (off = position still saved, no notification), car Bluetooth name, also detect when leaving the car (activity) and maximum GPS accuracy. Rows only appear when the helper exists; every entity can be overridden in the card config.
 
-## Installazione
+## Installazione (passo passo)
 
-1. Copia [`packages/auto_parcheggio.yaml`](../packages/auto_parcheggio.yaml) nei tuoi `packages` e sostituisci `persona1` / `persona2` / `persona3` con i nomi delle tue persone (o lascia i trigger che non ti servono). Ricarica o riavvia HA.
-2. Aggiungi una card per auto (`car: 1`, `car: 2`, ...). Dall'ingranaggio imposta nome dell'auto, persona associata, nome Bluetooth e notifica.
+La card da sola **non basta**: legge e scrive su helper, un sensore, uno script e due automazioni che stanno nel package. Senza il package la card mostra il messaggio "Manca il package".
+
+1. **Aggiorna smart-home-cards alla 1.28.0 o successiva** (Impostazioni > Marketplace/HACS), poi ricarica il browser con **Ctrl+F5** (sull'app: Impostazioni app > Risoluzione dei problemi > Reimposta cache frontend). Errore "Custom element doesn't exist: shc-parking-card" = versione vecchia o cache.
+2. **Abilita i package** in `configuration.yaml` (una volta sola, se non l'hai già):
+   ```yaml
+   homeassistant:
+     packages: !include_dir_named packages
+   ```
+3. **Copia** [`packages/auto_parcheggio.yaml`](../packages/auto_parcheggio.yaml) in `/config/packages/`.
+4. **Adatta il file al tuo telefono**: cerca `persona1` (e `persona2`, `persona3` se hai altri telefoni) e sostituiscilo con il nome del tuo telefono in Home Assistant, cioè la parte centrale di `sensor.<nome>_bluetooth_connection`, `device_tracker.<nome>` e `notify.mobile_app_<nome>` (es. `pixel_8`). Servono l'app Companion con il sensore Bluetooth e il tracker GPS attivi. I nomi dei miei telefoni non ci sono: tutto il resto è già generico.
+5. **Riavvia Home Assistant** (un semplice ricaricamento non crea gli helper).
+6. **Aggiungi la card** (esempio sotto), una per auto (`car: 1`, `car: 2`, ...). Dall'ingranaggio imposta nome dell'auto, **persona associata** (lo stesso `<nome>` del punto 4), nome Bluetooth dell'auto e notifica.
+7. **Prova**: premi **Registra posizione adesso**; poi esci dall'auto e controlla che il Bluetooth si scolleghi.
+
+**EN** — The card alone is not enough: it needs the helpers, sensor, script and automations of the package. Steps: update to 1.28.0+ and hard-refresh (Ctrl+F5); enable `homeassistant: packages: !include_dir_named packages`; copy `packages/auto_parcheggio.yaml` into `/config/packages/`; replace `persona1/2/3` with your phone name (the middle part of `sensor.<name>_bluetooth_connection`, `device_tracker.<name>`, `notify.mobile_app_<name>`); restart Home Assistant; add the card; in the gear set the linked person (same name), car Bluetooth name and notification. Android Companion app required for automatic saving (iPhone: manual button only).
+
 3. Esempio di card:
 
 ```yaml
@@ -41,7 +55,7 @@ type: custom:shc-parking-card
 car: 1                            # 1, 2 o 3 (default 1)
 # opzionali
 name: La mia auto                 # se manca, il nome impostato nell'ingranaggio
-person: person.persona1          # distanza; se manca, la persona dell'utente collegato o quella associata all'auto
+person: person.anna              # distanza; se manca, la persona dell'utente collegato o quella associata all'auto
 save_script: script.auto_parcheggio_salva
 image: /local/auto.jpg           # foto fissa (ha la precedenza sulla foto caricata dalla card)
 car_color: "#3b82f6"             # colore del disegno
@@ -53,7 +67,7 @@ Seconda auto (stessa famiglia, card e notifiche separate):
 ```yaml
 type: custom:shc-parking-card
 car: 2
-person: person.persona2
+person: person.marco
 ```
 
 ## Foto dell'auto
