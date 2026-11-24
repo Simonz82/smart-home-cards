@@ -1112,6 +1112,9 @@ const STYLE = `
 .shc-at-active{display:flex;flex-direction:column;gap:6px}
 .shc-at-active-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;color:var(--shc-text)}
 .shc-at-active-row small{color:var(--shc-dim);font-weight:800;text-transform:uppercase;letter-spacing:.3px;font-size:10px}
+.shc-wr-warn{margin:8px 13px 0;padding:10px 12px;border-radius:12px;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.5);font-size:12.5px;line-height:1.45;color:var(--shc-text)}
+.shc-wr-warn[hidden]{display:none}
+.shc-wr-warn code{font-size:11.5px;word-break:break-all}
 .shc-wr-now{display:flex;align-items:center;gap:10px}
 .shc-wr-now img{width:40px;height:40px;border-radius:50%;object-fit:cover;flex:0 0 auto;box-shadow:0 0 0 2px var(--shc-card),0 0 0 3px var(--shc-blue)}
 .shc-wr-now-info{flex:1;min-width:0}
@@ -1840,6 +1843,13 @@ const SHC_I18N = {
       "settings.reset_counters": "Reset contatori",
       "settings.last_reset": "Ultimo reset: {value}",
       "settings.none": "Nessuna impostazione configurata per questa card (vedi la guida, campo \"settings_sections\").",
+      "settings.automations": "Automazioni",
+      "common.sec_more": "Altre opzioni",
+      "common.automations": "Automazioni nelle impostazioni (una per riga)",
+      "common.automations_hint": "Ogni automazione ha il suo interruttore nel popup delle impostazioni.",
+      "common.automation": "Automazione",
+      "common.image_scale": "Dimensione dell'immagine (1 = normale, 1.3 = più grande, 0.8 = più piccola)",
+      "common.image_scale_hint": "Lascia vuoto per la dimensione normale.",
       "stats.cycles": "Cicli",
       "stats.time": "Tempo",
       "stats.cost": "Costo",
@@ -2240,6 +2250,11 @@ const SHC_I18N = {
       "ups.statusentity_is_required": "status_entity è obbligatorio",
       "ups.runtime": "Autonomia",
       "ups.input": "Ingresso",
+      "ups.last_outage_auto": "Ultimo blackout dalla cronologia (se non hai un'entità)",
+      "ups.battery_voltage": "Tensione batteria",
+      "ups.last_outage": "Ultimo blackout",
+      "ups.no_outage": "Nessuno",
+      "ups.outage_ongoing": "in corso dal {1}",
       "ups.load": "Carico",
       "ups.battery": "Batteria",
       "ups.power_outage_notifications": "Notifiche caduta corrente",
@@ -2366,6 +2381,10 @@ const SHC_I18N = {
       "alexawebradio.station_sensor": "Sensore stazione",
       "alexawebradio.turns_on_alexa_web": "Accende la web radio Alexa sugli speaker selezionati, con la stazione o playlist scelta qui sotto.",
       "alexawebradio.speakers_are_addedremoved_from": "Gli speaker si aggiungono/rimuovono dal gruppo multiroom toccando i loro chip: quello evidenziato in blu è già acceso.",
+      "wr.warn_package": "Manca il package: copia packages/alexa_webradio.yaml in /config/packages e riavvia Home Assistant. Non trovo",
+      "wr.warn_speakers": "Questi speaker non esistono in Home Assistant (controlla il nome in Impostazioni > Dispositivi e servizi > Entità, cerca media_player)",
+      "wr.warn_options": "Questi speaker non sono nell'elenco del package (input_select list_alexa_speaker_multiroom): scrivi il loro nome identico al friendly name",
+      "wr.guide": "Guida passo passo",
       "alexawebradio.the": "La",
       "alexawebradio.alarm": "Sveglia",
       "alexawebradio.clock_icon_automatically_turns": "(icona orologio) accende/spegne automaticamente la radio a due orari, nei giorni scelti. Il",
@@ -2972,6 +2991,13 @@ const SHC_I18N = {
       "settings.reset_counters": "Reset counters",
       "settings.last_reset": "Last reset: {value}",
       "settings.none": "No settings configured for this card (see guide, field \"settings_sections\").",
+      "settings.automations": "Automations",
+      "common.sec_more": "More options",
+      "common.automations": "Automations in the settings (one per row)",
+      "common.automations_hint": "Each automation gets its own switch in the settings popup.",
+      "common.automation": "Automation",
+      "common.image_scale": "Image size (1 = normal, 1.3 = bigger, 0.8 = smaller)",
+      "common.image_scale_hint": "Leave empty for the normal size.",
       "stats.cycles": "Cycles",
       "stats.time": "Time",
       "stats.cost": "Cost",
@@ -3372,6 +3398,11 @@ const SHC_I18N = {
       "ups.statusentity_is_required": "status_entity is required",
       "ups.runtime": "Runtime",
       "ups.input": "Input",
+      "ups.last_outage_auto": "Last outage from history (if you have no entity)",
+      "ups.battery_voltage": "Battery voltage",
+      "ups.last_outage": "Last outage",
+      "ups.no_outage": "None",
+      "ups.outage_ongoing": "ongoing since {1}",
       "ups.load": "Load",
       "ups.battery": "Battery",
       "ups.power_outage_notifications": "Power outage notifications",
@@ -3498,6 +3529,10 @@ const SHC_I18N = {
       "alexawebradio.station_sensor": "Station sensor",
       "alexawebradio.turns_on_alexa_web": "Turns on Alexa web radio on selected speakers, with the station or playlist chosen below.",
       "alexawebradio.speakers_are_addedremoved_from": "Speakers are added/removed from the multiroom group by tapping their chips: the one highlighted in blue is already on.",
+      "wr.warn_package": "Package missing: copy packages/alexa_webradio.yaml into /config/packages and restart Home Assistant. Not found",
+      "wr.warn_speakers": "These speakers do not exist in Home Assistant (check the name in Settings > Devices & services > Entities, search media_player)",
+      "wr.warn_options": "These speakers are not in the package list (input_select list_alexa_speaker_multiroom): write their name exactly as the friendly name",
+      "wr.guide": "Step-by-step guide",
       "alexawebradio.the": "The",
       "alexawebradio.alarm": "Alarm",
       "alexawebradio.clock_icon_automatically_turns": "(clock icon) automatically turns the radio on/off at two times, on the selected days. The",
@@ -4105,6 +4140,13 @@ const SHC_I18N = {
       "settings.reset_counters": "Tellers resetten",
       "settings.last_reset": "Laatste reset: {value}",
       "settings.none": "Geen instellingen geconfigureerd voor deze kaart (zie handleiding, veld \"settings_sections\").",
+      "settings.automations": "Automatiseringen",
+      "common.sec_more": "Meer opties",
+      "common.automations": "Automatiseringen in de instellingen (één per rij)",
+      "common.automations_hint": "Elke automatisering krijgt een eigen schakelaar in het instellingenvenster.",
+      "common.automation": "Automatisering",
+      "common.image_scale": "Afbeeldingsgrootte (1 = normaal, 1.3 = groter, 0.8 = kleiner)",
+      "common.image_scale_hint": "Laat leeg voor de normale grootte.",
       "stats.cycles": "Cycli",
       "stats.time": "Tijd",
       "stats.cost": "Kosten",
@@ -4505,6 +4547,11 @@ const SHC_I18N = {
       "ups.statusentity_is_required": "status_entity is verplicht",
       "ups.runtime": "Looptijd",
       "ups.input": "Ingang",
+      "ups.last_outage_auto": "Laatste stroomuitval uit de geschiedenis (zonder entiteit)",
+      "ups.battery_voltage": "Accuspanning",
+      "ups.last_outage": "Laatste stroomuitval",
+      "ups.no_outage": "Geen",
+      "ups.outage_ongoing": "bezig sinds {1}",
       "ups.load": "Belasting",
       "ups.battery": "Batterij",
       "ups.power_outage_notifications": "Meldingen stroomuitval",
@@ -4631,6 +4678,10 @@ const SHC_I18N = {
       "alexawebradio.station_sensor": "Zendersensor",
       "alexawebradio.turns_on_alexa_web": "Zet Alexa-webradio aan op de geselecteerde speakers, met de hieronder gekozen zender of afspeellijst.",
       "alexawebradio.speakers_are_addedremoved_from": "Speakers worden aan de multiroomgroep toegevoegd of eruit verwijderd door op hun chip te tikken: de blauw gemarkeerde staat al aan.",
+      "wr.warn_package": "Package ontbreekt: kopieer packages/alexa_webradio.yaml naar /config/packages en herstart Home Assistant. Niet gevonden",
+      "wr.warn_speakers": "Deze speakers bestaan niet in Home Assistant (controleer de naam in Instellingen > Apparaten en services > Entiteiten, zoek media_player)",
+      "wr.warn_options": "Deze speakers staan niet in de lijst van het package (input_select list_alexa_speaker_multiroom): schrijf hun naam exact als de friendly name",
+      "wr.guide": "Stap-voor-stap gids",
       "alexawebradio.the": "De",
       "alexawebradio.alarm": "Wekker",
       "alexawebradio.clock_icon_automatically_turns": "(klokpictogram) zet de radio op de gekozen dagen automatisch aan en uit op twee tijdstippen. Het",
@@ -5519,6 +5570,26 @@ class ShcSamsungRemote extends HTMLElement {
 }
 if (!customElements.get("shc-samsung-remote")) customElements.define("shc-samsung-remote", ShcSamsungRemote);
 
+// Sezioni del popup impostazioni: quelle scritte in settings_sections + (se ci sono) la sezione "Automazioni"
+// costruita da automation_entity / automation_entities (id oppure {entity, name}), con un interruttore ciascuna. Vale per tutte le card con il popup impostazioni.
+function shcSettingsSections(cfg, hass) {
+  const secs = [...(cfg.settings_sections || [])];
+  const seen = new Set();
+  const rows = [];
+  const add = (id, name) => {
+    if (!id || seen.has(id) || !hass?.states?.[id]) return;
+    seen.add(id);
+    rows.push({ entity: id, label: name || hass.states[id].attributes?.friendly_name || id });
+  };
+  add(cfg.automation_entity);
+  (Array.isArray(cfg.automation_entities) ? cfg.automation_entities : []).forEach((it) => (typeof it === "string" ? add(it) : add(it?.entity, it?.name)));
+  // le righe gia' presenti nelle sezioni scritte a mano non si ripetono
+  const used = new Set(secs.flatMap((x) => (x.rows || []).map((r) => r.entity)));
+  const fresh = rows.filter((r) => !used.has(r.entity));
+  if (fresh.length) secs.push({ title: shcT(hass, "settings.automations"), rows: fresh });
+  return secs;
+}
+
 // Controlli inline nel popup impostazioni (settings_sections): input_select/select -> menu,
 // input_number/number -> slider (min/max/step/unita' dagli attributi, set_value solo al rilascio).
 function shcSettingsCtlHtml(st, entity) {
@@ -5989,7 +6060,7 @@ class ShcApplianceCloneCard extends HTMLElement {
   _openSettings() {
     const hass = this._hass;
     // Con layout_entity ma senza sezione "Aspetto" scritta a mano, la riga Layout compare da sola.
-    const secList = [...(this._config.settings_sections || [])];
+    const secList = shcSettingsSections(this._config, hass);
     if (this._config.layout_entity && hass.states[this._config.layout_entity] && !secList.some((x) => ["Aspetto", shcT(this._hass, "settings.appearance")].includes(x.title))) {
       secList.unshift({ title: shcT(this._hass, "settings.appearance"), rows: [{ entity: this._config.layout_entity, label: "Layout" }] });
     }
@@ -7518,6 +7589,22 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     return [];
   }
 
+  // schema + campi comuni a tutte le card (static commonFields = ["automation_entities", "image_scale"]), se la card non li ha gia'
+  _fullSchema() {
+    const base = this.schema;
+    const want = this.constructor.commonFields || [];
+    const has = new Set(base.flatMap((sec) => sec.fields.map((f) => f.key)));
+    const T = (k) => shcT(this._hass, k);
+    const fields = [];
+    if (want.includes("automation_entities") && !has.has("automation_entities"))
+      fields.push({ key: "automation_entities", label: T("common.automations"), hint: T("common.automations_hint"), kind: "list", itemFields: [
+        { key: "entity", label: T("common.automation"), kind: "entity", domain: ["automation"] },
+        { key: "name", label: T("fritzcard.name"), kind: "text" },
+      ]});
+    if (want.includes("image_scale") && !has.has("image_scale")) fields.push({ key: "image_scale", label: T("common.image_scale"), kind: "number", placeholder: "1", hint: T("common.image_scale_hint") });
+    return fields.length ? [...base, { title: T("common.sec_more"), fields }] : base;
+  }
+
   setConfig(config) {
     this._config = { ...config };
     // righe di elenco appena aggiunte (ancora vuote) vivono solo nell'editor: si tengono finche' la config ricevuta
@@ -7573,7 +7660,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     }
     const body = this._root.querySelector(".shc-ed-body");
     const cfg = this._config;
-    body.innerHTML = this.schema
+    body.innerHTML = this._fullSchema()
       .map(
         (sec) => `
       <div class="shc-ed-sec">${esc(sec.title)}</div>
@@ -7630,7 +7717,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
           }
           if (f.kind === "bool") {
             return `<label class="shc-ed-row shc-ed-check">
-              <input type="checkbox" data-bool="${esc(f.key)}"${val ? " checked" : ""}>
+              <input type="checkbox" data-bool="${esc(f.key)}"${(f.def === true ? val !== false : val) ? " checked" : ""}>
               <span><span class="shc-ed-label">${esc(f.label)}</span>${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}</span>
             </label>`;
           }
@@ -7645,7 +7732,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       )
       .join("");
 
-    const listField = (key) => this.schema.flatMap((sec) => sec.fields).find((f) => f.key === key);
+    const listField = (key) => this._fullSchema().flatMap((sec) => sec.fields).find((f) => f.key === key);
     const setListValue = (el, value) => {
       const f = listField(el.dataset.list);
       const items = this._listItems(f).map((it) => ({ ...it }));
@@ -7844,6 +7931,9 @@ class ShcUpsCardEditor extends ShcSimpleCardEditorBase {
       ]},
       { title: shcT(this._hass, "fritzcard.advanced"), fields: [
         { key: "input_voltage_entity", label: shcT(this._hass, "upscard.input_voltage"), domain: ["sensor"] },
+        { key: "battery_voltage_entity", label: shcT(this._hass, "ups.battery_voltage"), domain: ["sensor"] },
+        { key: "last_outage_entity", label: shcT(this._hass, "ups.last_outage"), domain: ["sensor", "input_datetime"] },
+        { key: "last_outage_auto", label: shcT(this._hass, "ups.last_outage_auto"), kind: "bool" },
         { key: "runtime_low_entity", label: shcT(this._hass, "upscard.low_battery_warning"), domain: ["binary_sensor"] },
         { key: "automation_entity", label: shcT(this._hass, "upscard.power_outage_notification_automation"), domain: ["automation"] },
         { key: "automation_entities", label: shcT(this._hass, "upscard.more_automations"), kind: "list", itemFields: [
@@ -8760,7 +8850,7 @@ class ShcFritzCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -9265,7 +9355,7 @@ class ShcServerCard extends HTMLElement {
   _renderSettingsMain() {
     const hass = this._hass;
     this._settingsGroupRows = [];
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -9881,7 +9971,7 @@ class ShcNasCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -10544,7 +10634,7 @@ class ShcEnergyCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -11000,6 +11090,13 @@ class ShcUpsCard extends HTMLElement {
         </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    // righe in piu' sulla card solo se richieste (default: la card di prima)
+    {
+      const list = this._root.querySelector(".shc-ap-cycle-list");
+      const extra = (cls, icon, key) => list.insertAdjacentHTML("beforeend", `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${icon}</span><small data-i18n="${key}">${esc(shcT(this._hass, key))}</small></span><b class="${cls}">\u2014</b></div>`);
+      if (this._config.battery_voltage_entity) extra("shc-u-bvolt", ICON_BATTERY, "ups.battery_voltage");
+      if (this._config.last_outage_entity || this._config.last_outage_auto === true) extra("shc-u-outage", ICON_PULSE, "ups.last_outage");
+    }
     shcBindGraph(this);
 
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
@@ -11236,6 +11333,58 @@ class ShcUpsCard extends HTMLElement {
     shcOpenChartPopup(this, { title, series: [{ entity: entityId, label: title, color }] });
   }
 
+  // ultimo blackout: da last_outage_entity (sensore data/ora o testo); senza entita' (last_outage_auto: true) dalla cronologia dello stato UPS
+  _outageText(hass) {
+    const cfg = this._config;
+    const fmt = (d) => shcFmtDateTime(d, cfg.date_format || "short");
+    if (cfg.last_outage_entity) {
+      const st = hass.states[cfg.last_outage_entity];
+      if (!st || ["unknown", "unavailable", ""].includes(st.state)) return shcT(hass, "ups.no_outage");
+      const d = new Date(st.state);
+      return Number.isNaN(d.getTime()) ? st.state : fmt(d);
+    }
+    const o = this._outage;
+    if (!o) return "\u2014";
+    if (o.ongoing) return shcT(hass, "ups.outage_ongoing", { "1": fmt(o.start) });
+    return o.start ? fmt(o.start) : shcT(hass, "ups.no_outage");
+  }
+
+  _outageMaybeFetch(statusRaw) {
+    const cfg = this._config;
+    if (cfg.last_outage_entity || cfg.last_outage_auto !== true || !cfg.status_entity || !this._hass?.connection?.sendMessagePromise) return;
+    const now = Date.now();
+    if (this._outageBusy || (this._outageAt && this._outageStatus === statusRaw && now - this._outageAt < 600000)) return;
+    this._outageBusy = true;
+    this._outageStatus = statusRaw;
+    const days = Math.max(1, Math.min(60, Number(cfg.last_outage_days) || 30));
+    const end = new Date();
+    this._hass.connection
+      .sendMessagePromise({ type: "history/history_during_period", start_time: new Date(end.getTime() - days * 86400000).toISOString(), end_time: end.toISOString(), entity_ids: [cfg.status_entity], minimal_response: true, no_attributes: true })
+      .then((res) => {
+        const rows = res?.[cfg.status_entity] || [];
+        const bad = (v) => !["online", "ol", "unknown", "unavailable", "none", ""].includes(String(v || "").toLowerCase());
+        let start = null;
+        let prevBad = false;
+        let ongoing = false;
+        rows.forEach((r) => {
+          const t = new Date((r.lu || r.last_updated_ts) * 1000 || r.last_updated);
+          const b = bad(r.s ?? r.state);
+          if (b && !prevBad) start = t;
+          prevBad = b;
+          ongoing = b;
+        });
+        this._outage = { start, ongoing };
+        this._outageAt = Date.now();
+      })
+      .catch(() => {
+        this._outageAt = Date.now();
+      })
+      .finally(() => {
+        this._outageBusy = false;
+        if (this._hass) this.hass = this._hass;
+      });
+  }
+
   _openStats() {
     const hass = this._hass;
     const cfg = this._config;
@@ -11245,10 +11394,12 @@ class ShcUpsCard extends HTMLElement {
       this._statRow(shcT(this._hass, "nascard.model"), cfg.model || "\u2014"),
       this._statRow(shcT(this._hass, "fritz.status"), val(cfg.status_entity)),
       this._statRow(shcT(this._hass, "ups.status_code"), val(cfg.status_code_entity)),
+      ...(cfg.last_outage_entity || cfg.last_outage_auto === true ? [this._statRow(shcT(this._hass, "ups.last_outage"), this._outageText(hass))] : []),
     ].join("");
 
     const batteriaHtml = [
       this._statRow(shcT(this._hass, "ups.charge"), val(cfg.battery_entity, 0)),
+      ...(cfg.battery_voltage_entity ? [this._statRow(shcT(this._hass, "ups.battery_voltage"), val(cfg.battery_voltage_entity, 1))] : []),
       this._statRow(shcT(this._hass, "upscard.remaining_runtime"), this._fmtMinutes(hass.states[cfg.runtime_entity])),
       this._statRow(shcT(this._hass, "ups.low_battery_threshold"), this._fmtMinutes(hass.states[cfg.runtime_low_entity])),
     ].join("");
@@ -11319,6 +11470,14 @@ class ShcUpsCard extends HTMLElement {
       battFill.setAttribute("height", fillH.toFixed(1));
       battFill.setAttribute("y", (cavityY + (cavityH - fillH)).toFixed(1));
       battFill.setAttribute("fill", inverseSeverityColor(batteryVal));
+    }
+
+    const bv = this._root.querySelector(".shc-u-bvolt");
+    if (bv) bv.textContent = this._val(hass, cfg.battery_voltage_entity, 1);
+    const ot = this._root.querySelector(".shc-u-outage");
+    if (ot) {
+      ot.textContent = this._outageText(hass);
+      this._outageMaybeFetch(statusRaw);
     }
 
     const onBattery = statusRaw !== "Online" && statusRaw !== "\u2014";
@@ -11525,7 +11684,7 @@ class ShcGarbageCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -11942,7 +12101,7 @@ class ShcProxmoxCard extends HTMLElement {
 
   _openSettings() {
     const hass = this._hass;
-    const sections = (this._config.settings_sections || [])
+    const sections = shcSettingsSections(this._config, hass)
       .map(
         (sec) => `<div class="shc-ap-sec">
           <div class="shc-ap-sec-cap">${esc(sec.title)}</div>
@@ -13331,7 +13490,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
             .map(
               (st) =>
                 `<button type="button" class="shc-wr-station" data-option="${esc(st.option)}">
-                  ${st.image ? `<img src="${esc(imageSrc(st.image))}" alt="">` : ""}
+                  ${st.image ? `<img src="${esc(imageSrc(st.image))}" alt="" onerror="this.style.display=x27nonex27">` : ""}
                   <span>${esc(st.name || st.option)}</span>
                 </button>`,
             )
@@ -13361,6 +13520,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
             <button type="button" class="shc-ap-tool shc-wr-info" title="${esc(shcT(this._hass, "alexamemo.how_it_works"))}" data-i18n-title="alexamemo.how_it_works">${ICON_INFO}</button>
           </span>
         </div>
+        <div class="shc-wr-warn" hidden></div>
         <div class="shc-ap-panel">
          <div class="shc-ap-meters">
           <div class="shc-wr-now">
@@ -13482,10 +13642,36 @@ class ShcAlexaWebradioCard extends HTMLElement {
       volValEl.textContent = Math.round(Number(volSt.state) * 100) + "%";
     }
 
+    this._wrCheck(hass);
     const groupMembers = hass.states[cfg.group_entity]?.attributes?.entity_id || [];
     this._root.querySelectorAll(".shc-wr-speaker").forEach((chip) => {
       chip.classList.toggle("on", groupMembers.includes(chip.dataset.entity));
     });
+  }
+
+  // Controlla cosa manca (package non installato, speaker inesistenti o non nell'elenco del package) e lo scrive in chiaro sulla card
+  _wrCheck(hass) {
+    const cfg = this._config;
+    const box = this._root.querySelector(".shc-wr-warn");
+    if (!box) return;
+    const T = (k) => shcT(hass, k);
+    const need = [cfg.power_entity, cfg.station_select_entity, cfg.station_sensor_entity, cfg.volume_entity, cfg.group_entity, cfg.speaker_list_entity, cfg.add_script || "script.add_alexa", cfg.remove_script || "script.remove_alexa", "sensor.alexa_speaker_multiroom"].filter(Boolean);
+    const lost = need.filter((id) => !hass.states[id]);
+    const parts = [];
+    if (lost.length) parts.push(`<b>${esc(T("wr.warn_package"))}</b>: ${lost.map((x) => `<code>${esc(x)}</code>`).join(", ")}`);
+    else {
+      const noEnt = (this._speakers || []).filter((sp) => !hass.states[sp.entity]);
+      if (noEnt.length) parts.push(`<b>${esc(T("wr.warn_speakers"))}</b>: ${noEnt.map((sp) => `<code>${esc(sp.entity)}</code>`).join(", ")}`);
+      const opts = hass.states[cfg.speaker_list_entity]?.attributes?.options || [];
+      const noOpt = (this._speakers || []).filter((sp) => hass.states[sp.entity] && !opts.includes(sp.option || shcEntityName(hass, sp.entity)));
+      if (noOpt.length) parts.push(`<b>${esc(T("wr.warn_options"))}</b>: ${noOpt.map((sp) => `<code>${esc(sp.option || shcEntityName(hass, sp.entity))}</code>`).join(", ")}`);
+    }
+    const html = parts.length ? `${parts.join("<br>")}<br><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/alexa.md" target="_blank" rel="noopener" style="color:var(--shc-blue)">${esc(T("wr.guide"))}</a>` : "";
+    if (box._h !== html) {
+      box._h = html;
+      box.innerHTML = html;
+      box.hidden = !html;
+    }
   }
 
   getCardSize() {
@@ -17823,6 +18009,10 @@ const CF_STYLE = `
 .cf-cap.is-low .cf-cap-big{color:var(--cf-low)}
 .cf-cap-of{font-size:13px;font-weight:750;color:var(--shc-dim)}
 .cf-cap-bar{height:10px}
+.cf-cap.cf-text-only{display:flex;align-items:baseline;gap:6px;padding:10px 14px}
+.cf-cap.cf-text-only .cf-cap-head,.cf-cap.cf-text-only .cf-cap-main{display:inline-flex;margin:0}
+.cf-cap.cf-text-only .cf-cap-big{font-size:22px}
+.cf-cap.cf-text-only .cf-cap-bar,.cf-cap.cf-text-only .cf-cap-meta,.cf-cap.cf-text-only .cf-cap-of{display:none}
 .cf-cap-bar i{background:linear-gradient(90deg,var(--cf-cap),var(--cf-cap))}
 .cf-cap.is-low .cf-cap-bar i{background:var(--cf-low)}
 .cf-cap-thr{position:absolute;z-index:2;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;background:var(--shc-text);opacity:.55;text-decoration:none}
@@ -18200,7 +18390,7 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     this._setBadge(unav ? "unavailable" : s === "off" ? "off" : s === "standby" ? "standby" : "run", unav ? "OFFLINE" : alert ? T("cf.ready_now") : label(s));
     const watts = pw === null ? null : pw >= 1000 ? `${clNum(pw / 1000, 1)}kW` : `${clNum(pw, 0)}W`;
     const disp = q(".cf-disp");
-    if (disp) disp.textContent = unav ? "--" : s === "off" ? "OFF" : watts ?? "ON";
+    if (disp) disp.textContent = unav ? "--" : s === "off" ? "OFF" : cfg.show_power === false ? "ON" : watts ?? "ON";
     this._root.querySelectorAll(".cf-step").forEach((el) => el.classList.toggle("on", !unav && el.dataset.s === s));
 
     // ---- scorta capsule ----
@@ -18209,7 +18399,9 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     capBox.hidden = !caps || cfg.hide_capsules === true;
     if (caps && !capBox.hidden) {
       const unitTxt = this._unit1();
-      q(".cf-cap-label").textContent = this._unitCap();
+      const textOnly = cfg.show_capsule_bar === false;
+      capBox.classList.toggle("cf-text-only", textOnly);
+      q(".cf-cap-label").textContent = this._unitCap() + (textOnly ? ":" : "");
       q(".cf-cap-big").textContent = caps.n === null ? "—" : clNum(caps.n, 0);
       q(".cf-cap-of").textContent = caps.pack ? `/ ${clNum(caps.pack, 0)} ${unitTxt}` : unitTxt;
       const pct = caps.n === null ? 0 : Math.min(100, Math.max(0, (caps.n / caps.max) * 100));
@@ -18278,12 +18470,12 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     const ms = cfg.state_entity ? hass.states[cfg.state_entity] : null;
     setRow("cf-r-machine", ms && !["unknown", "unavailable"].includes(ms.state) ? this._pretty(ms.state) : "—", !!cfg.state_entity && !!ms);
     const en = this._val(cfg.energy_entity);
-    setRow("cf-r-en", en !== null ? `${clNum(en, 1)} kWh` : "—", !!cfg.energy_entity);
+    setRow("cf-r-en", en !== null ? `${clNum(en, 1)} kWh` : "—", !!cfg.energy_entity && cfg.show_power !== false);
     rowsBox.hidden = cfg.hide_rows === true;
 
     // ---- banda potenza ----
     const pb = q(".cf-power");
-    pb.hidden = !cfg.power_entity || cfg.hide_power_band === true;
+    pb.hidden = !cfg.power_entity || cfg.hide_power_band === true || cfg.show_power === false;
     if (!pb.hidden) {
       q(".cf-power-val").textContent = pw !== null ? (pw >= 1000 ? `${clNum(pw / 1000, 1)} kW` : `${clNum(pw, 0)} W`) : "—";
       q(".cf-power-bar").style.width = `${pw === null ? 0 : Math.min(100, Math.max(0, (pw / cfg.power_max) * 100)).toFixed(1)}%`;
@@ -18530,8 +18722,10 @@ class ShcCoffeeCardEditor extends ShcSimpleCardEditorBase {
         { key: "bar_color", label: T("cf.ed_bar_color"), kind: "text", placeholder: "#f97316" },
         { key: "show_steps", label: T("cf.ed_show_steps"), kind: "bool" },
         { key: "hide_capsules", label: T("cf.ed_hide_capsules"), kind: "bool" },
+        { key: "show_capsule_bar", label: T("cf.ed_show_capsule_bar"), kind: "bool", def: true },
         { key: "hide_rows", label: T("cf.ed_hide_rows"), kind: "bool" },
         { key: "hide_power_band", label: T("cf.ed_hide_power"), kind: "bool" },
+        { key: "show_power", label: T("cf.ed_show_power"), kind: "bool", def: true },
         { key: "layout", label: T("settings.layout"), kind: "layout", def: "centrato" },
         { key: "layout_entity", label: T("fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
@@ -19343,6 +19537,8 @@ Object.assign(SHC_I18N.it, {
   "cf.ed_show_steps": "Mostra le tappe (spenta, standby, riscaldamento...)",
   "cf.ed_hide_capsules": "Nascondi la scorta capsule",
   "cf.ed_hide_rows": "Nascondi l'elenco dei dati",
+  "cf.ed_show_capsule_bar": "Mostra la barra della scorta capsule (spento = solo Capsule: N)",
+  "cf.ed_show_power": "Mostra i consumi (potenza, energia)",
   "cf.ed_hide_power": "Nascondi la banda potenza"
 });
 Object.assign(SHC_I18N.en, {
@@ -19414,6 +19610,8 @@ Object.assign(SHC_I18N.en, {
   "cf.ed_show_steps": "Show the steps (off, standby, heating...)",
   "cf.ed_hide_capsules": "Hide the capsule stock",
   "cf.ed_hide_rows": "Hide the data list",
+  "cf.ed_show_capsule_bar": "Show the capsule stock bar (off = only Capsules: N)",
+  "cf.ed_show_power": "Show power use (power, energy)",
   "cf.ed_hide_power": "Hide the power band"
 });
 Object.assign(SHC_I18N.nl, {
@@ -19485,6 +19683,8 @@ Object.assign(SHC_I18N.nl, {
   "cf.ed_show_steps": "Toon de stappen",
   "cf.ed_hide_capsules": "Verberg capsulevoorraad",
   "cf.ed_hide_rows": "Verberg de gegevenslijst",
+  "cf.ed_show_capsule_bar": "Toon de balk van de capsulevoorraad (uit = alleen Capsules: N)",
+  "cf.ed_show_power": "Toon verbruik (vermogen, energie)",
   "cf.ed_hide_power": "Verberg de vermogensband"
 });
 
@@ -20961,3 +21161,41 @@ window.customCards.push({
   description: "Dove hai lasciato l'auto: disegno o foto, mappa, indirizzo, distanza, navigazione e pulsante per registrare la posizione (Bluetooth dell'auto o manuale)",
   author: "Simonz82",
 });
+
+// -----------------------------------------------------------------------
+// Opzioni comuni (1.30.0): image_scale su tutte le card con immagine/disegno (.shc-ap-hero),
+// campi comuni dell'editor visuale. Senza image_scale la card e' identica a prima.
+// -----------------------------------------------------------------------
+(() => {
+  const types = (window.customCards || []).map((c) => c.type).filter(Boolean);
+  types.forEach((t) => {
+    const C = customElements.get(t);
+    if (!C || !C.prototype.setConfig || C.prototype._shcScaleWrapped) return;
+    const orig = C.prototype.setConfig;
+    C.prototype._shcScaleWrapped = true;
+    C.prototype.setConfig = function (config) {
+      const r = orig.call(this, config);
+      try {
+        const k = Number(config?.image_scale);
+        const root = this._root || this.shadowRoot;
+        if (root && Number.isFinite(k) && k > 0 && k !== 1) {
+          const old = root.querySelector("style.shc-img-scale");
+          if (old) old.remove();
+          const st = document.createElement("style");
+          st.className = "shc-img-scale";
+          st.textContent = `.shc-ap-hero{overflow:hidden}.shc-ap-hero svg,.shc-ap-hero img{transform:scale(${Math.min(3, Math.max(0.3, k))});transform-origin:center}`;
+          root.appendChild(st);
+        }
+      } catch (e) {
+        /* mai bloccare la card per una opzione estetica */
+      }
+      return r;
+    };
+  });
+  const common = (names, list) => names.forEach((n) => {
+    const E = customElements.get(n);
+    if (E) E.commonFields = list;
+  });
+  common(["shc-fritz-card-editor", "shc-server-card-editor", "shc-nas-card-editor", "shc-proxmox-card-editor", "shc-energy-card-editor", "shc-garbage-card-editor"], ["automation_entities", "image_scale"]);
+  common(["shc-ups-card-editor", "shc-coffee-card-editor", "shc-heater-card-editor", "shc-fan-card-editor", "shc-boiler-card-editor", "shc-water-heater-card-editor", "shc-climate-card-editor", "shc-zigbee-card-editor", "shc-purifier-card-editor", "shc-dehumidifier-card-editor", "shc-printer-card-editor"], ["image_scale"]);
+})();

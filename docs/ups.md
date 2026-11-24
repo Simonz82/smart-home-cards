@@ -56,6 +56,11 @@ Non serve scrivere configurazione a mano: "Aggiungi card" → cerca **"UPS"** �
 | `runtime_entity` | No | — | `sensor` autonomia residua stimata (secondi, minuti o ore: la card legge l'unità di misura del sensore; senza unità si considerano secondi) |
 | `runtime_low_entity` | No | — | Soglia di autonomia minima configurata sull'UPS stesso, se esposta |
 | `input_voltage_entity` | No | — | `sensor` tensione di rete in ingresso |
+| `battery_voltage_entity` | No | — | `sensor` tensione della batteria (1.30.0). Compare sulla card e nelle statistiche |
+| `last_outage_entity` | No | — | `sensor` o `input_datetime` con data e ora dell'ultimo blackout (1.30.0) |
+| `last_outage_auto` | No | `false` | `true` = senza entità, la card cerca nella cronologia l'ultima volta che l'UPS non era "Online" (1.30.0) |
+| `last_outage_days` | No | `30` | Quanti giorni di cronologia guardare con `last_outage_auto` (da 1 a 60) |
+| `image_scale` | No | `1` | Dimensione della foto/disegno: `1.3` più grande, `0.8` più piccola (1.30.0) |
 | `power_entity` | No | — | `sensor` in Watt, se hai anche una presa smart che misura il consumo reale collegato all'UPS (più preciso della sola percentuale di carico) |
 | `automation_entity` | No | — | Un'automazione che gestisci tu (es. "spegni i servizi non critici sotto il 20% di batteria") — mostrata come riga informativa/attivabile |
 | `automation_entities` | No | `[]` | Elenco di automazioni (novità 1.20.0), ognuna con il suo interruttore nelle impostazioni: `- automation.xxx` oppure `- entity: automation.xxx` + `name: Etichetta`. Si somma a `automation_entity`; i doppioni sono ignorati. Esempio sotto |
@@ -128,3 +133,64 @@ automation_entities:
   - entity: automation.ups_spegni_servizi
     name: Spegni servizi sotto il 20%
 ```
+
+## Tensione della batteria e ultimo blackout (1.30.0), spiegato semplice
+
+### Tensione della batteria
+
+1. Vai su **Impostazioni > Dispositivi e servizi > Entità** e cerca `battery_voltage` (se usi l'integrazione **NUT**, il valore `battery.voltage` dell'UPS diventa un sensore tipo `sensor.ups_battery_voltage`). Se non lo trovi: nell'integrazione NUT apri il dispositivo UPS e controlla che il sensore sia abilitato. Non tutti gli UPS lo comunicano.
+2. Scrivi l'ID nella card:
+
+```yaml
+battery_voltage_entity: sensor.ups_battery_voltage
+```
+
+La tensione compare in una riga sulla card e nelle **Statistiche**. Nell'editor visuale è il campo **Tensione batteria**.
+
+### Data e ora dell'ultimo blackout
+
+Hai **due strade**. Scegline una.
+
+**Strada 1 - senza fare niente (`last_outage_auto`).** La card guarda la cronologia dello stato dell'UPS (`status_entity`) e trova l'ultima volta che non era "Online". Se il blackout è in corso scrive "in corso dal ...". Se non ce n'è nessuno negli ultimi giorni scrive "Nessuno".
+
+```yaml
+last_outage_auto: true
+last_outage_days: 30      # facoltativo, quanti giorni guardare (da 1 a 60)
+```
+
+Limite: funziona finché Home Assistant conserva la cronologia (di solito 10 giorni, vedi `recorder`, `purge_keep_days`).
+
+**Strada 2 - un sensore tuo, che dura per sempre (`last_outage_entity`).** Crea un helper e un'automazione che scrive la data quando l'UPS passa a batteria.
+
+1. **Impostazioni > Dispositivi e servizi > Helper > Crea helper > Data e/o ora**. Nome `UPS ultimo blackout`, scegli **Data e ora**. Si crea `input_datetime.ups_ultimo_blackout`.
+2. **Impostazioni > Automazioni e scene > Crea automazione > Modifica in YAML** e incolla (cambia `sensor.ups_status` con il tuo sensore stato):
+
+```yaml
+alias: UPS - ricorda ultimo blackout
+triggers:
+  - trigger: state
+    entity_id: sensor.ups_status
+    from: Online
+actions:
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.ups_ultimo_blackout
+    data:
+      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+```
+
+3. Scrivi nella card:
+
+```yaml
+last_outage_entity: input_datetime.ups_ultimo_blackout
+```
+
+La data compare in una riga sulla card e nelle **Statistiche**. Nell'editor visuale: **Ultimo blackout** (entità) oppure la spunta **Ultimo blackout dalla cronologia**.
+
+### Immagine più grande o più piccola
+
+```yaml
+image_scale: 1.3
+```
+
+`1` è la dimensione normale. Vedi [opzioni-comuni.md](opzioni-comuni.md).

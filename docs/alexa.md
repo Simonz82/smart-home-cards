@@ -114,18 +114,113 @@ Il pulsante ℹ️ sulla card Memo apre un piccolo popup che spiega il funzionam
 
 Stazioni TuneIn e playlist Spotify/Amazon Music/Deezer raggruppate in griglie con logo piccolo (non a schermo intero), tema chiaro/scuro. Tocca una stazione per selezionarla, i chip degli speaker per aggiungerli/rimuoverli dal gruppo multiroom (quello evidenziato in blu è già acceso), il cursore per il volume. I due pulsanti in alto (orologio e "restart") aprono le impostazioni di **Sveglia** e **Volume ridotto automatico** senza uscire dalla card.
 
-### Cosa ti serve
+### Prima di iniziare ti serve
 
-- L'integrazione HACS **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)**, con almeno un dispositivo Alexa già collegato al tuo account Amazon. **Non serve** `centro_notifiche_alexa.yaml` (questa card non lo usa).
-- Un abbonamento/servizio già collegato ad Alexa per ciascuna fonte che vuoi usare (TuneIn è gratuito; Spotify/Amazon Music/Deezer richiedono l'account collegato in app Alexa).
+- **Home Assistant** con **smart-home-cards 1.30.0 o più nuova** (Impostazioni > Marketplace/HACS).
+- L'integrazione **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)**, già collegata al tuo account Amazon. Si installa da HACS. Senza questa la radio **non può suonare**: la card comanda i suoi `media_player`.
+- Almeno un **Echo/Alexa** che compare in Home Assistant. Per controllare: **Impostazioni > Dispositivi e servizi > Entità**, cerca `media_player`. Devi vedere i tuoi Echo.
+- Per Spotify, Amazon Music o Deezer: il servizio deve essere già collegato nell'app **Alexa** del telefono. TuneIn (le radio) non serve collegarlo.
+- **Non serve** `centro_notifiche_alexa.yaml`.
 
-### 🚀 Metodo veloce: usa il mio package originale
+### Installazione, passo per passo
 
-[`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml) — nessun dato personale da cambiare in cima. Nella sezione `input_select: list_alexa_speaker_multiroom` sostituisci i **friendly name** dei 4 speaker Alexa con i tuoi, e in `input_select: stazioni_radio_alexa` metti le tue stazioni/playlist (nome esattamente come compare nell'app Alexa).
+La card da sola **non basta**. Ha bisogno del **package**: un file di testo con gli interruttori, le liste, gli script e le automazioni. Se manca, la card ti mostra un riquadro arancione con scritto cosa non trova. Fai i passi in ordine.
 
-**Non serve modificare `smart-home-cards.js`**: speaker, stazioni, script e giorni della sveglia si impostano nella configurazione della card (YAML o editor visuale), quindi restano anche dopo ogni aggiornamento HACS. Se non li imposti, la card usa i valori del mio package: 4 speaker, 17 stazioni con le immagini in `/config/www/loghi_radio_alexa/4_4/`. Vedi "[Speaker, stazioni e sveglia personalizzati](#speaker-stazioni-e-sveglia-personalizzati)" qui sotto.
+#### Passo 1 - Trova i nomi dei tuoi speaker
 
-Copia il file dentro `/config/packages/` (richiede i [Packages](https://www.home-assistant.io/docs/configuration/packages/) attivi), copia le immagini delle stazioni in `/config/www/loghi_radio_alexa/4_4/`, poi riavvia Home Assistant.
+1. Vai su **Impostazioni > Dispositivi e servizi > Entità**.
+2. Nella ricerca scrivi `media_player`.
+3. Per ogni Echo che vuoi usare scrivi su un foglio **due cose**: l'**ID** (per esempio `media_player.echo_cucina`) e il **nome** accanto (per esempio `Echo Cucina`). Il nome è il *friendly name*: si vede anche cliccando sull'entità e aprendo l'ingranaggio.
+4. Scrivili **esattamente come sono**, con le maiuscole.
+
+#### Passo 2 - Controlla che i package siano attivi
+
+1. Apri `/config/configuration.yaml` con **File editor** o **Studio Code Server** (si installano da **Impostazioni > App**).
+2. Se non ci sono, aggiungi **in fondo** queste due righe:
+
+```yaml
+homeassistant:
+  packages: !include_dir_named packages
+```
+
+3. Se esiste già un blocco `homeassistant:`, aggiungi solo la riga `packages: !include_dir_named packages` sotto quello che c'è. Salva.
+
+#### Passo 3 - Copia il package
+
+1. Apri [`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml) su GitHub e premi **Copy raw file**.
+2. Nel File editor crea la cartella `/config/packages` se non c'è.
+3. Crea il file `/config/packages/alexa_webradio.yaml`, incolla tutto e salva.
+
+#### Passo 4 - Scrivi i tuoi speaker nel package
+
+1. Apri `/config/packages/alexa_webradio.yaml` e cerca `list_alexa_speaker_multiroom` (Ctrl+F).
+2. Vedi quattro righe con `Alexa Bagno`, `Alexa Salone`, `Alexa Cameretta`, `Alexa Camera`. Sono i miei speaker. **Cancellale e scrivi i tuoi nomi del passo 1**, uno per riga, uguali al friendly name:
+
+```yaml
+  list_alexa_speaker_multiroom:
+    name: "Alexa Speaker Multiroom"
+    options:
+      - "Echo Cucina"
+      - "Echo Studio"
+    icon: mdi:speaker-wireless
+```
+
+3. Salva. Il nome nel package, il nome nella card (passo 6) e il friendly name devono essere **identici**: è l'errore più comune.
+
+#### Passo 5 - Riavvia Home Assistant (completo)
+
+1. **Impostazioni > Sistema** > icona di accensione in alto a destra > **Riavvia Home Assistant**.
+2. Serve il **riavvio completo**: **ricaricare** non basta, gli interruttori e i sensori nascono solo al riavvio.
+3. Aspetta 1-2 minuti, poi premi **Ctrl+F5** nel browser.
+
+#### Passo 6 - Aggiungi la card
+
+1. Apri la dashboard > matita > **Aggiungi scheda** > **Alexa WebRadio** (oppure **Manuale**).
+2. Nell'editor o nel YAML scrivi la configurazione qui sotto. **Cambia solo la parte `speakers`**: `entity` è l'ID del passo 1, `option` è il nome del passo 1 (identico al package), `name` è il testo che vuoi sul pulsante.
+
+```yaml
+type: custom:shc-alexa-webradio-card
+name: Radio Alexa
+power_entity: input_boolean.web_radio_alexa
+station_select_entity: input_select.stazioni_radio_alexa
+station_sensor_entity: sensor.radio_alexa
+volume_entity: input_number.volume_radio_alexa
+group_entity: group.multiroom_alexa
+speaker_list_entity: input_select.list_alexa_speaker_multiroom
+add_script: script.add_alexa
+remove_script: script.remove_alexa
+speakers:
+  - entity: media_player.echo_cucina
+    name: Cucina
+    option: "Echo Cucina"
+  - entity: media_player.echo_studio
+    name: Studio
+    option: "Echo Studio"
+```
+
+3. Salva.
+
+#### Passo 7 - Controlla e prova
+
+1. Guarda la card. Se vedi un **riquadro arancione**, leggilo: dice cosa manca (vedi "Problemi comuni").
+2. Tocca il pulsante di uno **speaker**: deve diventare blu.
+3. Tocca una **stazione** (per esempio RTL 102.5).
+4. Accendi l'interruttore **Radio**. Dopo qualche secondo la radio parte sullo speaker blu.
+5. Muovi il **Volume**.
+
+Le **immagini delle stazioni** non sono nel repository: se non le copi in `/config/www/loghi_radio_alexa/4_4/` i pulsanti mostrano solo il nome. Funziona lo stesso.
+
+### Problemi comuni
+
+- **Vedo il riquadro arancione "Manca il package"** -> il package non è caricato. Controlla il passo 2 (righe in `configuration.yaml`), il passo 3 (percorso `/config/packages/alexa_webradio.yaml`) e fai il riavvio **completo** (passo 5). Il riquadro elenca gli ID che non trova.
+- **Vedo "Questi speaker non esistono in Home Assistant"** -> nella card hai scritto un `entity` che non esiste (o hai lasciato i miei speaker di esempio). Rifai il passo 1 e correggi `speakers`.
+- **Vedo "Questi speaker non sono nell'elenco del package"** -> il `option` della card non è uguale al nome scritto nel package al passo 4. Rendili identici (maiuscole comprese), riavvia.
+- **Tocco gli speaker ma non diventano blu** -> stesso problema: nome diverso tra card, package e friendly name. Guarda anche **Impostazioni > Sistema > Registri**.
+- **Tocco la stazione ma non suona niente** -> controlla che **Alexa Media Player** funzioni (prova a far parlare l'Echo da **Strumenti per sviluppatori > Azioni**). Controlla che almeno uno speaker sia blu e l'interruttore **Radio** acceso.
+- **Spotify/Amazon Music/Deezer non parte** -> collega il servizio nell'app Alexa.
+- **Nessuna immagine sulle stazioni** -> normale, le immagini non sono incluse (vedi sopra).
+
+**EN** — WebRadio needs **Alexa Media Player** and the **package**. Steps: 1) note the `media_player` ID and friendly name of each Echo; 2) make sure `homeassistant: packages: !include_dir_named packages` is in `configuration.yaml`; 3) copy `packages/alexa_webradio.yaml` into `/config/packages/`; 4) in the package, replace the four speaker names under `list_alexa_speaker_multiroom` with your friendly names; 5) **fully restart** Home Assistant and press Ctrl+F5; 6) add the card and set `speakers` (`entity`, `name`, `option` = exactly the name in the package); 7) tap a speaker (blue), a station, then the Radio switch. If the card shows an orange box, it lists what is missing: package not loaded, speakers that do not exist, or names that differ between card and package. Station logos are not included in the repository (optional).
 
 ### Configurazione minima
 

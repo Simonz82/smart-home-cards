@@ -161,6 +161,7 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Dehumidifier (humidity, target, mode, fan, full tank)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 - [Parked car, up to 3 cars per family, one card each (map, address, distance, "Take me to the car", automatic save on Bluetooth, Android Auto or CarPlay disconnect)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
+- [Common options: `automation_entities` and `image_scale` on many cards](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
 Example, coffee machine on a smart plug (states from the power draw, thresholds in W, capsule stock counted in Home Assistant by `packages/coffee_capsule.yaml`):
 
@@ -345,6 +346,7 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Deumidificatore (umidità, obiettivo, modalità, ventola, serbatoio pieno)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 - [Auto parcheggiata, fino a 3 auto per famiglia, una card per auto (mappa, indirizzo, distanza, "Portami all'auto", salvataggio automatico allo scollegamento di Bluetooth, Android Auto o CarPlay)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
+- [Opzioni comuni: `automation_entities` e `image_scale` su molte card](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
 Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W, scorta capsule contata in Home Assistant da `packages/coffee_capsule.yaml`):
 

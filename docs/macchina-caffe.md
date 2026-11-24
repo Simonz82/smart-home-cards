@@ -90,6 +90,7 @@ L'unità non deve essere "capsule": `capsule_unit: cialde` (o `grammi di caffè`
 | `refill_script` | script da avviare al posto della somma diretta |
 | `capsule_unit` | nome dell'unità (default "capsule") |
 | `hide_capsules`, `hide_refill` | nascondono la scorta intera o solo il pulsante |
+| `show_capsule_bar` | `false` = niente barra: resta solo la scritta **Capsule rimanenti: N**. Default `true` (come prima) |
 
 ### Il package `coffee_capsule.yaml`
 
@@ -138,6 +139,8 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 - `power_max`: potenza a fondo barra (default 1500 W).
 - `show_steps: true` mostra anche le tappe (spenta, standby, riscaldamento, erogazione, pronta) sotto il disegno.
 - `hide_rows`, `hide_power_band`, `hide_capsules`, `hide_refill`: nascondono le sezioni.
+- `show_capsule_bar: false`: tiene la scorta capsule ma toglie la barra, la soglia e i giorni rimanenti. Resta solo la scritta con il numero.
+- `show_power: false`: nasconde tutti i consumi: la banda della potenza, i watt scritti sul disegno della macchina (resta "ON") e la riga dell'energia. Default `true` (come prima).
 - `layout: classico` mette la foto a sinistra e il blocco "Oggi" a destra, come le altre card elettrodomestico; `layout: centrato` (predefinito) tiene la foto in alto a tutta larghezza. Si sceglie anche dall'editor visuale (Aspetto) o con `layout_entity`, vedi [layout.md](layout.md).
 - Il tocco sulla banda potenza apre il grafico; la scorta apre l'entità; il disegno apre la presa. Editor visuale completo (⚙ nella dashboard).
 
@@ -166,6 +169,8 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 | `automation_entity`, `automation_entities` | No | - | Automazioni con interruttore nelle Impostazioni |
 | `capsule_color`, `low_color`, `bar_color` | No | verde, rosso, arancio | Colori |
 | `show_steps`, `hide_capsules`, `hide_refill`, `hide_rows`, `hide_power_band` | No | `false` | Sezioni da mostrare/nascondere |
+| `show_capsule_bar` | No | `true` | `false` = solo la scritta con il numero delle capsule, senza barra |
+| `show_power` | No | `true` | `false` = nasconde i consumi (banda potenza, watt sul disegno, energia) |
 | `layout`, `layout_entity` | No | `centrato` | `classico` (foto a sinistra, dettagli a destra) o `centrato`; vedi [layout.md](layout.md) |
 
 Le righe compaiono solo se imposti la relativa entità. Il pannello ℹ mostra scorta, manutenzione (con "Fatto"), stato, valori, soglie e l'ultimo cambio.
@@ -173,3 +178,21 @@ Le righe compaiono solo se imposti la relativa entità. Il pannello ℹ mostra s
 ## English summary
 
 `shc-coffee-card` shows a coffee machine on a smart plug in the same style as the appliance cards (washing machine, dishwasher, purifier): animated drawing, power band, and optional **capsule stock** (remaining capsules in big numbers, bar, "time to buy" below a threshold, estimated days left from the average use, "I restocked" button with confirmation), coffees today / this week, and **maintenance** counters (descaling, water tank, used capsule tray) with a "Done" reset in the Status window. Counting happens in Home Assistant, never in the browser: copy [`packages/coffee_capsule.yaml`](../packages/coffee_capsule.yaml) (helpers, "count a coffee" from the power peak with a minimum duration and no double counts, a single alert when stock falls below the threshold, maintenance alerts, daily/weekly reset with a 7-day moving average, restock script, optional auto power off) and point `capsules_entity`, `capsules_threshold`, `capsules_pack`, `avg_entity`, `refill_script`, `*_counter_entity` / `*_every` and `auto_off_entity` at its helpers. Colours (`capsule_color`, `low_color`, `bar_color`), your own picture (`image`), the capsule unit (`capsule_unit`) and every section are configurable, and the visual editor covers all options. Everything is optional: with just `entity` and `power_entity` the card works as before.
+
+## Nascondere la barra capsule e i consumi (1.30.0), spiegato semplice
+
+Vuoi una card più pulita? Sono due interruttori. Non cambia niente se non li tocchi.
+
+1. Apri la card nell'**editor visuale** (matita sulla dashboard > i tre puntini sulla card > **Modifica**).
+2. Nella sezione **Aspetto** togli la spunta a **Mostra la barra della scorta capsule** se vuoi vedere solo "Capsule rimanenti: N".
+3. Togli la spunta a **Mostra i consumi (potenza, energia)** se non vuoi vedere i watt.
+4. Premi **Salva**.
+
+Oppure nel YAML della card:
+
+```yaml
+show_capsule_bar: false   # solo "Capsule rimanenti: N", senza barra
+show_power: false         # niente consumi
+```
+
+Dopo l'aggiornamento premi **Ctrl+F5** nel browser.

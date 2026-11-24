@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-25 — 1.30.0: Alexa WebRadio diagnostics, coffee/UPS options, common options
+
+- **`shc-alexa-webradio-card`** (discussion #31): the card now shows an orange box that says what is missing (package not loaded and which entities are not found, speakers that do not exist in Home Assistant, speaker names that are not in the package list). Station logos that are missing are hidden instead of showing a broken image. `docs/alexa.md` WebRadio part rewritten as a simple step-by-step guide with common problems.
+- **`shc-coffee-card`** (discussion #28): `show_capsule_bar: false` keeps only the text "Capsules: N" (no bar, threshold or days); `show_power: false` hides all consumption (power band, watts on the drawing, energy row). Defaults unchanged. Both in the visual editor.
+- **`shc-ups-card`** (discussion #29): `battery_voltage_entity` (battery voltage row on the card and in the statistics), `last_outage_entity` (date/time of the last outage) and `last_outage_auto: true` (no entity: the last outage is found in the history of the status sensor, `last_outage_days` 1-60). Documented with the NUT sensor names and an automation + `input_datetime` recipe.
+- **Common options** (discussion #13), see `docs/opzioni-comuni.md`: `automation_entities` now works on every card with a settings popup that did not have it yet (Fritz, Server, NAS, Proxmox, Energy, Garbage, Appliance) and in their visual editors; `image_scale` (number, `1` = normal) resizes the picture/drawing on all cards that have one, also in the visual editors. Without these options every card looks as before.
+
 ## 2026-11-25 — 1.29.0: parking card recognises Android Auto and CarPlay
 
 - **`shc-parking-card`**: new gear field **How I know I'm in the car** per car (Bluetooth / Android Auto / CarPlay via iPhone Shortcuts / button only). The Bluetooth name field only shows when Bluetooth is chosen; a CarPlay hint with a link to the guide is shown. Without the new helper the card behaves as before (Bluetooth).
