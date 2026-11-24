@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — inline number / select controls in the settings popup
+
+- **`settings_sections`**: rows with a native `number` / `input_number` entity now show a slider (min / max / step / unit from the entity attributes, value label updated while dragging, `set_value` called only on release), and rows with a native `select` entity show a dropdown (`select.select_option`, same as `input_select`). Controls are disabled when the entity is unavailable or unknown. Existing YAML is unchanged. Applies to all cards with a settings popup. (Issue #30)
+
 ## 2026-11-23 — 1.28.0: new card `shc-parking-card` (parked car)
 
 - **New card Auto parcheggiata / Parked car** (`car: 1|2|3`, one card per car): car drawing or your own photo (upload from the card), OpenStreetMap map with pin, how long parked, address, distance from you, who saved it, **Take me to the car** (walking directions) and **Save position now**. Visual editor included, Italian / English / Dutch.

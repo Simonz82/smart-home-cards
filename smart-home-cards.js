@@ -816,6 +816,10 @@ const STYLE = `
 .shc-ap-card.layout-centrato.shc-e-card .shc-ap-cycle-list{grid-template-columns:2fr 3fr}
 .shc-ap-card.layout-centrato .shc-ap-cycle-list>.shc-ap-cycle-row:last-child:nth-child(odd){grid-column:1/-1}
 .shc-ap-select{max-width:62%;padding:7px 10px;border-radius:10px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-text);font-size:14px;font-weight:600;font-family:inherit}
+.shc-ap-numctl{display:flex;align-items:center;gap:10px;max-width:62%;flex:1 1 auto;justify-content:flex-end}
+.shc-ap-range{flex:1 1 auto;min-width:80px;accent-color:var(--shc-accent,var(--primary-color,#03a9f4))}
+.shc-ap-range:disabled,.shc-ap-select:disabled{opacity:.45}
+.shc-ap-numval{font-size:14px;font-weight:600;min-width:44px;text-align:right;color:var(--shc-text)}
 .shch-tab-lit{opacity:0;transition:opacity .4s}
 .shc-ap-card.is-run .shch-tab-lit{opacity:1}
 .shc-ap-card.is-run .shch-spin-drum{animation:shch-spin 2.6s linear infinite}
@@ -5515,6 +5519,47 @@ class ShcSamsungRemote extends HTMLElement {
 }
 if (!customElements.get("shc-samsung-remote")) customElements.define("shc-samsung-remote", ShcSamsungRemote);
 
+// Controlli inline nel popup impostazioni (settings_sections): input_select/select -> menu,
+// input_number/number -> slider (min/max/step/unita' dagli attributi, set_value solo al rilascio).
+function shcSettingsCtlHtml(st, entity) {
+  const domain = entity.split(".")[0];
+  const off = ["unavailable", "unknown"].includes(st.state);
+  if (domain === "input_select" || domain === "select") {
+    const opts = (st.attributes?.options || [])
+      .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
+      .join("");
+    return `<select class="shc-ap-select" data-select-entity="${esc(entity)}"${off ? " disabled" : ""}>${opts}</select>`;
+  }
+  if (domain === "input_number" || domain === "number") {
+    const a = st.attributes || {};
+    const min = Number.isFinite(Number(a.min)) ? Number(a.min) : 0;
+    const max = Number.isFinite(Number(a.max)) ? Number(a.max) : 100;
+    const step = Number(a.step) > 0 ? Number(a.step) : 1;
+    if (a.mode === "box" && domain === "input_number") return "";
+    const val = Number.isFinite(Number(st.state)) ? Number(st.state) : min;
+    const unit = a.unit_of_measurement ? " " + esc(a.unit_of_measurement) : "";
+    return `<span class="shc-ap-numctl"><input type="range" class="shc-ap-range" data-number-entity="${esc(entity)}" data-unit="${esc(a.unit_of_measurement || "")}" min="${min}" max="${max}" step="${step}" value="${val}"${off ? " disabled" : ""}><b class="shc-ap-numval">${esc(off ? "\u2014" : st.state)}${off ? "" : unit}</b></span>`;
+  }
+  return "";
+}
+
+function shcSettingsCtlChange(hass, t) {
+  if (!t || !t.dataset) return;
+  if (t.dataset.selectEntity) {
+    const e = t.dataset.selectEntity;
+    hass.callService(e.split(".")[0], "select_option", { entity_id: e, option: t.value });
+  } else if (t.dataset.numberEntity) {
+    const e = t.dataset.numberEntity;
+    hass.callService(e.split(".")[0], "set_value", { entity_id: e, value: Number(t.value) });
+  }
+}
+
+function shcSettingsCtlInput(t) {
+  if (!t || !t.dataset || !t.dataset.numberEntity) return;
+  const b = t.parentNode && t.parentNode.querySelector(".shc-ap-numval");
+  if (b) b.textContent = t.value + (t.dataset.unit ? " " + t.dataset.unit : "");
+}
+
 class ShcApplianceCloneCard extends HTMLElement {
   disconnectedCallback() { if (this._root) this._root.querySelectorAll(".shc-tv-pop").forEach((n) => n._close && n._close()); }
 
@@ -5745,11 +5790,9 @@ class ShcApplianceCloneCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -5778,12 +5821,8 @@ class ShcApplianceCloneCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -8669,11 +8708,9 @@ class ShcFritzCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -8705,12 +8742,8 @@ class ShcFritzCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -9110,11 +9143,9 @@ class ShcServerCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -9153,12 +9184,8 @@ class ShcServerCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -9758,11 +9785,9 @@ class ShcNasCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -9831,12 +9856,8 @@ class ShcNasCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -10477,11 +10498,9 @@ class ShcEnergyCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -10506,12 +10525,8 @@ class ShcEnergyCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -11024,11 +11039,9 @@ class ShcUpsCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -11053,12 +11066,8 @@ class ShcUpsCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -11471,11 +11480,9 @@ class ShcGarbageCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -11500,12 +11507,8 @@ class ShcGarbageCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
@@ -11852,11 +11855,9 @@ class ShcProxmoxCard extends HTMLElement {
       });
       // Menu a tendina delle impostazioni (righe input_select): la scelta viene applicata subito.
       overlay.addEventListener("change", (e) => {
-        const t = e.target;
-        if (t && t.dataset && t.dataset.selectEntity && this._hass) {
-          this._hass.callService("input_select", "select_option", { entity_id: t.dataset.selectEntity, option: t.value });
-        }
+        if (this._hass) shcSettingsCtlChange(this._hass, e.target);
       });
+      overlay.addEventListener("input", (e) => shcSettingsCtlInput(e.target));
       this._root.appendChild(overlay);
     }
     overlay.innerHTML = `<div class="shc-ap-dialog">
@@ -11922,12 +11923,8 @@ class ShcProxmoxCard extends HTMLElement {
         `<button type="button" class="shc-ap-switch${on ? " on" : ""}" data-entity="${esc(row.entity)}" aria-pressed="${on}"></button>`,
       );
     }
-    if (domain === "input_select") {
-      const opts = (st.attributes?.options || [])
-        .map((o) => `<option value="${esc(o)}"${o === st.state ? " selected" : ""}>${esc(o)}</option>`)
-        .join("");
-      return this._row(row.label, `<select class="shc-ap-select" data-select-entity="${esc(row.entity)}">${opts}</select>`);
-    }
+    const ctl = shcSettingsCtlHtml(st, row.entity);
+    if (ctl) return this._row(row.label, ctl);
     const unit = st.attributes?.unit_of_measurement || "";
     return `<div class="shc-ap-row" data-open-entity="${esc(row.entity)}" style="cursor:pointer">
       <span class="shc-ap-row-label">${esc(row.label)}</span>
