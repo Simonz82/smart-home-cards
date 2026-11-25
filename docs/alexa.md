@@ -116,7 +116,7 @@ Stazioni TuneIn e playlist Spotify/Amazon Music/Deezer raggruppate in griglie co
 
 ### Prima di iniziare ti serve
 
-- **Home Assistant** con **smart-home-cards 1.30.0 o più nuova** (Impostazioni > Marketplace/HACS).
+- **Home Assistant** con **smart-home-cards 1.30.1 o più nuova** (Impostazioni > Marketplace/HACS).
 - L'integrazione **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)**, già collegata al tuo account Amazon. Si installa da HACS. Senza questa la radio **non può suonare**: la card comanda i suoi `media_player`.
 - Almeno un **Echo/Alexa** che compare in Home Assistant. Per controllare: **Impostazioni > Dispositivi e servizi > Entità**, cerca `media_player`. Devi vedere i tuoi Echo.
 - Per Spotify, Amazon Music o Deezer: il servizio deve essere già collegato nell'app **Alexa** del telefono. TuneIn (le radio) non serve collegarlo.
@@ -320,6 +320,42 @@ stations:
 ```
 
 Riavvia (o ricarica template e input_select) e prova.
+
+### Problemi comuni
+
+#### La card dice "Non trovo: sensor.radio_alexa"
+
+Il file del package c'è, ma Home Assistant non ha creato il sensore **Radio Alexa**. Con la 1.30.1 la card cerca da sola anche `sensor.radio_alexa_2`, `sensor.template_radio_alexa` o qualunque sensore chiamato "Radio Alexa", e ti dice come si chiama. Se non lo trova, fai questi passi in ordine.
+
+1. Vai su **Impostazioni > Dispositivi e servizi > Entità** e scrivi `radio` nella ricerca. Se vedi un sensore **Radio Alexa** con un id diverso (per esempio `sensor.radio_alexa_2`), copia l'id.
+2. Apri la card, premi la matita, e nel campo **Sensore stazione corrente** (`station_sensor_entity`) incolla quell'id. Salva.
+3. Apri `/config/packages/alexa_webradio.yaml` e cerca `sensor.radio_alexa` (compare nell'automazione **Multiroom Alexa**, due volte). Scrivi lo stesso id che hai copiato al passo 1. Salva.
+4. Se il sensore non c'è proprio, vai su **Strumenti per sviluppatori > YAML > Verifica configurazione**. Se compare un errore, leggilo: di solito dice la riga del file che non va.
+5. Apri **Impostazioni > Sistema > Log** e cerca la parola `template` o `alexa_webradio`. Se leggi un errore, correggi quella riga e passa al passo 8.
+6. Apri `/config/configuration.yaml` (Ctrl+F e cerca `homeassistant:`). Se la parola compare **due volte** sulla riga senza spazi davanti, la seconda cancella la prima: i `packages` possono non essere caricati o essere caricati a metà. Lascia **una sola** chiave `homeassistant:` e metti sotto tutte le righe (`name`, `packages`, `customize`...). Esempio:
+
+```yaml
+homeassistant:
+  name: Casa
+  packages: !include_dir_named packages
+```
+
+7. Se hai già un blocco `template:` nel tuo `configuration.yaml` scritto come `template: !include templates.yaml`, va bene lo stesso. Il package aggiunge il suo sensore senza toccare il tuo.
+8. Torna su **Strumenti per sviluppatori > YAML**, premi **Verifica configurazione** e poi **Riavvia Home Assistant** (un ricaricamento dei template non basta per un package nuovo). Poi premi **Ctrl+F5** sulla pagina della dashboard.
+
+#### Il sensore si chiama `sensor.radio_alexa_2` (o `_3`)
+
+Vuol dire che esisteva già un sensore con quel nome, di una vecchia prova o di un'installazione precedente. Home Assistant lo ha tenuto e ha dato il numero al nuovo. Hai due strade.
+
+1. Più semplice: segui i passi 1-3 qui sopra e usa l'id con il numero.
+2. Più pulita: vai su **Impostazioni > Dispositivi e servizi > Entità**, cerca `radio_alexa`, apri il sensore **vecchio** (quello senza numero, di solito "non disponibile"), premi l'ingranaggio e **Elimina**. Poi apri quello con il numero, premi l'ingranaggio e scrivi `sensor.radio_alexa` come **ID entità**. Salva.
+
+#### Altre entità del package non trovate (`input_select`, `group`, `script`)
+
+1. Il riquadro arancione le elenca tutte: sono quelle che il package avrebbe dovuto creare.
+2. Controlla che il file sia proprio in `/config/packages/alexa_webradio.yaml` e che in `configuration.yaml` ci sia `packages: !include_dir_named packages` sotto **una sola** chiave `homeassistant:`.
+3. Fai i passi 4-8 qui sopra.
+4. Se manca solo `sensor.alexa_speaker_multiroom` o uno script (`script.add_alexa`, `script.remove_alexa`), il file è stato copiato a metà: ricopialo tutto da [`packages/alexa_webradio.yaml`](../packages/alexa_webradio.yaml).
 
 ### Non parte nulla?
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-25 — 1.30.1: Alexa WebRadio finds the station sensor under another name
+
+- **`shc-alexa-webradio-card`** (discussion #31): if `sensor.radio_alexa` does not exist, the card looks for `sensor.radio_alexa_2` / `_3`, `sensor.template_radio_alexa`, any sensor named "Radio Alexa" or with the attributes `select` and `servizi`, and uses it. The orange box tells you the name that was found and the option `station_sensor_entity` to set. When only that sensor is missing, the box suggests Developer tools > Check configuration and the log, and reminds that `configuration.yaml` must have a single `homeassistant:` key. Italian / English / Dutch.
+- `docs/alexa.md`: new "Problemi comuni" part (sensor not found, `_2` entity, doubled `homeassistant:` key, Check configuration, package in a subfolder).
+
 ## 2026-11-25 — 1.30.0: Alexa WebRadio diagnostics, coffee/UPS options, common options
 
 - **`shc-alexa-webradio-card`** (discussion #31): the card now shows an orange box that says what is missing (package not loaded and which entities are not found, speakers that do not exist in Home Assistant, speaker names that are not in the package list). Station logos that are missing are hidden instead of showing a broken image. `docs/alexa.md` WebRadio part rewritten as a simple step-by-step guide with common problems.

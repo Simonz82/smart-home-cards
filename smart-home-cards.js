@@ -2384,6 +2384,9 @@ const SHC_I18N = {
       "wr.warn_package": "Manca il package: copia packages/alexa_webradio.yaml in /config/packages e riavvia Home Assistant. Non trovo",
       "wr.warn_speakers": "Questi speaker non esistono in Home Assistant (controlla il nome in Impostazioni > Dispositivi e servizi > Entità, cerca media_player)",
       "wr.warn_options": "Questi speaker non sono nell'elenco del package (input_select list_alexa_speaker_multiroom): scrivi il loro nome identico al friendly name",
+      "wr.warn_sensor": "Il package sembra caricato ma manca il sensore delle stazioni (template sensor Radio Alexa). Apri Strumenti per sviluppatori > Verifica configurazione e guarda gli errori, poi Impostazioni > Sistema > Log (cerca template). Non trovo",
+      "wr.warn_check": "Se il file è già in /config/packages: apri Strumenti per sviluppatori > Verifica configurazione e controlla il log. In configuration.yaml deve esserci una sola chiave homeassistant:",
+      "wr.sensor_other": "Il sensore delle stazioni esiste con un altro nome. La card lo usa lo stesso. Se vuoi togliere questo avviso scrivi nella card station_sensor_entity:",
       "wr.guide": "Guida passo passo",
       "alexawebradio.the": "La",
       "alexawebradio.alarm": "Sveglia",
@@ -3532,6 +3535,9 @@ const SHC_I18N = {
       "wr.warn_package": "Package missing: copy packages/alexa_webradio.yaml into /config/packages and restart Home Assistant. Not found",
       "wr.warn_speakers": "These speakers do not exist in Home Assistant (check the name in Settings > Devices & services > Entities, search media_player)",
       "wr.warn_options": "These speakers are not in the package list (input_select list_alexa_speaker_multiroom): write their name exactly as the friendly name",
+      "wr.warn_sensor": "The package looks loaded but the station sensor (template sensor Radio Alexa) is missing. Open Developer tools > Check configuration and read the errors, then Settings > System > Logs (search template). Not found",
+      "wr.warn_check": "If the file is already in /config/packages: open Developer tools > Check configuration and read the log. configuration.yaml must have only one homeassistant: key",
+      "wr.sensor_other": "The station sensor exists with another name. The card uses it anyway. To hide this notice set in the card station_sensor_entity:",
       "wr.guide": "Step-by-step guide",
       "alexawebradio.the": "The",
       "alexawebradio.alarm": "Alarm",
@@ -4681,6 +4687,9 @@ const SHC_I18N = {
       "wr.warn_package": "Package ontbreekt: kopieer packages/alexa_webradio.yaml naar /config/packages en herstart Home Assistant. Niet gevonden",
       "wr.warn_speakers": "Deze speakers bestaan niet in Home Assistant (controleer de naam in Instellingen > Apparaten en services > Entiteiten, zoek media_player)",
       "wr.warn_options": "Deze speakers staan niet in de lijst van het package (input_select list_alexa_speaker_multiroom): schrijf hun naam exact als de friendly name",
+      "wr.warn_sensor": "Het package lijkt geladen, maar de zendersensor (template sensor Radio Alexa) ontbreekt. Open Ontwikkelaarstools > Configuratie controleren en lees de fouten, daarna Instellingen > Systeem > Logs (zoek template). Niet gevonden",
+      "wr.warn_check": "Staat het bestand al in /config/packages: open Ontwikkelaarstools > Configuratie controleren en lees het log. In configuration.yaml mag maar één sleutel homeassistant: staan",
+      "wr.sensor_other": "De zendersensor bestaat onder een andere naam. De kaart gebruikt hem toch. Wil je deze melding weg, zet dan in de kaart station_sensor_entity:",
       "wr.guide": "Stap-voor-stap gids",
       "alexawebradio.the": "De",
       "alexawebradio.alarm": "Wekker",
@@ -13619,7 +13628,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
     badgeLabel.textContent = powerOn ? "ON" : "OFF";
     this._root.querySelector(".shc-wr-power").classList.toggle("on", powerOn);
 
-    const sensor = hass.states[cfg.station_sensor_entity] || hass.states["sensor.radio_alexa"] || hass.states["sensor.template_radio_alexa"];
+    const sensor = hass.states[this._wrSensorId(hass)];
     const nowImg = this._root.querySelector(".shc-wr-now-img");
     const nowName = this._root.querySelector(".shc-wr-now-name");
     const nowTag = this._root.querySelector(".shc-wr-now-tag");
@@ -13649,17 +13658,36 @@ class ShcAlexaWebradioCard extends HTMLElement {
     });
   }
 
+  // Trova il sensore delle stazioni: id della config, sensor.radio_alexa, sensor.template_radio_alexa, poi qualunque sensore con nome Radio Alexa o con gli attributi select + servizi (es. sensor.radio_alexa_2)
+  _wrSensorId(hass) {
+    const cfg = this._config;
+    const direct = [cfg.station_sensor_entity, "sensor.radio_alexa", "sensor.template_radio_alexa"].find((id) => id && hass.states[id]);
+    if (direct) return direct;
+    if (this._wrSensorCache && hass.states[this._wrSensorCache]) return this._wrSensorCache;
+    const ids = Object.keys(hass.states).filter((id) => id.startsWith("sensor."));
+    const found = ids.find((id) => /^sensor\.(template_)?radio_alexa(_\d+)?$/.test(id))
+      || ids.find((id) => String(hass.states[id].attributes?.friendly_name || "").toLowerCase() === "radio alexa")
+      || ids.find((id) => { const a = hass.states[id].attributes || {}; return a.select !== undefined && a.servizi !== undefined; });
+    this._wrSensorCache = found || "";
+    return this._wrSensorCache;
+  }
+
   // Controlla cosa manca (package non installato, speaker inesistenti o non nell'elenco del package) e lo scrive in chiaro sulla card
   _wrCheck(hass) {
     const cfg = this._config;
     const box = this._root.querySelector(".shc-wr-warn");
     if (!box) return;
     const T = (k) => shcT(hass, k);
-    const need = [cfg.power_entity, cfg.station_select_entity, cfg.station_sensor_entity, cfg.volume_entity, cfg.group_entity, cfg.speaker_list_entity, cfg.add_script || "script.add_alexa", cfg.remove_script || "script.remove_alexa", "sensor.alexa_speaker_multiroom"].filter(Boolean);
+    const sensorId = this._wrSensorId(hass);
+    const need = [cfg.power_entity, cfg.station_select_entity, cfg.volume_entity, cfg.group_entity, cfg.speaker_list_entity, cfg.add_script || "script.add_alexa", cfg.remove_script || "script.remove_alexa", "sensor.alexa_speaker_multiroom"].filter(Boolean);
     const lost = need.filter((id) => !hass.states[id]);
+    if (!sensorId && cfg.station_sensor_entity) lost.push(cfg.station_sensor_entity);
     const parts = [];
-    if (lost.length) parts.push(`<b>${esc(T("wr.warn_package"))}</b>: ${lost.map((x) => `<code>${esc(x)}</code>`).join(", ")}`);
-    else {
+    if (lost.length) {
+      const onlySensor = lost.length === 1 && lost[0] === cfg.station_sensor_entity;
+      parts.push(`<b>${esc(T(onlySensor ? "wr.warn_sensor" : "wr.warn_package"))}</b>: ${lost.map((x) => `<code>${esc(x)}</code>`).join(", ")}<br>${esc(T("wr.warn_check"))}`);
+    } else {
+      if (sensorId && sensorId !== cfg.station_sensor_entity && sensorId !== "sensor.template_radio_alexa") parts.push(`${esc(T("wr.sensor_other"))} <code>${esc(sensorId)}</code>`);
       const noEnt = (this._speakers || []).filter((sp) => !hass.states[sp.entity]);
       if (noEnt.length) parts.push(`<b>${esc(T("wr.warn_speakers"))}</b>: ${noEnt.map((sp) => `<code>${esc(sp.entity)}</code>`).join(", ")}`);
       const opts = hass.states[cfg.speaker_list_entity]?.attributes?.options || [];
