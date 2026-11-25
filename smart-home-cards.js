@@ -13331,12 +13331,14 @@ class ShcAlexaWebradioCard extends HTMLElement {
       });
       this._root.appendChild(overlay);
     }
+    this._dlgSync = null;
     overlay.innerHTML = `<div class="shc-ap-dialog">
       <div class="shc-ap-dialog-head"><h3>${esc(title)}</h3><button type="button" class="shc-ap-dialog-close">${ICON_CLOSE}</button></div>
       <div class="shc-ap-dialog-body">${bodyHtml}</div>
     </div>`;
     overlay.querySelector(".shc-ap-dialog-close").addEventListener("click", () => {
       overlay.hidden = true;
+      this._dlgSync = null;
     });
     overlay.hidden = false;
     return overlay;
@@ -13358,14 +13360,13 @@ class ShcAlexaWebradioCard extends HTMLElement {
   }
 
   _openAlarmDialog() {
-    const hass = this._hass;
     const cfg = this._config;
     const onEntity = cfg.alarm_on_entity;
     const offEntity = cfg.alarm_off_entity;
     const daysHtml = shcConfigList(cfg.alarm_days, WR_DEFAULT_ALARM_DAYS)
       .map(
         (d) =>
-          `<button type="button" class="shc-am-dev-chip shc-wr-day" data-entity="${esc(d.entity)}">${esc(d.name || shcEntityName(hass, d.entity))}</button>`,
+          `<button type="button" class="shc-am-dev-chip shc-wr-day" data-entity="${esc(d.entity)}">${esc(d.name || shcEntityName(this._hass, d.entity))}</button>`,
       )
       .join("");
     const overlay = this._openDialog(
@@ -13394,38 +13395,39 @@ class ShcAlexaWebradioCard extends HTMLElement {
     );
 
     const activeBtn = overlay.querySelector(".shc-wr-alarm-active");
-    const setActive = () => activeBtn.classList.toggle("on", hass.states[cfg.alarm_entity]?.state === "on");
-    setActive();
+    const onInput = overlay.querySelector(".shc-wr-alarm-on");
+    const offInput = overlay.querySelector(".shc-wr-alarm-off");
+    const chips = [...overlay.querySelectorAll(".shc-wr-day")];
+    const isOn = (id) => this._hass?.states[id]?.state === "on";
+    // Rilegge sempre this._hass: il popup resta aperto mentre HA aggiorna gli stati
+    const sync = () => {
+      activeBtn.classList.toggle("on", isOn(cfg.alarm_entity));
+      chips.forEach((chip) => chip.classList.toggle("on", isOn(chip.dataset.entity)));
+      const st = this._hass?.states;
+      if (this._root.activeElement !== onInput) onInput.value = (st?.[onEntity]?.state || "00:00:00").slice(0, 5);
+      if (this._root.activeElement !== offInput) offInput.value = (st?.[offEntity]?.state || "00:00:00").slice(0, 5);
+    };
+    this._dlgSync = sync;
+    sync();
     activeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       this._call("input_boolean", "toggle", { entity_id: cfg.alarm_entity });
-      setTimeout(setActive, 200);
     });
-
-    const onInput = overlay.querySelector(".shc-wr-alarm-on");
-    const offInput = overlay.querySelector(".shc-wr-alarm-off");
-    onInput.value = (hass.states[onEntity]?.state || "00:00:00").slice(0, 5);
-    offInput.value = (hass.states[offEntity]?.state || "00:00:00").slice(0, 5);
     onInput.addEventListener("change", (e) => {
       if (e.target.value) this._call("input_datetime", "set_datetime", { entity_id: onEntity, time: e.target.value + ":00" });
     });
     offInput.addEventListener("change", (e) => {
       if (e.target.value) this._call("input_datetime", "set_datetime", { entity_id: offEntity, time: e.target.value + ":00" });
     });
-
-    overlay.querySelectorAll(".shc-wr-day").forEach((chip) => {
-      const entity = chip.dataset.entity;
-      chip.classList.toggle("on", hass.states[entity]?.state === "on");
+    chips.forEach((chip) => {
       chip.addEventListener("click", (e) => {
         e.stopPropagation();
-        this._call("input_boolean", "toggle", { entity_id: entity });
-        setTimeout(() => chip.classList.toggle("on", hass.states[entity]?.state === "on"), 200);
+        this._call("input_boolean", "toggle", { entity_id: chip.dataset.entity });
       });
     });
   }
 
   _openVolumeOffDialog() {
-    const hass = this._hass;
     const cfg = this._config;
     const overlay = this._openDialog(
       shcT(this._hass, "alexawebradio.automatic_reduced_volume"),
@@ -13439,18 +13441,23 @@ class ShcAlexaWebradioCard extends HTMLElement {
       </div>`,
     );
     const activeBtn = overlay.querySelector(".shc-wr-vo-active");
-    const isOn = () => hass.states[cfg.volume_off_automation]?.state === "on";
-    activeBtn.classList.toggle("on", isOn());
+    const range = overlay.querySelector(".shc-wr-vo-range");
+    const val = overlay.querySelector(".shc-wr-vo-val");
+    const isOn = () => this._hass?.states[cfg.volume_off_automation]?.state === "on";
+    const sync = () => {
+      activeBtn.classList.toggle("on", isOn());
+      if (this._root.activeElement !== range) {
+        const cur = Number(this._hass?.states[cfg.volume_off_entity]?.state ?? 0);
+        range.value = cur;
+        val.textContent = Math.round(cur * 100) + "%";
+      }
+    };
+    this._dlgSync = sync;
+    sync();
     activeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       this._call("automation", isOn() ? "turn_off" : "turn_on", { entity_id: cfg.volume_off_automation });
-      setTimeout(() => activeBtn.classList.toggle("on", isOn()), 200);
     });
-    const range = overlay.querySelector(".shc-wr-vo-range");
-    const val = overlay.querySelector(".shc-wr-vo-val");
-    const cur = Number(hass.states[cfg.volume_off_entity]?.state ?? 0);
-    range.value = cur;
-    val.textContent = Math.round(cur * 100) + "%";
     range.addEventListener("input", () => {
       val.textContent = Math.round(Number(range.value) * 100) + "%";
     });
@@ -13620,6 +13627,8 @@ class ShcAlexaWebradioCard extends HTMLElement {
     if (!cfg || !this._root) return;
     if (ShcAlexaWebradioCard.REQUIRED_FIELDS.some(([key]) => !cfg[key])) return;
     shcRefreshAutoNames(this._root, hass);
+    const dlg = this._root.querySelector(".shc-ap-overlay");
+    if (this._dlgSync && dlg && !dlg.hidden) this._dlgSync();
 
     const powerOn = hass.states[cfg.power_entity]?.state === "on";
     const badge = this._root.querySelector(".shc-ap-badge");
@@ -18093,6 +18102,39 @@ function cfHeroSvg(id) {
 
 const CF_STATES = ["off", "standby", "heating", "brewing", "ready"];
 
+// side (come nella card elettrodomestici): righe scelte da te al posto di quelle automatiche.
+// Accetta side: { title, rows: [...] } oppure side: [ ...righe ]; riga = { label, icon, entity, format, on_label, off_label, max }
+const SHC_SIDE_ICONS = { bolt: "mdi:lightning-bolt", flag: "mdi:flag", timer: "mdi:timer-outline", euro: "mdi:currency-eur", sun: "mdi:white-balance-sunny", user: "mdi:account", home: "mdi:home", battery: "mdi:battery" };
+function shcSideRows(cfg) {
+  const sd = cfg && cfg.side;
+  const rows = Array.isArray(sd) ? sd : sd && Array.isArray(sd.rows) ? sd.rows : [];
+  return rows.filter((r) => r && (r.entity || r.label));
+}
+function shcSideIcon(r) {
+  const i = r && r.icon;
+  if (!i) return "mdi:information-outline";
+  return SHC_SIDE_ICONS[i] || (String(i).includes(":") ? i : "mdi:information-outline");
+}
+function shcSideFormat(hass, r) {
+  const st = r && r.entity ? hass.states[r.entity] : null;
+  if (!st || ["unavailable", "unknown"].includes(st.state)) return "\u2014";
+  const n = Number(st.state);
+  switch (r.format) {
+    case "percent": return Number.isFinite(n) ? `${n.toFixed(0)} %` : "\u2014";
+    case "count": return Number.isFinite(n) ? n.toFixed(0) : "\u2014";
+    case "kwh": return Number.isFinite(n) ? `${n.toFixed(2)} kWh` : "\u2014";
+    case "hours": return Number.isFinite(n) ? `${Math.floor(n)} h ${Math.round((n - Math.floor(n)) * 60)} min` : "\u2014";
+    case "since": {
+      const d = new Date(st.last_changed);
+      const hm = d.toLocaleTimeString(shcLoc(hass), { hour: "2-digit", minute: "2-digit" });
+      return d.toDateString() === new Date().toDateString() ? hm : `${d.toLocaleDateString(shcLoc(hass), { day: "2-digit", month: "2-digit" })} ${hm}`;
+    }
+    case "ratio": return Number.isFinite(n) ? `${n.toFixed(0)} / ${r.max ?? 100}` : "\u2014";
+    case "onoff": return st.state === "on" ? (r.on_label || shcT(hass, "live.on")) : (r.off_label || shcT(hass, "live.off"));
+    default: return st.state + (st.attributes?.unit_of_measurement ? ` ${st.attributes.unit_of_measurement}` : "");
+  }
+}
+
 class ShcCoffeeCard extends ShcDeviceCardBase {
   setConfig(config) {
     if (!config.entity || typeof config.entity !== "string") throw new Error(shcT(this._hass, "cf.entity_required"));
@@ -18159,6 +18201,9 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
             ${row("cf-r-machine", "mdi:information-outline", "cf.machine")}
             ${row("cf-r-en", "mdi:lightning-bolt-circle", "wh.energy")}
           </div>
+          <div class="shc-ap-cycle-list cf-side-list" hidden>
+            ${shcSideRows(c).map((r, i) => `<div class="shc-ap-cycle-row shc-ap-cycle-row-b"><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic"><ha-icon icon="${esc(shcSideIcon(r))}" style="--mdc-icon-size:16px"></ha-icon></span><small>${esc(r.label || "")}</small></span><b class="cf-sv-${i}">—</b></div>`).join("")}
+          </div>
         </div>
         <div class="shc-ap-warn" hidden></div>
         <div class="shc-ap-panel cf-power" role="button" tabindex="0" hidden>
@@ -18171,6 +18216,16 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
         </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = c.name;
+    if (shcSideRows(c).length) {
+      this._root.querySelector(".cf-side-list").hidden = false;
+      this._root.querySelector(".cf-rows > .shc-ap-cycle-list:not(.cf-side-list)").hidden = true;
+      const sdTitle = Array.isArray(c.side) ? "" : c.side.title;
+      if (sdTitle) {
+        const cap = this._root.querySelector(".cf-rows .shc-ap-cycle-cap");
+        cap.textContent = sdTitle;
+        cap.removeAttribute("data-i18n");
+      }
+    }
     if (c.bar_color) this._root.querySelector(".cf-power-bar").style.background = c.bar_color;
     const card = this._root.querySelector(".shc-ap-card");
     if (c.capsule_color) card.style.setProperty("--cf-cap", c.capsule_color);
@@ -18499,6 +18554,11 @@ class ShcCoffeeCard extends ShcDeviceCardBase {
     setRow("cf-r-machine", ms && !["unknown", "unavailable"].includes(ms.state) ? this._pretty(ms.state) : "—", !!cfg.state_entity && !!ms);
     const en = this._val(cfg.energy_entity);
     setRow("cf-r-en", en !== null ? `${clNum(en, 1)} kWh` : "—", !!cfg.energy_entity && cfg.show_power !== false);
+    const sideRows = shcSideRows(cfg);
+    sideRows.forEach((r, i) => {
+      const el = q(".cf-sv-" + i);
+      if (el) el.textContent = shcSideFormat(hass, r);
+    });
     rowsBox.hidden = cfg.hide_rows === true;
 
     // ---- banda potenza ----
@@ -18752,6 +18812,17 @@ class ShcCoffeeCardEditor extends ShcSimpleCardEditorBase {
         { key: "hide_capsules", label: T("cf.ed_hide_capsules"), kind: "bool" },
         { key: "show_capsule_bar", label: T("cf.ed_show_capsule_bar"), kind: "bool", def: true },
         { key: "hide_rows", label: T("cf.ed_hide_rows"), kind: "bool" },
+        { key: "side.title", label: T("cf.ed_side_title"), kind: "text", placeholder: T("cf.today_cap") },
+        { key: "side.rows", label: T("cf.ed_side_rows"), hint: T("cf.ed_side_rows_hint"), kind: "list", itemFields: [
+          { key: "entity", label: T("cf.ed_side_entity"), kind: "entity" },
+          { key: "label", label: T("cf.ed_side_label"), kind: "text" },
+          { key: "icon", label: T("cf.ed_side_icon"), kind: "text" },
+          { key: "format", label: T("cf.ed_side_format"), kind: "text" },
+        ]},
+        { key: "automation_entities", label: T("common.automations"), hint: T("common.automations_hint"), kind: "list", itemFields: [
+          { key: "entity", label: T("common.automation"), kind: "entity", domain: ["automation"] },
+          { key: "name", label: T("fritzcard.name"), kind: "text" },
+        ]},
         { key: "hide_power_band", label: T("cf.ed_hide_power"), kind: "bool" },
         { key: "show_power", label: T("cf.ed_show_power"), kind: "bool", def: true },
         { key: "layout", label: T("settings.layout"), kind: "layout", def: "centrato" },
@@ -19565,6 +19636,13 @@ Object.assign(SHC_I18N.it, {
   "cf.ed_show_steps": "Mostra le tappe (spenta, standby, riscaldamento...)",
   "cf.ed_hide_capsules": "Nascondi la scorta capsule",
   "cf.ed_hide_rows": "Nascondi l'elenco dei dati",
+  "cf.ed_side_title": "Titolo del riquadro laterale (side)",
+  "cf.ed_side_rows": "Righe del riquadro laterale (side)",
+  "cf.ed_side_rows_hint": "Se ne aggiungi, sostituiscono le righe automatiche accanto alla foto",
+  "cf.ed_side_entity": "Entità",
+  "cf.ed_side_label": "Nome della riga",
+  "cf.ed_side_icon": "Icona (es. mdi:water o bolt, flag, timer, euro)",
+  "cf.ed_side_format": "Formato: onoff, percent, count, kwh, hours, since, ratio (vuoto = stato e unità)",
   "cf.ed_show_capsule_bar": "Mostra la barra della scorta capsule (spento = solo Capsule: N)",
   "cf.ed_show_power": "Mostra i consumi (potenza, energia)",
   "cf.ed_hide_power": "Nascondi la banda potenza"
@@ -19638,6 +19716,13 @@ Object.assign(SHC_I18N.en, {
   "cf.ed_show_steps": "Show the steps (off, standby, heating...)",
   "cf.ed_hide_capsules": "Hide the capsule stock",
   "cf.ed_hide_rows": "Hide the data list",
+  "cf.ed_side_title": "Side panel title (side)",
+  "cf.ed_side_rows": "Side panel rows (side)",
+  "cf.ed_side_rows_hint": "If you add any, they replace the automatic rows next to the picture",
+  "cf.ed_side_entity": "Entity",
+  "cf.ed_side_label": "Row name",
+  "cf.ed_side_icon": "Icon (e.g. mdi:water or bolt, flag, timer, euro)",
+  "cf.ed_side_format": "Format: onoff, percent, count, kwh, hours, since, ratio (empty = state and unit)",
   "cf.ed_show_capsule_bar": "Show the capsule stock bar (off = only Capsules: N)",
   "cf.ed_show_power": "Show power use (power, energy)",
   "cf.ed_hide_power": "Hide the power band"
@@ -19711,6 +19796,13 @@ Object.assign(SHC_I18N.nl, {
   "cf.ed_show_steps": "Toon de stappen",
   "cf.ed_hide_capsules": "Verberg capsulevoorraad",
   "cf.ed_hide_rows": "Verberg de gegevenslijst",
+  "cf.ed_side_title": "Titel van het zijpaneel (side)",
+  "cf.ed_side_rows": "Rijen van het zijpaneel (side)",
+  "cf.ed_side_rows_hint": "Als je er toevoegt, vervangen ze de automatische rijen naast de foto",
+  "cf.ed_side_entity": "Entiteit",
+  "cf.ed_side_label": "Naam van de rij",
+  "cf.ed_side_icon": "Pictogram (bijv. mdi:water of bolt, flag, timer, euro)",
+  "cf.ed_side_format": "Formaat: onoff, percent, count, kwh, hours, since, ratio (leeg = status en eenheid)",
   "cf.ed_show_capsule_bar": "Toon de balk van de capsulevoorraad (uit = alleen Capsules: N)",
   "cf.ed_show_power": "Toon verbruik (vermogen, energie)",
   "cf.ed_hide_power": "Verberg de vermogensband"

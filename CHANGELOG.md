@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-25 — 1.31.0: WebRadio alarm popup stays in sync, coffee card `side`
+
+- **`shc-alexa-webradio-card`** (discussion #31): bug fix. The alarm popup (clock icon) and the "automatic reduced volume" popup read the Home Assistant state as it was when they were opened, so the switch, the day buttons and the times did not update while the popup stayed open (the alarm looked off even after pressing it, and a second press switched it off again). They now follow Home Assistant live.
+- `packages/alexa_webradio.yaml`: the `Multiroom Alexa` automation reads the station sensor from one `variables: radio_sensor:` line (the trigger keeps one more line), and a comment explains what to change if `sensor.radio_alexa` is not created. Behaviour unchanged for working setups.
+- `docs/alexa.md`: new "Problemi comuni" entry for the log message `ID ... already exists - ignoring` (change name + unique_id in the package, then `station_sensor_entity` and the automation).
+- **`shc-coffee-card`** (discussion #28): new `side` option, same format as the appliance cards (`side.title`, `side.rows[]` with `label`, `icon`, `entity`, `format`, `on_label`, `off_label`). If you set it, your rows replace the automatic ones next to the picture. Visual editor: Look section ("Side panel title / rows"). `automation_entities` is now also in the visual editor of the coffee card. Defaults unchanged.
+- `docs/macchina-caffe.md`: new `side` guide with numbered steps.
+
 ## 2026-11-25 — 1.30.1: Alexa WebRadio finds the station sensor under another name
 
 - **`shc-alexa-webradio-card`** (discussion #31): if `sensor.radio_alexa` does not exist, the card looks for `sensor.radio_alexa_2` / `_3`, `sensor.template_radio_alexa`, any sensor named "Radio Alexa" or with the attributes `select` and `servizi`, and uses it. The orange box tells you the name that was found and the option `station_sensor_entity` to set. When only that sensor is missing, the box suggests Developer tools > Check configuration and the log, and reminds that `configuration.yaml` must have a single `homeassistant:` key. Italian / English / Dutch.

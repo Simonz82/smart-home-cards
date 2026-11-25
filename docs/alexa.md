@@ -116,7 +116,7 @@ Stazioni TuneIn e playlist Spotify/Amazon Music/Deezer raggruppate in griglie co
 
 ### Prima di iniziare ti serve
 
-- **Home Assistant** con **smart-home-cards 1.30.1 o più nuova** (Impostazioni > Marketplace/HACS).
+- **Home Assistant** con **smart-home-cards 1.31.0 o più nuova** (Impostazioni > Marketplace/HACS).
 - L'integrazione **[Alexa Media Player](https://github.com/alandtse/alexa_media_player)**, già collegata al tuo account Amazon. Si installa da HACS. Senza questa la radio **non può suonare**: la card comanda i suoi `media_player`.
 - Almeno un **Echo/Alexa** che compare in Home Assistant. Per controllare: **Impostazioni > Dispositivi e servizi > Entità**, cerca `media_player`. Devi vedere i tuoi Echo.
 - Per Spotify, Amazon Music o Deezer: il servizio deve essere già collegato nell'app **Alexa** del telefono. TuneIn (le radio) non serve collegarlo.
@@ -329,7 +329,7 @@ Il file del package c'è, ma Home Assistant non ha creato il sensore **Radio Ale
 
 1. Vai su **Impostazioni > Dispositivi e servizi > Entità** e scrivi `radio` nella ricerca. Se vedi un sensore **Radio Alexa** con un id diverso (per esempio `sensor.radio_alexa_2`), copia l'id.
 2. Apri la card, premi la matita, e nel campo **Sensore stazione corrente** (`station_sensor_entity`) incolla quell'id. Salva.
-3. Apri `/config/packages/alexa_webradio.yaml` e cerca `sensor.radio_alexa` (compare nell'automazione **Multiroom Alexa**, due volte). Scrivi lo stesso id che hai copiato al passo 1. Salva.
+3. Apri `/config/packages/alexa_webradio.yaml` e cerca `sensor.radio_alexa` (compare nell'automazione **Multiroom Alexa**: una riga `radio_sensor:` sotto `variables` e una riga nel `trigger`). Scrivi lo stesso id che hai copiato al passo 1 in **entrambe**. Salva.
 4. Se il sensore non c'è proprio, vai su **Strumenti per sviluppatori > YAML > Verifica configurazione**. Se compare un errore, leggilo: di solito dice la riga del file che non va.
 5. Apri **Impostazioni > Sistema > Log** e cerca la parola `template` o `alexa_webradio`. Se leggi un errore, correggi quella riga e passa al passo 8.
 6. Apri `/config/configuration.yaml` (Ctrl+F e cerca `homeassistant:`). Se la parola compare **due volte** sulla riga senza spazi davanti, la seconda cancella la prima: i `packages` possono non essere caricati o essere caricati a metà. Lascia **una sola** chiave `homeassistant:` e metti sotto tutte le righe (`name`, `packages`, `customize`...). Esempio:
@@ -349,6 +349,31 @@ Vuol dire che esisteva già un sensore con quel nome, di una vecchia prova o di 
 
 1. Più semplice: segui i passi 1-3 qui sopra e usa l'id con il numero.
 2. Più pulita: vai su **Impostazioni > Dispositivi e servizi > Entità**, cerca `radio_alexa`, apri il sensore **vecchio** (quello senza numero, di solito "non disponibile"), premi l'ingranaggio e **Elimina**. Poi apri quello con il numero, premi l'ingranaggio e scrivi `sensor.radio_alexa` come **ID entità**. Salva.
+
+#### Nel log c'è "ID radio_alexa already exists - ignoring" (il sensore non viene creato)
+
+Vuol dire che nel tuo Home Assistant esiste già qualcosa con lo stesso identificativo interno (`unique_id`) `radio_alexa`: una vecchia prova, un altro file di template o una voce rimasta nel registro. Home Assistant tiene la prima e **scarta la seconda**: il sensore del package non nasce, la card dice "Non trovo" e l'automazione **Multiroom Alexa** va in errore. La soluzione è dare al sensore del package un nome e un identificativo tutti suoi. Non toccare altro.
+
+1. Apri **Impostazioni > Sistema > Log** e cerca `already exists`. Se leggi `ID radio_alexa already exists`, sei in questo caso.
+2. Apri `/config/packages/alexa_webradio.yaml` (File editor o Studio Code Server) e cerca `unique_id: radio_alexa`.
+3. Cambia le due righe sopra, per esempio:
+
+```yaml
+      - name: Radio Alexa Casa
+        unique_id: radio_alexa_casa
+```
+
+   Il nuovo sensore si chiamerà `sensor.radio_alexa_casa`.
+4. Nello stesso file cerca `radio_sensor:` (sotto l'automazione **Multiroom Alexa**) e scrivi `sensor.radio_alexa_casa`. Poi cerca la riga `- sensor.radio_alexa` nel `trigger` della stessa automazione e scrivi lo stesso id. Salva.
+5. Apri la card (matita), nel campo **Sensore stazione corrente** (`station_sensor_entity`) scrivi `sensor.radio_alexa_casa`. Salva.
+6. Vai su **Strumenti per sviluppatori > YAML**, premi **Verifica configurazione** e poi **Riavvia Home Assistant**. Poi **Ctrl+F5** sulla dashboard.
+7. Controlla in **Strumenti per sviluppatori > Stati** che `sensor.radio_alexa_casa` esista e abbia gli attributi `select` e `servizi`. Prova una stazione: l'automazione **Multiroom Alexa** deve partire senza errori.
+
+Se la radio funzionava già, **non cambiare niente**: questo serve solo a chi vede l'errore nel log.
+
+#### Il popup della sveglia non si aggiorna (corretto nella 1.31.0)
+
+Con le versioni fino alla 1.30.1 il popup aperto con l'icona dell'orologio non seguiva Home Assistant: l'interruttore e i giorni sembravano fermi finché non uscivi e rientravi. Aggiorna alla 1.31.0 e premi **Ctrl+F5**: ora il popup si aggiorna da solo e l'interruttore "Sveglia attiva" si accende subito.
 
 #### Altre entità del package non trovate (`input_select`, `group`, `script`)
 

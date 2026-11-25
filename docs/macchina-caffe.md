@@ -139,6 +139,7 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 - `power_max`: potenza a fondo barra (default 1500 W).
 - `show_steps: true` mostra anche le tappe (spenta, standby, riscaldamento, erogazione, pronta) sotto il disegno.
 - `hide_rows`, `hide_power_band`, `hide_capsules`, `hide_refill`: nascondono le sezioni.
+- `side`: scegli tu le righe a fianco della foto (layout classico) o sotto la foto (centrato), vedi [Righe a tua scelta](#righe-a-tua-scelta-side-1310).
 - `show_capsule_bar: false`: tiene la scorta capsule ma toglie la barra, la soglia e i giorni rimanenti. Resta solo la scritta con il numero.
 - `show_power: false`: nasconde tutti i consumi: la banda della potenza, i watt scritti sul disegno della macchina (resta "ON") e la riga dell'energia. Default `true` (come prima).
 - `layout: classico` mette la foto a sinistra e il blocco "Oggi" a destra, come le altre card elettrodomestico; `layout: centrato` (predefinito) tiene la foto in alto a tutta larghezza. Si sceglie anche dall'editor visuale (Aspetto) o con `layout_entity`, vedi [layout.md](layout.md).
@@ -171,6 +172,7 @@ L'ingranaggio compare se hai configurato entità modificabili: capsule rimanenti
 | `show_steps`, `hide_capsules`, `hide_refill`, `hide_rows`, `hide_power_band` | No | `false` | Sezioni da mostrare/nascondere |
 | `show_capsule_bar` | No | `true` | `false` = solo la scritta con il numero delle capsule, senza barra |
 | `show_power` | No | `true` | `false` = nasconde i consumi (banda potenza, watt sul disegno, energia) |
+| `side` | No | - | Righe scelte da te al posto di quelle automatiche: `side.title` e `side.rows[]` (`label`, `icon`, `entity`, `format`, `on_label`, `off_label`) |
 | `layout`, `layout_entity` | No | `centrato` | `classico` (foto a sinistra, dettagli a destra) o `centrato`; vedi [layout.md](layout.md) |
 
 Le righe compaiono solo se imposti la relativa entità. Il pannello ℹ mostra scorta, manutenzione (con "Fatto"), stato, valori, soglie e l'ultimo cambio.
@@ -196,3 +198,44 @@ show_power: false         # niente consumi
 ```
 
 Dopo l'aggiornamento premi **Ctrl+F5** nel browser.
+
+## Righe a tua scelta (side, 1.31.0)
+
+Nel layout classico a destra della foto c'è un blocco con i dati della macchina (stato, caffè di oggi, acqua...). Con `side` lo riempi tu: entità, automazioni di stato, quello che vuoi. È la stessa opzione delle altre card elettrodomestico (lavatrice, lavastoviglie...). Se non la usi, non cambia niente. Le automazioni da attivare e spegnere restano in `automation_entities` (compaiono nelle Impostazioni, icona ingranaggio).
+
+1. Apri la dashboard, premi la matita in alto a destra, poi i tre puntini sulla card e **Modifica**.
+2. Scorri fino alla sezione **Aspetto**.
+3. In **Titolo del riquadro laterale (side)** scrivi il titolo che vuoi (per esempio `Macchina`). Se lo lasci vuoto resta "Dettagli".
+4. In **Righe del riquadro laterale (side)** premi **Aggiungi**. Per ogni riga scegli l'**Entità**, scrivi il **Nome della riga** e, se vuoi, l'**Icona** (per esempio `mdi:water`) e il **Formato**.
+5. Ripeti il passo 4 per ogni riga. Premi **Rimuovi** per toglierne una.
+6. Premi **Salva**, poi **Ctrl+F5** nel browser.
+
+Formati: `onoff` (Acceso/Spento, con `on_label` e `off_label` se vuoi altre parole), `percent`, `count`, `kwh`, `hours` (ore decimali in "h min"), `since` (ora dell'ultimo cambio), `ratio` (es. 3 / 10). Senza formato vedi stato e unità. Icone: qualsiasi `mdi:...`, oppure `bolt`, `flag`, `timer`, `euro`, `sun`, `user`, `home`, `battery`.
+
+Lo stesso in YAML:
+
+```yaml
+type: custom:shc-coffee-card
+entity: switch.macchina_caffe
+layout: classico
+side:
+  title: Macchina
+  rows:
+    - label: Temperatura
+      icon: mdi:thermometer
+      entity: sensor.macchina_caffe_temperatura
+    - label: Acqua
+      entity: sensor.macchina_caffe_acqua
+      format: percent
+    - label: Decalcificazione
+      entity: binary_sensor.macchina_caffe_decalcifica
+      format: onoff
+      on_label: Da fare
+      off_label: Ok
+automation_entities:
+  - automation.macchina_caffe_spegni_se_inattiva
+```
+
+Se imposti `side`, le righe automatiche (stato, caffè di oggi, acqua, decalcificazione, vaschetta...) non si vedono più: restano tutte le altre parti della card (scorta capsule, avvisi, banda potenza) e il pannello ℹ. Per tornare come prima togli `side`. Con `hide_rows: true` il blocco si nasconde del tutto.
+
+**EN** — `side` (1.31.0): your own rows next to the picture (same format as the appliance cards: `side.title`, `side.rows[]` with `label`, `icon`, `entity`, `format`, `on_label`, `off_label`). Replaces the automatic rows; remove it to go back. Also in the visual editor (Look section).

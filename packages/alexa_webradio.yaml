@@ -31,6 +31,10 @@ group:
 
 template:
   - sensor:
+      # Se il sensore non compare (nel log: "ID radio_alexa already exists - ignoring"):
+      # cambia sia name sia unique_id qui (es. "Radio Alexa Casa" / radio_alexa_casa),
+      # poi metti il nuovo id in station_sensor_entity della card e nell'automazione
+      # Multiroom Alexa piu' sotto (2 punti vicini: trigger e variables). Vedi docs/alexa.md.
       - name: Radio Alexa
         unique_id: radio_alexa
         state: >
@@ -426,6 +430,9 @@ automation:
 
   - alias: Multiroom Alexa
     id: Multiroom Alexa
+    # Sensore stazione: se il tuo si chiama diverso, cambialo qui e nel trigger (le due righe sotto)
+    variables:
+      radio_sensor: sensor.radio_alexa
     trigger:
       - platform: state
         entity_id:
@@ -448,9 +455,9 @@ automation:
               - action: media_player.play_media
                 data:
                   entity_id: "{{ state_attr('group.multiroom_alexa', 'entity_id') }}"
-                  media_content_type: "{{ state_attr('sensor.radio_alexa', 'servizi') }}"
+                  media_content_type: "{{ state_attr(radio_sensor, 'servizi') }}"
                   media_content_id: >
-                    {{ state_attr('sensor.radio_alexa', 'select') }}
+                    {{ state_attr(radio_sensor, 'select') }}
 
           - conditions:
               - condition: state
