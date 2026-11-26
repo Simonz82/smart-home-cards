@@ -106,7 +106,7 @@ Tap a card to open its guide.
   </tr>
   <tr>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/router.gif" width="100%" alt="🌐 Router / Gateway (any brand)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md">🌐 Router / Gateway (any brand)</a></b></sub></td>
-    <td width="33%"></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/acqua.gif" width="100%" alt="💧 Water usage (one sensor: hour to year, flow, chart, leak alert)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md">💧 Water usage (one sensor: hour to year, flow, chart, leak alert)</a></b></sub></td>
     <td width="33%"></td>
   </tr>
 </table>
@@ -167,6 +167,7 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 - [Router / Gateway, any brand (UniFi, FRITZ!Box, TP-Link, OpenWrt...): finds the router and its entities by itself](https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md)
 - [Parked car, up to 3 cars per family, one card each (map, address, distance, "Take me to the car", automatic save on Bluetooth, Android Auto or CarPlay disconnect)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
+- [Water usage, one sensor (hour, day, week, month, year, total, flow, daily chart, leak alert, night usage, cost) + pulse-meter package](https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md)
 - [Common options: `automation_entities` and `image_scale` on many cards](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
 Example, coffee machine on a smart plug (states from the power draw, thresholds in W, capsule stock counted in Home Assistant by `packages/coffee_capsule.yaml`):
@@ -299,7 +300,7 @@ Tocca una card per aprire la sua guida.
   </tr>
   <tr>
     <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/router.gif" width="100%" alt="🌐 Router / Gateway (qualsiasi marca)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md">🌐 Router / Gateway (qualsiasi marca)</a></b></sub></td>
-    <td width="33%"></td>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/acqua.gif" width="100%" alt="💧 Consumi acqua (un solo sensore: da ora ad anno, portata, grafico, avviso perdita)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md">💧 Consumi acqua (un solo sensore: da ora ad anno, portata, grafico, avviso perdita)</a></b></sub></td>
     <td width="33%"></td>
   </tr>
 </table>
@@ -360,6 +361,7 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
 - [Router / Gateway, qualsiasi marca (UniFi, FRITZ!Box, TP-Link, OpenWrt...): trova da sola il router e le sue entità](https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md)
 - [Auto parcheggiata, fino a 3 auto per famiglia, una card per auto (mappa, indirizzo, distanza, "Portami all'auto", salvataggio automatico allo scollegamento di Bluetooth, Android Auto o CarPlay)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
+- [Consumi acqua, un solo sensore (ora, giorno, settimana, mese, anno, totale, portata, grafico, avviso perdita, notte, costo) + package per contatore a impulsi](https://github.com/Simonz82/smart-home-cards/blob/main/docs/acqua.md)
 - [Opzioni comuni: `automation_entities` e `image_scale` su molte card](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
 Esempio, macchina del caffè su presa smart (stati dalla potenza, soglie in W, scorta capsule contata in Home Assistant da `packages/coffee_capsule.yaml`):

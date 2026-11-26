@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-26 - 1.33.0: new Water usage card
+
+- **New `shc-water-card`** (discussion #32): water consumption from ONE total sensor (litres or m³, `device_class: water`, `state_class: total_increasing`; any source: pulse counter package, ESPHome `pulse_meter`, Shelly, meter integrations). The visual editor picks the first water sensor by itself and explains each field in plain words. This hour / today / week / month / year come from the long-term statistics (`recorder/statistics_during_period`, `change`) plus what flowed in the last minutes; "Total" is the sensor value. Every number is shown in litres and in m³ (automatic conversion from the sensor unit, `unit` option to choose the big one).
+- Flow in L/min: from the optional `flow_entity`, otherwise worked out from the recent history of the total (0 when nothing flows).
+- Extras: daily bar chart (7 or 30 days, tap a bar), leak alert (`leak_minutes`, default 120: water running with no pause), night usage (`night_from`, `night_to`, optional `night_limit` alert), optional cost (`price_per_m3`, `currency`). Italian, English, Dutch.
+- New `examples/acqua_contatore_impulsi.yaml`: package for a pulse meter (1 pulse = 1 litre: counter, automation, total sensors in L and m³, flow, utility meters, night alert) and `docs/acqua.md` with numbered steps.
+
 ## 2026-11-26 - 1.32.0: generic Router / Gateway card, public radio logos
 
 - **New `shc-router-card`** (discussion #13): one card for any router (UniFi, FRITZ!Box, TP-Link / Omada, OpenWrt, ASUS, MikroTik, Netgear, UPnP...). It finds the router in the Home Assistant registry by itself and maps connection status, external IP, uptime, download/upload speed (any unit), line speed, total traffic, connected devices (sensor or `device_tracker` count), Wi-Fi switches, reconnect/reboot buttons and the firmware update. Missing items are hidden, never an error. Minimal config: `type: custom:shc-router-card`. Visual editor: router device selector ("Automatic" by default) and every entity field already filled with what was found, all overridable. Guide with numbered steps: `docs/router.md`. Italian / English.

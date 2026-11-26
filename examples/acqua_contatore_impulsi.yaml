@@ -1,0 +1,126 @@
+# =====================================================================
+# Contatore acqua a impulsi (1 impulso = 1 litro) -> sensore totale per la card shc-water-card
+#
+# Serve SOLO se il tuo contatore dell'acqua ha un contatto pulito (impulso) e Home Assistant
+# non ha ancora un sensore che conta i litri. Se hai gia' un sensore "totale acqua"
+# (ESPHome pulse_meter, Shelly, integrazione del contatore...), questo file NON ti serve:
+# metti quel sensore nella card e basta.
+#
+# Come si usa (passo per passo: docs/acqua.md):
+#   1. Copia questo file in /config/packages/acqua.yaml
+#   2. In configuration.yaml deve esserci (una volta sola):
+#        homeassistant:
+#          packages: !include_dir_named packages
+#   3. Cambia UNA riga: binary_sensor.contatore_acqua_impulso  ->  il tuo sensore dell'impulso
+#   4. Impostazioni > Sistema > Riavvia (un riavvio completo, non basta "ricarica")
+#   5. Metti la card: type: custom:shc-water-card   entity: sensor.acqua_totale_litri
+#
+# Richiede Home Assistant 2024.10 o piu' recente (sintassi triggers: / actions:).
+# =====================================================================
+
+counter:
+  acqua_litri_impulsi:
+    name: Acqua litri (impulsi)
+    step: 1
+    restore: true
+
+automation:
+  # 1 impulso (da spento ad acceso) = +1 litro
+  - id: acqua_conta_impulso_litro
+    alias: Acqua - conta impulso litro
+    mode: queued
+    max: 100
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.contatore_acqua_impulso   # <-- CAMBIA QUESTA RIGA
+        from: "off"
+        to: "on"
+    actions:
+      - action: counter.increment
+        target:
+          entity_id: counter.acqua_litri_impulsi
+
+  # Avviso consumo di notte (tra l'1 e le 5): al massimo un messaggio all'ora
+  - id: acqua_consumo_notturno
+    alias: Acqua - consumo di notte
+    mode: single
+    max_exceeded: silent
+    triggers:
+      - trigger: state
+        entity_id: sensor.acqua_totale_litri
+    conditions:
+      - condition: time
+        after: "01:00:00"
+        before: "05:00:00"
+    actions:
+      - action: notify.notify   # <-- CAMBIA con il tuo servizio, es. notify.mobile_app_il_tuo_telefono
+        data:
+          title: Acqua
+          message: Sta passando acqua di notte. Controlla rubinetti e sciacquoni.
+      - delay:
+          hours: 1
+
+template:
+  - sensor:
+      - name: Acqua totale litri
+        unique_id: acqua_totale_litri
+        unit_of_measurement: L
+        device_class: water
+        state_class: total_increasing
+        state: "{{ states('counter.acqua_litri_impulsi') | int(0) }}"
+      - name: Acqua totale m3
+        unique_id: acqua_totale_m3
+        unit_of_measurement: m³
+        device_class: water
+        state_class: total_increasing
+        state: "{{ (states('counter.acqua_litri_impulsi') | int(0) / 1000) | round(3) }}"
+      # Facoltativo: la card calcola la portata da sola. Serve se vuoi la portata in altre card o automazioni.
+      - name: Acqua portata
+        unique_id: acqua_portata_l_min
+        unit_of_measurement: L/min
+        state_class: measurement
+        icon: mdi:water-pump
+        state: "{{ states('sensor.acqua_litri_ultimo_minuto') | float(0) | round(0) }}"
+
+sensor:
+  # litri contati nell'ultimo minuto = portata in L/min
+  - platform: statistics
+    name: Acqua litri ultimo minuto
+    unique_id: acqua_litri_ultimo_minuto
+    entity_id: sensor.acqua_totale_litri
+    state_characteristic: change
+    max_age:
+      minutes: 1
+    sampling_size: 500
+    keep_last_sample: true
+
+# Facoltativo: contatori che si azzerano da soli (ora, giorno, settimana, mese, anno).
+# La card NON ne ha bisogno (usa le statistiche di Home Assistant), servono per altre card o automazioni.
+utility_meter:
+  acqua_ora_litri:
+    source: sensor.acqua_totale_litri
+    cycle: hourly
+  acqua_giorno_litri:
+    source: sensor.acqua_totale_litri
+    cycle: daily
+  acqua_settimana_litri:
+    source: sensor.acqua_totale_litri
+    cycle: weekly
+  acqua_mese_litri:
+    source: sensor.acqua_totale_litri
+    cycle: monthly
+  acqua_anno_litri:
+    source: sensor.acqua_totale_litri
+    cycle: yearly
+  acqua_giorno_m3:
+    source: sensor.acqua_totale_m3
+    cycle: daily
+  acqua_settimana_m3:
+    source: sensor.acqua_totale_m3
+    cycle: weekly
+  acqua_mese_m3:
+    source: sensor.acqua_totale_m3
+    cycle: monthly
+  acqua_anno_m3:
+    source: sensor.acqua_totale_m3
+    cycle: yearly

@@ -21992,6 +21992,692 @@ class ShcRouterCardEditor extends ShcSimpleCardEditorBase {
 customElements.define("shc-router-card-editor", ShcRouterCardEditor);
 
 // -----------------------------------------------------------------------
+// shc-water-card (1.33.0): consumi acqua da UN solo sensore totale (litri o m3, state_class total_increasing).
+// Periodi ora/oggi/settimana/mese/anno dalle statistiche a lungo termine (recorder/statistics_during_period,
+// types change) + parte "di adesso" dallo stato vivo; portata L/min da sensore o calcolata dalla storia recente;
+// grafico barre giornaliero 7/30 giorni, avviso perdita, consumo notturno, costo opzionale.
+// -----------------------------------------------------------------------
+const SHC_WT_I18N = {
+  it: {
+    name: "Consumo acqua", flow: "Portata adesso", running: "In uso", idle: "Ferma", leak: "Perdita?", unavailable: "Non disponibile",
+    p_hour: "Quest'ora", p_day: "Oggi", p_week: "Settimana", p_month: "Mese", p_year: "Anno", p_life: "Totale",
+    chart: "Consumo al giorno", d7: "7 giorni", d30: "30 giorni", avg: "Media: {v} al giorno", cost: "Costo",
+    night: "Notte {a}-{b}", warn_leak: "L'acqua scorre da almeno {n} minuti senza fermarsi. Controlla rubinetti, sciacquoni e tubi.",
+    warn_night: "Di notte hai usato {v} (limite {l}). Controlla se c'è una perdita.",
+    pick: "Scegli il sensore del contatore acqua nelle impostazioni della card.", missing: "Non trovo il sensore {e}.",
+    nostats: "Le statistiche non ci sono ancora: il sensore deve avere state_class total_increasing e servono un paio d'ore di dati.",
+    unit_tip: "Cambia unità: automatica, litri, m³",
+    ed_basic: "Contatore", ed_entity: "Sensore del contatore acqua (totale)",
+    ed_entity_hint: "È il sensore che conta tutta l'acqua passata e sale sempre (in litri o in m³). Se non sai quale scegliere, lascia quello già selezionato.",
+    ed_name: "Nome della card", ed_flow: "Sensore di portata (facoltativo)",
+    ed_flow_hint: "Se hai già un sensore che dice quanti litri al minuto passano, mettilo qui. Se lo lasci vuoto la card calcola la portata da sola.",
+    ed_show: "Come si vede", ed_unit: "Unità mostrata in grande", ed_unit_auto: "Automatica (litri se pochi, m³ se tanti)", ed_unit_l: "Litri", ed_unit_m3: "Metri cubi (m³)",
+    ed_days: "Giorni nel grafico", ed_days_7: "Ultimi 7 giorni", ed_days_30: "Ultimi 30 giorni",
+    ed_alerts: "Avvisi", ed_leak: "Avviso perdita dopo (minuti)",
+    ed_leak_hint: "Se l'acqua scorre senza mai fermarsi per tutto questo tempo, la card diventa rossa. Metti 0 per spegnere l'avviso.",
+    ed_night_from: "Notte: dalle ore", ed_night_to: "Notte: fino alle ore", ed_night_limit: "Avviso consumo di notte (litri)",
+    ed_night_limit_hint: "Se di notte passano più litri di questi, la card ti avvisa. Metti 0 per vedere solo il numero, senza avviso.",
+    ed_cost: "Costo", ed_price: "Prezzo dell'acqua (euro per m³)",
+    ed_price_hint: "Facoltativo. Lo trovi in bolletta (per esempio 2,10). Serve per vedere quanto spendi nel mese e nell'anno. Vuoto = nessun costo.",
+    ed_currency: "Simbolo della valuta",
+  },
+  en: {
+    name: "Water usage", flow: "Flow now", running: "In use", idle: "Idle", leak: "Leak?", unavailable: "Unavailable",
+    p_hour: "This hour", p_day: "Today", p_week: "Week", p_month: "Month", p_year: "Year", p_life: "Total",
+    chart: "Usage per day", d7: "7 days", d30: "30 days", avg: "Average: {v} per day", cost: "Cost",
+    night: "Night {a}-{b}", warn_leak: "Water has been running for at least {n} minutes without a break. Check taps, toilets and pipes.",
+    warn_night: "You used {v} during the night (limit {l}). Check for a leak.",
+    pick: "Pick the water meter sensor in the card settings.", missing: "Sensor {e} not found.",
+    nostats: "No statistics yet: the sensor needs state_class total_increasing and a couple of hours of data.",
+    unit_tip: "Change unit: automatic, litres, m³",
+    ed_basic: "Meter", ed_entity: "Water meter sensor (total)",
+    ed_entity_hint: "The sensor that counts all the water used and only goes up (in litres or m³). If unsure, keep the one already selected.",
+    ed_name: "Card name", ed_flow: "Flow sensor (optional)",
+    ed_flow_hint: "If you already have a sensor that tells litres per minute, put it here. If you leave it empty the card works the flow out by itself.",
+    ed_show: "Look", ed_unit: "Unit shown big", ed_unit_auto: "Automatic (litres when small, m³ when big)", ed_unit_l: "Litres", ed_unit_m3: "Cubic metres (m³)",
+    ed_days: "Days in the chart", ed_days_7: "Last 7 days", ed_days_30: "Last 30 days",
+    ed_alerts: "Alerts", ed_leak: "Leak alert after (minutes)",
+    ed_leak_hint: "If water runs without ever stopping for this long, the card turns red. Use 0 to turn the alert off.",
+    ed_night_from: "Night: from hour", ed_night_to: "Night: until hour", ed_night_limit: "Night usage alert (litres)",
+    ed_night_limit_hint: "If more litres than this flow at night, the card warns you. Use 0 to just see the number, with no alert.",
+    ed_cost: "Cost", ed_price: "Water price (per m³)",
+    ed_price_hint: "Optional. You find it on your bill (for example 2.10). It shows how much you spend per month and per year. Empty = no cost.",
+    ed_currency: "Currency symbol",
+  },
+  nl: {
+    name: "Waterverbruik", flow: "Debiet nu", running: "In gebruik", idle: "Stil", leak: "Lek?", unavailable: "Niet beschikbaar",
+    p_hour: "Dit uur", p_day: "Vandaag", p_week: "Week", p_month: "Maand", p_year: "Jaar", p_life: "Totaal",
+    chart: "Verbruik per dag", d7: "7 dagen", d30: "30 dagen", avg: "Gemiddeld: {v} per dag", cost: "Kosten",
+    night: "Nacht {a}-{b}", warn_leak: "Het water stroomt al minstens {n} minuten zonder te stoppen. Controleer kranen, toiletten en leidingen.",
+    warn_night: "Je hebt 's nachts {v} gebruikt (limiet {l}). Controleer of er een lek is.",
+    pick: "Kies de watermeter-sensor in de kaartinstellingen.", missing: "Sensor {e} niet gevonden.",
+    nostats: "Nog geen statistieken: de sensor heeft state_class total_increasing nodig en een paar uur data.",
+    unit_tip: "Eenheid wisselen: automatisch, liters, m³",
+    ed_basic: "Meter", ed_entity: "Watermeter-sensor (totaal)",
+    ed_entity_hint: "De sensor die al het gebruikte water telt en alleen stijgt (in liters of m³). Weet je het niet, laat dan de gekozen sensor staan.",
+    ed_name: "Naam van de kaart", ed_flow: "Debiet-sensor (optioneel)",
+    ed_flow_hint: "Heb je al een sensor met liters per minuut, zet die hier. Laat je dit leeg, dan rekent de kaart het debiet zelf uit.",
+    ed_show: "Weergave", ed_unit: "Eenheid groot getoond", ed_unit_auto: "Automatisch (liters bij weinig, m³ bij veel)", ed_unit_l: "Liters", ed_unit_m3: "Kubieke meters (m³)",
+    ed_days: "Dagen in de grafiek", ed_days_7: "Laatste 7 dagen", ed_days_30: "Laatste 30 dagen",
+    ed_alerts: "Meldingen", ed_leak: "Lekmelding na (minuten)",
+    ed_leak_hint: "Stroomt het water zo lang zonder ooit te stoppen, dan wordt de kaart rood. Gebruik 0 om uit te zetten.",
+    ed_night_from: "Nacht: vanaf uur", ed_night_to: "Nacht: tot uur", ed_night_limit: "Melding nachtverbruik (liters)",
+    ed_night_limit_hint: "Stroomt er 's nachts meer dan dit, dan waarschuwt de kaart. Gebruik 0 om alleen het getal te zien, zonder melding.",
+    ed_cost: "Kosten", ed_price: "Waterprijs (per m³)",
+    ed_price_hint: "Optioneel. Staat op je rekening (bijvoorbeeld 2,10). Zo zie je wat je per maand en per jaar uitgeeft. Leeg = geen kosten.",
+    ed_currency: "Valutasymbool",
+  },
+};
+function shcWt(hass, key, vars) {
+  const l = shcLang(hass);
+  let t = SHC_WT_I18N[l]?.[key] ?? SHC_WT_I18N.en[key] ?? key;
+  if (vars) for (const k of Object.keys(vars)) t = t.split("{" + k + "}").join(String(vars[k]));
+  return t;
+}
+
+// litri per unita' del sensore (litri se l'unita' manca o e' sconosciuta)
+function shcWtFactor(unit) {
+  const u = String(unit || "").trim().toLowerCase().replace("³", "3");
+  return { l: 1, m3: 1000, gal: 3.785411784, ft3: 28.316846592, ccf: 2831.684659 }[u] ?? 1;
+}
+// litri al minuto per unita' di portata
+function shcWtFlowFactor(unit) {
+  const u = String(unit || "").trim().toLowerCase().replace("³", "3").replace(/\s/g, "");
+  return { "l/min": 1, "l/h": 1 / 60, "l/s": 60, "m3/h": 1000 / 60, "m3/min": 1000, "gal/min": 3.785411784, "gal/h": 3.785411784 / 60, "ft3/min": 28.316846592 }[u] ?? 1;
+}
+// sensori acqua trovati in HA: device_class water, total/total_increasing, esclusi i contatori a ciclo (utility_meter)
+function shcWaterCandidates(hass) {
+  const out = [];
+  for (const st of Object.values(hass?.states || {})) {
+    const a = st.attributes || {};
+    if (!st.entity_id.startsWith("sensor.") || a.device_class !== "water") continue;
+    if (!["total", "total_increasing"].includes(a.state_class)) continue;
+    if (a.meter_period !== undefined || a.last_period !== undefined) continue;
+    out.push({ id: st.entity_id, name: a.friendly_name || st.entity_id, inc: a.state_class === "total_increasing" ? 0 : 1 });
+  }
+  return out.sort((x, y) => x.inc - y.inc || x.id.localeCompare(y.id));
+}
+
+const SHC_WT_STYLE = `
+.shc-wt-card .wt-hero{display:flex;align-items:center;gap:14px;margin:0 13px;padding:10px 14px;border-radius:18px;background:linear-gradient(135deg,rgba(14,165,233,.16),rgba(14,165,233,.04))}
+.shc-wt-card .wt-drop{flex:0 0 64px;width:64px;height:78px}
+.shc-wt-card .wt-drop svg{width:100%;height:100%;display:block;overflow:visible}
+.shc-wt-card .wt-wave{transform-box:view-box}
+.shc-wt-card.is-run .wt-wave1{animation:wt-wave 2.2s ease-in-out infinite alternate}
+.shc-wt-card.is-run .wt-wave2{animation:wt-wave 3.1s ease-in-out infinite alternate-reverse}
+.shc-wt-card.is-run .wt-drop svg{animation:shch-a-bob 2.4s ease-in-out infinite}
+@keyframes wt-wave{from{transform:translateX(-9px)}to{transform:translateX(9px)}}
+.shc-wt-card.is-off .wt-drop{filter:grayscale(.45) opacity(.75)}
+.shc-wt-card .wt-flowbox{min-width:0;display:flex;flex-direction:column;gap:2px}
+.shc-wt-card .wt-flowcap{font-size:11px;font-weight:850;letter-spacing:.4px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-wt-card .wt-flowval{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.shc-wt-card .wt-flowval b{font-size:34px;line-height:1;font-weight:900;letter-spacing:-1px;color:var(--shc-text)}
+.shc-wt-card .wt-flowval i{font-style:normal;font-size:13px;font-weight:800;color:var(--shc-dim)}
+.shc-wt-card.is-run .wt-flowval b{color:var(--shc-blue-deep)}
+.shc-wt-card.has-alarm .wt-flowval b{color:#b91c1c}
+.shc-wt-card .wt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:10px 13px 0}
+.shc-wt-card .wt-tile{min-width:0;padding:9px 11px;border-radius:14px;border:1px solid var(--shc-border);background:var(--shc-soft,transparent);display:flex;flex-direction:column;gap:1px}
+.shc-wt-card .wt-tile.click{cursor:pointer}
+.shc-wt-card .wt-tl{font-size:10.5px;font-weight:850;letter-spacing:.4px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-wt-card .wt-tv{font-size:18px;font-weight:900;color:var(--shc-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-wt-card .wt-tv small{font-size:11.5px;font-weight:800;color:var(--shc-dim);margin-left:3px}
+.shc-wt-card .wt-ta{font-size:11.5px;font-weight:700;color:var(--shc-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shc-wt-card .wt-tc{font-size:11.5px;font-weight:850;color:#15803d}
+.shc-wt-card .wt-chart{margin:10px 13px 0;padding:10px 11px 8px;border-radius:14px;border:1px solid var(--shc-border)}
+.shc-wt-card .wt-chead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.shc-wt-card .wt-ctitle{font-size:10.5px;font-weight:850;letter-spacing:.4px;text-transform:uppercase;color:var(--shc-dim)}
+.shc-wt-card .wt-seg{display:flex;gap:4px}
+.shc-wt-card .wt-seg button{padding:4px 9px;border-radius:999px;border:1px solid var(--shc-border);background:var(--shc-card);color:var(--shc-dim);font:inherit;font-size:11.5px;font-weight:800;cursor:pointer}
+.shc-wt-card .wt-seg button.on{background:var(--shc-blue);border-color:var(--shc-blue);color:#fff}
+.shc-wt-card .wt-svg{width:100%;height:auto;display:block}
+.shc-wt-card .wt-bar{fill:#38bdf8;cursor:pointer;transition:fill .2s}
+.shc-wt-card .wt-bar.today{fill:#0284c7}
+.shc-wt-card .wt-bar.sel{fill:#0ea5e9;stroke:#0369a1;stroke-width:1}
+.shc-wt-card .wt-ax{font-size:9.5px;font-weight:700;fill:var(--shc-dim);font-family:inherit}
+.shc-wt-card .wt-bv{font-size:9.5px;font-weight:800;fill:var(--shc-text);font-family:inherit}
+.shc-wt-card .wt-cap{min-height:16px;margin-top:2px;text-align:center;font-size:12px;font-weight:800;color:var(--shc-dim)}
+.shc-wt-card .wt-night{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:10px 13px 0;padding:0 2px;font-size:13px;font-weight:800;color:var(--shc-dim)}
+.shc-wt-card .wt-night b{color:var(--shc-text);font-size:14px}
+.shc-wt-card .wt-night.bad b{color:#b91c1c}
+.shc-wt-card .wt-note{margin:10px 13px 0;font-size:12px;font-weight:700;color:var(--shc-dim);line-height:1.4}
+.shc-wt-card .shc-ap-warn{margin:10px 13px 0}
+.shc-wt-card .wt-empty{margin:12px 13px;padding:16px;text-align:center;border-radius:14px;border:1px dashed var(--shc-border);font-size:13px;font-weight:800;color:var(--shc-dim);line-height:1.4}
+.shc-wt-card .wt-tail{height:13px}
+.shc-wt-card [hidden]{display:none!important}
+`;
+
+class ShcWaterCard extends HTMLElement {
+  setConfig(config) {
+    const num = (v, d) => (v === undefined || v === null || v === "" || !Number.isFinite(Number(v)) ? d : Number(v));
+    this._config = {
+      ...config,
+      chart_days: Number(config.chart_days) === 30 ? 30 : 7,
+      leak_minutes: Math.min(720, Math.max(0, num(config.leak_minutes, 120))),
+      night_from: Math.min(23, Math.max(0, Math.round(num(config.night_from, 1)))),
+      night_to: Math.min(24, Math.max(1, Math.round(num(config.night_to, 5)))),
+      night_limit: Math.max(0, num(config.night_limit, 0)),
+      flow_minutes: Math.min(30, Math.max(1, num(config.flow_minutes, 2))),
+      price_per_m3: Math.max(0, num(config.price_per_m3 ?? config.price, 0)),
+      currency: config.currency || "€",
+    };
+    this._unitPref = ["L", "m3"].includes(config.unit) ? config.unit : "auto";
+    this._days = this._config.chart_days;
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._resolved = null;
+    this._per = null;
+    this._chart = null;
+    this._night = null;
+    this._series = null;
+    this._lastStats = 0;
+    this._lastHist = 0;
+    this._statsErr = false;
+    this._sel = null;
+    this._build();
+    if (this._hass) this.hass = this._hass;
+  }
+
+  connectedCallback() {
+    this._tick = setInterval(() => this._hass && this._config && this._tickRun(), 20000);
+  }
+
+  disconnectedCallback() {
+    clearInterval(this._tick);
+  }
+
+  _q(sel) {
+    return this._root.querySelector(sel);
+  }
+
+  _T(k, v) {
+    return shcWt(this._hass, k, v);
+  }
+
+  _build() {
+    this._lang = shcLang(this._hass);
+    const T = (k) => esc(this._T(k));
+    const tile = (key, label) => `<div class="wt-tile${key === "life" ? " click" : ""}" data-p="${key}"><span class="wt-tl">${esc(label)}</span><span class="wt-tv">—</span><span class="wt-ta"></span><span class="wt-tc" hidden></span></div>`;
+    this._root.innerHTML = `<style>${STYLE}${SHC_WT_STYLE}</style>
+      <article class="shc-ap-card shc-wt-card is-off">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip"><ha-icon icon="mdi:water" style="--mdc-icon-size:22px;color:#0ea5e9"></ha-icon></span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge off"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools"><button type="button" class="shc-ap-tool wt-unit" title="${T("unit_tip")}"><b style="font-size:10px;letter-spacing:-.2px">auto</b></button></span>
+        </div>
+        <div class="wt-empty" hidden></div>
+        <div class="wt-main">
+          <div class="wt-hero">
+            <div class="wt-drop"><svg viewBox="0 0 64 78" aria-hidden="true">
+              <defs><clipPath id="wt-clip"><path d="M32 3C32 3 6 33 6 52a26 26 0 0 0 52 0C58 33 32 3 32 3z"/></clipPath>
+              <linearGradient id="wt-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#0284c7"/></linearGradient></defs>
+              <path d="M32 3C32 3 6 33 6 52a26 26 0 0 0 52 0C58 33 32 3 32 3z" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.2"/>
+              <g clip-path="url(#wt-clip)"><g class="wt-wave wt-wave2" opacity=".55"><path d="M-12 46q11-7 22 0t22 0 22 0 22 0V80H-12z" fill="#38bdf8"/></g>
+              <g class="wt-wave wt-wave1"><path d="M-12 52q11-7 22 0t22 0 22 0 22 0V80H-12z" fill="url(#wt-g)"/></g></g>
+              <path d="M18 44q-2 10 4 17" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>
+            </svg></div>
+            <div class="wt-flowbox"><span class="wt-flowcap">${T("flow")}</span><span class="wt-flowval"><b class="wt-flow">—</b><i>L/min</i></span></div>
+          </div>
+          <div class="shc-ap-warn" hidden><ha-icon icon="mdi:water-alert" style="--mdc-icon-size:20px"></ha-icon><span class="wt-warn-t"></span></div>
+          <div class="wt-grid">${tile("hour", this._T("p_hour"))}${tile("day", this._T("p_day"))}${tile("week", this._T("p_week"))}${tile("month", this._T("p_month"))}${tile("year", this._T("p_year"))}${tile("life", this._T("p_life"))}</div>
+          <div class="wt-chart">
+            <div class="wt-chead"><span class="wt-ctitle">${T("chart")}</span>
+              <span class="wt-seg"><button type="button" data-d="7">${T("d7")}</button><button type="button" data-d="30">${T("d30")}</button></span></div>
+            <svg class="wt-svg" viewBox="0 0 320 120" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="wt-cap"></div>
+          </div>
+          <div class="wt-night" hidden><span class="wt-night-l"></span><b class="wt-night-v">—</b></div>
+          <div class="wt-note" hidden></div>
+          <div class="wt-tail"></div>
+        </div>
+      </article>`;
+    this._q(".shc-ap-name").textContent = this._config.name || this._T("name");
+    this._q(".wt-unit").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._unitPref = this._unitPref === "auto" ? "L" : this._unitPref === "L" ? "m3" : "auto";
+      this._update();
+    });
+    this._q('.wt-tile[data-p="life"]').addEventListener("click", () => this._moreInfo(this._resolved));
+    this._root.querySelectorAll(".wt-seg button").forEach((b) =>
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._days = Number(b.dataset.d);
+        this._sel = null;
+        this._chart = null;
+        this._lastStats = 0;
+        this._loadStats();
+        this._update();
+      }),
+    );
+  }
+
+  _moreInfo(entityId) {
+    if (!entityId) return;
+    const e = new Event("hass-more-info", { bubbles: true, composed: true });
+    e.detail = { entityId };
+    this.dispatchEvent(e);
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._config || !this._root) return;
+    if (this._lang !== shcLang(hass)) this._build();
+    const id = this._config.entity || shcWaterCandidates(hass)[0]?.id || "";
+    if (id !== this._resolved) {
+      this._resolved = id;
+      this._per = this._chart = this._night = this._series = null;
+      this._lastStats = this._lastHist = 0;
+    }
+    this._pushLive();
+    this._tickRun();
+  }
+
+  // un campione nuovo ogni volta che il totale cambia (serve per portata e perdita senza richiamare la storia)
+  _pushLive() {
+    const st = this._hass?.states[this._resolved];
+    const v = Number(st?.state);
+    if (!st || !Number.isFinite(v) || !this._series) return;
+    const t = Date.parse(st.last_updated) || Date.now();
+    const last = this._series[this._series.length - 1];
+    if (!last || (t > last.t && (v !== last.v || t - last.t > 600000))) this._series.push({ t, v: v * shcWtFactor(st.attributes?.unit_of_measurement) });
+    const cut = Date.now() - 13 * 3600000;
+    while (this._series.length > 2 && this._series[1].t < cut) this._series.shift();
+  }
+
+  _tickRun() {
+    const now = Date.now();
+    if (this._resolved && this._hass?.callWS) {
+      if (now - this._lastStats > 300000) this._loadStats();
+      if (now - this._lastHist > 300000) this._loadHist();
+    }
+    this._update();
+  }
+
+  async _loadHist() {
+    if (this._histBusy) return;
+    const id = this._resolved;
+    this._histBusy = true;
+    this._lastHist = Date.now();
+    try {
+      const mins = Math.min(720, Math.max(this._config.leak_minutes, this._config.flow_minutes, 10)) + 10;
+      const res = await this._hass.callWS({
+        type: "history/history_during_period",
+        start_time: new Date(Date.now() - mins * 60000).toISOString(),
+        end_time: new Date().toISOString(),
+        entity_ids: [id],
+        include_start_time_state: true,
+        significant_changes_only: false,
+        minimal_response: true,
+        no_attributes: true,
+      });
+      if (id !== this._resolved) return;
+      const f = shcWtFactor(this._hass.states[id]?.attributes?.unit_of_measurement);
+      const out = [];
+      for (const r of res?.[id] || []) {
+        const v = Number(r.s ?? r.state);
+        const raw = r.lu ?? r.lc ?? r.last_updated;
+        const t = typeof raw === "number" ? raw * 1000 : Date.parse(raw);
+        if (Number.isFinite(v) && Number.isFinite(t)) out.push({ t, v: v * f });
+      }
+      out.sort((a, b) => a.t - b.t);
+      this._series = out;
+      this._histOk = out.length > 0;
+      this._pushLive();
+    } catch (e) {
+      this._series = this._series || [];
+      this._histOk = false;
+    } finally {
+      this._histBusy = false;
+      this._update();
+    }
+  }
+
+  async _loadStats() {
+    if (this._statsBusy) return;
+    const id = this._resolved;
+    this._statsBusy = true;
+    this._lastStats = Date.now();
+    const H = 3600000;
+    const D = 24 * H;
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const d = now.getDate();
+    const dow = (now.getDay() + 6) % 7;
+    const ts = (v) => (typeof v === "number" ? v : Date.parse(v));
+    // righe del periodo + una riga di prima, il cui "state" e' la base per la parte non ancora compilata
+    const q = async (period, start, lookMs, end) => {
+      const msg = { type: "recorder/statistics_during_period", start_time: new Date(start.getTime() - lookMs).toISOString(), statistic_ids: [id], period, types: ["change", "state"] };
+      if (end) msg.end_time = end.toISOString();
+      const res = await this._hass.callWS(msg);
+      return (res?.[id] || []).map((r) => ({ t: ts(r.start), ch: Number(r.change) || 0, st: r.state === null || r.state === undefined ? null : Number(r.state) }));
+    };
+    const pack = (rows, start) => {
+      if (!rows.length) return null;
+      const s0 = start.getTime();
+      const last = [...rows].reverse().find((r) => Number.isFinite(r.st));
+      return { sum: rows.filter((r) => r.t >= s0).reduce((a, r) => a + r.ch, 0), last: last ? last.st : null };
+    };
+    try {
+      const starts = { hour: new Date(y, m, d, now.getHours()), day: new Date(y, m, d), week: new Date(y, m, d - dow), month: new Date(y, m, 1), year: new Date(y, 0, 1) };
+      const plan = { hour: ["5minute", 10 * 60000], day: ["hour", 2 * H], week: ["day", D], month: ["day", D], year: ["month", 32 * D] };
+      const per = {};
+      await Promise.all(Object.keys(plan).map(async (k) => (per[k] = pack(await q(plan[k][0], starts[k], plan[k][1]), starts[k]))));
+      const n = this._days;
+      const cs = new Date(y, m, d - (n - 1));
+      const rows = await q("day", cs, D);
+      const byDay = {};
+      for (const r of rows) {
+        const dt = new Date(r.t);
+        byDay[`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`] = (byDay[`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`] || 0) + r.ch;
+      }
+      const lastRow = [...rows].reverse().find((r) => Number.isFinite(r.st));
+      const bars = [];
+      for (let i = 0; i < n; i++) {
+        const dt = new Date(y, m, d - (n - 1) + i);
+        bars.push({ date: dt, raw: byDay[`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`] || 0 });
+      }
+      // notte: ultima finestra [dalle, alle) iniziata
+      const nf = this._config.night_from;
+      const nt = this._config.night_to;
+      let ns = new Date(y, m, d, nf);
+      if (ns.getTime() > now.getTime()) ns = new Date(y, m, d - 1, nf);
+      const len = (((nt - nf) % 24) + 24) % 24 || 24;
+      const ne = new Date(ns.getTime() + len * H);
+      const nrows = await q("hour", ns, 2 * H, ne);
+      const npack = pack(nrows.filter((r) => r.t < ne.getTime()), ns);
+      if (id !== this._resolved) return;
+      this._per = per;
+      this._chart = { bars, last: lastRow ? lastRow.st : null };
+      this._night = npack ? { sum: npack.sum, last: npack.last, live: now.getTime() < ne.getTime() } : { sum: 0, last: null, live: false, empty: true };
+      this._statsErr = false;
+    } catch (e) {
+      this._statsErr = true;
+    } finally {
+      this._statsBusy = false;
+      this._update();
+    }
+  }
+
+  // ---- numeri -------------------------------------------------------------
+  _fmt(n, maxFrac) {
+    return n.toLocaleString(shcLoc(this._hass), { minimumFractionDigits: 0, maximumFractionDigits: maxFrac });
+  }
+
+  // litri -> { txt, unit, alt }
+  _vol(l, unit) {
+    const u = unit || this._unitPref;
+    const asM3 = u === "m3" || (u === "auto" && Math.abs(l) >= 1000);
+    const lt = `${this._fmt(l, Math.abs(l) < 100 ? 1 : 0)} L`;
+    const mt = `${this._fmt(l / 1000, Math.abs(l) < 1000 ? 3 : 2)} m³`;
+    return asM3 ? { txt: this._fmt(l / 1000, Math.abs(l) < 1000 ? 3 : 2), unit: "m³", alt: lt } : { txt: this._fmt(l, Math.abs(l) < 100 ? 1 : 0), unit: "L", alt: mt };
+  }
+
+  _liveRaw() {
+    const st = this._hass?.states[this._resolved];
+    const v = Number(st?.state);
+    return Number.isFinite(v) ? v : null;
+  }
+
+  // litri di un periodo = somma delle statistiche + quanto e' passato dopo l'ultima riga compilata
+  _perL(p) {
+    if (!p) return null;
+    const live = this._liveRaw();
+    const f = shcWtFactor(this._hass.states[this._resolved]?.attributes?.unit_of_measurement);
+    const tail = live !== null && p.last !== null && live >= p.last ? live - p.last : 0;
+    return Math.max(0, (p.sum + tail) * f);
+  }
+
+  _valueAt(t) {
+    const s = this._series;
+    if (!s || !s.length) return null;
+    let v = s[0].v;
+    for (const p of s) {
+      if (p.t <= t) v = p.v;
+      else break;
+    }
+    return v;
+  }
+
+  _flow() {
+    const cfg = this._config;
+    const fe = cfg.flow_entity ? this._hass.states[cfg.flow_entity] : null;
+    if (fe) {
+      const v = Number(fe.state);
+      if (Number.isFinite(v)) return Math.max(0, v * shcWtFlowFactor(fe.attributes?.unit_of_measurement));
+    }
+    const now = Date.now();
+    const a = this._valueAt(now);
+    const b = this._valueAt(now - cfg.flow_minutes * 60000);
+    if (a === null || b === null) return null;
+    return Math.max(0, (a - b) / cfg.flow_minutes);
+  }
+
+  // minuti di acqua senza pause (a blocchi da 5 minuti), 0 se non c'e' perdita
+  _leakMinutes() {
+    const N = this._config.leak_minutes;
+    if (!N || !this._histOk || !this._series?.length) return 0;
+    const bins = Math.max(2, Math.ceil(N / 5));
+    const w = (N * 60000) / bins;
+    const now = Date.now();
+    for (let i = 0; i < bins; i++) {
+      const e = now - i * w;
+      const a = this._valueAt(e);
+      const b = this._valueAt(e - w);
+      if (a === null || b === null || !(a - b > 0)) return 0;
+    }
+    return N;
+  }
+
+  _update() {
+    if (!this._root || !this._config || !this._hass) return;
+    const hass = this._hass;
+    const cfg = this._config;
+    const id = this._resolved;
+    const st = id ? hass.states[id] : null;
+    const empty = this._q(".wt-empty");
+    const main = this._q(".wt-main");
+    const card = this._q(".shc-wt-card");
+    if (!id || !st) {
+      empty.hidden = false;
+      main.hidden = true;
+      empty.textContent = id ? this._T("missing", { e: id }) : this._T("pick");
+      this._setBadge("unavailable", this._T("unavailable"));
+      card.className = "shc-ap-card shc-wt-card is-off";
+      return;
+    }
+    empty.hidden = true;
+    main.hidden = false;
+    const unavailable = ["unavailable", "unknown"].includes(st.state);
+    const flow = unavailable ? null : this._flow();
+    const leakMin = this._leakMinutes();
+    const nightOver = this._night && cfg.night_limit > 0 && this._nightL() > cfg.night_limit;
+    const running = flow !== null && flow > 0;
+    card.className = `shc-ap-card shc-wt-card ${unavailable ? "is-unavailable" : running ? "is-run" : "is-off"}${leakMin || nightOver ? " has-alarm" : ""}`;
+    if (unavailable) this._setBadge("unavailable", this._T("unavailable"));
+    else if (leakMin) this._setBadge("unavailable", this._T("leak"));
+    else if (running) this._setBadge("run", this._T("running"));
+    else this._setBadge("off", this._T("idle"));
+    this._q(".wt-flow").textContent = flow === null ? "—" : this._fmt(flow, flow < 10 ? 1 : 0);
+    // avvisi
+    const warn = this._q(".shc-ap-warn");
+    if (leakMin) {
+      warn.hidden = false;
+      this._q(".wt-warn-t").textContent = this._T("warn_leak", { n: leakMin });
+    } else if (nightOver) {
+      warn.hidden = false;
+      this._q(".wt-warn-t").textContent = this._T("warn_night", { v: this._fmtVol(this._nightL()), l: this._fmtVol(cfg.night_limit) });
+    } else warn.hidden = true;
+    // pulsante unita'
+    this._q(".wt-unit b").textContent = { auto: "auto", L: "L", m3: "m³" }[this._unitPref];
+    // tessere
+    const price = cfg.price_per_m3;
+    const setTile = (k, l) => {
+      const t = this._q(`.wt-tile[data-p="${k}"]`);
+      const v = t.querySelector(".wt-tv");
+      const a = t.querySelector(".wt-ta");
+      const c = t.querySelector(".wt-tc");
+      if (l === null) {
+        v.textContent = "—";
+        a.textContent = "";
+        c.hidden = true;
+        return;
+      }
+      const o = this._vol(l);
+      v.innerHTML = `${esc(o.txt)}<small>${esc(o.unit)}</small>`;
+      a.textContent = o.alt;
+      c.hidden = !(price > 0 && (k === "month" || k === "year"));
+      if (!c.hidden) c.textContent = `${this._T("cost")}: ${this._fmt((l / 1000) * price, 2)} ${cfg.currency}`;
+    };
+    for (const k of ["hour", "day", "week", "month", "year"]) setTile(k, this._per ? this._perL(this._per[k]) : null);
+    const f = shcWtFactor(st.attributes?.unit_of_measurement);
+    const lv = this._liveRaw();
+    setTile("life", unavailable || lv === null ? null : lv * f);
+    this._drawChart();
+    // notte
+    const nb = this._q(".wt-night");
+    nb.hidden = !this._night;
+    if (this._night) {
+      nb.classList.toggle("bad", !!nightOver);
+      this._q(".wt-night-l").textContent = this._T("night", { a: String(cfg.night_from).padStart(2, "0"), b: String(cfg.night_to).padStart(2, "0") });
+      this._q(".wt-night-v").textContent = this._fmtVol(this._nightL());
+    }
+    const note = this._q(".wt-note");
+    note.hidden = !(this._statsErr || (this._per && Object.values(this._per).every((v) => v === null)));
+    note.textContent = this._T("nostats");
+  }
+
+  _nightL() {
+    const n = this._night;
+    if (!n) return 0;
+    return this._perL({ sum: n.sum, last: n.live ? n.last : null }) ?? 0;
+  }
+
+  _fmtVol(l) {
+    const o = this._vol(l, l >= 1000 && this._unitPref === "auto" ? "m3" : this._unitPref === "m3" ? "m3" : "L");
+    return `${o.txt} ${o.unit}`;
+  }
+
+  _setBadge(cls, label) {
+    const b = this._q(".shc-ap-badge");
+    b.className = `shc-ap-badge ${cls}`;
+    this._q(".shc-ap-badge-label").textContent = label;
+  }
+
+  _drawChart() {
+    const seg = this._root.querySelectorAll(".wt-seg button");
+    seg.forEach((b) => b.classList.toggle("on", Number(b.dataset.d) === this._days));
+    const svg = this._q(".wt-svg");
+    const cap = this._q(".wt-cap");
+    if (!this._chart) {
+      svg.innerHTML = "";
+      cap.textContent = "";
+      return;
+    }
+    const f = shcWtFactor(this._hass.states[this._resolved]?.attributes?.unit_of_measurement);
+    const live = this._liveRaw();
+    const bars = this._chart.bars.map((b) => ({ date: b.date, l: b.raw * f }));
+    const tail = live !== null && this._chart.last !== null && live >= this._chart.last ? (live - this._chart.last) * f : 0;
+    bars[bars.length - 1].l += tail;
+    const max = Math.max(...bars.map((b) => b.l), 1);
+    const unit = this._unitPref === "m3" || (this._unitPref === "auto" && max >= 1000) ? "m3" : "L";
+    const n = bars.length;
+    const W = 320;
+    const left = 4;
+    const gw = (W - left * 2) / n;
+    const bw = gw * (n <= 7 ? 0.62 : 0.7);
+    const top = 16;
+    const base = 100;
+    const wd = shcWeekdayAbbr(this._hass);
+    const short = (l) => (unit === "m3" ? this._fmt(l / 1000, l < 1000 ? 2 : 1) : this._fmt(l, 0));
+    let h = `<line x1="${left}" x2="${W - left}" y1="${base}" y2="${base}" stroke="currentColor" stroke-opacity=".18"/>`;
+    bars.forEach((b, i) => {
+      const bh = Math.max(b.l > 0 ? 2 : 0, ((base - top) * b.l) / max);
+      const x = left + i * gw + (gw - bw) / 2;
+      const today = i === n - 1;
+      h += `<rect class="wt-bar${today ? " today" : ""}${this._sel === i ? " sel" : ""}" data-i="${i}" x="${x.toFixed(1)}" y="${(base - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="3"></rect>`;
+      if (n <= 7) {
+        h += `<text class="wt-bv" x="${(x + bw / 2).toFixed(1)}" y="${(base - bh - 3).toFixed(1)}" text-anchor="middle">${short(b.l)}</text>`;
+        h += `<text class="wt-ax" x="${(x + bw / 2).toFixed(1)}" y="114" text-anchor="middle">${esc(wd[b.date.getDay()])}</text>`;
+      } else if (i % 5 === (n - 1) % 5) {
+        h += `<text class="wt-ax" x="${(x + bw / 2).toFixed(1)}" y="114" text-anchor="middle">${b.date.getDate()}</text>`;
+      }
+    });
+    svg.innerHTML = h;
+    svg.querySelectorAll(".wt-bar").forEach((r) =>
+      r.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._sel = this._sel === Number(r.dataset.i) ? null : Number(r.dataset.i);
+        this._drawChart();
+      }),
+    );
+    const fmtU = (l) => {
+      const o = this._vol(l, unit);
+      return `${o.txt} ${o.unit}`;
+    };
+    if (this._sel !== null && bars[this._sel]) {
+      const b = bars[this._sel];
+      cap.textContent = `${b.date.toLocaleDateString(shcLoc(this._hass), { weekday: "short", day: "numeric", month: "short" })}: ${fmtU(b.l)}`;
+    } else {
+      const done = bars.slice(0, -1);
+      const avg = (done.length ? done : bars).reduce((a, b) => a + b.l, 0) / (done.length || n);
+      cap.textContent = this._T("avg", { v: fmtU(avg) });
+    }
+  }
+
+  getCardSize() {
+    return 7;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-water-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const c = hass ? shcWaterCandidates(hass)[0] : null;
+    return c ? { entity: c.id } : {};
+  }
+}
+customElements.define("shc-water-card", ShcWaterCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-water-card",
+  name: "Consumi acqua",
+  description: "Consumi dell'acqua da un solo sensore totale (litri o m³): ora, oggi, settimana, mese, anno, totale, portata L/min, grafico giornaliero, avviso perdita, consumo notturno e costo",
+  author: "Simonz82",
+});
+
+class ShcWaterCardEditor extends ShcSimpleCardEditorBase {
+  _autoValue(key) {
+    return key === "entity" ? shcWaterCandidates(this._hass)[0]?.id || "" : "";
+  }
+  get schema() {
+    const T = (k) => shcWt(this._hass, k);
+    return [
+      { title: T("ed_basic"), fields: [
+        { key: "entity", label: T("ed_entity"), domain: ["sensor"], hint: T("ed_entity_hint") },
+        { key: "name", label: T("ed_name"), kind: "text", placeholder: T("name") },
+        { key: "flow_entity", label: T("ed_flow"), domain: ["sensor"], hint: T("ed_flow_hint") },
+      ]},
+      { title: T("ed_show"), fields: [
+        { key: "unit", label: T("ed_unit"), kind: "select", options: [{ value: "", label: T("ed_unit_auto") }, { value: "L", label: T("ed_unit_l") }, { value: "m3", label: T("ed_unit_m3") }] },
+        { key: "chart_days", label: T("ed_days"), kind: "select", options: [{ value: "7", label: T("ed_days_7") }, { value: "30", label: T("ed_days_30") }] },
+      ]},
+      { title: T("ed_alerts"), fields: [
+        { key: "leak_minutes", label: T("ed_leak"), kind: "number", placeholder: "120", hint: T("ed_leak_hint") },
+        { key: "night_from", label: T("ed_night_from"), kind: "number", placeholder: "1" },
+        { key: "night_to", label: T("ed_night_to"), kind: "number", placeholder: "5" },
+        { key: "night_limit", label: T("ed_night_limit"), kind: "number", placeholder: "0", hint: T("ed_night_limit_hint") },
+      ]},
+      { title: T("ed_cost"), fields: [
+        { key: "price_per_m3", label: T("ed_price"), kind: "number", placeholder: "2.10", hint: T("ed_price_hint") },
+        { key: "currency", label: T("ed_currency"), kind: "text", placeholder: "€" },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-water-card-editor", ShcWaterCardEditor);
+
+// -----------------------------------------------------------------------
 // Opzioni comuni (1.30.0): image_scale su tutte le card con immagine/disegno (.shc-ap-hero),
 // campi comuni dell'editor visuale. Senza image_scale la card e' identica a prima.
 // -----------------------------------------------------------------------
