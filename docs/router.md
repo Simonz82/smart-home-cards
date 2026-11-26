@@ -13,6 +13,7 @@ Non serve nessun package: la card usa solo le entità che l'integrazione del tuo
 | Download e Upload in tempo reale (barre) | in basso; tocca una barra per il grafico |
 | Interruttori Wi-Fi (principale, ospiti...), pulsanti **Riconnetti** e **Riavvia** | ingranaggio |
 | Traffico totale, firmware | icona informazioni |
+| Elenco dispositivi di rete in ordine di IP | icona monitor |
 | Avviso "Aggiornamento firmware disponibile" | riquadro rosso |
 
 ## Installazione passo per passo
@@ -55,6 +56,7 @@ Nell'editor, nella sezione **Entità (trovate da sole, puoi cambiarle)**, ogni c
 | `reboot_entity` | pulsante di riavvio |
 | `update_entity` | entità `update` del firmware |
 | `wifi_entities` | elenco di interruttori Wi-Fi: `- entity: switch.xxx` e, se vuoi, `name:` |
+| `devices_source` | Fonte dell'elenco dispositivi: `auto` (default), `router` o `nmap` |
 | `max_mbps` | fondo scala delle barre se la linea non è nota (default: automatico) |
 | `automation_entities`, `image_scale` | come nelle altre card ([opzioni comuni](opzioni-comuni.md)) |
 
@@ -70,6 +72,26 @@ wifi_entities:
   - entity: switch.router_wifi_ospiti
     name: Wi-Fi ospiti
 ```
+
+## Elenco dei dispositivi di rete (pulsante "Dispositivi in rete")
+
+Se in Home Assistant c'è l'integrazione del tuo router (FRITZ!Box, UniFi, TP-Link...) e/o **Nmap Tracker**, in alto sulla card compare un pulsante con l'icona di un monitor. Se non c'è nessuna fonte, il pulsante resta nascosto.
+
+1. Clicca l'icona del monitor.
+2. Si apre l'elenco: nome, indirizzo IP, MAC, rete Wi-Fi (se la conosce) e un pallino verde (a casa) o grigio (fuori, con l'ultima volta in cui è stato visto).
+3. L'elenco è in ordine di IP (192.168.1.2 prima di 192.168.1.10).
+4. In alto scegli **Connessi** (solo quelli a casa) o **Tutti**.
+5. Clicca una riga per aprire la scheda dell'entità.
+
+Se hai sia il router sia Nmap, i due elenchi vengono uniti per MAC: ogni dispositivo compare una volta sola, col nome dato dal router.
+
+Per cambiare fonte usa `devices_source` (nell'editor: "Dove prendere l'elenco dei dispositivi"):
+
+```yaml
+devices_source: auto   # auto (default: router + Nmap) | router | nmap
+```
+
+Per avere Nmap: Impostazioni > Dispositivi e servizi > Aggiungi integrazione > **Nmap Tracker**, poi scrivi la tua rete (per esempio `192.168.1.0/24`).
 
 ## Problemi comuni
 

@@ -1947,6 +1947,16 @@ const SHC_I18N = {
       "editor.an_entity_is_required": "Serve un'entita' per far funzionare la card.",
       "fritzcard.basic": "Base",
       "fritzcard.name": "Nome",
+      "router.devices": "Dispositivi in rete",
+      "router.devices_connected": "Connessi",
+      "router.devices_all": "Tutti",
+      "router.devices_none": "Nessun dispositivo da mostrare.",
+      "router.devices_seen": "visto",
+      "router.f_devices_source": "Dove prendere l'elenco dei dispositivi",
+      "router.f_devices_source_hint": "Automatico: usa il router e/o Nmap tracker, se presenti. Il pulsante si nasconde se non c'è nessuna fonte.",
+      "router.src_auto": "Automatico (router + Nmap)",
+      "router.src_router": "Solo router",
+      "router.src_nmap": "Solo Nmap tracker",
       "router.settings": "Impostazioni",
       "router.info": "Informazioni",
       "router.graphs": "Grafici",
@@ -3144,6 +3154,16 @@ const SHC_I18N = {
       "editor.an_entity_is_required": "An entity is required for the card to work.",
       "fritzcard.basic": "Basic",
       "fritzcard.name": "Name",
+      "router.devices": "Network devices",
+      "router.devices_connected": "Connected",
+      "router.devices_all": "All",
+      "router.devices_none": "No devices to show.",
+      "router.devices_seen": "seen",
+      "router.f_devices_source": "Where to take the device list from",
+      "router.f_devices_source_hint": "Automatic: uses the router and/or Nmap tracker, if present. The button is hidden when there is no source.",
+      "router.src_auto": "Automatic (router + Nmap)",
+      "router.src_router": "Router only",
+      "router.src_nmap": "Nmap tracker only",
       "router.settings": "Settings",
       "router.info": "Information",
       "router.graphs": "Charts",
@@ -7936,6 +7956,7 @@ class ShcFritzCardEditor extends ShcSimpleCardEditorBase {
       ]},
       { title: shcT(this._hass, "fritzcard.advanced"), fields: [
         { key: "update_entity", label: shcT(this._hass, "fritzcard.firmware_update"), domain: ["update"] },
+        { key: "devices_source", label: shcT(this._hass, "router.f_devices_source"), kind: "select", options: shcDevSourceOptions(this._hass), hint: shcT(this._hass, "router.f_devices_source_hint") },
         { key: "max_mbps", label: shcT(this._hass, "fritzcard.fallback_scale_limit_mbps"), kind: "number", placeholder: "300" },
         { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
@@ -8847,6 +8868,7 @@ class ShcFritzCard extends HTMLElement {
             <button type="button" class="shc-ap-tool shc-ap-settings" title="${esc(shcT(this._hass, "fritz.settings"))}" data-i18n-title="fritz.settings">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="${esc(shcT(this._hass, "fritz.statistics"))}" data-i18n-title="fritz.statistics">${ICON_CHART}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="${esc(shcT(this._hass, "fritz.graphs"))}" data-i18n-title="fritz.graphs">${ICON_GRAPH}</button>
+            <button type="button" class="shc-ap-tool shc-ap-devices" title="${esc(shcT(this._hass, "router.devices"))}" data-i18n-title="router.devices" hidden>${ICON_MONITOR}</button>
             <button type="button" class="shc-ap-tool shc-ap-consumi" title="${esc(shcT(this._hass, "fritz.bandwidth_test"))}" data-i18n-title="fritz.bandwidth_test">${ICON_SPEED}</button>
             <button type="button" class="shc-ap-tool shc-ap-update" title="${esc(shcT(this._hass, "fritz.updates"))}" data-i18n-title="fritz.updates">${ICON_BELL}</button>
           </span>
@@ -8885,6 +8907,10 @@ class ShcFritzCard extends HTMLElement {
         e.stopPropagation();
         shcOpenChartPopup(this, { title: this._config.name, series: this._graphSeries(), active: Number(m.dataset.graph) });
       });
+    });
+    this._root.querySelector(".shc-ap-devices").addEventListener("click", (e) => {
+      e.stopPropagation();
+      shcOpenDevices(this);
     });
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -9176,6 +9202,7 @@ class ShcFritzCard extends HTMLElement {
     this._root.querySelector(".shc-c-mbps-up-val").textContent = `${upVal.toFixed(1)} Mbps`;
     this._root.querySelector(".shc-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / this._maxMbps(portanteUp)) * 100))}%`;
 
+    this._root.querySelector(".shc-ap-devices").hidden = !shcHasDevices(this, hass);
     const warnEl = this._root.querySelector(".shc-ap-warn");
     const upd = cfg.update_entity ? hass.states[cfg.update_entity] : null;
     const installed = upd?.attributes?.installed_version ?? attrs.firmware_installato;
@@ -21396,6 +21423,81 @@ window.customCards.push({
   author: "Simonz82",
 });
 
+// Elenco dispositivi di rete: device_tracker del router (fritz, unifi...) e/o nmap_tracker, uniti per MAC.
+// source: auto (entrambi) | router | nmap. Ritorna [{name, ip, mac, home, last, ssid}] ordinato per IP numerico.
+function shcDevSourceOptions(hass) {
+  return [{ value: "", label: shcT(hass, "router.src_auto") }, { value: "router", label: shcT(hass, "router.src_router") }, { value: "nmap", label: shcT(hass, "router.src_nmap") }];
+}
+function shcIpNum(ip) {
+  const m = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(String(ip || ""));
+  return m ? ((+m[1] * 256 + +m[2]) * 256 + +m[3]) * 256 + +m[4] : Infinity;
+}
+function shcRouterDevices(hass, source) {
+  const src = source === "router" || source === "nmap" ? source : "auto";
+  const byKey = {};
+  const prettify = (id) => id.split(".")[1].replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+  Object.values(hass?.entities || {}).forEach((e) => {
+    if (!e.entity_id.startsWith("device_tracker.")) return;
+    const isNmap = e.platform === "nmap_tracker";
+    const isRouter = SHC_ROUTER_PLATFORMS.includes(e.platform);
+    if (!((isNmap && src !== "router") || (isRouter && src !== "nmap"))) return;
+    const st = hass.states[e.entity_id];
+    if (!st) return;
+    const a = st.attributes || {};
+    const mac = String(a.mac || "").toLowerCase();
+    const fn = String(a.host_name || a.friendly_name || "");
+    const isMacName = /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(fn);
+    const row = { name: isMacName || !fn ? prettify(e.entity_id) : fn, ip: a.ip || "", mac, home: st.state === "home", last: a.last_time_reachable || "", ssid: a.ssid || a.connection_type || "", router: isRouter, entity: e.entity_id };
+    const key = mac || e.entity_id;
+    const old = byKey[key];
+    if (!old) byKey[key] = row;
+    else {
+      // stesso dispositivo visto da router e nmap: il nome vero e' quello del router
+      const r = row.router ? row : old;
+      const o = row.router ? old : row;
+      byKey[key] = { ...o, ...r, name: r.name, ip: r.ip || o.ip, home: r.home || o.home, last: [r.last, o.last].sort().pop() || "", ssid: r.ssid || o.ssid };
+    }
+  });
+  return Object.values(byKey).sort((a, b) => shcIpNum(a.ip) - shcIpNum(b.ip) || a.name.localeCompare(b.name));
+}
+function shcHasDevices(card, hass) {
+  const key = hass.entities;
+  if (card._devKey !== key || card._devSrc !== card._config.devices_source) {
+    card._devKey = key;
+    card._devSrc = card._config.devices_source;
+    card._devHas = shcRouterDevices(hass, card._config.devices_source).length > 0;
+  }
+  return card._devHas;
+}
+function shcOpenDevices(card, filter) {
+  const hass = card._hass;
+  const all = shcRouterDevices(hass, card._config.devices_source);
+  const f = filter || card._devFilter || "home";
+  card._devFilter = f;
+  const list = f === "home" ? all.filter((d) => d.home) : all;
+  const nHome = all.filter((d) => d.home).length;
+  const btn = (k, label) => `<button type="button" class="shc-ap-action-btn" data-devf="${k}" style="${f === k ? "" : "opacity:.45"}">${esc(label)}</button>`;
+  const rows = list
+    .map((d) => {
+      const seen = !d.home && d.last ? ` · ${esc(shcT(hass, "router.devices_seen"))} ${esc(card._fmtDateTime(d.last))}` : "";
+      const sub = [d.ip || "—", d.mac || "", d.ssid].filter(Boolean).map(esc).join(" · ");
+      return `<div class="shc-ap-row" data-open-entity="${esc(d.entity)}" style="cursor:pointer"><span class="shc-ap-row-label" style="display:flex;align-items:center;gap:8px;min-width:0"><i style="flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:${d.home ? "#22c55e" : "#94a3b8"}"></i><span style="min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis">${esc(d.name)}</b><small style="display:block;opacity:.7;font-weight:400">${sub}${seen}</small></span></span></div>`;
+    })
+    .join("");
+  const overlay = card._openDialog(
+    shcT(hass, "router.devices"),
+    `<div class="shc-ap-sec"><div class="shc-ap-row" style="gap:8px;justify-content:flex-start">${btn("home", `${shcT(hass, "router.devices_connected")} (${nHome})`)}${btn("all", `${shcT(hass, "router.devices_all")} (${all.length})`)}</div>${rows || `<div class="shc-ap-row-val">${esc(shcT(hass, "router.devices_none"))}</div>`}</div>`,
+  );
+  overlay.querySelectorAll("[data-devf]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); shcOpenDevices(card, b.dataset.devf); }));
+  overlay.querySelectorAll("[data-open-entity]").forEach((row) => {
+    row.addEventListener("click", () => {
+      const ev = new Event("hass-more-info", { bubbles: true, composed: true });
+      ev.detail = { entityId: row.dataset.openEntity };
+      card.dispatchEvent(ev);
+    });
+  });
+}
+
 // -----------------------------------------------------------------------
 // shc-router-card (1.32.0): card generica per router / gateway (UniFi, FRITZ!Box, TP-Link/Omada,
 // OpenWrt, ASUS, MikroTik, Netgear, UPnP...). Trova da sola il router e le sue entita' dal registro
@@ -21560,6 +21662,7 @@ class ShcRouterCard extends ShcFritzCard {
           <span class="shc-ap-tools">
             <button type="button" class="shc-ap-tool shc-ap-settings" title="${T("router.settings")}" data-i18n-title="router.settings">${ICON_GEAR}</button>
             <button type="button" class="shc-ap-tool shc-ap-stats" title="${T("router.info")}" data-i18n-title="router.info">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-devices" title="${T("router.devices")}" data-i18n-title="router.devices" hidden>${ICON_MONITOR}</button>
             <button type="button" class="shc-ap-tool shc-ap-graph" title="${T("router.graphs")}" data-i18n-title="router.graphs">${ICON_GRAPH}</button>
           </span>
         </div>
@@ -21597,6 +21700,10 @@ class ShcRouterCard extends ShcFritzCard {
     this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
       e.stopPropagation();
       this._openStats();
+    });
+    this._root.querySelector(".shc-ap-devices").addEventListener("click", (e) => {
+      e.stopPropagation();
+      shcOpenDevices(this);
     });
     if (this._hass) this.hass = this._hass;
   }
@@ -21727,6 +21834,7 @@ class ShcRouterCard extends ShcFritzCard {
       q(".shc-c-" + k + "-bar").style.width = `${Math.min(100, Math.round((val / scale) * 100))}%`;
     });
     show(".shc-ap-graph", !!(R.down || R.up));
+    show(".shc-ap-devices", shcHasDevices(this, hass));
     show(".shc-ap-panel", !!(R.down || R.up));
 
     const warn = q(".shc-ap-warn");
@@ -21875,6 +21983,7 @@ class ShcRouterCardEditor extends ShcSimpleCardEditorBase {
           { key: "entity", label: T("router.f_wifi_entity"), kind: "entity", domain: ["switch"] },
           { key: "name", label: T("fritzcard.name"), kind: "text" },
         ]},
+        { key: "devices_source", label: T("router.f_devices_source"), kind: "select", options: shcDevSourceOptions(this._hass), hint: T("router.f_devices_source_hint") },
         { key: "max_mbps", label: T("router.f_max_mbps"), kind: "number", placeholder: "auto" },
       ]},
     ];

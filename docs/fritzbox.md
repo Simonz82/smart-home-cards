@@ -126,6 +126,18 @@ settings_sections:
 
 Le notifiche online/offline, cambio IP e fascia oraria sono già scritte e pronte nel package [`../packages/statistiche_fritzbox.yaml`](../packages/statistiche_fritzbox.yaml) — vedi il paragrafo "🚀 Metodo veloce" in cima a questa guida. Pattern generale in [notifiche-personalizzate.md](notifiche-personalizzate.md).
 
+## 🖥️ Elenco dei dispositivi di rete (pulsante monitor)
+
+Se in Home Assistant ci sono i tracker del FRITZ!Box (integrazione AVM FRITZ!Box Tools) e/o **Nmap Tracker**, sulla card compare l'icona di un monitor. Senza nessuna fonte il pulsante resta nascosto. Non devi configurare niente.
+
+1. Clicca l'icona del monitor.
+2. Vedi nome, IP, MAC, rete Wi-Fi e un pallino verde (a casa) o grigio (fuori, con l'ultimo "visto").
+3. L'elenco è in ordine di IP (192.168.1.2 prima di 192.168.1.10).
+4. Scegli **Connessi** o **Tutti** in alto.
+5. Con FRITZ!Box e Nmap insieme, i dispositivi sono uniti per MAC (nessun doppione).
+
+Per scegliere la fonte: `devices_source: auto` (default), `router` oppure `nmap`; nell'editor è "Dove prendere l'elenco dei dispositivi". Per Nmap: Impostazioni > Dispositivi e servizi > Aggiungi integrazione > Nmap Tracker, poi scrivi la tua rete (es. `192.168.1.0/24`).
+
 ## 🎛️ Layout classico o centrato
 
 Questa card si può mostrare con la foto a sinistra (**classico**) oppure con la foto al centro in alto (**centrato**). Si sceglie dalla prima riga **Layout** delle Impostazioni: vedi la guida [Layout delle card](layout.md) per attivarla (menu `input_select.layout_fritz` e parametro `layout_entity`).
