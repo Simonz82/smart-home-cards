@@ -1947,6 +1947,52 @@ const SHC_I18N = {
       "editor.an_entity_is_required": "Serve un'entita' per far funzionare la card.",
       "fritzcard.basic": "Base",
       "fritzcard.name": "Nome",
+      "router.settings": "Impostazioni",
+      "router.info": "Informazioni",
+      "router.graphs": "Grafici",
+      "router.ip": "IP esterno",
+      "router.uptime": "Attivo da",
+      "router.clients": "Dispositivi",
+      "router.line_speed": "Linea max",
+      "router.download_live": "Download adesso",
+      "router.upload_live": "Upload adesso",
+      "router.online": "Online",
+      "router.offline": "Offline",
+      "router.not_found": "Nessun router trovato da solo. Apri l'editor della card e scegli il dispositivo router.",
+      "router.update_available": "Aggiornamento firmware disponibile: {1}",
+      "router.wifi": "Wi-Fi",
+      "router.tools": "Strumenti",
+      "router.run": "Esegui",
+      "router.reboot": "Riavvia il router",
+      "router.reboot_confirm": "Riavviare il router? La connessione internet si interrompe per qualche minuto.",
+      "router.reconnect": "Riconnetti a internet",
+      "router.reconnect_confirm": "Riconnettere il router a internet? Il collegamento si interrompe per qualche secondo.",
+      "router.no_settings": "Nessuna impostazione disponibile per questo router.",
+      "router.live": "Velocità adesso",
+      "router.traffic": "Traffico totale",
+      "router.firmware": "Firmware",
+      "router.sec_router": "Router",
+      "router.device": "Dispositivo router",
+      "router.device_hint": "Lascia \"Automatico\": la card trova il router da sola. Scegli un dispositivo solo se hai più router.",
+      "router.auto": "Automatico",
+      "router.name_auto": "Nome del router (automatico)",
+      "router.sec_auto": "Entità (trovate da sole, puoi cambiarle)",
+      "router.auto_hint": "I campi sono già compilati con quello che la card ha trovato. Cambia un campo solo se è sbagliato; quelli vuoti restano nascosti.",
+      "router.f_status": "Stato connessione",
+      "router.f_ip": "IP esterno",
+      "router.f_uptime": "Attivo da (uptime)",
+      "router.f_down": "Velocità download",
+      "router.f_up": "Velocità upload",
+      "router.f_limit_down": "Velocità massima download (linea)",
+      "router.f_limit_up": "Velocità massima upload (linea)",
+      "router.f_total_down": "Traffico totale ricevuto",
+      "router.f_total_up": "Traffico totale inviato",
+      "router.f_clients": "Numero dispositivi collegati",
+      "router.f_reboot": "Pulsante riavvio",
+      "router.f_update": "Aggiornamento firmware",
+      "router.f_wifi": "Interruttori Wi-Fi",
+      "router.f_wifi_entity": "Interruttore Wi-Fi",
+      "router.f_max_mbps": "Fondo scala barre in Mbps (vuoto = automatico)",
       "fritzcard.custom_image_optional": "Immagine personalizzata (opzionale)",
       "fritzcard.path_or_url_of": "Percorso o URL di una tua foto.",
       "fritzcard.connection_sensor_onoff": "Sensore di connessione (acceso/spento)",
@@ -3098,6 +3144,52 @@ const SHC_I18N = {
       "editor.an_entity_is_required": "An entity is required for the card to work.",
       "fritzcard.basic": "Basic",
       "fritzcard.name": "Name",
+      "router.settings": "Settings",
+      "router.info": "Information",
+      "router.graphs": "Charts",
+      "router.ip": "External IP",
+      "router.uptime": "Uptime",
+      "router.clients": "Devices",
+      "router.line_speed": "Line max",
+      "router.download_live": "Download now",
+      "router.upload_live": "Upload now",
+      "router.online": "Online",
+      "router.offline": "Offline",
+      "router.not_found": "No router found automatically. Open the card editor and choose the router device.",
+      "router.update_available": "Firmware update available: {1}",
+      "router.wifi": "Wi-Fi",
+      "router.tools": "Tools",
+      "router.run": "Run",
+      "router.reboot": "Reboot the router",
+      "router.reboot_confirm": "Reboot the router? The internet connection drops for a few minutes.",
+      "router.reconnect": "Reconnect to the internet",
+      "router.reconnect_confirm": "Reconnect the router to the internet? The link drops for a few seconds.",
+      "router.no_settings": "No settings available for this router.",
+      "router.live": "Speed now",
+      "router.traffic": "Total traffic",
+      "router.firmware": "Firmware",
+      "router.sec_router": "Router",
+      "router.device": "Router device",
+      "router.device_hint": "Leave \"Automatic\": the card finds the router by itself. Pick a device only if you have more than one router.",
+      "router.auto": "Automatic",
+      "router.name_auto": "Router name (automatic)",
+      "router.sec_auto": "Entities (found automatically, you can change them)",
+      "router.auto_hint": "The fields are already filled with what the card found. Change one only if it is wrong; empty fields stay hidden.",
+      "router.f_status": "Connection status",
+      "router.f_ip": "External IP",
+      "router.f_uptime": "Uptime",
+      "router.f_down": "Download speed",
+      "router.f_up": "Upload speed",
+      "router.f_limit_down": "Max download speed (line)",
+      "router.f_limit_up": "Max upload speed (line)",
+      "router.f_total_down": "Total traffic received",
+      "router.f_total_up": "Total traffic sent",
+      "router.f_clients": "Connected devices count",
+      "router.f_reboot": "Reboot button",
+      "router.f_update": "Firmware update",
+      "router.f_wifi": "Wi-Fi switches",
+      "router.f_wifi_entity": "Wi-Fi switch",
+      "router.f_max_mbps": "Bar full scale in Mbps (empty = automatic)",
       "fritzcard.custom_image_optional": "Custom image (optional)",
       "fritzcard.path_or_url_of": "Path or URL of your photo.",
       "fritzcard.connection_sensor_onoff": "Connection sensor (on/off)",
@@ -7546,6 +7638,7 @@ const WR_DEFAULT_SPEAKERS = [
 ];
 
 const WR_DEFAULT_IMAGE_PATH = "/local/loghi_radio_alexa/4_4/";
+const WR_PUBLIC_LOGOS_URL = "https://cdn.jsdelivr.net/gh/Simonz82/smart-home-cards@main/radio-logos/";
 
 const WR_DEFAULT_STATIONS = [
   { group: "TuneIn Radio", option: "M2O", name: "M2O", image: "m2o.jpg" },
@@ -7646,6 +7739,11 @@ class ShcSimpleCardEditorBase extends HTMLElement {
     }
   }
 
+  // valore trovato in automatico da mostrare gia' compilato (le sottoclassi lo ridefiniscono)
+  _autoValue() {
+    return "";
+  }
+
   _emit() {
     this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: this._config }, bubbles: true, composed: true }));
   }
@@ -7711,6 +7809,14 @@ class ShcSimpleCardEditorBase extends HTMLElement {
               ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
               <ha-entity-picker data-key="${esc(f.key)}" ${f.domain ? `include-domains='${JSON.stringify(f.domain)}'` : ""} allow-custom-entity></ha-entity-picker>
               ${f.required && !val ? `<div class="shc-ed-missing">${esc(shcT(this._hass, "editor.an_entity_is_required"))}</div>` : ""}
+            </div>`;
+          }
+          if (f.kind === "hint") return `<p class="shc-ed-hint">${esc(f.label)}</p>`;
+          if (f.kind === "select") {
+            return `<div class="shc-ed-row">
+              <span class="shc-ed-label">${esc(f.label)}</span>
+              ${f.hint ? `<p class="shc-ed-hint">${esc(f.hint)}</p>` : ""}
+              <select class="shc-ed-input" data-sel="${esc(f.key)}">${(f.options || []).map((o) => `<option value="${esc(o.value)}"${String(val || "") === String(o.value) ? " selected" : ""}>${esc(o.label)}</option>`).join("")}</select>
             </div>`;
           }
           if (f.kind === "layout") {
@@ -7783,7 +7889,7 @@ class ShcSimpleCardEditorBase extends HTMLElement {
 
     body.querySelectorAll("ha-entity-picker[data-key]").forEach((el) => {
       el.hass = this._hass;
-      el.value = shcGetPath(cfg, el.dataset.key) || "";
+      el.value = shcGetPath(cfg, el.dataset.key) || this._autoValue(el.dataset.key);
       el.addEventListener("value-changed", (e) => {
         e.stopPropagation();
         this._set(el.dataset.key, e.detail.value);
@@ -7794,6 +7900,12 @@ class ShcSimpleCardEditorBase extends HTMLElement {
       el.value = v ?? "";
       el.addEventListener("change", () => {
         this._set(el.dataset.key, el.type === "number" ? Number(el.value) : el.value);
+      });
+    });
+    body.querySelectorAll("select[data-sel]").forEach((el) => {
+      el.addEventListener("change", () => {
+        this._set(el.dataset.sel, el.value);
+        this._render();
       });
     });
     body.querySelectorAll("input[data-bool]").forEach((el) => {
@@ -13490,6 +13602,8 @@ class ShcAlexaWebradioCard extends HTMLElement {
     // Stazioni raggruppate per "group" nell'ordine in cui compaiono la prima volta.
     const imagePath = cfg.image_path || WR_DEFAULT_IMAGE_PATH;
     const imageSrc = (img) => (!img ? "" : /^(\/|https?:)/.test(img) ? img : imagePath.replace(/\/?$/, "/") + img);
+    // Logo non trovato in locale: provo la cartella pubblica del repo (solo nomi file semplici), poi nascondo.
+    const imageFallback = (img) => (/^[\w.\-]+\.(png|jpe?g|webp|gif|svg)$/i.test(img) ? `data-cdn="${WR_PUBLIC_LOGOS_URL}${esc(img)}"` : "");
     const groups = [];
     shcConfigList(cfg.stations, WR_DEFAULT_STATIONS, "option").forEach((st) => {
       const cap = st.group || "";
@@ -13506,7 +13620,7 @@ class ShcAlexaWebradioCard extends HTMLElement {
             .map(
               (st) =>
                 `<button type="button" class="shc-wr-station" data-option="${esc(st.option)}">
-                  ${st.image ? `<img src="${esc(imageSrc(st.image))}" alt="" onerror="this.style.display=x27nonex27">` : ""}
+                  ${st.image ? `<img src="${esc(imageSrc(st.image))}" alt="" ${imageFallback(st.image)} onerror="if(this.dataset.cdn&&!this.dataset.tried){this.dataset.tried=1;this.src=this.dataset.cdn}else{this.style.display='none'}">` : ""}
                   <span>${esc(st.name || st.option)}</span>
                 </button>`,
             )
@@ -21283,6 +21397,492 @@ window.customCards.push({
 });
 
 // -----------------------------------------------------------------------
+// shc-router-card (1.32.0): card generica per router / gateway (UniFi, FRITZ!Box, TP-Link/Omada,
+// OpenWrt, ASUS, MikroTik, Netgear, UPnP...). Trova da sola il router e le sue entita' dal registro
+// di Home Assistant (hass.entities / hass.devices); ogni campo si puo' sovrascrivere. Config minima: solo `type`.
+// -----------------------------------------------------------------------
+const SHC_ROUTER_PLATFORMS = ["fritz", "unifi", "unifi_direct", "tplink_omada", "omada", "tplink", "tplink_router", "openwrt", "ubus", "luci", "asuswrt", "asusrouter", "mikrotik", "netgear", "netgear_lte", "upnp", "huawei_lte", "keenetic_ndms2", "devolo_home_network", "synology_srm", "eero", "opnsense", "pfsense", "freebox", "vodafone_station", "sagemcom_fast", "dlink", "zyxel", "linksys_velop", "tomato", "ddwrt", "bt_smarthub", "ruckus_unleashed", "ubiquiti", "edgeos", "starlink", "teltonika", "draytek", "openwrt_ubus"];
+const SHC_ROUTER_NAME_RE = /router|gateway|modem|fritz|unifi|udm|omada|openwrt|mikrotik|routerboard|netgear|asus|tp-?link|keenetic|huawei|zyxel|draytek|opnsense|pfsense|freebox/i;
+
+// fattori per portare un'unita' di velocita' dati in Mbit/s (null = unita' sconosciuta)
+function shcRateToMbps(value, unit) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  const u = String(unit || "").replace(/\s/g, "").toLowerCase();
+  const f = { "bit/s": 1e-6, "kbit/s": 1e-3, "mbit/s": 1, "gbit/s": 1000, "b/s": 8e-6, "kb/s": 8e-3, "kib/s": (8 * 1024) / 1e6, "mb/s": 8, "mib/s": 8 * 1.048576, "gb/s": 8000, "gib/s": 8 * 1073.741824, "kibit/s": 1024 / 1e6, "mibit/s": 1.048576 }[u];
+  return f === undefined ? null : n * f;
+}
+function shcRouterRate(mbps) {
+  if (!Number.isFinite(mbps)) return "—";
+  if (mbps >= 1000) return (mbps / 1000).toFixed(2) + " Gbps";
+  if (mbps >= 1) return mbps.toFixed(1) + " Mbps";
+  return Math.round(mbps * 1000) + " kbps";
+}
+function shcRouterIsRateUnit(u) {
+  return /^(k|m|g)?i?(bit|b)\/s$/i.test(String(u || "").replace(/\s/g, ""));
+}
+function shcRouterDuration(sec) {
+  if (!Number.isFinite(sec) || sec < 0) return "—";
+  const d = Math.floor(sec / 86400);
+  const h = Math.floor((sec % 86400) / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return d > 0 ? `${d}d ${h}h` : h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+// Elenco dei router trovati nel registro: [{id, name, score, platform}] dal piu' probabile
+function shcRouterCandidates(hass) {
+  const ents = Object.values(hass?.entities || {});
+  const devs = hass?.devices || {};
+  const byDev = {};
+  ents.forEach((e) => {
+    if (!e.device_id || !hass.states[e.entity_id]) return;
+    (byDev[e.device_id] = byDev[e.device_id] || []).push(e);
+  });
+  const out = [];
+  Object.keys(byDev).forEach((id) => {
+    const list = byDev[id];
+    const dev = devs[id] || {};
+    const isRouter = list.some((e) => SHC_ROUTER_PLATFORMS.includes(e.platform)) || SHC_ROUTER_NAME_RE.test(`${dev.name_by_user || dev.name || ""} ${dev.model || ""}`);
+    if (!isRouter) return;
+    const roles = shcRouterRoles(hass, id);
+    const w = { status: 3, ip: 3, down: 2, up: 2, uptime: 1, reboot: 1 };
+    let score = Object.keys(w).reduce((s, k) => s + (roles[k] ? w[k] : 0), 0);
+    if (/router|gateway|modem|fritz|udm|omada|openwrt|mikrotik/i.test(`${dev.name_by_user || dev.name || ""} ${dev.model || ""}`)) score += 1;
+    if (score > 0) out.push({ id, name: dev.name_by_user || dev.name || id, platform: list[0].platform, score });
+  });
+  return out.sort((a, b) => b.score - a.score);
+}
+
+// Ruoli (stato, IP, velocita'...) del dispositivo: restituisce {ruolo: entity_id}
+function shcRouterRoles(hass, deviceId) {
+  const R = {};
+  const dv = (hass?.devices || {})[deviceId] || {};
+  const devName = String(dv.name_by_user || dv.name || "").toLowerCase();
+  const devSlug = devName.replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+  const items = Object.values(hass?.entities || {})
+    .filter((e) => e.device_id === deviceId && e.hidden !== true && hass.states[e.entity_id])
+    .map((e) => {
+      const st = hass.states[e.entity_id];
+      // il nome del dispositivo non conta (es. "TP-Link Router" non e' un limite di linea)
+      const oid = devSlug ? (e.entity_id.split(".")[1] || "").replace(devSlug, "") : e.entity_id.split(".")[1] || "";
+      const fn = devName ? String(st.attributes?.friendly_name || "").toLowerCase().replace(devName, "") : String(st.attributes?.friendly_name || "").toLowerCase();
+      return { id: e.entity_id, dom: e.entity_id.split(".")[0], tk: e.translation_key || "", t: `${e.translation_key || ""} ${oid} ${fn}`.toLowerCase(), dc: st.attributes?.device_class || "", unit: st.attributes?.unit_of_measurement || "", state: st.state };
+    });
+  const best = (arr, score) => {
+    let b = null;
+    let bs = 0;
+    arr.forEach((it) => {
+      const s = score(it);
+      if (s > bs) {
+        bs = s;
+        b = it;
+      }
+    });
+    return b ? b.id : "";
+  };
+  const DOWN = /download|received|downstream|downlink|(^|[^a-z])rx([^a-z]|$)|scaric|ricevut|herunter|empfang|descarg|recib|télécharg/;
+  const UP = /upload|sent|upstream|uplink|(^|[^a-z])tx([^a-z]|$)|(^|[^s])caric|inviat|hochlad|gesendet|envi|subida|émis/;
+  const LIM = /max|link|sync|portante|capacity|limit|massim|collegament/;
+  const sensors = items.filter((i) => i.dom === "sensor");
+  const rate = sensors.filter((i) => i.dc === "data_rate" || shcRouterIsRateUnit(i.unit));
+  const dir = (i) => (DOWN.test(i.t) && !UP.test(i.t) ? "down" : UP.test(i.t) && !DOWN.test(i.t) ? "up" : "");
+  ["down", "up"].forEach((d) => {
+    R[d] = best(rate, (i) => (dir(i) === d && !LIM.test(i.t) ? 5 : 0));
+    R["limit_" + d] = best(rate, (i) => (dir(i) === d && LIM.test(i.t) ? (/link/.test(i.t) ? 3 : 2) : 0));
+    R["total_" + d] = best(sensors, (i) => (i.dc === "data_size" || /^(k|m|g|t)?i?b$/i.test(i.unit) ? (dir(i) === d ? 4 : 0) : 0));
+  });
+  R.status = best(items.filter((i) => i.dom === "binary_sensor"), (i) => {
+    let s = 0;
+    if (i.dc === "connectivity") s += 5;
+    if (/is_connected|connected|wan|internet|online/.test(i.tk)) s += 4;
+    if (/connessione|connection|wan|internet|online|connected|verbindung/.test(i.t)) s += 2;
+    if (/linked|plug/.test(i.t) || i.dc === "plug") s = Math.min(s, 1) || 1;
+    return s;
+  });
+  R.ip = best(sensors, (i) => (/external_ip|(ext|wan|public|pubblic|esterno|extern)\w*ip|ip\w*(ext|wan|public|pubblic|esterno)|^ip$|ip_address/.test(i.t.replace(/ /g, "_")) ? (/ext|wan|public|esterno/.test(i.t) ? 5 : 2) : 0));
+  R.uptime = best(sensors, (i) => (/uptime|attivit|riavvio|boot|betriebszeit/.test(i.t) || i.dc === "timestamp" && /up/.test(i.t) ? 2 + (/connection|connessione|wan|internet/.test(i.t) ? 3 : 0) : 0));
+  R.clients = best(sensors, (i) => (/clients|connected_devices|dispositivi_collegati|stations|devices_connected|wlan_clients|num_sta|host/.test(i.t) && !i.unit && Number.isFinite(Number(i.state)) ? 3 : 0));
+  R.reboot = best(items.filter((i) => i.dom === "button"), (i) => {
+    let s = 0;
+    if (hass.states[i.id]?.attributes?.device_class === "restart") s += 3;
+    if (/reboot|restart|riavvi|neustart/.test(i.t)) s += 2;
+    if (/reconnect|riconnet|firmware|cleanup|pulizia/.test(i.t)) s -= 6;
+    return s;
+  });
+  R.reconnect = best(items.filter((i) => i.dom === "button"), (i) => (/reconnect|riconnet|neu verbinden/.test(i.t) ? 5 : 0));
+  R.update = best(items.filter((i) => i.dom === "update"), () => 1);
+  R.wifi = items.filter((i) => i.dom === "switch" && /wi-?fi|wlan|ssid|guest|ospit|wireless|2_?4\s?ghz|5\s?ghz/.test(i.t)).map((i) => i.id);
+  return R;
+}
+
+HERO_BUILDERS.router = (id) => `<svg width="100%" height="100%" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">
+    <defs>
+      <filter id="shch-blur-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+      <linearGradient id="shr-b-${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient>
+    </defs>
+    <ellipse cx="120" cy="206" rx="86" ry="9" fill="#0f172a" opacity=".16" filter="url(#shch-blur-${id})"/>
+    <g class="shch-glow" opacity=".75" stroke="#38bdf8" stroke-linecap="round" stroke-width="3" fill="none">
+      <path d="M108 46c8-6 16-6 24 0"/>
+      <path d="M98 36c14-11 30-11 44 0"/>
+      <path d="M88 26c20-16 44-16 64 0"/>
+    </g>
+    <circle cx="120" cy="54" r="3" fill="#38bdf8"/>
+    <rect x="58" y="62" width="9" height="82" rx="4.5" fill="#334155" transform="rotate(-14 62 144)"/>
+    <rect x="173" y="62" width="9" height="82" rx="4.5" fill="#334155" transform="rotate(14 178 144)"/>
+    <rect x="115.5" y="64" width="9" height="84" rx="4.5" fill="#334155"/>
+    <rect x="30" y="134" width="180" height="62" rx="16" fill="url(#shr-b-${id})" stroke="#94a3b8" stroke-width="1.6"/>
+    <rect x="38" y="140" width="164" height="9" rx="4.5" fill="#fff" opacity=".7"/>
+    <circle cx="62" cy="172" r="5" fill="#22c55e"/><circle cx="84" cy="172" r="5" fill="#38bdf8"/><circle cx="106" cy="172" r="5" fill="#38bdf8" opacity=".55"/>
+    <rect x="140" y="167" width="14" height="10" rx="2.5" fill="#475569"/><rect x="160" y="167" width="14" height="10" rx="2.5" fill="#475569"/><rect x="180" y="167" width="14" height="10" rx="2.5" fill="#475569"/>
+  </svg>`;
+CHIP_SVGS.router = '<svg viewBox="0 0 96 96" width="27" height="27"><rect x="10" y="44" width="76" height="30" rx="9" fill="#0f2942"/><circle cx="26" cy="59" r="3.2" fill="#22c55e"/><circle cx="38" cy="59" r="3.2" fill="#38bdf8"/><circle cx="50" cy="59" r="3.2" fill="#38bdf8"/><rect x="40" y="16" width="5" height="30" rx="2.5" fill="#38bdf8"/><path d="M58 30c8-6 8-14 0-20M66 34c13-9 13-22 0-31" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
+
+class ShcRouterCard extends ShcFritzCard {
+  setConfig(config) {
+    this._config = { name: "", artwork: "router", ...(config || {}) };
+    this._cacheKey = null;
+    this._peak = { down: 10, up: 10 };
+    this._root = this._root || this.attachShadow({ mode: "open" });
+    this._heroId = "rt" + Math.random().toString(36).slice(2, 8);
+    const hero = shcHeroImage(HERO_BUILDERS.router(this._heroId), this._config.image);
+    const T = (k) => esc(shcT(this._hass, k));
+    const crow = (cls, icon, key) => `<div class="shc-ap-cycle-row shc-ap-cycle-row-b shc-r-${cls}" hidden><span class="shc-ap-cycle-label"><span class="shc-ap-cycle-ic">${icon}</span><small data-i18n="${key}">${T(key)}</small></span><b class="shc-c-${cls}">—</b></div>`;
+    const meter = (cls, key, g) => `<div class="shc-ap-meter shc-c-meter-clickable shc-r-m-${cls}" data-graph="${g}" hidden>
+              <div class="shc-ap-meter-row"><span data-i18n="${key}">${T(key)}</span><strong class="shc-c-${cls}-val">0 Mbps</strong></div>
+              <div class="shc-ap-bar"><i class="shc-c-${cls}-bar" style="width:0%"></i></div>
+            </div>`;
+    this._root.innerHTML = `<style>${STYLE}.shc-ap-cycle-row[hidden],.shc-ap-meter[hidden],.shc-ap-tool[hidden],.shc-ap-warn[hidden]{display:none!important}</style>
+      <article class="shc-ap-card">
+        <div class="shc-ap-top">
+          <span class="shc-ap-chip">${CHIP_SVGS.router}</span>
+          <span class="shc-ap-headings"><span class="shc-ap-name"></span></span>
+          <span class="shc-ap-badge"><i class="shc-ap-dot"></i><span class="shc-ap-badge-label"></span></span>
+          <span class="shc-ap-tools">
+            <button type="button" class="shc-ap-tool shc-ap-settings" title="${T("router.settings")}" data-i18n-title="router.settings">${ICON_GEAR}</button>
+            <button type="button" class="shc-ap-tool shc-ap-stats" title="${T("router.info")}" data-i18n-title="router.info">${ICON_CHART}</button>
+            <button type="button" class="shc-ap-tool shc-ap-graph" title="${T("router.graphs")}" data-i18n-title="router.graphs">${ICON_GRAPH}</button>
+          </span>
+        </div>
+        <div class="shc-ap-top-row">
+          <div class="shc-ap-hero">${hero}</div>
+          <div class="shc-ap-cycle-side">
+            <div class="shc-ap-cycle-list">
+              ${crow("ip", ICON_GLOBE, "router.ip")}
+              ${crow("uptime", ICON_TIMER, "router.uptime")}
+              ${crow("clients", ICON_USER, "router.clients")}
+              ${crow("limit", ICON_PULSE, "router.line_speed")}
+            </div>
+          </div>
+        </div>
+        <div class="shc-ap-warn" hidden></div>
+        <div class="shc-ap-panel">
+          <div class="shc-ap-meters">
+            ${meter("down", "router.download_live", 0)}
+            ${meter("up", "router.upload_live", 1)}
+          </div>
+        </div>
+      </article>`;
+    this._root.querySelector(".shc-ap-name").textContent = this._config.name || "Router";
+    shcBindGraph(this);
+    this._root.querySelectorAll(".shc-c-meter-clickable").forEach((m) => {
+      m.addEventListener("click", (e) => {
+        e.stopPropagation();
+        shcOpenChartPopup(this, { title: this._config.name || this._autoName || "Router", series: this._graphSeries(), active: Number(m.dataset.graph) });
+      });
+    });
+    this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openSettings();
+    });
+    this._root.querySelector(".shc-ap-stats").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._openStats();
+    });
+    if (this._hass) this.hass = this._hass;
+  }
+
+  // Entita' usate: prima quelle scritte nella config, poi quelle trovate da sole
+  _resolve(hass) {
+    const cfg = this._config;
+    const key = hass.entities;
+    if (this._cacheKey !== key || this._cacheCfg !== cfg) {
+      this._cacheKey = key;
+      this._cacheCfg = cfg;
+      let dev = cfg.device || "";
+      if (dev && !(hass.devices || {})[dev]) {
+        const hit = Object.values(hass.devices || {}).find((d) => String(d.name_by_user || d.name || "").toLowerCase() === String(dev).toLowerCase());
+        dev = hit ? hit.id : dev;
+      }
+      const cands = dev ? [] : shcRouterCandidates(hass);
+      if (!dev && cands.length) dev = cands[0].id;
+      const auto = dev ? shcRouterRoles(hass, dev) : {};
+      const o = (k, ck) => (cfg[ck] && hass.states[cfg[ck]] ? cfg[ck] : auto[k] || "");
+      const wifiCfg = Array.isArray(cfg.wifi_entities) ? cfg.wifi_entities.map((x) => (typeof x === "string" ? { entity: x } : x)).filter((x) => x && x.entity) : null;
+      this._R = {
+        device: dev,
+        status: o("status", "status_entity"),
+        ip: o("ip", "ip_entity"),
+        uptime: o("uptime", "uptime_entity"),
+        down: o("down", "download_entity"),
+        up: o("up", "upload_entity"),
+        limit_down: o("limit_down", "limit_down_entity"),
+        limit_up: o("limit_up", "limit_up_entity"),
+        total_down: o("total_down", "total_down_entity"),
+        total_up: o("total_up", "total_up_entity"),
+        reboot: o("reboot", "reboot_entity"),
+        reconnect: auto.reconnect || "",
+        update: o("update", "update_entity"),
+        clients: o("clients", "clients_entity"),
+        wifi: wifiCfg || (auto.wifi || []).map((e) => ({ entity: e })),
+      };
+      const d = (hass.devices || {})[dev];
+      this._autoName = d ? d.name_by_user || d.name : "";
+      // numero client: se non c'e' un sensore, conto i device_tracker della stessa integrazione
+      this._trackerPlatform = "";
+      if (!this._R.clients && dev) {
+        const p = Object.values(hass.entities).find((e) => e.device_id === dev)?.platform;
+        if (p && SHC_ROUTER_PLATFORMS.includes(p)) this._trackerPlatform = p;
+      }
+    }
+    return this._R;
+  }
+
+  _clientsCount(hass, R) {
+    if (R.clients) {
+      const n = Number(hass.states[R.clients]?.state);
+      return Number.isFinite(n) ? n : null;
+    }
+    if (!this._trackerPlatform) return null;
+    const trackers = Object.values(hass.entities).filter((e) => e.platform === this._trackerPlatform && e.entity_id.startsWith("device_tracker."));
+    if (!trackers.length) return null;
+    return trackers.filter((e) => ["home", "connected"].includes(hass.states[e.entity_id]?.state)).length;
+  }
+
+  _mbps(hass, id) {
+    const st = id ? hass.states[id] : null;
+    if (!st || ["unknown", "unavailable"].includes(st.state)) return null;
+    return shcRateToMbps(st.state, st.attributes?.unit_of_measurement);
+  }
+
+  _uptimeText(st) {
+    if (!st || ["unknown", "unavailable"].includes(st.state)) return "—";
+    const t = Date.parse(st.state);
+    if (Number.isNaN(Number(st.state)) && !Number.isNaN(t)) return shcRouterDuration((Date.now() - t) / 1000);
+    const n = Number(st.state);
+    if (!Number.isFinite(n)) return String(st.state);
+    const u = String(st.attributes?.unit_of_measurement || "s").toLowerCase();
+    return shcRouterDuration(n * ({ s: 1, min: 60, h: 3600, d: 86400 }[u] || 1));
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    shcApplyI18n(this);
+    if (!this._config || !this._root) return;
+    applyLayoutChoice(this._root, this._config, hass);
+    const R = this._resolve(hass);
+    const root = this._root;
+    const q = (s) => root.querySelector(s);
+    const show = (sel, on) => {
+      const el = q(sel);
+      if (el) el.hidden = !on;
+    };
+    q(".shc-ap-name").textContent = this._config.name || this._autoName || "Router";
+
+    const card = q(".shc-ap-card");
+    const stSt = R.status ? hass.states[R.status] : null;
+    const anyEnt = [R.ip, R.down, R.up, R.uptime].some((id) => id && hass.states[id] && hass.states[id].state !== "unavailable");
+    const online = stSt ? stSt.state === "on" : anyEnt;
+    const known = !!(stSt || R.device || R.down || R.up || R.ip);
+    const mode = !known ? "unavailable" : online ? "running" : "off";
+    card.classList.remove("is-run", "is-standby", "is-off", "is-unavailable", "has-alarm");
+    card.classList.add(`is-${mode === "running" ? "run" : mode}`);
+    const badge = q(".shc-ap-badge");
+    badge.classList.remove("run", "standby", "off", "unavailable");
+    badge.classList.add(mode === "running" ? "run" : mode);
+    q(".shc-ap-badge-label").textContent = !known ? "N/D" : online ? shcT(hass, "router.online") : shcT(hass, "router.offline");
+
+    const ipSt = R.ip ? hass.states[R.ip] : null;
+    show(".shc-r-ip", !!ipSt);
+    if (ipSt) q(".shc-c-ip").textContent = ["unknown", "unavailable"].includes(ipSt.state) ? "—" : ipSt.state;
+    const upSt = R.uptime ? hass.states[R.uptime] : null;
+    show(".shc-r-uptime", !!upSt);
+    if (upSt) q(".shc-c-uptime").textContent = this._uptimeText(upSt);
+    const cl = this._clientsCount(hass, R);
+    show(".shc-r-clients", cl !== null);
+    if (cl !== null) q(".shc-c-clients").textContent = String(cl);
+    const ld = this._mbps(hass, R.limit_down);
+    const lu = this._mbps(hass, R.limit_up);
+    show(".shc-r-limit", ld !== null || lu !== null);
+    q(".shc-c-limit").textContent = `↓ ${ld !== null ? shcRouterRate(ld) : "—"}  ↑ ${lu !== null ? shcRouterRate(lu) : "—"}`;
+
+    [["down", ld], ["up", lu]].forEach(([k, lim]) => {
+      const v = this._mbps(hass, R[k]);
+      const has = !!(R[k] && hass.states[R[k]]);
+      show(".shc-r-m-" + k, has);
+      if (!has) return;
+      const val = v === null ? 0 : Math.max(0, v);
+      if (val > this._peak[k]) this._peak[k] = val;
+      const scale = lim && lim > 0 ? lim * 1.02 : Number(this._config.max_mbps) > 0 ? Number(this._config.max_mbps) : this._peak[k] * 1.1;
+      q(".shc-c-" + k + "-val").textContent = v === null ? String(hass.states[R[k]].state) : shcRouterRate(val);
+      q(".shc-c-" + k + "-bar").style.width = `${Math.min(100, Math.round((val / scale) * 100))}%`;
+    });
+    show(".shc-ap-graph", !!(R.down || R.up));
+    show(".shc-ap-panel", !!(R.down || R.up));
+
+    const warn = q(".shc-ap-warn");
+    const upd = R.update ? hass.states[R.update] : null;
+    if (!known) {
+      warn.hidden = false;
+      warn.textContent = shcT(hass, "router.not_found");
+    } else if (upd && upd.state === "on") {
+      warn.hidden = false;
+      warn.textContent = shcT(hass, "router.update_available", { "1": upd.attributes?.latest_version || "" });
+      card.classList.add("has-alarm");
+    } else {
+      warn.hidden = true;
+    }
+  }
+
+  _graphSeries() {
+    const R = this._R || {};
+    return [
+      { entity: R.down, label: "Download", color: "#0ea5e9" },
+      { entity: R.up, label: "Upload", color: "#22c55e" },
+    ];
+  }
+
+  _openSettings() {
+    const hass = this._hass;
+    const R = this._R || {};
+    const wifi = (R.wifi || []).filter((w) => hass.states[w.entity]);
+    const secs = [];
+    if (wifi.length) secs.push({ title: shcT(hass, "router.wifi"), rows: wifi.map((w) => ({ entity: w.entity, label: w.name || hass.states[w.entity].attributes?.friendly_name || w.entity })) });
+    shcSettingsSections(this._config, hass).forEach((s) => secs.push(s));
+    const html = secs
+      .map((sec) => `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(sec.title)}</div>${sec.rows.map((row) => this._settingsRowHtml(hass, row)).join("")}</div>`)
+      .join("");
+    const act = (entity, label, confirm) =>
+      entity && hass.states[entity]
+        ? `<div class="shc-ap-row"><span class="shc-ap-row-label">${esc(label)}</span><button type="button" class="shc-ap-action-btn" data-press="${esc(entity)}" data-confirm="${esc(confirm || "")}">${esc(shcT(hass, "router.run"))}</button></div>`
+        : "";
+    const tools = act(R.reconnect, shcT(hass, "router.reconnect"), shcT(hass, "router.reconnect_confirm")) + act(R.reboot, shcT(hass, "router.reboot"), shcT(hass, "router.reboot_confirm"));
+    const body = html + (tools ? `<div class="shc-ap-sec"><div class="shc-ap-sec-cap">${esc(shcT(hass, "router.tools"))}</div>${tools}</div>` : "");
+    const overlay = this._openDialog(shcT(hass, "router.settings"), body.trim() ? body : `<div class="shc-ap-row-val">${esc(shcT(hass, "router.no_settings"))}</div>`);
+    overlay.querySelectorAll("[data-entity]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        hass.callService("homeassistant", "toggle", { entity_id: btn.dataset.entity });
+        setTimeout(() => this._openSettings(), 250);
+      });
+    });
+    overlay.querySelectorAll("[data-press]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (btn.dataset.confirm && !window.confirm(btn.dataset.confirm)) return;
+        hass.callService("button", "press", { entity_id: btn.dataset.press });
+      });
+    });
+  }
+
+  _openStats() {
+    const hass = this._hass;
+    const R = this._R || {};
+    const val = (id) => {
+      const st = id ? hass.states[id] : null;
+      if (!st || ["unknown", "unavailable"].includes(st.state)) return "—";
+      const n = Number(st.state);
+      const unit = st.attributes?.unit_of_measurement || "";
+      return `${Number.isFinite(n) ? (Math.round(n * 100) / 100).toString() : st.state}${unit ? " " + unit : ""}`;
+    };
+    const rows = [];
+    if (R.ip) rows.push(this._statRow(shcT(hass, "router.ip"), val(R.ip)));
+    if (R.uptime) rows.push(this._statRow(shcT(hass, "router.uptime"), this._uptimeText(hass.states[R.uptime])));
+    const cl = this._clientsCount(hass, R);
+    if (cl !== null) rows.push(this._statRow(shcT(hass, "router.clients"), String(cl)));
+    if (R.down || R.up) rows.push(this._statRow2(shcT(hass, "router.live"), "Download", val(R.down), "Upload", val(R.up)));
+    if (R.limit_down || R.limit_up) rows.push(this._statRow2(shcT(hass, "router.line_speed"), "Download", val(R.limit_down), "Upload", val(R.limit_up)));
+    if (R.total_down || R.total_up) rows.push(this._statRow2(shcT(hass, "router.traffic"), "Download", val(R.total_down), "Upload", val(R.total_up)));
+    const upd = R.update ? hass.states[R.update] : null;
+    if (upd) rows.push(this._statRow(shcT(hass, "router.firmware"), `${upd.attributes?.installed_version ?? "—"}${upd.state === "on" ? " → " + (upd.attributes?.latest_version ?? "") : ""}`));
+    this._openDialog(shcT(hass, "router.info"), `<div class="shc-ap-sec"><div class="shc-ap-week-list">${rows.join("") || `<div class="shc-ap-row-val">${esc(shcT(hass, "router.not_found"))}</div>`}</div></div>`);
+  }
+
+  getCardSize() {
+    return 5;
+  }
+
+  static getConfigElement() {
+    return document.createElement("shc-router-card-editor");
+  }
+
+  static getStubConfig() {
+    return {};
+  }
+}
+customElements.define("shc-router-card", ShcRouterCard);
+window.customCards = window.customCards || [];
+window.customCards.push({
+  type: "shc-router-card",
+  name: "Router / Gateway",
+  description: "Card generica per router e gateway (UniFi, FRITZ!Box, TP-Link, OpenWrt, ASUS, MikroTik...): trova da sola il router e le entita', stato, IP, velocita', client, Wi-Fi, riavvio",
+  author: "Simonz82",
+});
+
+class ShcRouterCardEditor extends ShcSimpleCardEditorBase {
+  _roles() {
+    const hass = this._hass;
+    if (!hass || !this._config) return {};
+    if (this._rolesFor !== hass.entities || this._rolesCfg !== this._config.device) {
+      this._rolesFor = hass.entities;
+      this._rolesCfg = this._config.device;
+      const dev = this._config.device || shcRouterCandidates(hass)[0]?.id || "";
+      this._rolesVal = dev ? shcRouterRoles(hass, dev) : {};
+    }
+    return this._rolesVal;
+  }
+  _autoValue(key) {
+    const m = { status_entity: "status", ip_entity: "ip", uptime_entity: "uptime", download_entity: "down", upload_entity: "up", limit_down_entity: "limit_down", limit_up_entity: "limit_up", total_down_entity: "total_down", total_up_entity: "total_up", clients_entity: "clients", reboot_entity: "reboot", update_entity: "update" };
+    return this._roles()[m[key]] || "";
+  }
+  get schema() {
+    const T = (k) => shcT(this._hass, k);
+    const hass = this._hass;
+    const cands = hass ? shcRouterCandidates(hass) : [];
+    const devOpts = [{ value: "", label: cands.length ? `${T("router.auto")} (${cands[0].name})` : T("router.auto") }].concat(cands.map((c) => ({ value: c.id, label: c.name })));
+    const wifiDefaults = (this._roles().wifi || []).map((e) => ({ entity: e }));
+    const ent = (key, label, domain) => ({ key, label: T(label), domain, hint: "" });
+    return [
+      { title: T("router.sec_router"), fields: [
+        { key: "device", label: T("router.device"), kind: "select", options: devOpts, hint: T("router.device_hint") },
+        { key: "name", label: T("fritzcard.name"), kind: "text", placeholder: T("router.name_auto") },
+        { key: "image", label: T("fritzcard.custom_image_optional"), kind: "text", placeholder: "/local/router.png", hint: T("fritzcard.path_or_url_of") },
+      ]},
+      { title: T("router.sec_auto"), fields: [
+        { key: "_hint", kind: "hint", label: T("router.auto_hint") },
+        ent("status_entity", "router.f_status", ["binary_sensor"]),
+        ent("ip_entity", "router.f_ip", ["sensor"]),
+        ent("uptime_entity", "router.f_uptime", ["sensor"]),
+        ent("download_entity", "router.f_down", ["sensor"]),
+        ent("upload_entity", "router.f_up", ["sensor"]),
+        ent("limit_down_entity", "router.f_limit_down", ["sensor"]),
+        ent("limit_up_entity", "router.f_limit_up", ["sensor"]),
+        ent("total_down_entity", "router.f_total_down", ["sensor"]),
+        ent("total_up_entity", "router.f_total_up", ["sensor"]),
+        ent("clients_entity", "router.f_clients", ["sensor"]),
+        ent("reboot_entity", "router.f_reboot", ["button"]),
+        ent("update_entity", "router.f_update", ["update"]),
+        { key: "wifi_entities", label: T("router.f_wifi"), kind: "list", defaults: wifiDefaults, itemFields: [
+          { key: "entity", label: T("router.f_wifi_entity"), kind: "entity", domain: ["switch"] },
+          { key: "name", label: T("fritzcard.name"), kind: "text" },
+        ]},
+        { key: "max_mbps", label: T("router.f_max_mbps"), kind: "number", placeholder: "auto" },
+      ]},
+    ];
+  }
+}
+customElements.define("shc-router-card-editor", ShcRouterCardEditor);
+
+// -----------------------------------------------------------------------
 // Opzioni comuni (1.30.0): image_scale su tutte le card con immagine/disegno (.shc-ap-hero),
 // campi comuni dell'editor visuale. Senza image_scale la card e' identica a prima.
 // -----------------------------------------------------------------------
@@ -21316,6 +21916,6 @@ window.customCards.push({
     const E = customElements.get(n);
     if (E) E.commonFields = list;
   });
-  common(["shc-fritz-card-editor", "shc-server-card-editor", "shc-nas-card-editor", "shc-proxmox-card-editor", "shc-energy-card-editor", "shc-garbage-card-editor"], ["automation_entities", "image_scale"]);
+  common(["shc-router-card-editor", "shc-fritz-card-editor", "shc-server-card-editor", "shc-nas-card-editor", "shc-proxmox-card-editor", "shc-energy-card-editor", "shc-garbage-card-editor"], ["automation_entities", "image_scale"]);
   common(["shc-ups-card-editor", "shc-coffee-card-editor", "shc-heater-card-editor", "shc-fan-card-editor", "shc-boiler-card-editor", "shc-water-heater-card-editor", "shc-climate-card-editor", "shc-zigbee-card-editor", "shc-purifier-card-editor", "shc-dehumidifier-card-editor", "shc-printer-card-editor"], ["image_scale"]);
 })();

@@ -104,6 +104,11 @@ Tap a card to open its guide.
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/router.gif" width="100%" alt="🌐 Router / Gateway (any brand)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md">🌐 Router / Gateway (any brand)</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>All previews are animated and show the cards switched on, with sample data.</sub>
@@ -160,6 +165,7 @@ Replace the entity with yours. Every card has a guide with all options, examples
 - [Air purifier (fan: speed, modes, PM2.5, filter)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Dehumidifier (humidity, target, mode, fan, full tank)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Printer (IPP: status, ink / toner levels with colours, pages)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
+- [Router / Gateway, any brand (UniFi, FRITZ!Box, TP-Link, OpenWrt...): finds the router and its entities by itself](https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md)
 - [Parked car, up to 3 cars per family, one card each (map, address, distance, "Take me to the car", automatic save on Bluetooth, Android Auto or CarPlay disconnect)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
 - [Common options: `automation_entities` and `image_scale` on many cards](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
@@ -197,6 +203,8 @@ All cards and their editors follow the language of Home Assistant: **Italian, En
 
 ### License
 [MIT](LICENSE): free to use, change and share. The console photos keep their own licenses (some CC BY-SA / CC BY): see [CREDITS.md](CREDITS.md).
+
+The radio station logos in [`radio-logos/`](radio-logos) belong to their respective owners and are used only to identify the stations; removal on request (open an Issue).
 
 ---
 
@@ -289,6 +297,11 @@ Tocca una card per aprire la sua guida.
     <td width="33%"></td>
     <td width="33%"></td>
   </tr>
+  <tr>
+    <td align="center" valign="top" width="33%"><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md"><img src="https://raw.githubusercontent.com/Simonz82/smart-home-cards/main/docs/screenshot/galleria/router.gif" width="100%" alt="🌐 Router / Gateway (qualsiasi marca)"></a><br><sub><b><a href="https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md">🌐 Router / Gateway (qualsiasi marca)</a></b></sub></td>
+    <td width="33%"></td>
+    <td width="33%"></td>
+  </tr>
 </table>
 
 <sub>Tutte le anteprime sono animate e mostrano le card accese, con dati di esempio.</sub>
@@ -345,6 +358,7 @@ Sostituisci l'entità con la tua. Ogni card ha una guida con tutte le opzioni, e
 - [Purificatore d'aria (fan: velocità, modalità, PM2.5, filtro)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/purificatore.md)
 - [Deumidificatore (umidità, obiettivo, modalità, ventola, serbatoio pieno)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/deumidificatore.md)
 - [Stampante (IPP: stato, livelli inchiostro / toner con i colori, pagine)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/stampante.md)
+- [Router / Gateway, qualsiasi marca (UniFi, FRITZ!Box, TP-Link, OpenWrt...): trova da sola il router e le sue entità](https://github.com/Simonz82/smart-home-cards/blob/main/docs/router.md)
 - [Auto parcheggiata, fino a 3 auto per famiglia, una card per auto (mappa, indirizzo, distanza, "Portami all'auto", salvataggio automatico allo scollegamento di Bluetooth, Android Auto o CarPlay)](https://github.com/Simonz82/smart-home-cards/blob/main/docs/auto-parcheggiata.md)
 - [Opzioni comuni: `automation_entities` e `image_scale` su molte card](https://github.com/Simonz82/smart-home-cards/blob/main/docs/opzioni-comuni.md)
 
@@ -382,6 +396,8 @@ Tutte le card e i loro editor seguono la lingua di Home Assistant: **italiano, i
 
 ### Licenza
 [MIT](LICENSE): usale, modificale, condividile liberamente. Se vuoi, cita la fonte. Le foto delle console restano sotto la loro licenza (alcune CC BY-SA / CC BY): vedi [CREDITS.md](CREDITS.md).
+
+I loghi delle radio in [`radio-logos/`](radio-logos) appartengono ai rispettivi proprietari e sono usati solo per identificare le stazioni; su richiesta vengono rimossi (apri una Issue).
 
 ---
 

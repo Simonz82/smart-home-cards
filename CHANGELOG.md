@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-26 - 1.32.0: generic Router / Gateway card, public radio logos
+
+- **New `shc-router-card`** (discussion #13): one card for any router (UniFi, FRITZ!Box, TP-Link / Omada, OpenWrt, ASUS, MikroTik, Netgear, UPnP...). It finds the router in the Home Assistant registry by itself and maps connection status, external IP, uptime, download/upload speed (any unit), line speed, total traffic, connected devices (sensor or `device_tracker` count), Wi-Fi switches, reconnect/reboot buttons and the firmware update. Missing items are hidden, never an error. Minimal config: `type: custom:shc-router-card`. Visual editor: router device selector ("Automatic" by default) and every entity field already filled with what was found, all overridable. Guide with numbered steps: `docs/router.md`. Italian / English.
+- **`shc-alexa-webradio-card`** (discussion #16): station logos now come from the public `radio-logos/` folder of this repository (jsDelivr) when you do not have them locally; the local `/local/loghi_radio_alexa/...` path still wins. A logo that cannot be found anywhere is hidden (the old fallback was broken and never hid it). Logos belong to their respective owners and are used only to identify the stations; removal on request.
+
 ## 2026-11-25 — 1.31.0: WebRadio alarm popup stays in sync, coffee card `side`
 
 - **`shc-alexa-webradio-card`** (discussion #31): bug fix. The alarm popup (clock icon) and the "automatic reduced volume" popup read the Home Assistant state as it was when they were opened, so the switch, the day buttons and the times did not update while the popup stayed open (the alarm looked off even after pressing it, and a second press switched it off again). They now follow Home Assistant live.

@@ -208,7 +208,7 @@ speakers:
 4. Accendi l'interruttore **Radio**. Dopo qualche secondo la radio parte sullo speaker blu.
 5. Muovi il **Volume**.
 
-Le **immagini delle stazioni** non sono nel repository: se non le copi in `/config/www/loghi_radio_alexa/4_4/` i pulsanti mostrano solo il nome. Funziona lo stesso.
+I **loghi delle stazioni** si vedono da soli: se non hai la cartella `/config/www/loghi_radio_alexa/4_4/`, la card li prende dalla cartella pubblica [`radio-logos/`](https://github.com/Simonz82/smart-home-cards/tree/main/radio-logos) di questo repository (serve internet). Se hai un logo tuo in locale, vince quello. I loghi appartengono ai rispettivi proprietari, sono usati solo per identificare le stazioni; su richiesta vengono rimossi.
 
 ### Problemi comuni
 
@@ -220,7 +220,7 @@ Le **immagini delle stazioni** non sono nel repository: se non le copi in `/conf
 - **Spotify/Amazon Music/Deezer non parte** -> collega il servizio nell'app Alexa.
 - **Nessuna immagine sulle stazioni** -> normale, le immagini non sono incluse (vedi sopra).
 
-**EN** — WebRadio needs **Alexa Media Player** and the **package**. Steps: 1) note the `media_player` ID and friendly name of each Echo; 2) make sure `homeassistant: packages: !include_dir_named packages` is in `configuration.yaml`; 3) copy `packages/alexa_webradio.yaml` into `/config/packages/`; 4) in the package, replace the four speaker names under `list_alexa_speaker_multiroom` with your friendly names; 5) **fully restart** Home Assistant and press Ctrl+F5; 6) add the card and set `speakers` (`entity`, `name`, `option` = exactly the name in the package); 7) tap a speaker (blue), a station, then the Radio switch. If the card shows an orange box, it lists what is missing: package not loaded, speakers that do not exist, or names that differ between card and package. Station logos are not included in the repository (optional).
+**EN** — WebRadio needs **Alexa Media Player** and the **package**. Steps: 1) note the `media_player` ID and friendly name of each Echo; 2) make sure `homeassistant: packages: !include_dir_named packages` is in `configuration.yaml`; 3) copy `packages/alexa_webradio.yaml` into `/config/packages/`; 4) in the package, replace the four speaker names under `list_alexa_speaker_multiroom` with your friendly names; 5) **fully restart** Home Assistant and press Ctrl+F5; 6) add the card and set `speakers` (`entity`, `name`, `option` = exactly the name in the package); 7) tap a speaker (blue), a station, then the Radio switch. If the card shows an orange box, it lists what is missing: package not loaded, speakers that do not exist, or names that differ between card and package. Station logos show up by themselves: if you do not have `/config/www/loghi_radio_alexa/4_4/`, the card loads them from the public [`radio-logos/`](https://github.com/Simonz82/smart-home-cards/tree/main/radio-logos) folder of this repository (internet needed); a local logo always wins. Logos belong to their respective owners and are used only to identify the stations; removal on request.
 
 ### Configurazione minima
 
@@ -254,6 +254,10 @@ volume_off_entity: input_number.volume_radio_off_alexa
 | `speakers` | No | Speaker mostrati come chip: elenco di `entity` (`media_player.*`), `name` (testo del chip) e `option` (opzione di `speaker_list_entity` da selezionare). `name` e `option` vuoti = friendly name dell'entità. Default: i miei 4 speaker |
 | `stations` | No | Stazioni/playlist mostrate in griglia: elenco di `option` (opzione di `station_select_entity`), `name`, `image` e `group` (titolo della griglia, es. "TuneIn Radio"). Default: le mie 17 stazioni |
 | `image_path` | No | Cartella delle immagini indicate in `stations` solo come nome file (default `/local/loghi_radio_alexa/4_4/`). Un'immagine che inizia con `/` o `http` è usata così com'è |
+
+**Loghi automatici (da 1.32.0):** se un logo indicato solo come nome file (es. `rtl.png`) non esiste nella tua cartella locale, la card lo cerca da sola in `radio-logos/` di questo repository (via jsDelivr, serve internet). Il percorso locale ha sempre la precedenza. Passi per un bambino: 1) non fare niente, i loghi delle 17 stazioni di esempio compaiono da soli; 2) se vuoi un tuo logo, copia il file in `/config/www/loghi_radio_alexa/4_4/` con lo stesso nome; 3) premi Ctrl+F5 sulla dashboard; 4) se un logo non compare, il nome del file in `stations` è diverso da quelli in `radio-logos/`: la card nasconde l'immagine e mostra solo il nome.
+
+I loghi appartengono ai rispettivi proprietari e sono usati solo per identificare le stazioni; su richiesta vengono rimossi.
 | `alarm_entity` / `alarm_on_entity` / `alarm_off_entity` | No | Sveglia: attiva/disattiva + i due orari |
 | `alarm_days` | No | Chip dei giorni della sveglia: elenco di `entity` (`input_boolean`) + `name`. Default: i 7 `input_boolean.alexa_sveglia_<giorno>` del package |
 | `volume_off_automation` / `volume_off_entity` | No | Automazione che, allo spegnimento, abbassa il volume del gruppo al valore scelto |
