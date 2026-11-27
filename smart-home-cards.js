@@ -943,6 +943,10 @@ const STYLE = `
 .shc-ap-meter-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .shc-ap-meter-row span{font-size:13px;font-weight:750;color:var(--shc-dim)}
 .shc-ap-meter-row strong{font-size:16px;font-weight:950;letter-spacing:-.2px;color:var(--shc-text)}
+.shc-c-extra-label{display:inline-flex;align-items:center;gap:6px;min-width:0}
+.shc-c-extra-ic{display:inline-flex;--mdc-icon-size:16px}
+.shc-c-extra-ic:empty{display:none}
+.shc-c-extra-ic ha-icon,.shc-c-extra-ic ha-state-icon{width:16px;height:16px}
 .shc-ap-bar{position:relative;display:flex;align-items:center;height:8px;margin-top:7px}
 .shc-ap-bar::before{content:"";position:absolute;inset:0;border-radius:999px;background:rgba(148,163,184,.22)}
 .shc-ap-bar i{position:relative;z-index:1;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#fb923c,#ef4444);min-width:0;transition:width .6s cubic-bezier(.4,0,.2,1)}
@@ -7985,6 +7989,15 @@ class ShcServerCardEditor extends ShcSimpleCardEditorBase {
         { key: "uptime.ha_since", label: shcT(this._hass, "servercard.running_since_datetime"), domain: ["sensor"] },
         { key: "layout_entity", label: shcT(this._hass, "fritzcard.layout_menu_classiccentered"), domain: ["input_select"] },
       ]},
+      { title: shcT(this._hass, "server.extra_sensors"), fields: [
+        { key: "extra_sensors", label: shcT(this._hass, "server.extra_sensors"), hint: shcT(this._hass, "server.extra_sensors_hint"), kind: "list", itemFields: [
+          { key: "entity", label: shcT(this._hass, "server.extra_entity"), kind: "entity", domain: ["sensor", "input_number", "number"] },
+          { key: "name", label: shcT(this._hass, "fritzcard.name"), kind: "text" },
+          { key: "icon", label: shcT(this._hass, "server.extra_icon"), kind: "text" },
+          { key: "min", label: shcT(this._hass, "server.extra_min"), kind: "text" },
+          { key: "max", label: shcT(this._hass, "server.extra_max"), kind: "text" },
+        ]},
+      ]},
     ];
   }
 }
@@ -9257,6 +9270,33 @@ window.customCards.push({
 // CSS di ShcApplianceCloneCard/ShcFritzCard, nessuna dipendenza da esse.
 // -----------------------------------------------------------------------
 
+// Righe sensore extra della card Server (extra_sensors): normalizza la config senza mai lanciare errori.
+const SHC_SERVER_EXTRA_COLORS = ["#a78bfa", "#f472b6", "#2dd4bf", "#fb923c", "#60a5fa", "#facc15"];
+function shcServerExtras(list) {
+  if (!Array.isArray(list)) return [];
+  const num = (v) => (v === undefined || v === null || v === "" || !Number.isFinite(Number(v)) ? undefined : Number(v));
+  const out = [];
+  list.forEach((raw) => {
+    const x = typeof raw === "string" ? { entity: raw } : raw;
+    if (!x || typeof x.entity !== "string" || !x.entity.includes(".")) return;
+    const b = x.bar && typeof x.bar === "object" ? x.bar : {};
+    const min = num(b.min ?? x.min);
+    const max = num(b.max ?? x.max);
+    const wantBar = x.show_bar === false ? false : x.bar === true || x.show_bar === true || (x.bar && typeof x.bar === "object") || (min !== undefined && max !== undefined);
+    out.push({
+      entity: x.entity,
+      name: typeof x.name === "string" ? x.name : "",
+      icon: typeof x.icon === "string" ? x.icon : "",
+      bar: !!wantBar,
+      min: min ?? 0,
+      max: max ?? 100,
+      graph: x.show_graph !== false,
+      color: SHC_SERVER_EXTRA_COLORS[out.length % SHC_SERVER_EXTRA_COLORS.length],
+    });
+  });
+  return out;
+}
+
 class ShcServerCard extends HTMLElement {
   setConfig(config) {
     this._config = {
@@ -9269,6 +9309,7 @@ class ShcServerCard extends HTMLElement {
       settings_sections: [],
       ...config,
     };
+    this._extras = shcServerExtras(this._config.extra_sensors);
     this._root = this._root || this.attachShadow({ mode: "open" });
     this._heroId = "sv" + Math.random().toString(36).slice(2, 8);
     const hero = shcHeroImage((HERO_BUILDERS[this._config.artwork] || HERO_BUILDERS.server)(this._heroId), this._config.image);
@@ -9318,10 +9359,22 @@ class ShcServerCard extends HTMLElement {
               <div class="shc-ap-meter-row"><span data-i18n="server.ha_disk">${esc(shcT(this._hass, "server.ha_disk"))}</span><strong class="shc-c-disk-val">0%</strong></div>
               <div class="shc-ap-bar"><i class="shc-c-disk-bar" style="width:0%"></i></div>
             </div>
+            ${this._extras.map((x, i) => `<div class="shc-ap-meter shc-c-extra${x.graph ? " shc-c-meter-clickable" : ""}" data-i="${i}">
+              <div class="shc-ap-meter-row"><span class="shc-c-extra-label"><span class="shc-c-extra-ic"></span><span class="shc-c-extra-name"></span></span><strong class="shc-c-extra-val">\u2014</strong></div>
+              ${x.bar ? `<div class="shc-ap-bar"><i class="shc-c-extra-bar" style="width:0%"></i></div>` : ""}
+            </div>`).join("")}
           </div>
         </div>
       </article>`;
     this._root.querySelector(".shc-ap-name").textContent = this._config.name;
+    this._root.querySelectorAll(".shc-c-extra").forEach((el) => {
+      const x = this._extras[Number(el.dataset.i)];
+      if (x.name) el.querySelector(".shc-c-extra-name").textContent = x.name;
+      if (x.graph) el.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this._openMeterChart(x.entity, el.querySelector(".shc-c-extra-name").textContent || x.entity, x.color);
+      });
+    });
     shcBindGraph(this);
     this._root.querySelector(".shc-ap-settings").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -9821,6 +9874,8 @@ class ShcServerCard extends HTMLElement {
     diskBar.style.width = `${Math.min(100, Math.max(0, diskVal))}%`;
     diskBar.style.background = meterSeverityColor(diskVal);
 
+    this._updateExtras(hass);
+
     const warnEl = this._root.querySelector(".shc-ap-warn");
     const supUpd = u.supervisor ? hass.states[u.supervisor] : null;
     const addonCount = u.addon_count ? Number(hass.states[u.addon_count]?.state) : 0;
@@ -9842,6 +9897,50 @@ class ShcServerCard extends HTMLElement {
     }
   }
 
+  // Righe extra (extra_sensors): valore con unita' dagli attributi, barra facoltativa, "\u2014" se unknown/unavailable/assente.
+  _updateExtras(hass) {
+    this._root.querySelectorAll(".shc-c-extra").forEach((el) => {
+      const x = this._extras[Number(el.dataset.i)];
+      if (!x) return;
+      const st = hass.states[x.entity];
+      const raw = st ? st.state : undefined;
+      const ok = st && raw !== "unknown" && raw !== "unavailable" && raw !== "" && raw != null;
+      const n = ok ? Number(raw) : NaN;
+      const unit = (st && st.attributes && st.attributes.unit_of_measurement) || "";
+      let txt = "\u2014";
+      if (ok && Number.isFinite(n)) {
+        const num = n.toLocaleString(shcLoc(hass), { maximumFractionDigits: Math.abs(n) < 10 && !Number.isInteger(n) ? 2 : Number.isInteger(n) ? 0 : 1 });
+        txt = unit ? num + (/^[%\u00b0]/.test(unit) ? "" : " ") + unit : num;
+      } else if (ok) {
+        txt = String(raw);
+      }
+      el.querySelector(".shc-c-extra-val").textContent = txt;
+      if (!x.name) el.querySelector(".shc-c-extra-name").textContent = (st && st.attributes && st.attributes.friendly_name) || x.entity;
+      const icBox = el.querySelector(".shc-c-extra-ic");
+      const iconName = x.icon || (st && st.attributes && st.attributes.icon) || "";
+      const want = iconName ? "i:" + iconName : st ? "s" : "";
+      if (icBox.dataset.k !== want) {
+        icBox.dataset.k = want;
+        icBox.innerHTML = "";
+        if (iconName) {
+          const ic = document.createElement("ha-icon");
+          ic.setAttribute("icon", iconName);
+          icBox.appendChild(ic);
+        } else if (st) {
+          icBox.appendChild(document.createElement("ha-state-icon"));
+        }
+      }
+      const si = icBox.querySelector("ha-state-icon");
+      if (si) { si.hass = hass; si.stateObj = st; }
+      if (x.bar) {
+        const pct = ok && Number.isFinite(n) && x.max > x.min ? Math.min(100, Math.max(0, ((n - x.min) / (x.max - x.min)) * 100)) : 0;
+        const bar = el.querySelector(".shc-c-extra-bar");
+        bar.style.width = `${pct}%`;
+        bar.style.background = meterSeverityColor(pct);
+      }
+    });
+  }
+
   _graphSeries() {
     const s = this._config.sensors || {};
     return [
@@ -9849,6 +9948,7 @@ class ShcServerCard extends HTMLElement {
       ...(s.temperature ? [{ entity: s.temperature, label: shcT(this._hass, "server.cpu_temp"), color: "#f97316" }] : []),
       { entity: s.ram_pct, label: "RAM", color: "#22c55e" },
       { entity: s.disk_pct, label: shcT(this._hass, "server.ha_disk"), color: "#eab308" },
+      ...(this._extras || []).filter((x) => x.graph).map((x) => ({ entity: x.entity, label: x.name || undefined, color: x.color })),
     ];
   }
 
@@ -19481,6 +19581,12 @@ const XA_STYLE = `
 Object.assign(SHC_I18N.it, {
   "server.cpu_temp": "Temperatura CPU",
   "server.cpu_temp_hint": "Facoltativo: la riga compare solo se imposti il sensore.",
+  "server.extra_sensors": "Sensori extra (righe aggiuntive)",
+  "server.extra_sensors_hint": "Facoltativo: righe in piu' dopo CPU, RAM e disco (ventola, temperatura SSD, consumo...). Unita' presa dal sensore. Minimo e massimo (entrambi) mostrano la barra; senza, solo il valore. Tocca la riga per il grafico.",
+  "server.extra_entity": "Sensore",
+  "server.extra_icon": "Icona (es. mdi:fan, facoltativa)",
+  "server.extra_min": "Minimo barra (facoltativo)",
+  "server.extra_max": "Massimo barra (facoltativo)",
   "xa.unreachable": "Dispositivo non raggiungibile",
   "xa.st_on": "Acceso",
   "xa.st_off": "Spento",
@@ -19557,6 +19663,12 @@ Object.assign(SHC_I18N.it, {
 Object.assign(SHC_I18N.en, {
   "server.cpu_temp": "CPU temperature",
   "server.cpu_temp_hint": "Optional: the row only appears when you set the sensor.",
+  "server.extra_sensors": "Extra sensors (additional rows)",
+  "server.extra_sensors_hint": "Optional: extra rows after CPU, RAM and disk (fan, SSD temperature, power...). Unit comes from the sensor. Minimum and maximum (both) show a bar; without them only the value is shown. Tap the row for the graph.",
+  "server.extra_entity": "Sensor",
+  "server.extra_icon": "Icon (e.g. mdi:fan, optional)",
+  "server.extra_min": "Bar minimum (optional)",
+  "server.extra_max": "Bar maximum (optional)",
   "xa.unreachable": "Device not reachable",
   "xa.st_on": "On",
   "xa.st_off": "Off",
@@ -19633,6 +19745,12 @@ Object.assign(SHC_I18N.en, {
 Object.assign(SHC_I18N.nl, {
   "server.cpu_temp": "CPU-temperatuur",
   "server.cpu_temp_hint": "Optioneel: de rij verschijnt alleen als je de sensor instelt.",
+  "server.extra_sensors": "Extra sensoren (extra rijen)",
+  "server.extra_sensors_hint": "Optioneel: extra rijen na CPU, RAM en schijf (ventilator, SSD-temperatuur, verbruik...). De eenheid komt van de sensor. Minimum en maximum (beide) tonen een balk; zonder alleen de waarde. Tik op de rij voor de grafiek.",
+  "server.extra_entity": "Sensor",
+  "server.extra_icon": "Pictogram (bv. mdi:fan, optioneel)",
+  "server.extra_min": "Minimum balk (optioneel)",
+  "server.extra_max": "Maximum balk (optioneel)",
   "xa.unreachable": "Apparaat niet bereikbaar",
   "xa.st_on": "Aan",
   "xa.st_off": "Uit",

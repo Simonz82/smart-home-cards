@@ -53,6 +53,43 @@ sensors:
   public_ip: sensor.ip_pubblico             # serve un sensore esterno, es. integrazione "External IP" o un template su un servizio come ipify.org
 ```
 
+## `extra_sensors` — righe sensore in più (facoltativo)
+
+Aggiungi sotto CPU, RAM e disco tutte le righe che vuoi: velocità della ventola, temperatura SSD/NVMe, consumo del server, traffico di rete... Senza `extra_sensors` la card è identica a prima.
+
+Esempio (Raspberry Pi 5 con l'integrazione System Monitor):
+
+```yaml
+type: custom:shc-server-card
+name: Raspberry Pi 5
+sensors:
+  cpu: sensor.system_monitor_utilizzo_del_processore
+  temperature: sensor.system_monitor_temperatura_del_processore
+  ram_pct: sensor.system_monitor_utilizzo_della_memoria_2
+  disk_pct: sensor.system_monitor_disk_usage
+extra_sensors:
+  - entity: sensor.system_monitor_velocita_della_ventola_pwmfan
+    name: Velocità ventola
+    icon: mdi:fan
+    show_graph: true
+  - entity: sensor.ssd_temperatura
+    name: Temperatura SSD
+    min: 0          # con min e max insieme compare la barra
+    max: 80
+```
+
+Passi:
+
+1. Aggiungi `extra_sensors:` allo stesso livello di `sensors:`.
+2. Per ogni riga scrivi `- entity:` con l'ID del sensore (obbligatorio). Basta anche solo `- sensor.nome` su una riga.
+3. Facoltativi: `name` (nome mostrato, altrimenti quello del sensore), `icon` (es. `mdi:fan`, altrimenti l'icona del sensore).
+4. L'unità di misura la prende da sola dal sensore (RPM, °C, W...).
+5. Barra: scrivi `min` e `max` (oppure `bar: {min: 0, max: 80}`); `show_bar: true` senza numeri usa 0-100; `show_bar: false` la toglie anche se hai messo min e max. Il colore della barra cambia con il livello.
+6. Toccando la riga si apre il grafico dello storico, come per CPU e RAM; il pulsante grafici della card mostra anche queste righe. Per togliere il grafico di una riga: `show_graph: false`.
+7. Sensore `unknown`, `unavailable` o inesistente: la riga mostra "—", senza errori. Un valore non numerico (es. un testo) viene mostrato com'è.
+
+Le righe compaiono dopo quelle fisse, nell'ordine in cui le scrivi (la posizione non è configurabile). Nell'editor visuale c'è la sezione **"Sensori extra"** con sensore, nome, icona, minimo e massimo; `show_bar` e `show_graph` si impostano solo da YAML.
+
 ## `updates` — aggiornamenti disponibili
 
 ```yaml

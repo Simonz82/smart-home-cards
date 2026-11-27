@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-27 - 1.34.0: extra sensor rows on the Server card
+
+- **`shc-server-card`** (issue #33): new optional `extra_sensors` list. Each entry has `entity` (required), `name`, `icon` (default: the sensor's own icon), the unit is read from the sensor, optional bar with `min` / `max` (or `bar: {min, max}`, `show_bar: true/false`), tap the row for the history graph (`show_graph: false` to turn it off; the card's graph button also includes the extra rows). Rows appear after CPU / RAM / disk. `unknown`, `unavailable` or missing sensors show "—", never an error; text states are shown as they are. Visual editor: new "Extra sensors" list (sensor, name, icon, bar minimum / maximum). Italian / English / Dutch. Without `extra_sensors` the card is unchanged. Guide: `docs/homeassistant-server.md`.
+
 ## 2026-11-26 - 1.33.0: new Water usage card
 
 - **New `shc-water-card`** (discussion #32): water consumption from ONE total sensor (litres or m³, `device_class: water`, `state_class: total_increasing`; any source: pulse counter package, ESPHome `pulse_meter`, Shelly, meter integrations). The visual editor picks the first water sensor by itself and explains each field in plain words. This hour / today / week / month / year come from the long-term statistics (`recorder/statistics_during_period`, `change`) plus what flowed in the last minutes; "Total" is the sensor value. Every number is shown in litres and in m³ (automatic conversion from the sensor unit, `unit` option to choose the big one).
