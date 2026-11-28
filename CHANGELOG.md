@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-28 - 1.34.1: speed units respected on Router and FRITZ!Box cards
+
+- **`shc-router-card`, `shc-fritz-card`**: line speed (max) and live speed now read the sensor's `unit_of_measurement` (bit/s, kbit/s, Mbit/s, Gbit/s, bps / kbps / Mbps / Gbps, B/s, kB/s, KiB/s, MB/s, MiB/s, GB/s, GiB/s; capital B = bytes, small b = bits), convert everything to one base and show it with automatic scale (kbps / Mbps / Gbps). Bars and percentages use the converted values. The FRITZ!Box card used to print the raw live number followed by a fixed "Mbps" (e.g. 626 kbit/s shown as "626.0 Mbps"); the line maximum was shown unconverted. Sensors without a recognised unit behave as before.
+
 ## 2026-11-27 - 1.34.0: extra sensor rows on the Server card
 
 - **`shc-server-card`** (issue #33): new optional `extra_sensors` list. Each entry has `entity` (required), `name`, `icon` (default: the sensor's own icon), the unit is read from the sensor, optional bar with `min` / `max` (or `bar: {min, max}`, `show_bar: true/false`), tap the row for the history graph (`show_graph: false` to turn it off; the card's graph button also includes the extra rows). Rows appear after CPU / RAM / disk. `unknown`, `unavailable` or missing sensors show "—", never an error; text states are shown as they are. Visual editor: new "Extra sensors" list (sensor, name, icon, bar minimum / maximum). Italian / English / Dutch. Without `extra_sensors` the card is unchanged. Guide: `docs/homeassistant-server.md`.

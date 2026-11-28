@@ -9162,6 +9162,8 @@ class ShcFritzCard extends HTMLElement {
   _maxMbps(portante) {
     let n = portante ? Number(portante.state) : NaN;
     if (!Number.isFinite(n) || n <= 0) return this._config.max_mbps;
+    const conv = shcRateToMbps(n, portante.attributes?.unit_of_measurement);
+    if (conv !== null) return conv * 1.02;
     const unit = String(portante.attributes?.unit_of_measurement || "").toLowerCase();
     if (unit.startsWith("k")) n /= 1000;
     else if (unit.startsWith("g")) n *= 1000;
@@ -9198,22 +9200,23 @@ class ShcFritzCard extends HTMLElement {
     const s = cfg.stats || {};
     const portanteDown = s.portante_down ? hass.states[s.portante_down] : null;
     const portanteUp = s.portante_up ? hass.states[s.portante_up] : null;
-    this._root.querySelector(".shc-c-pdown").textContent = portanteDown
-      ? `${Number(portanteDown.state).toFixed(1)} ${portanteDown.attributes?.unit_of_measurement || ""}`
-      : "\u2014";
-    this._root.querySelector(".shc-c-pup").textContent = portanteUp
-      ? `${Number(portanteUp.state).toFixed(1)} ${portanteUp.attributes?.unit_of_measurement || ""}`
-      : "\u2014";
+    // velocita' con unita' riconosciuta: convertita e mostrata a scala automatica; senza unita' valida resta il testo di prima
+    const rateTxt = (st, digits) => {
+      const mb = st ? shcRateToMbps(st.state, st.attributes?.unit_of_measurement) : null;
+      if (mb !== null) return shcRouterRate(mb);
+      return st ? `${Number(st.state).toFixed(digits)} ${st.attributes?.unit_of_measurement || ""}` : "\u2014";
+    };
+    this._root.querySelector(".shc-c-pdown").textContent = rateTxt(portanteDown, 1);
+    this._root.querySelector(".shc-c-pup").textContent = rateTxt(portanteUp, 1);
 
-    const mbpsDown = s.mbps_down ? Number(hass.states[s.mbps_down]?.state) : NaN;
-    const downVal = Number.isFinite(mbpsDown) ? Math.max(0, mbpsDown) : 0;
-    this._root.querySelector(".shc-c-mbps-down-val").textContent = `${downVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".shc-c-mbps-down-bar").style.width = `${Math.min(100, Math.round((downVal / this._maxMbps(portanteDown)) * 100))}%`;
-
-    const mbpsUp = s.mbps_up ? Number(hass.states[s.mbps_up]?.state) : NaN;
-    const upVal = Number.isFinite(mbpsUp) ? Math.max(0, mbpsUp) : 0;
-    this._root.querySelector(".shc-c-mbps-up-val").textContent = `${upVal.toFixed(1)} Mbps`;
-    this._root.querySelector(".shc-c-mbps-up-bar").style.width = `${Math.min(100, Math.round((upVal / this._maxMbps(portanteUp)) * 100))}%`;
+    [["down", s.mbps_down, portanteDown], ["up", s.mbps_up, portanteUp]].forEach(([k, id, port]) => {
+      const st = id ? hass.states[id] : null;
+      const conv = st ? shcRateToMbps(st.state, st.attributes?.unit_of_measurement) : null;
+      const raw = st ? Number(st.state) : NaN;
+      const v = Math.max(0, conv !== null ? conv : Number.isFinite(raw) ? raw : 0);
+      this._root.querySelector(".shc-c-mbps-" + k + "-val").textContent = conv !== null ? shcRouterRate(v) : `${v.toFixed(1)} Mbps`;
+      this._root.querySelector(".shc-c-mbps-" + k + "-bar").style.width = `${Math.min(100, Math.round((v / this._maxMbps(port)) * 100))}%`;
+    });
 
     this._root.querySelector(".shc-ap-devices").hidden = !shcHasDevices(this, hass);
     const warnEl = this._root.querySelector(".shc-ap-warn");
@@ -21624,13 +21627,18 @@ function shcOpenDevices(card, filter) {
 const SHC_ROUTER_PLATFORMS = ["fritz", "unifi", "unifi_direct", "tplink_omada", "omada", "tplink", "tplink_router", "openwrt", "ubus", "luci", "asuswrt", "asusrouter", "mikrotik", "netgear", "netgear_lte", "upnp", "huawei_lte", "keenetic_ndms2", "devolo_home_network", "synology_srm", "eero", "opnsense", "pfsense", "freebox", "vodafone_station", "sagemcom_fast", "dlink", "zyxel", "linksys_velop", "tomato", "ddwrt", "bt_smarthub", "ruckus_unleashed", "ubiquiti", "edgeos", "starlink", "teltonika", "draytek", "openwrt_ubus"];
 const SHC_ROUTER_NAME_RE = /router|gateway|modem|fritz|unifi|udm|omada|openwrt|mikrotik|routerboard|netgear|asus|tp-?link|keenetic|huawei|zyxel|draytek|opnsense|pfsense|freebox/i;
 
-// fattori per portare un'unita' di velocita' dati in Mbit/s (null = unita' sconosciuta)
+// porta un valore con la sua unita' di velocita' dati in Mbit/s (null = unita' sconosciuta).
+// Riconosce bit/s, kbit/s, Mbit/s, Gbit/s, bps/kbps/Mbps/Gbps, B/s, kB/s, KiB/s, MB/s, MiB/s, GB/s, GiB/s.
+// La B maiuscola = byte, la b minuscola = bit.
 function shcRateToMbps(value, unit) {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;
-  const u = String(unit || "").replace(/\s/g, "").toLowerCase();
-  const f = { "bit/s": 1e-6, "kbit/s": 1e-3, "mbit/s": 1, "gbit/s": 1000, "b/s": 8e-6, "kb/s": 8e-3, "kib/s": (8 * 1024) / 1e6, "mb/s": 8, "mib/s": 8 * 1.048576, "gb/s": 8000, "gib/s": 8 * 1073.741824, "kibit/s": 1024 / 1e6, "mibit/s": 1.048576 }[u];
-  return f === undefined ? null : n * f;
+  const m = String(unit || "").replace(/\s/g, "").match(/^([kKmMgGtT]?)(i?)(bit|bits|b|B|byte|bytes|Bps|bps)(?:\/s|ps)?$/);
+  if (!m) return null;
+  const exp = { "": 0, k: 1, m: 2, g: 3, t: 4 }[m[1].toLowerCase()];
+  const mult = m[2] ? Math.pow(1024, exp) : Math.pow(1000, exp);
+  const bytes = m[3] === "B" || m[3] === "Bps" || /^byte/.test(m[3]);
+  return (n * mult * (bytes ? 8 : 1)) / 1e6;
 }
 function shcRouterRate(mbps) {
   if (!Number.isFinite(mbps)) return "—";
@@ -21639,7 +21647,7 @@ function shcRouterRate(mbps) {
   return Math.round(mbps * 1000) + " kbps";
 }
 function shcRouterIsRateUnit(u) {
-  return /^(k|m|g)?i?(bit|b)\/s$/i.test(String(u || "").replace(/\s/g, ""));
+  return /^[kmgt]?i?(bit|bits|b|byte|bytes)(\/s|ps)$/i.test(String(u || "").replace(/\s/g, "")) || /^bps$/i.test(String(u || "").trim());
 }
 function shcRouterDuration(sec) {
   if (!Number.isFinite(sec) || sec < 0) return "—";
@@ -21948,7 +21956,7 @@ class ShcRouterCard extends ShcFritzCard {
       const val = v === null ? 0 : Math.max(0, v);
       if (val > this._peak[k]) this._peak[k] = val;
       const scale = lim && lim > 0 ? lim * 1.02 : Number(this._config.max_mbps) > 0 ? Number(this._config.max_mbps) : this._peak[k] * 1.1;
-      q(".shc-c-" + k + "-val").textContent = v === null ? String(hass.states[R[k]].state) : shcRouterRate(val);
+      q(".shc-c-" + k + "-val").textContent = v === null ? `${hass.states[R[k]].state}${hass.states[R[k]].attributes?.unit_of_measurement ? " " + hass.states[R[k]].attributes.unit_of_measurement : ""}` : shcRouterRate(val);
       q(".shc-c-" + k + "-bar").style.width = `${Math.min(100, Math.round((val / scale) * 100))}%`;
     });
     show(".shc-ap-graph", !!(R.down || R.up));
